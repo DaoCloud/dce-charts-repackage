@@ -1,5 +1,10 @@
 name: Package Chart
 
+env:
+  MERGE_BRANCH: gh-pages
+  PR_LABEL: pr/release/robot_update_githubpage
+  PR_REVIWER: weizhoublue
+
 on:
   pull_request:
     paths:
@@ -18,8 +23,10 @@ on:
         default: main
 
 jobs:
-  get_ref:
+  package:
     runs-on: ubuntu-latest
+    outputs:
+      ref: ${{ steps.get_ref.outputs.tag }}
     steps:
       - name: Get Ref
         id: get_ref
@@ -111,3 +118,47 @@ jobs:
           charts_dir: _charts
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+  # update /index.yaml in the target branch
+  update_githubpage:
+    runs-on: ubuntu-latest
+    needs: [package]
+    if: ${{ needs.get_ref.outputs.submit == 'true' }}
+    steps:
+      - name: Get Base Chart URL
+        id: get_base_url
+        run: |
+          name=${{ github.repository }}
+          proj=${name#*/}
+          url=https://${{ github.repository_owner }}.github.io/${proj}
+          echo "::set-output name=url::${url}"
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.MERGE_BRANCH }}
+          persist-credentials: "true"
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: charts
+          path: ./
+
+      - name: Update Chart Yaml
+        run: |
+          helm repo index  ./  --url ${{ steps.get_base_url.outputs.url }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4.0.4
+        with:
+          title: "robot Update chart to branch ${{ env.MERGE_BRANCH }} "
+          commit-message: "robot Update chart from ${{ needs.package.outputs.ref }} to branch ${{ env.MERGE_BRANCH }} "
+          branch-suffix: timestamp
+          branch: robot/update_chart
+          delete-branch: true
+          base: ${{ env.MERGE_BRANCH }}
+          signoff: true
+          token: ${{ secrets.WELAN_PAT }}
+          labels: ${{ env.PR_LABEL }}
+          reviewers: ${{ env.PR_REVIWER }}
