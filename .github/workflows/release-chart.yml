@@ -63,8 +63,6 @@ jobs:
 
       - name: Set up Helm
         uses: azure/setup-helm@v3.3
-        with:
-          version: ${{ env.HELM_VERSION }}
 
       - name: Install helm-schema-gen
         run: |
