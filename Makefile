@@ -21,5 +21,5 @@ build_chart:
 
 .PHONY: help
 help:
-	@echo "make         					 build all chart under /src"
+	@echo "make         					 build all chart under /charts"
 	@echo "make -e PROJECT=spiderpool        just build spiderpool chart"

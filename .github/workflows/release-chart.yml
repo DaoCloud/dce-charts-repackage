@@ -1,0 +1,112 @@
+name: Package Chart
+
+on:
+  pull_request:
+    paths:
+      - "charts/**"
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'project name for release'
+        required: false
+      ref:
+        description: 'branch name, tag or sha'
+        required: true
+        default: main
+
+jobs:
+  get_ref:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Ref
+        id: get_ref
+        run: |
+          if ${{ github.event_name == 'workflow_dispatch' }} ; then
+              echo "call by self workflow_dispatch"
+              if ${{ github.event.inputs.project == '' }} ; then
+                  echo ::set-output name=project::all
+              else
+                  echo ::set-output name=project::${{ github.event.inputs.ref }}
+              if
+              # release to github pages
+              echo ::set-output name=release::true
+              echo ::set-output name=tag::${{ github.event.inputs.ref }}
+          elif ${{ github.event_name == 'push' }} ; then
+              echo "call by push"
+              echo ::set-output name=project::all
+              # release to github pages
+              echo ::set-output name=release::true
+              echo ::set-output name=tag::${{ github.sha }}
+          elif ${{ github.event_name == 'pull_request_target' }} ; then
+              echo "trigger by pull_request_target"
+              echo ::set-output name=project::all
+              # release to github pages
+              echo ::set-output name=release::false
+              echo ::set-output name=tag::${{ github.event.pull_request.head.sha }}
+          fi
+
+      # some event, the tag is not sha, so checkout it and get sha
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          ref: ${{ steps.get_ref.outputs.tag }}
+
+      - name: Result Ref
+        id: result
+        run: |
+          ref=$( git show -s --format='format:%H')
+          echo ::set-output name=ref::${ref}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3.3
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Install helm-schema-gen
+        run: |
+          helm plugin install https://github.com/karuppiah7890/helm-schema-gen.git
+
+      - name: package chart
+        run: |
+          if ${{ steps.get_ref.outputs.project == "all" }} || ${{ steps.get_ref.outputs.project == "" }} ; then
+              make 
+          else
+              make -e PROJECT=${{ steps.get_ref.outputs.project }}
+          fi
+
+      - name: prepare for artifact
+        run: |
+          mkdir _upload
+          ALL_TAZ=`find ./build  -maxdepth 2 -name "*.tgz" `
+          for ITEM in $ALL_TAZ  ; do
+              cp $ITEM   _upload
+          done
+
+      - name: Upload chart artifact
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          name: charts
+          path: _upload
+          retention-days: 1
+
+      - name: prepare for release
+        if: steps.get_ref.outputs.release == "true"
+        run: |
+          mkdir _charts
+          ALL_PROJECT=`ls build`
+          for ITEM in $ALL_PROJECT ; do
+              cp -rf build/${ITEM}/${ITEM} _charts/${ITEM}
+          done
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      # publish to github pages
+      - name: Run chart-releaser
+        if: steps.get_ref.outputs.release == "true"
+        uses: helm/chart-releaser-action@v1.4.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
