@@ -22,6 +22,8 @@ on:
         required: true
         default: main
 
+permissions: write-all
+
 jobs:
   package:
     runs-on: ubuntu-latest
@@ -117,7 +119,7 @@ jobs:
         with:
           charts_dir: _charts
         env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_TOKEN: "${{ secrets.WELAN_PAT }}"
 
   # update /index.yaml in the target branch
   update_githubpage:
