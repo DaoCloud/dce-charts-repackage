@@ -72,7 +72,7 @@ jobs:
 
       - name: package chart
         run: |
-          if ${{ steps.get_ref.outputs.project == "all" }} || ${{ steps.get_ref.outputs.project == "" }} ; then
+          if ${{ steps.get_ref.outputs.project == 'all' }} || ${{ steps.get_ref.outputs.project == '' }} ; then
               make 
           else
               make -e PROJECT=${{ steps.get_ref.outputs.project }}
