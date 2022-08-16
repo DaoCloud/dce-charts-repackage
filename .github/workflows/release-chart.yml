@@ -94,7 +94,7 @@ jobs:
           retention-days: 1
 
       - name: prepare for release
-        if: steps.get_ref.outputs.release == "true"
+        if: steps.get_ref.outputs.release == 'true'
         run: |
           mkdir _charts
           ALL_PROJECT=`ls build`
@@ -106,7 +106,7 @@ jobs:
 
       # publish to github pages
       - name: Run chart-releaser
-        if: steps.get_ref.outputs.release == "true"
+        if: steps.get_ref.outputs.release == 'true'
         uses: helm/chart-releaser-action@v1.4.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
