@@ -1,0 +1,4 @@
+PROXY_HTTP ?=
+
+SHELL := /bin/bash
+ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
