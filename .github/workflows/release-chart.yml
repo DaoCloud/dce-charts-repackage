@@ -103,9 +103,11 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       # publish to github pages
+      # https://github.com/helm/chart-releaser-action
       - name: Run chart-releaser
         if: steps.get_ref.outputs.release == 'true'
         uses: helm/chart-releaser-action@v1.4.0
+        with:
+          charts_dir: _charts
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          charts_dir: _charts
