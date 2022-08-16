@@ -1,0 +1,8 @@
+name: push chart to daocloud
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'project name for release'
+        required: true

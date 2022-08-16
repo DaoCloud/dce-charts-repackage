@@ -10,16 +10,21 @@ CURRENT_FILENAME=$( basename $0 )
 CURRENT_DIR_PATH=$(cd $(dirname $0); pwd)
 PROJECT_ROOT_PATH=$( cd ${CURRENT_DIR_PATH}/.. && pwd )
 
-PROJECT_SRC_DIR=${PROJECT_ROOT_PATH}/src/${PROJECT_NAME}
+PROJECT_SRC_DIR=${PROJECT_ROOT_PATH}/charts/${PROJECT_NAME}
 PROJECT_SRC_CONFIG_PATH=${PROJECT_SRC_DIR}/config
 [ -d "$PROJECT_SRC_DIR" ] || { echo "error, failed to find project directory: $PROJECT_SRC_DIR" ; exit 2 ; }
-[ -f "$PROJECT_SRC_CONFIG_PATH" ] || { echo "error, failed to find project config: $PROJECT_SRC_CONFIG_PATH" ; exit 3 ; }
 
-BUILD_DIR=${PROJECT_ROOT_PATH}/.build/${PROJECT_NAME}
+if [ ! -f "$PROJECT_SRC_CONFIG_PATH" ] ; then
+  echo "failed to find project config: $PROJECT_SRC_CONFIG_PATH, ignore package $PROJECT_NAME "
+  exit 0
+fi
+
+
+BUILD_DIR=${PROJECT_ROOT_PATH}/build/${PROJECT_NAME}
+CHART_DEST_DIR=${BUILD_DIR}/${PROJECT_NAME}
 rm -rf $BUILD_DIR &>/dev/null
 mkdir -p ${BUILD_DIR}
 
-CHART_DEST_DIR=${PROJECT_ROOT_PATH}/charts/${PROJECT_NAME}
 
 #=== load config
 
@@ -31,7 +36,6 @@ if [ "$USE_OPENSOURCE_CHART" == true ] ; then
     echo "generate $PROJECT_NAME chart from opensource chart"
     rm -rf $CHART_DEST_DIR
     mkdir -p $CHART_DEST_DIR
-    cd ${PROJECT_ROOT_PATH}/charts
     helm repo add $REPO_NAME $REPO_URL
     helm pull ${REPO_NAME}/${CHART_NAME} --untar --version $VERSION
     echo "succeeded to generate chart to $CHART_DEST_DIR"
@@ -48,8 +52,10 @@ cd $BUILD_DIR
 helm pull ${REPO_NAME}/${CHART_NAME} --untar --version $VERSION
 (($?!=0)) && echo "error, failed to helm pull" && exit 8
 
-DOWNLOAD_CHART_DIR=${BUILD_DIR}/$(ls ${BUILD_DIR} )
-NEW_CHART_DIR=${BUILD_DIR}/chart
+mv ${BUILD_DIR}/$(ls ${BUILD_DIR} )  ${BUILD_DIR}/child
+DOWNLOAD_CHART_DIR=${BUILD_DIR}/child
+
+NEW_CHART_DIR=${CHART_DEST_DIR}
 mkdir -p $NEW_CHART_DIR
 mkdir -p ${NEW_CHART_DIR}/charts
 
@@ -59,7 +65,7 @@ helm pull ${REPO_NAME}/${CHART_NAME}  --version $VERSION
 
 for FILE in README.md values.yaml Chart.yaml values.schema.json ; do
     [ ! -f ${DOWNLOAD_CHART_DIR}/${FILE} ] && continue
-    cp ${DOWNLOAD_CHART_DIR}/${FILE} ${NEW_CHART_DIR}
+    cp ${DOWNLOAD_CHART_DIR}/${FILE}  ${NEW_CHART_DIR}
 done
 
 echo "auto inject dependencies to original Chart.yaml"
@@ -75,9 +81,9 @@ if [ -n "${APPEND_VALUES_FILE}" ] && [ -s ${PROJECT_SRC_DIR}/${APPEND_VALUES_FIL
     cat ${PROJECT_SRC_DIR}/${APPEND_VALUES_FILE} >> ${NEW_CHART_DIR}/values.yaml
 fi
 
-if [ -d "${PROJECT_SRC_DIR}/chart" ] ;then
+if [ -d "${PROJECT_SRC_DIR}/${PROJECT_NAME}" ] ;then
     echo "overwrite /chart to parent chart"
-    cp -rf ${PROJECT_SRC_DIR}/chart/*  ${NEW_CHART_DIR}
+    cp -rf ${PROJECT_SRC_DIR}/${PROJECT_NAME}/*  ${NEW_CHART_DIR}
 fi
 
 if [ ! -f ${NEW_CHART_DIR}/values.schema.json ] ; then
@@ -99,7 +105,13 @@ if [ -n "$CUSTOM_SHELL" ] && [ -s ${PROJECT_SRC_DIR}/${CUSTOM_SHELL} ] ; then
     echo "--------- finish custom script "
 fi
 
-rm -rf $CHART_DEST_DIR
-mkdir -p $CHART_DEST_DIR
-cp -rf ${NEW_CHART_DIR}/* $CHART_DEST_DIR
-echo "succeeded to generate chart to $CHART_DEST_DIR"
+echo "helm lint "
+helm lint ${NEW_CHART_DIR}  --debug
+(($?!=0)) && echo "error, failed to call helm lint " && exit 11
+
+cd ${BUILD_DIR}
+helm package ${NEW_CHART_DIR}
+(($?!=0)) && echo "error, failed to call helm package " && exit 12
+
+exit 0
+
