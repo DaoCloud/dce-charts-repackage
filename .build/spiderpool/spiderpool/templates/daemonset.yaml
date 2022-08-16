@@ -1,0 +1,211 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name:  {{ .Values.spiderpoolAgent.name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "spiderpool.spiderpoolAgent.labels" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations:
+    {{- include "tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "spiderpool.spiderpoolAgent.selectorLabels" . | nindent 6 }}
+  {{- with .Values.spiderpoolAgent.updateStrategy }}
+  updateStrategy:
+    {{- toYaml . | trim | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      {{- if or .Values.spiderpoolAgent.podAnnotations .Values.commonAnnotations }}
+      annotations:
+        {{- if .Values.commonAnnotations }}
+          {{- include "tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 8 }}
+          {{- end }}
+          {{- if .Values.spiderpoolAgent.podAnnotations }}
+          {{- include "tplvalues.render" ( dict "value" .Values.spiderpoolAgent.podAnnotations "context" $ ) | nindent 8 }}
+          {{- end }}
+          {{- end }}
+      labels:
+        {{- include "spiderpool.spiderpoolAgent.selectorLabels" . | nindent 8 }}
+          {{- if .Values.commonLabels }}
+          {{- include "tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 8 }}
+          {{- end }}
+    spec:
+      {{- if .Values.spiderpoolAgent.image.imagePullSecrets }}
+      imagePullSecrets:
+      {{- with .Values.spiderpoolAgent.image.imagePullSecrets }}
+      {{- toYaml . | trim | nindent 6 }}
+      {{- end }}
+      {{- end }}
+      serviceAccountName: {{ .Values.spiderpoolAgent.name | trunc 63 | trimSuffix "-" }}
+      priorityClassName: {{ default "system-node-critical" .Values.spiderpoolAgent.priorityClassName }}
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      restartPolicy: Always
+      {{- with .Values.spiderpoolAgent.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .Values.spiderpoolAgent.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.spiderpoolAgent.affinity }}
+      affinity:
+      {{- include "tplvalues.render" (dict "value" .Values.spiderpoolAgent.affinity "context" $) | nindent 6 }}
+      {{- else }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/os
+                    operator: In
+                    values:
+                      - linux
+              # Compatible with Kubernetes 1.12.x and 1.13.x
+              - matchExpressions:
+                  - key: beta.kubernetes.io/os
+                    operator: In
+                    values:
+                      - linux
+      {{- end }}
+      containers:
+      - name: {{ .Values.spiderpoolAgent.name | trunc 63 | trimSuffix "-" }}
+        {{- if .Values.spiderpoolAgent.image.digest }}
+        image: "{{ .Values.spiderpoolAgent.image.repository }}@{{ .Values.spiderpoolAgent.image.digest }}"
+        {{- else }}
+        image: "{{ .Values.spiderpoolAgent.image.repository }}:{{ default .Chart.AppVersion .Values.spiderpoolAgent.image.tag }}"
+        {{- end }}
+        imagePullPolicy: {{ .Values.spiderpoolAgent.image.pullPolicy }}
+        command:
+        - {{ .Values.spiderpoolAgent.binName }}
+        args:
+        - daemon
+        - --config-path=/tmp/spiderpool/config-map/conf.yml
+        {{- with .Values.spiderpoolAgent.extraArgs }}
+        {{- toYaml . | trim | nindent 8 }}
+        {{- end }}
+        {{- if .Values.spiderpoolAgent.prometheus.enabled }}
+        ports:
+        - name: prometheus
+          containerPort: {{ .Values.spiderpoolAgent.prometheus.port }}
+          protocol: TCP
+        {{- end }}
+        {{- if semverCompare ">=1.20-0" .Capabilities.KubeVersion.Version }}
+        startupProbe:
+          httpGet:
+            host: {{ .Values.ipFamily.enableIPv4 | ternary "127.0.0.1" "::1" | quote }}
+            path: /v1/runtime/startup
+            port: {{ .Values.spiderpoolAgent.healthPort }}
+            scheme: HTTP
+            httpHeaders:
+              - name: "checkType"
+                value: "startupProbe"
+          failureThreshold: {{ .Values.spiderpoolAgent.healthChecking.startupProbe.failureThreshold }}
+          periodSeconds: {{ .Values.spiderpoolAgent.healthChecking.startupProbe.periodSeconds }}
+          successThreshold: 1
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            host: {{ .Values.ipFamily.enableIPv4 | ternary "127.0.0.1" "::1" | quote }}
+            path: /v1/runtime/liveness
+            port: {{ .Values.spiderpoolAgent.healthPort }}
+            scheme: HTTP
+            httpHeaders:
+              - name: "checkType"
+                value: "livenessProbe"
+          initialDelaySeconds: 60
+          periodSeconds: {{ .Values.spiderpoolAgent.healthChecking.livenessProbe.periodSeconds }}
+          successThreshold: 1
+          failureThreshold: {{ .Values.spiderpoolAgent.healthChecking.livenessProbe.failureThreshold }}
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            host: {{ .Values.ipFamily.enableIPv4 | ternary "127.0.0.1" "::1" | quote }}
+            path: /v1/runtime/readiness
+            port: {{ .Values.spiderpoolAgent.healthPort }}
+            scheme: HTTP
+            httpHeaders:
+              - name: "checkType"
+                value: "readinessProbe"
+          initialDelaySeconds: 5
+          periodSeconds: {{ .Values.spiderpoolAgent.healthChecking.readinessProbe.periodSeconds }}
+          successThreshold: 1
+          failureThreshold: {{ .Values.spiderpoolAgent.healthChecking.readinessProbe.failureThreshold }}
+          timeoutSeconds: 5
+        {{- with .Values.spiderpoolAgent.resources }}
+        resources:
+        {{- toYaml . | trim | nindent 10 }}
+        {{- end }}
+        lifecycle:
+          postStart:
+            # Move an eventual old existing binary out of the way, we can't delete it as it might be in use right now
+            exec:
+              command: [ "/bin/sh", "-c", "if [ -f \"/host/opt/cni/bin/spiderpool\" ];then rm -f \"/host/opt/cni/bin/spiderpool.old\"; mv \"/host/opt/cni/bin/spiderpool\" \"/host/opt/cni/bin/spiderpool.old\"; fi; cp \"/usr/bin/spiderpool\" \"/host/opt/cni/bin/spiderpool\""]
+          preStop:
+            exec:
+              command:
+                - {{ .Values.spiderpoolAgent.binName }}
+                - shutdown
+        env:
+        - name: SPIDERPOOL_LOG_LEVEL
+          value: {{ .Values.spiderpoolAgent.debug.logLevel | quote }}
+        - name: SPIDERPOOL_ENABLED_METRIC
+          value: {{ .Values.spiderpoolAgent.prometheus.enabled | quote }}
+        - name: SPIDERPOOL_METRIC_HTTP_PORT
+          value: {{ .Values.spiderpoolAgent.prometheus.port | quote }}
+        - name: SPIDERPOOL_HEALTH_PORT
+          value: {{ .Values.spiderpoolAgent.healthPort | quote }}
+        - name: SPIDERPOOL_GOPS_LISTEN_PORT
+          value: {{ .Values.spiderpoolAgent.debug.gopsPort | quote }}
+        {{- with .Values.spiderpoolAgent.extraEnv }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.spiderpoolAgent.securityContext }}
+        securityContext:
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        volumeMounts:
+        - name: config-path
+          mountPath: /tmp/spiderpool/config-map
+          readOnly: true
+        - name: etc-cni-conf-path
+          mountPath: /host/{{ .Values.ipamPlugin.confPath }}
+        - name: cni-bin-path
+          mountPath: /host/{{ .Values.ipamPlugin.binPath }}
+        - name: ipam-unix-socket-dir
+          mountPath: {{ .Values.ipamPlugin.ipamUNIXSocketDir }}
+        {{- if .Values.spiderpoolAgent.extraVolumes }}
+        {{- include "tplvalues.render" ( dict "value" .Values.spiderpoolAgent.extraVolumeMounts "context" $ ) | nindent 8 }}
+        {{- end }}
+      volumes:
+        # To read the configuration from the config map
+      - name: config-path
+        configMap:
+          defaultMode: 0400
+          name: {{ .Values.configmap.configCmName }}
+        # To install cilium cni configuration in the host
+      - name: etc-cni-conf-path
+        hostPath:
+          path: {{ .Values.ipamPlugin.confPath }}
+          type: DirectoryOrCreate
+        # To install cilium cni plugin in the host
+      - name: cni-bin-path
+        hostPath:
+          path:  {{ .Values.ipamPlugin.binPath }}
+          type: DirectoryOrCreate
+        # To create unix socket dir in the host
+      - name: ipam-unix-socket-dir
+        hostPath:
+          path: {{ .Values.ipamPlugin.ipamUNIXSocketDir }}
+          type: DirectoryOrCreate
+      {{- if .Values.spiderpoolAgent.extraVolumeMounts }}
+      {{- include "tplvalues.render" ( dict "value" .Values.spiderpoolAgent.extraVolumeMounts "context" $ ) | nindent 6 }}
+      {{- end }}
