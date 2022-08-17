@@ -9,7 +9,6 @@ all: e2e
 
 .PHONY: e2e
 e2e:
-	echo "make e2e"
 	PROJECT_LIST=$(PROJECTS) ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` ; \
 		for ITEM in $$PROJECT_LIST ; do \
 		    [ -d "$${ITEM}" ] || continue ; \
@@ -43,15 +42,24 @@ init-kind: checkBin clean
 	kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f https://github.com/prometheus-operator/prometheus-operator/blob/main/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
 	# install probe
 	kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_probes.yaml
+	@echo "========================================================"
+	@echo "   deploy kind cluster $(KIND_CLUSTER_NAME)             "
+	@echo "  kubectl get node --kubeconfig $(KIND_KUBECONFIG)      "
+	@echo "========================================================"
 
 
 .PHONY: deploy
 deploy: INSTALL_PATH?=
 deploy: PROJECT?=
 deploy: checkBin
-	echo "helm install for $(PROJECT) with $(INSTALL_PATH)"
-	CHART_DIR=$(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT) ; \
-		[ -d "$${CHART_DIR}" ] || { echo "error, failed to find chart $${CHART_DIR}" ; exit 1 ; }
+	@ echo "helm install for $(PROJECT) with $(INSTALL_PATH)"
+	@ [ -f "$(INSTALL_PATH)" ] || { echo "error, failed to find INSTALL_PATH $(INSTALL_PATH)" ;  exit 1 ; }
+	@ CHART_DIR=$(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT) ; \
+		[ -d "$${CHART_DIR}" ] || { echo "error, failed to find chart $${CHART_DIR}" ; exit 1 ; } ; \
+		chmod +x $(INSTALL_PATH) ; \
+		$(INSTALL_PATH) "${CHART_DIR}"  "$(KIND_KUBECONFIG)" ; \
+		(($?==0)) || { echo "error, failed to deploy $(PROJECT) "  ; exit 1 ; }
+	echo "succeeded to deploy $$(PROJECT)"
 
 
 .PHONY: checkBin
@@ -63,4 +71,3 @@ checkBin:
 clean: checkBin
 	- kind delete cluster --name  $(KIND_CLUSTER_NAME)
 	- rm -f $(KIND_KUBECONFIG)
-
