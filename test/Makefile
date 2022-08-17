@@ -23,9 +23,9 @@ e2e:
             fi ;\
             echo "run e2e for project $${ITEM} "  ;\
             echo "setup kind for project $${ITEM}"  ;\
-			make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} ;\
+			make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || {echo "error, failed to setup kind for $${ITEM}" ; exit 1 } ;\
             echo "deploy project $${ITEM}"  ;\
-			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} ; \
+			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || {echo "error, failed to deploy $${ITEM}" ; exit 1 } ; \
 	  	done
 
 
@@ -33,7 +33,7 @@ e2e:
 init-kind: KIND_CONFIG_PATH ?=
 init-kind: checkBin clean
 	[ -f $(KIND_CONFIG_PATH) ] || { echo "error, miss file KIND_CONFIG_PATH=$(KIND_CONFIG_PATH)" ; exit 1 ; }
-	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH) --kubeconfig $(KIND_KUBECONFIG)
+	kind create cluster -v 7 --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH) --kubeconfig $(KIND_KUBECONFIG)
 	# install servicemonitor
 	kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
 	# install podmonitor
