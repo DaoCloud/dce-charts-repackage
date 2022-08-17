@@ -25,7 +25,7 @@ e2e:
             echo "setup kind for project $${ITEM}"  ;\
 			make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}" ; exit 1 ; } ;\
             echo "deploy project $${ITEM}"  ;\
-			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || {echo "error, failed to deploy $${ITEM}" ; exit 1 ;} ; \
+			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ;\
 	  	done
 
 
