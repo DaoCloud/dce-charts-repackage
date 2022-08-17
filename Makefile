@@ -8,11 +8,11 @@ include Makefile.defs
 .PHONY: all
 all: build_chart
 
-PROJECT ?= spiderpool
+PROJECT ?=
 
 .PHONY: build_chart
 build_chart:
-	@ project=$(PROJECT) ; [ -z "$(PROJECT)" ] && project=`ls ./src` ; \
+	@ project=$(PROJECT) ; [ -z "$(PROJECT)" ] && project=`ls ./charts` ; \
 		echo "build chart for $${project}" ; \
 		for ITEM in $${project} ; do\
 			echo "===================== build $${ITEM} ====================" ; \

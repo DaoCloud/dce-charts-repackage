@@ -1,4 +1,4 @@
-name: Release Chart
+name: PR Check
 
 env:
   MERGE_BRANCH: gh-pages
@@ -6,10 +6,12 @@ env:
   PR_REVIWER: weizhoublue
 
 on:
+  pull_request:
+    paths:
+      - "charts/**"
   push:
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+
-      - v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       project:
@@ -19,11 +21,6 @@ on:
         description: 'branch name, tag or sha'
         required: true
         default: main
-      daocloud:
-        description: 'push to daocloud or not'
-        required: true
-        type: boolean
-        default: true
 
 permissions: write-all
 
@@ -45,17 +42,20 @@ jobs:
                   echo ::set-output name=project::${{ github.event.inputs.ref }}
               fi
               # release to github pages
-              echo ::set-output name=release::${{ github.event.inputs.daocloud }}
+              echo ::set-output name=release::true
               echo ::set-output name=tag::${{ github.event.inputs.ref }}
           elif ${{ github.event_name == 'push' }} ; then
-              echo "call by tag push"
+              echo "call by push"
               echo ::set-output name=project::all
-              echo ::set-output name=release::true
               # release to github pages
+              echo ::set-output name=release::true
               echo ::set-output name=tag::${{ github.sha }}
-          else
-            echo "unexpected event: ${{ github.event_name }}"
-            exit 1
+          elif ${{ github.event_name == 'pull_request_target' }} ; then
+              echo "trigger by pull_request_target"
+              echo ::set-output name=project::all
+              # release to github pages
+              echo ::set-output name=release::false
+              echo ::set-output name=tag::${{ github.event.pull_request.head.sha }}
           fi
 
       # some event, the tag is not sha, so checkout it and get sha
@@ -74,18 +74,27 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v3.3
 
+      - name: Install helm-schema-gen
+        run: |
+          helm plugin install https://github.com/karuppiah7890/helm-schema-gen.git
+
       - name: package chart
         run: |
-          ROOT_DIR=`pwd`
-          project_list=${{ steps.get_ref.outputs.project }}
           if ${{ steps.get_ref.outputs.project == 'all' }} || ${{ steps.get_ref.outputs.project == '' }} ; then
-              project_list=`ls charts`
+              make 
+          else
+              make -e PROJECT=${{ steps.get_ref.outputs.project }}
           fi
+
+      - name: prepare chart
+        run: |
+          ROOT=${pwd}
           mkdir _upload
           cd _upload
-          for ITEM in $project_list ; do
-              [ ! -d "${ROOT_DIR}/charts/${ITEM}/${ITEM}" ] && echo "error, find to find project $ITEM in /charts" && exit 1
-              helm package ${ROOT_DIR}/charts/${ITEM}/${ITEM}
+          PROJECT=`ls ${ROOT}/charts `
+          for ITEM in $PROJECT  ; do
+              [ ! -d "${ROOT}/charts/${ITEM}/${ITEM}" ] && continue
+              helm package ${ROOT}/charts/${ITEM}/${ITEM}
           done
 
       - name: Upload chart artifact
@@ -95,21 +104,26 @@ jobs:
           path: _upload
           retention-days: 1
 
-      - name: Install helm-push
-        if: ${{ steps.get_ref.outputs.release == 'true' }}
-        run: |
-          helm plugin install https://github.com/chartmuseum/helm-push
-
-      - name: push to daocloud
-        if: ${{ steps.get_ref.outputs.release == 'true' }}
-        run: |
-          helm repo add harborrepo  https://${{ secrets.DAOCLOUD_HARBOR_URL }}/chartrepo/${{ env.HARBOR_PROJECT }} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} 
-          cd _upload
-          LIST=`ls *.tgz`
-          for ITEM in $LIST ; do
-              echo "pushing $ITEM to daocloud chart repo"
-              helm cm-push ${ITEM}  harborrepo  --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}
-          done
+#      - name: prepare for release
+#        if: steps.get_ref.outputs.release == 'true'
+#        run: |
+#          mkdir _charts
+#          ALL_PROJECT=`ls build`
+#          for ITEM in $ALL_PROJECT ; do
+#              cp -rf build/${ITEM}/${ITEM} _charts/${ITEM}
+#          done
+#          git config user.name "$GITHUB_ACTOR"
+#          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+#
+#      # publish to github pages
+#      # https://github.com/helm/chart-releaser-action
+#      - name: Run chart-releaser
+#        if: steps.get_ref.outputs.release == 'true'
+#        uses: helm/chart-releaser-action@v1.4.0
+#        with:
+#          charts_dir: _charts
+#        env:
+#          CR_TOKEN: "${{ secrets.WELAN_PAT }}"
 
   # update /index.yaml in the target branch
   update_githubpage:
@@ -139,7 +153,6 @@ jobs:
 
       - name: Update Chart Yaml
         run: |
-          ls
           helm repo index  ./  --url ${{ steps.get_base_url.outputs.url }}
 
       - name: Create Pull Request
