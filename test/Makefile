@@ -12,16 +12,15 @@ e2e:
 	echo "make e2e"
 	PROJECT_LIST=$(PROJECTS) ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` ; \
 		for ITEM in $$PROJECT_LIST ; do \
+		    [ -d "$${ITEM}" ] || continue ; \
 			CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
 			INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
-			echo "INSTALL_PATH=$${INSTALL_PATH}"  ; \
-			echo "CONFIG_PATH=$${CONFIG_PATH}"  ; \
 			if [ -n "$(PROJECTS)" ]; then \
 			    [ -f "$${CONFIG_PATH}" ] || { echo "error, miss $${CONFIG_PATH}" ; exit 1 ; } ; \
 			    [ -f "$${INSTALL_PATH}" ] || { echo "error, miss $${INSTALL_PATH}" ; exit 1 ; } ; \
 			else \
-  				[ -f "$${CONFIG_PATH}" ] || continue ; \
-  				[ -f "$${INSTALL_PATH}" ] || continue ; \
+  				[ -f "$${CONFIG_PATH}" ] || { echo "warning, miss $${CONFIG_PATH}"  ; continue ; } ; \
+  				[ -f "$${INSTALL_PATH}" ] || { echo "warning, miss $${INSTALL_PATH}"  ; continue ; } ; \
             fi ;\
             echo "run e2e for project $${ITEM} "  ;\
             echo "setup kind for project $${ITEM}"  ;\
