@@ -55,7 +55,7 @@ jobs:
           mkdir _upload
           cd _upload
           helm package ${ROOT_DIR}/charts/${{ github.event.inputs.project }}/${{ github.event.inputs.project }}
-          FILENAME=`ls`
+          FILENAME=`ls *.tgz`
           echo ::set-output name=filepath::${ROOT_DIR}/_upload/${FILENAME}
 
       - name: Upload chart artifact
