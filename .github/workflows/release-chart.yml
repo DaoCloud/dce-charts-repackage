@@ -4,6 +4,7 @@ env:
   MERGE_BRANCH: gh-pages
   PR_LABEL: pr/release/robot_update_githubpage
   PR_REVIWER: weizhoublue
+  DAOCLOUD_HARBOR_URL: https://release.daocloud.io
   HARBOR_PROJECT: addon
 
 on:
@@ -104,11 +105,11 @@ jobs:
       - name: push to daocloud
         if: ${{ steps.get_ref.outputs.release == 'true' }}
         run: |
-          helm repo add harborrepo  https://${{ secrets.DAOCLOUD_HARBOR_URL }}/chartrepo/${{ env.HARBOR_PROJECT }} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} 
+          helm repo add harborrepo ${{ env.DAOCLOUD_HARBOR_URL }}/chartrepo/${{ env.HARBOR_PROJECT }} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} 
           cd _upload
           LIST=`ls *.tgz`
           for ITEM in $LIST ; do
-              helm cm-push ${ITEM}  harborrepo  --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}
+              helm cm-push ${ITEM}  harborrepo --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}
               (($?!=0)) && echo "push $ITEM to ${{ env.HARBOR_PROJECT }} of daocloud chart repo " && exit 1
               echo "push $ITEM to ${{ env.HARBOR_PROJECT }} of daocloud chart repo"
           done

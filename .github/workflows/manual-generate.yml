@@ -85,14 +85,9 @@ jobs:
       - name: prepare
         run: |
           cd charts/${{ github.event.inputs.project }}
-          echo '----'
-          ls
-          echo '----'
           rm -rf ${{ github.event.inputs.project }}
           tar xzvf *.tgz
           rm -f *.tgz
-          echo '----'
-          ls
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4.0.4
