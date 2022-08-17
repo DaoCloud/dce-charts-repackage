@@ -57,9 +57,9 @@ deploy: checkBin
 	@ CHART_DIR=$(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT) ; \
 		[ -d "$${CHART_DIR}" ] || { echo "error, failed to find chart $${CHART_DIR}" ; exit 1 ; } ; \
 		chmod +x $(INSTALL_PATH) ; \
-		$(INSTALL_PATH) "${CHART_DIR}"  "$(KIND_KUBECONFIG)" ; \
+		$(INSTALL_PATH) "$${CHART_DIR}"  "$(KIND_KUBECONFIG)" ; \
 		(($?==0)) || { echo "error, failed to deploy $(PROJECT) "  ; exit 1 ; }
-	echo "succeeded to deploy $$(PROJECT)"
+	echo "succeeded to deploy $(PROJECT)"
 
 
 .PHONY: checkBin
