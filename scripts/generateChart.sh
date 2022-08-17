@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if ! which helm &>/dev/null ; then
+    echo "error, please install 'helm'"
+    exit 1
+fi
+
 PROJECT_NAME=$1
 [ -n "$PROJECT_NAME" ] || { echo "error, empty PROJECT_NAME" ; exit 1 ; }
 

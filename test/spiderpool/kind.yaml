@@ -1,0 +1,22 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: test-cluster
+networking:
+  ipFamily: dual
+  podSubnet: "172.20.0.0/16"
+  serviceSubnet: "172.21.0.0/16"
+  kubeProxyMode: iptables
+kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    metadata:
+      name: config
+    apiServer:
+        extraArgs:
+          enable-admission-plugins: NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook
+    etcd:
+      local:
+        dataDir: "/tmp/lib/etcd"
+nodes:
+  - role: control-plane
+  - role: worker
