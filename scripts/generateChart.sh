@@ -61,7 +61,7 @@ mkdir -p $CHART_BUILD_DIR
 mkdir -p ${CHART_BUILD_DIR}/charts
 
 cd ${CHART_BUILD_DIR}/charts
-helm pull ${REPO_NAME}/${CHART_NAME}  --version $VERSION
+helm pull ${REPO_NAME}/${CHART_NAME} --untar --version $VERSION
 (($?!=0)) && echo "error, failed to helm pull" && exit 8
 
 for FILE in README.md values.yaml Chart.yaml values.schema.json ; do

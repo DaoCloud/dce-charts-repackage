@@ -85,15 +85,20 @@ jobs:
       - name: prepare
         run: |
           cd charts/${{ github.event.inputs.project }}
+          echo '----'
           ls
+          echo '----'
           rm -rf ${{ github.event.inputs.project }}
           tar xzvf *.tgz
+          rm -f *.tgz
+          echo '----'
+          ls
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4.0.4
         with:
           title: "robot Update chart to branch ${{ env.MERGE_BRANCH }} "
-          commit-message: "robot Update chart ${{ github.event.inputs.project }} to branch ${{ env.MERGE_BRANCH }} "
+          commit-message: "robot Update ${{ github.event.inputs.project }} chart to branch ${{ env.MERGE_BRANCH }} "
           branch-suffix: timestamp
           branch: robot/update_chart
           delete-branch: true
