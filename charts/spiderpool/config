@@ -1,20 +1,11 @@
-# when USE_OPENSOURCE_CHART=true, just download and update with opensource chart
+export USE_OPENSOURCE_CHART=false
 
-
-# when USE_OPENSOURCE_CHART=false:
-# 1 copy files from opensource chart to new parent chart: README.md values.yaml Chart.yaml values.schema.json
-# 2 auto inject 'dependency' to chart.yaml and download opensource chart to /charts
-# 3 auto inject 'APPEND_VALUES_FILE' to values.yaml
-# 4 copy /src/PROJECT/chart/* to parent chart
-# 5 if miss values.schema.json, auto generate values.schema.json based on values.yaml
-# 6 if exist /src/PROJECT/custom.sh, execute it with argument: custom.sh "NewParentChartDirectory". You could do some customization job here
-# 7 cp parent chart to /charts/PROJECT
-
+# must
 export REPO_URL=https://spidernet-io.github.io/spiderpool
 export REPO_NAME=spiderpool
 export CHART_NAME=spiderpool
 export VERSION=v0.0.6
 
-export USE_OPENSOURCE_CHART=false
+# optional, for wrapper chart
 export CUSTOM_SHELL=custom.sh
 export APPEND_VALUES_FILE=appendValues.yaml
