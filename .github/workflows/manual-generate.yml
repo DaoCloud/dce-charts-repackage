@@ -1,3 +1,4 @@
+# if your local host is not reachable to Opensource Chart, you could trigger this to build /charts/$PROJECT/$PROJECT
 name: Call Generate Chart
 
 env:
@@ -42,30 +43,32 @@ jobs:
         run: |
           helm plugin install https://github.com/karuppiah7890/helm-schema-gen.git
 
-      - name: package chart
+      - name: generate chart
         run: |
               [ ! -d "charts/${{ github.event.inputs.project }}" ] && echo "error, failed to find project ${{ github.event.inputs.project }} under /charts " && exit 1
               make -e PROJECT=${{ github.event.inputs.project }}
 
-      - name: prepare chart
+      - name: package chart
+        id: package_chart
         run: |
-          ROOT=${pwd}
+          ROOT_DIR=`pwd`
           mkdir _upload
           cd _upload
-          helm package ${ROOT}/charts/${{ github.event.inputs.project }}/${{ github.event.inputs.project }}
+          helm package ${ROOT_DIR}/charts/${{ github.event.inputs.project }}/${{ github.event.inputs.project }}
+          FILENAME=`ls _upload`
+          echo ::set-output name=filepath::./_upload/${FILENAME}
 
       - name: Upload chart artifact
         uses: actions/upload-artifact@v3.1.0
         with:
           name: charts
-          path: _upload
+          path: ${{ steps.package_chart.outputs.filepath }}
           retention-days: 1
 
   # update /index.yaml in the target branch
   create_pr:
     runs-on: ubuntu-latest
-    needs: [package]
-    if: ${{ needs.package.outputs.release == 'true' }}
+    needs: [ package ]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -82,6 +85,7 @@ jobs:
       - name: prepare
         run: |
           cd charts/${{ github.event.inputs.project }}
+          ls
           rm -rf ${{ github.event.inputs.project }}
           tar xzvf *.tgz
 
