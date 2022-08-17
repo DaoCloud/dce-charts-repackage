@@ -29,7 +29,7 @@ e2e:
 
 
 .PHONY: init-kind
-init-kind: KIND_CONFIG_PATH?=
+init-kind: KIND_CONFIG_PATH ?=
 init-kind: checkBin clean
 	[ -f $(KIND_CONFIG_PATH) ] || { echo "error, miss file KIND_CONFIG_PATH=$(KIND_CONFIG_PATH)" ; exit 1 ; }
 	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH) --kubeconfig $(KIND_KUBECONFIG)
@@ -59,6 +59,6 @@ checkBin:
 
 .PHONY: clean
 clean: checkBin
-	- kind delete --name  $(KIND_CLUSTER_NAME)
+	- kind delete cluster --name  $(KIND_CLUSTER_NAME)
 	- rm -f $(KIND_KUBECONFIG)
 
