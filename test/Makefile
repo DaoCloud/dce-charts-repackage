@@ -14,6 +14,8 @@ e2e:
 		for ITEM in $$PROJECT_LIST ; do \
 			CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
 			INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
+			echo "INSTALL_PATH=$${INSTALL_PATH}"  ; \
+			echo "CONFIG_PATH=$${CONFIG_PATH}"  ; \
 			if [ -n "$(PROJECTS)" ]; then \
 			    [ -f "$${CONFIG_PATH}" ] || { echo "error, miss $${CONFIG_PATH}" ; exit 1 ; } ; \
 			    [ -f "$${INSTALL_PATH}" ] || { echo "error, miss $${INSTALL_PATH}" ; exit 1 ; } ; \
