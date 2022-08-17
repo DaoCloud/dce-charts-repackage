@@ -9,6 +9,7 @@ all: e2e
 
 .PHONY: e2e
 e2e:
+	echo "make e2e"
 	PROJECT_LIST=$(PROJECTS) ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` ; \
 		for ITEM in $$PROJECT_LIST ; do \
 			CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
