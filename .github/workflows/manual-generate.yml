@@ -97,7 +97,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4.0.4
         with:
-          title: "robot Update chart to branch ${{ env.MERGE_BRANCH }} "
+          title: "robot Update ${{ github.event.inputs.project }} chart to branch ${{ env.MERGE_BRANCH }} "
           commit-message: "robot Update ${{ github.event.inputs.project }} chart to branch ${{ env.MERGE_BRANCH }} "
           branch-suffix: timestamp
           branch: robot/update_chart

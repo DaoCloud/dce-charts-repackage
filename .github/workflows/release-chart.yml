@@ -4,6 +4,7 @@ env:
   MERGE_BRANCH: gh-pages
   PR_LABEL: pr/release/robot_update_githubpage
   PR_REVIWER: weizhoublue
+  HARBOR_PROJECT: addon
 
 on:
   push:
@@ -20,7 +21,7 @@ on:
         required: true
         default: main
       daocloud:
-        description: 'push to daocloud or not'
+        description: 'push to daocloud repo'
         required: true
         type: boolean
         default: true
@@ -107,15 +108,15 @@ jobs:
           cd _upload
           LIST=`ls *.tgz`
           for ITEM in $LIST ; do
-              echo "pushing $ITEM to daocloud chart repo"
               helm cm-push ${ITEM}  harborrepo  --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}
+              (($?!=0)) && echo "push $ITEM to ${{ env.HARBOR_PROJECT }} of daocloud chart repo " && exit 1
+              echo "push $ITEM to ${{ env.HARBOR_PROJECT }} of daocloud chart repo"
           done
 
   # update /index.yaml in the target branch
   update_githubpage:
     runs-on: ubuntu-latest
     needs: [package]
-    if: ${{ needs.package.outputs.release == 'true' }}
     steps:
       - name: Get Base Chart URL
         id: get_base_url
