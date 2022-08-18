@@ -36,13 +36,17 @@ init-kind: checkBin clean
 	@echo "===================== deploy prometheus CRD ========== "
 	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH) --kubeconfig $(KIND_KUBECONFIG)
 	# install servicemonitor
-	kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+	kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml \
+		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) ./yaml/monitoring.coreos.com_servicemonitors.yaml
 	# install podmonitor
-	kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
+	kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml \
+		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) ./yaml/monitoring.coreos.com_podmonitors.yaml
 	# install prometheusrules
-	kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
+	kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml \
+		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) ./yaml/monitoring.coreos.com_prometheusrules.yaml
 	# install probe
-	kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_probes.yaml
+	kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_probes.yaml  \
+		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) ./yaml/monitoring.coreos.com_probes.yaml
 	@echo "========================================================"
 	@echo "   deploy kind cluster $(KIND_CLUSTER_NAME)             "
 	@echo "  kubectl get node --kubeconfig $(KIND_KUBECONFIG)      "
@@ -59,14 +63,14 @@ deploy: checkBin
 	@ CHART_DIR=$(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT) ; \
 		[ -d "$${CHART_DIR}" ] || { echo "error, failed to find chart $${CHART_DIR}" ; exit 1 ; } ; \
 		if [ "$(TRY_LOAD_LOCAL_IMAGE)" == "true" ] ; then \
-			echo "try to load local image for $${PROJECT}" ; \
-			IMAGE_LIST=` helm template test $${CHART_DIR}  |& grep " image: " | awk -F '"' '{print $2}' ` ; \
+			echo "try to load local image for $(PROJECT)" ; \
+			IMAGE_LIST=` helm template test $${CHART_DIR}  |& grep " image: " | awk -F '"' '{print $$2}' ` ; \
 			if [ -n "$${IMAGE_LIST}" ] ; then \
-			  	echo "error, failed to find image from chart template" ; \
+			  	echo "error, failed to find image from chart template for $(PROJECT)" ; \
 			else \
-				echo "found image from chart template: $${IMAGE_LIST} " ; \
+				echo "found image from $(PROJECT) chart template: $${IMAGE_LIST} " ; \
   				for IMAGE in $${IMAGE_LIST} ; do \
-  					echo "try to load local image $${IMAGE} for $${ITEM}" ; \
+  					echo "try to load local image $${IMAGE} for $(PROJECT)" ; \
   					kind load docker-image $${IMAGE}  --name $(KIND_CLUSTER_NAME)  ; \
   				done ; \
             fi ; \
