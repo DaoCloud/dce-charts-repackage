@@ -15,6 +15,7 @@ echo "KIND_KUBECONFIG $KIND_KUBECONFIG"
 HELM_MUST_OPTION=" --atomic --timeout 5m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG} "
 
 #==================== add your deploy code bellow =============
+#==================== notice , prometheus CRD has been deployed , so you no need to =============
 
 # for default ipv4 ippool
 Ipv4Subnet="172.50.0.0/16"

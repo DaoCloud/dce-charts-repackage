@@ -52,11 +52,25 @@ init-kind: checkBin clean
 .PHONY: deploy
 deploy: INSTALL_PATH?=
 deploy: PROJECT?=
+deploy: TRY_LOAD_LOCAL_IMAGE ?= true
 deploy: checkBin
 	@ echo "helm install for $(PROJECT) with $(INSTALL_PATH)"
 	@ [ -f "$(INSTALL_PATH)" ] || { echo "error, failed to find INSTALL_PATH $(INSTALL_PATH)" ;  exit 1 ; }
 	@ CHART_DIR=$(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT) ; \
 		[ -d "$${CHART_DIR}" ] || { echo "error, failed to find chart $${CHART_DIR}" ; exit 1 ; } ; \
+		if [ "$(TRY_LOAD_LOCAL_IMAGE)" == "true" ] ; then \
+			echo "try to load local image for $${PROJECT}" ; \
+			IMAGE_LIST=` helm template test $${CHART_DIR}  |& grep " image: " | awk -F '"' '{print $2}' ` ; \
+			if [ -n "$${IMAGE_LIST}" ] ; then \
+			  	echo "error, failed to find image from chart template" ; \
+			else \
+				echo "found image from chart template: $${IMAGE_LIST} " ; \
+  				for IMAGE in $${IMAGE_LIST} ; do \
+  					echo "try to load local image $${IMAGE} for $${ITEM}" ; \
+  					kind load docker-image $${IMAGE}  --name $(KIND_CLUSTER_NAME)  ; \
+  				done ; \
+            fi ; \
+		fi  ;\
 		chmod +x $(INSTALL_PATH) ; \
 		$(INSTALL_PATH) "$${CHART_DIR}"  "$(KIND_KUBECONFIG)" ; \
 		(($?==0)) || { echo "error, failed to deploy $(PROJECT) "  ; exit 1 ; }

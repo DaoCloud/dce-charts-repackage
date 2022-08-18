@@ -76,7 +76,8 @@ done
 
 echo "generate values.yaml"
 # make parent values.yaml to export child values.yaml
-echo "${CHART_NAME}:" > ${CHART_BUILD_DIR}/values.yaml
+echo "# child values" > ${CHART_BUILD_DIR}/values.yaml
+echo "${CHART_NAME}:" >> ${CHART_BUILD_DIR}/values.yaml
 # add 2 blank for each line
 sed -E 's/(.*)/  \1/g' ${DOWNLOAD_CHART_DIR}/values.yaml >> ${CHART_BUILD_DIR}/values.yaml
 
