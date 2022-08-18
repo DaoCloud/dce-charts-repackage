@@ -1,6 +1,6 @@
 include ../Makefile.defs
 
-PROJECTS ?=
+PROJECT ?=
 KIND_CLUSTER_NAME ?= network-chart
 KIND_KUBECONFIG := $(ROOT_DIR)/test/.config
 
@@ -9,12 +9,12 @@ all: e2e
 
 .PHONY: e2e
 e2e:
-	PROJECT_LIST=$(PROJECTS) ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` ; \
+	PROJECT_LIST=$(PROJECT) ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` ; \
 		for ITEM in $$PROJECT_LIST ; do \
 		    [ -d "$${ITEM}" ] || continue ; \
 			CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
 			INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
-			if [ -n "$(PROJECTS)" ]; then \
+			if [ -n "$(PROJECT)" ]; then \
 			    [ -f "$${CONFIG_PATH}" ] || { echo "error, miss $${CONFIG_PATH}" ; exit 1 ; } ; \
 			    [ -f "$${INSTALL_PATH}" ] || { echo "error, miss $${INSTALL_PATH}" ; exit 1 ; } ; \
 			else \
