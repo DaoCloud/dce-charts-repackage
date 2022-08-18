@@ -54,6 +54,7 @@ fi
 echo "generate $PROJECT_NAME chart from custom chart "
 helm repo add $REPO_NAME $REPO_URL
 (($?!=0)) && echo "error, failed to add repo" && exit 7
+helm repo update $REPO_NAME
 
 cd $BUILD_DIR
 helm pull ${REPO_NAME}/${CHART_NAME} --untar --version $VERSION
