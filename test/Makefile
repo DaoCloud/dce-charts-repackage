@@ -33,6 +33,7 @@ e2e:
 init-kind: KIND_CONFIG_PATH ?=
 init-kind: checkBin clean
 	[ -f $(KIND_CONFIG_PATH) ] || { echo "error, miss file KIND_CONFIG_PATH=$(KIND_CONFIG_PATH)" ; exit 1 ; }
+	@echo "===================== deploy prometheus CRD ========== "
 	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH) --kubeconfig $(KIND_KUBECONFIG)
 	# install servicemonitor
 	kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml

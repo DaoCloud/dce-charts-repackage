@@ -25,6 +25,8 @@ Ipv6Subnet="fd05::/112"
 # available IP resource
 Ipv6Range="fd05::10-fd05::200"
 
+set -x
+
 # deploy the spiderpool
 helm install spiderpool ${CHART_DIR}  ${HELM_MUST_OPTION} \
   --namespace kube-system \
