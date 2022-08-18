@@ -30,11 +30,11 @@ set -x
 # deploy the spiderpool
 helm install spiderpool ${CHART_DIR}  ${HELM_MUST_OPTION} \
   --namespace kube-system \
-  --set spiderpoolController.tls.method=provided \
-  --set ipFamily.enableIPv4=true --set ipFamily.enableIPv6=true \
-  --set clusterDefaultPool.installIPv4IPPool=true  --set clusterDefaultPool.installIPv6IPPool=true  \
-  --set clusterDefaultPool.ipv4Subnet=${Ipv4Subnet} --set clusterDefaultPool.ipv4IPRanges={${Ipv4Range}} \
-  --set clusterDefaultPool.ipv6Subnet=${Ipv6Subnet} --set clusterDefaultPool.ipv6IPRanges={${Ipv6Range}}
+  --set spiderpool.spiderpoolController.tls.method=provided \
+  --set spiderpool.ipFamily.enableIPv4=true --set spiderpool.ipFamily.enableIPv6=true \
+  --set spiderpool.clusterDefaultPool.installIPv4IPPool=true  --set spiderpool.clusterDefaultPool.installIPv6IPPool=true  \
+  --set spiderpool.clusterDefaultPool.ipv4Subnet=${Ipv4Subnet} --set spiderpool.clusterDefaultPool.ipv4IPRanges={${Ipv4Range}} \
+  --set spiderpool.clusterDefaultPool.ipv6Subnet=${Ipv6Subnet} --set spiderpool.clusterDefaultPool.ipv6IPRanges={${Ipv6Range}}
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"

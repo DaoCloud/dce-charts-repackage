@@ -69,10 +69,17 @@ cd ${CHART_BUILD_DIR}/charts
 helm pull ${REPO_NAME}/${CHART_NAME} --untar --version $VERSION
 (($?!=0)) && echo "error, failed to helm pull" && exit 8
 
-for FILE in README.md values.yaml Chart.yaml values.schema.json ; do
+for FILE in README.md Chart.yaml values.schema.json ; do
     [ ! -f ${DOWNLOAD_CHART_DIR}/${FILE} ] && continue
     cp ${DOWNLOAD_CHART_DIR}/${FILE}  ${CHART_BUILD_DIR}
 done
+
+echo "generate values.yaml"
+# make parent values.yaml to export child values.yaml
+echo "${CHART_NAME}:" > ${CHART_BUILD_DIR}/values.yaml
+# add 2 blank for each line
+sed -E 's/(.*)/  \1/g' ${DOWNLOAD_CHART_DIR}/values.yaml >> ${CHART_BUILD_DIR}/values.yaml
+
 
 echo "auto inject dependencies to original Chart.yaml"
 cat <<EOF >> ${CHART_BUILD_DIR}/Chart.yaml
