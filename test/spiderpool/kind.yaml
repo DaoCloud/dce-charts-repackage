@@ -3,8 +3,8 @@ apiVersion: kind.x-k8s.io/v1alpha4
 name: network-chart
 networking:
   ipFamily: dual
-  podSubnet: "172.20.0.0/16"
-  serviceSubnet: "172.21.0.0/16"
+  podSubnet: "172.20.0.0/16,fd20::/48"
+  serviceSubnet: "172.21.0.0/16,fd21::/108"
   apiServerAddress: 127.0.0.1
   kubeProxyMode: iptables
 kubeadmConfigPatches:
@@ -14,7 +14,9 @@ kubeadmConfigPatches:
       name: config
     apiServer:
         extraArgs:
-          enable-admission-plugins: MutatingAdmissionWebhook,ValidatingAdmissionWebhook
+          enable-admission-plugins: NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook
+
 nodes:
   - role: control-plane
+  - role: worker
   - role: worker
