@@ -12,7 +12,7 @@ KIND_KUBECONFIG=$2
 echo "CHART_DIR $CHART_DIR"
 echo "KIND_KUBECONFIG $KIND_KUBECONFIG"
 
-HELM_MUST_OPTION=" --atomic --timeout 5m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG} "
+HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG} "
 
 #==================== add your deploy code bellow =============
 #==================== notice , prometheus CRD has been deployed , so you no need to =============
