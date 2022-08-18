@@ -51,6 +51,7 @@ init-kind: checkBin clean
 	# install probe
 	kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_probes.yaml  \
 		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) ./yaml/monitoring.coreos.com_probes.yaml
+	echo "show kubernetes node image " && docker ps
 	@echo "========================================================"
 	@echo "   deploy kind cluster $(KIND_CLUSTER_NAME)             "
 	@echo "  kubectl get node --kubeconfig $(KIND_KUBECONFIG)      "
