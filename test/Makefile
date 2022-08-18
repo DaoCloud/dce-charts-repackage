@@ -65,7 +65,7 @@ deploy: checkBin
 		if [ "$(TRY_LOAD_LOCAL_IMAGE)" == "true" ] ; then \
 			echo "try to load local image for $(PROJECT)" ; \
 			IMAGE_LIST=` helm template test $${CHART_DIR}  |& grep " image: " | awk -F '"' '{print $$2}' ` ; \
-			if [ -n "$${IMAGE_LIST}" ] ; then \
+			if [ -z "$${IMAGE_LIST}" ] ; then \
 			  	echo "error, failed to find image from chart template for $(PROJECT)" ; \
 			else \
 				echo "found image from $(PROJECT) chart template: $${IMAGE_LIST} " ; \
