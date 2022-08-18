@@ -37,6 +37,7 @@ init-kind: checkBin clean
 	- sysctl -w fs.inotify.max_user_watches=524288 || true
 	- sysctl -w fs.inotify.max_user_instances=512  || true
 	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH) --kubeconfig $(KIND_KUBECONFIG)
+	- kubectl --kubeconfig $(KIND_CONFIG_PATH) taint nodes --all node-role.kubernetes.io/master-
 	@echo "===================== deploy prometheus CRD ========== "
 	# install servicemonitor
 	kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml \
