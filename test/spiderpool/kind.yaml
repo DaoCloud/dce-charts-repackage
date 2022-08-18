@@ -5,6 +5,7 @@ networking:
   ipFamily: dual
   podSubnet: "172.20.0.0/16"
   serviceSubnet: "172.21.0.0/16"
+  apiServerAddress: 127.0.0.1
   kubeProxyMode: iptables
 kubeadmConfigPatches:
   - |
