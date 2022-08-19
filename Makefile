@@ -10,6 +10,10 @@ all: build_chart
 
 PROJECT ?=
 
+.PHONY: e2e
+e2e:
+	make -C test e2e -e PROJECT=$(PROJECT)
+
 .PHONY: build_chart
 build_chart:
 	@ project=$(PROJECT) ; [ -z "$(PROJECT)" ] && project=`ls ./charts` ; \
@@ -23,3 +27,5 @@ build_chart:
 help:
 	@echo "make         					 build all chart under /charts"
 	@echo "make -e PROJECT=spiderpool        just build spiderpool chart"
+
+
