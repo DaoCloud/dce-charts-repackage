@@ -22,7 +22,7 @@ e2e:
   				[ -f "$${INSTALL_PATH}" ] || { echo "warning, miss $${INSTALL_PATH}"  ; continue ; } ; \
             fi ;\
             echo "run e2e for project $${ITEM} "; \
-            if [ -f "$${KIND_CONFIG_PATH}" ] ; then ;  \
+            if [ -f "$${KIND_CONFIG_PATH}" ] ; then  \
             	echo "the project $${ITEM}  needs a standby kind cluster" ; \
 				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
             fi ; \
