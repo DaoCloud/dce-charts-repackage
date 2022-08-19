@@ -32,8 +32,7 @@ jobs:
   package:
     runs-on: ubuntu-latest
     outputs:
-      ref: ${{ steps.get_ref.outputs.tag }}
-      release: ${{ steps.get_ref.outputs.release }}
+      ref: ${{ steps.get_ref.outputs.ref }}
     steps:
       - name: Get Ref
         id: get_ref
@@ -47,13 +46,15 @@ jobs:
               fi
               # release to github pages
               echo ::set-output name=release::${{ github.event.inputs.daocloud }}
-              echo ::set-output name=tag::${{ github.event.inputs.ref }}
+              echo ::set-output name=ref::${{ github.event.inputs.ref }}
+              echo ::set-output name=publishversion::false
           elif ${{ github.event_name == 'push' }} ; then
               echo "call by tag push"
               echo ::set-output name=project::all
               echo ::set-output name=release::true
               # release to github pages
-              echo ::set-output name=tag::${{ github.sha }}
+              echo ::set-output name=ref::${GITHUB_REF##*/}
+              echo ::set-output name=publishversion::true
           else
             echo "unexpected event: ${{ github.event_name }}"
             exit 1
@@ -64,7 +65,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
-          ref: ${{ steps.get_ref.outputs.tag }}
+          ref: ${{ steps.get_ref.outputs.ref }}
 
       - name: Result Ref
         id: result
@@ -126,6 +127,20 @@ jobs:
               (($?!=0)) && echo "push $ITEM to ${DAO_PROJECT} of daocloud chart repo " && exit 1
           done
           exit 0
+
+      - name: Create Release
+        id: create_release
+        if: ${{ steps.get_ref.outputs.publishversion == 'true' }}
+        uses: ncipollo/release-action@v1.9.0
+        with:
+          artifacts: "_upload/*"
+          allowUpdates: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          artifactErrorsFailBuild: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.get_ref.outputs.ref }}
+          name: "Release ${{ steps.get_ref.outputs.ref }}"
 
   # update /index.yaml in the target branch
   update_githubpage:

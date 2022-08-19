@@ -1,0 +1,58 @@
+name: Doc Lint
+
+on:
+  push:
+    branches:
+      - main
+      - release-*
+      - gh-pages
+    paths:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+  pull_request:
+    branches:
+      - main
+      - release-*
+      - gh-pages
+    paths:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+  # checkout all markdown
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'check all md for branch, sha, tag'
+        required: true
+        default: main
+
+jobs:
+  markdown-link-check:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.ref }}
+
+      - name: Checkout
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: actions/checkout@v3
+
+      - name: markdownlint-cli
+        uses: nosborn/github-action-markdown-cli@v3.1.0
+        with:
+          files: .
+          config_file: '.github/markdownlint.yaml'
+          ignore_path: '.github/markdownlintignore'
+
+      - name: yaml-lint
+        id: yaml-lint
+        continue-on-error: true
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: '.'
+          config_file: '.github/yamllint-conf.yml'
