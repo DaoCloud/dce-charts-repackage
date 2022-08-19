@@ -88,5 +88,6 @@ jobs:
 
       - name: Run E2E
         run: |
-            make e2e -e PROJECT=${{ steps.project.outputs.project_list }} || exit 1
+            echo "run e2e for porject: ${{ steps.project.outputs.project_list }}"
+            make e2e -e PROJECT='${{ steps.project.outputs.project_list }}' || exit 1
             exit 0
