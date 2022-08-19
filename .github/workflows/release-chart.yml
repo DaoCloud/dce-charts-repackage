@@ -80,7 +80,8 @@ jobs:
         run: |
           ROOT_DIR=`pwd`
           project_list=${{ steps.get_ref.outputs.project }}
-          if ${{ steps.get_ref.outputs.project == 'all' }} || ${{ steps.get_ref.outputs.project == '' }} ; then
+          if [ "$project_list" == "all" ] || [ -z "$project_list" ] ; then
+              project_list=""
               TMP=`ls charts`
               for ITEM in $TMP ; do
                   if [ -d "${ROOT_DIR}/charts/${ITEM}/${ITEM}" ] ; then
