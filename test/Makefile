@@ -9,21 +9,23 @@ all: e2e
 
 .PHONY: e2e
 e2e:
+	#setup global kind
+	make init-kind -e KIND_CONFIG_PATH=./yaml/kind.yaml || { echo "error, failed to setup kind " ; exit 1 ; }
 	PROJECT_LIST=$(PROJECT) ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` ; \
 		for ITEM in $$PROJECT_LIST ; do \
 		    [ -d "$${ITEM}" ] || continue ; \
-			CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
+			KIND_CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
 			INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
 			if [ -n "$(PROJECT)" ]; then \
-			    [ -f "$${CONFIG_PATH}" ] || { echo "error, miss $${CONFIG_PATH}" ; exit 1 ; } ; \
 			    [ -f "$${INSTALL_PATH}" ] || { echo "error, miss $${INSTALL_PATH}" ; exit 1 ; } ; \
 			else \
-  				[ -f "$${CONFIG_PATH}" ] || { echo "warning, miss $${CONFIG_PATH}"  ; continue ; } ; \
   				[ -f "$${INSTALL_PATH}" ] || { echo "warning, miss $${INSTALL_PATH}"  ; continue ; } ; \
             fi ;\
             echo "run e2e for project $${ITEM} "  ;\
-            echo "setup kind for project $${ITEM}"  ;\
-			make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}" ; exit 1 ; } ;\
+            if [ -f "$${KIND_CONFIG_PATH}" ] ; then ;  \
+            	echo "the project $${ITEM}  needs a standby kind cluster" ; \
+				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}" ; exit 1 ; } ;\
+            fi ; \
             echo "deploy project $${ITEM}"  ;\
 			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ;\
 	  	done
