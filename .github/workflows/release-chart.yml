@@ -5,7 +5,6 @@ env:
   PR_LABEL: pr/release/robot_update_githubpage
   PR_REVIWER: weizhoublue
   DAOCLOUD_HARBOR_URL: https://release.daocloud.io
-  DEFAULT_HARBOR_PROJECT: addon
 
 on:
   push:
@@ -26,10 +25,6 @@ on:
         required: true
         type: boolean
         default: true
-      daocloudProject:
-        description: 'project of daocloud repo'
-        required: true
-        default: addon
 
 permissions: write-all
 
@@ -53,14 +48,12 @@ jobs:
               # release to github pages
               echo ::set-output name=release::${{ github.event.inputs.daocloud }}
               echo ::set-output name=tag::${{ github.event.inputs.ref }}
-              echo ::set-output name=reponame::${{ github.event.inputs.daocloudProject }}
           elif ${{ github.event_name == 'push' }} ; then
               echo "call by tag push"
               echo ::set-output name=project::all
               echo ::set-output name=release::true
               # release to github pages
               echo ::set-output name=tag::${{ github.sha }}
-              echo ::set-output name=reponame::${{ env.DEFAULT_HARBOR_PROJECT }}
           else
             echo "unexpected event: ${{ github.event_name }}"
             exit 1
@@ -83,11 +76,17 @@ jobs:
         uses: azure/setup-helm@v3.3
 
       - name: package chart
+        id: package
         run: |
           ROOT_DIR=`pwd`
           project_list=${{ steps.get_ref.outputs.project }}
           if ${{ steps.get_ref.outputs.project == 'all' }} || ${{ steps.get_ref.outputs.project == '' }} ; then
-              project_list=`ls charts`
+              TMP=`ls charts`
+              for ITEM in $TMP ; do
+                  if [ -d "${ROOT_DIR}/charts/${ITEM}/${ITEM}" ] ; then
+                      project_list+=" $ITEM "
+                  fi
+              done
           fi
           mkdir _upload
           cd _upload
@@ -95,6 +94,7 @@ jobs:
               [ ! -d "${ROOT_DIR}/charts/${ITEM}/${ITEM}" ] && echo "error, find to find project $ITEM in /charts" && exit 1
               helm package ${ROOT_DIR}/charts/${ITEM}/${ITEM}
           done
+          echo ::set-output name=project_list::${project_list}
 
       - name: Upload chart artifact
         uses: actions/upload-artifact@v3.1.0
@@ -111,13 +111,17 @@ jobs:
       - name: push to daocloud
         if: ${{ steps.get_ref.outputs.release == 'true' }}
         run: |
-          helm repo add harborrepo ${{ env.DAOCLOUD_HARBOR_URL }}/chartrepo/${{ steps.get_ref.outputs.reponame }} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} 
           cd _upload
-          LIST=`ls *.tgz`
-          for ITEM in $LIST ; do
-              helm cm-push ${ITEM}  harborrepo --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}
-              (($?!=0)) && echo "push $ITEM to ${{ steps.get_ref.outputs.reponame }} of daocloud chart repo " && exit 1
-              echo "push $ITEM to ${{ steps.get_ref.outputs.reponame }} of daocloud chart repo"
+          for ITEM in ${{ steps.package.outputs.project_list }} ; do
+              DAO_PROJECT=` grep "DAOCLOUD_REPO_PROJECT" charts/${ITEM}/config | awk -F= '{print $2}' | tr -d ' ' `
+              [ -z "$DAO_PROJECT" ] && echo "error, failed to find DAOCLOUD_REPO_PROJECT config in charts/${ITEM}/config " && exit 1
+              CHART_FILE=` ls ${ITEM}*.tgz `
+              [ -z "${CHART_FILE}" ] && echo "error, failed to find chart.tgz for $ITEM " && exit 2
+              DAO_ADDRESS=${{ env.DAOCLOUD_HARBOR_URL }}/chartrepo/${DAO_PROJECT}
+              echo "push $CHART_FILE to $DAO_ADDRESS "              
+              helm repo add daocloud-${DAO_PROJECT}  ${DAO_ADDRESS} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} 
+              helm cm-push ${CHART_FILE}  daocloud-${DAO_PROJECT} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}
+              (($?!=0)) && echo "push $ITEM to ${DAO_PROJECT} of daocloud chart repo " && exit 1
           done
 
   # update /index.yaml in the target branch
