@@ -4,7 +4,7 @@
 
 ## requirement
 
-install：
+local host need install：
 * helm (localy buidl chart)
 * helm-schema-gen if needed (https://github.com/karuppiah7890/helm-schema-gen.git)
 * docker(e2e)
@@ -72,7 +72,8 @@ install：
 
 ## chart 发布到 github pages 和 daocloud 仓库
 
-给项目推送任意 tag，github action 自动会制作所有的 chart tgz，并提交PR 到 github pages (需要 approve 下 PR) ，并发送一份到 daocloud 仓库
+给项目推送任意 tag，github action 自动会制作所有的 chart tgz，并提交PR 到 github pages (需要 approve 下 PR) (go-pages branch)，
+并发送一份到 daocloud 仓库(推送到哪个项目下？依据  charts/${PROJECT}/config 文件中的 DAOCLOUD_REPO_PROJECT 设置 )
 
 提交到 github pages，可方便你测试
 ```shell
@@ -81,5 +82,3 @@ helm pull daocloud/${PROJECT}
 ```
 
 > 如果指需要 个别 chart 发布到 github pages 和 daocloud 仓库 ，可 在 github action 中手动触发 "Release Chart" action， 触发推送指定chart
-
-
