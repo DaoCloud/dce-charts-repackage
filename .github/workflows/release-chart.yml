@@ -121,10 +121,19 @@ jobs:
               CHART_FILE=` ls ${ITEM}*.tgz `
               [ -z "${CHART_FILE}" ] && echo "error, failed to find chart.tgz for $ITEM " && exit 2
               DAO_ADDRESS=${{ env.DAOCLOUD_HARBOR_URL }}/chartrepo/${DAO_PROJECT}
-              echo "push $CHART_FILE to $DAO_ADDRESS "              
-              helm repo add daocloud-${DAO_PROJECT}  ${DAO_ADDRESS} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} 
-              helm cm-push ${CHART_FILE}  daocloud-${DAO_PROJECT} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}
-              (($?!=0)) && echo "push $ITEM to ${DAO_PROJECT} of daocloud chart repo " && exit 1
+              echo "push $CHART_FILE to $DAO_ADDRESS "
+              BAD=true
+              for ((N=0;N<10;N++)); do
+                  helm repo add daocloud-${DAO_PROJECT}  ${DAO_ADDRESS} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}  || continue 
+                  BAD="" && break          
+              done
+              [ "$BAD" == "true" ] && echo "erro, failed to helm repo add " && exit 1
+              BAD=true
+              for ((N=0;N<10;N++)); do
+                  helm cm-push ${CHART_FILE}  daocloud-${DAO_PROJECT} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} || continue
+                  BAD="" && break
+              done
+              [ "$BAD" == "true" ] && echo "erro, failed to helm push " && exit 1
           done
           exit 0
 
