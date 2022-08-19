@@ -1,9 +1,5 @@
 apiVersion: v2
-appVersion: v0.0.6
-dependencies:
-- name: spiderpool
-  repository: https://spidernet-io.github.io/spiderpool
-  version: v0.0.6
+appVersion: v0.0.8
 description: ipam for kubernetes cni
 home: https://spidernet-io.github.io/spiderpool
 keywords:
@@ -17,4 +13,8 @@ name: spiderpool
 sources:
 - https://github.com/spidernet-io/spiderpool
 type: application
-version: v0.0.6
+version: v0.0.8
+dependencies:
+  - name: spiderpool
+    version: "v0.0.8"
+    repository: "https://spidernet-io.github.io/spiderpool"

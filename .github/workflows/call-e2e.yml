@@ -1,0 +1,87 @@
+name: Call E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'project name.[ leave empty for all projects]'
+        required: false
+      ref:
+        description: 'branch name, tag or sha'
+        required: true
+        default: main
+  workflow_call:
+    inputs:
+      project:
+        required: true
+        type: string
+      ref:
+        required: true
+        type: string
+
+permissions: write-all
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    outputs:
+      ref: ${{ steps.get_ref.outputs.tag }}
+      release: ${{ steps.get_ref.outputs.release }}
+    steps:
+      - name: Get Ref
+        id: get_ref
+        run: |
+          PLIST=""
+          if ${{ github.event_name == 'workflow_dispatch' }} ; then
+              echo "call by self workflow_dispatch"
+              if ${{ github.event.inputs.project == '' }} ; then
+                  # for all project
+                  TMP=`ls charts`
+                  for ITEM in $TMP ; do
+                      [ -d "charts/${ITEM}/${ITEM}" ] && PLIST+=" ${ITEM} "
+                  done
+                  echo ::set-output name=project_list::${PLIST}
+              else
+                  echo ::set-output name=project_list::${{ github.event.inputs.ref }}
+                  PLIST=${{ github.event.inputs.ref }}
+              fi
+              echo ::set-output name=tag::${{ github.event.inputs.ref }}
+          else
+              echo "trigger by workflow_call"
+              echo ::set-output name=project_list::${{ inputs.project }}
+              echo ::set-output name=tag::${{ github.event.pull_request.head.sha }}
+              PLIST=${{ inputs.project }}
+          fi
+          # check project existence
+          echo "check PROJECT_LIST : ${PLIST} "
+          for ITEM in ${PLIST} ; do
+              [ ! -d "charts/${ITEM}/${ITEM}" ] && echo "error, did not find project chart ${ITEM} " && exit 1
+          done
+          exit 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3.3
+
+      - name: install docker
+        uses: docker-practice/actions-setup-docker@master
+
+      - name: Install Kind
+        uses: helm/kind-action@v1.3.0
+        with:
+          install_only: true
+
+      - name: Install tools
+        run: |
+          curl -Lo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/$OS/amd64/kubectl
+          chmod +x /usr/local/bin/kubectl
+
+      # some event, the tag is not sha, so checkout it and get sha
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          ref: ${{ steps.get_ref.outputs.tag }}
+
+      - name: Run E2E
+        run: |
+            make e2e -e PROJECT=${{ steps.get_ref.outputs.project_list }}

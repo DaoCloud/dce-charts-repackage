@@ -69,7 +69,7 @@ spiderpoolAgent:
     # take preference over tag
     digest: ""
     # Overrides the image tag whose default is the chart appVersion.
-    tag: v0.0.6
+    tag: v0.0.8
     imagePullSecrets: []
     # - name: "image-pull-secret"
 
@@ -122,6 +122,8 @@ spiderpoolAgent:
     - key: node.kubernetes.io/not-ready
       effect: NoSchedule
     - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
       effect: NoSchedule
     - key: CriticalAddonsOnly
       operator: Exists
@@ -238,7 +240,7 @@ spiderpoolController:
     digest: ""
     # digest: "sha256:251ff274acf22fd2067b29a31e9fda94253d2961c061577203621583d7e85bd2"
     # Overrides the image tag whose default is the chart appVersion.
-    tag: v0.0.6
+    tag: v0.0.8
     imagePullSecrets: []
     # - name: "image-pull-secret"
 
@@ -282,6 +284,8 @@ spiderpoolController:
     - key: node.kubernetes.io/not-ready
       effect: NoSchedule
     - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
       effect: NoSchedule
     - key: CriticalAddonsOnly
       operator: Exists
