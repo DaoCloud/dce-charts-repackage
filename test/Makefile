@@ -21,13 +21,13 @@ e2e:
 			else \
   				[ -f "$${INSTALL_PATH}" ] || { echo "warning, miss $${INSTALL_PATH}"  ; continue ; } ; \
             fi ;\
-            echo "run e2e for project $${ITEM} "  ;\
+            echo "run e2e for project $${ITEM} "; \
             if [ -f "$${KIND_CONFIG_PATH}" ] ; then ;  \
             	echo "the project $${ITEM}  needs a standby kind cluster" ; \
-				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}" ; exit 1 ; } ;\
+				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
             fi ; \
-            echo "deploy project $${ITEM}"  ;\
-			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ;\
+            echo "deploy project $${ITEM}"; \
+			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
 	  	done
 
 
