@@ -80,5 +80,4 @@ local host need install：
 helm repo add daocloud https://daocloud.github.io/network-charts-repackage/
 helm pull daocloud/${PROJECT} 
 ```
-
 > 如果指需要 个别 chart 发布到 github pages 和 daocloud 仓库 ，可 在 github action 中手动触发 "Release Chart" action， 触发推送指定chart
