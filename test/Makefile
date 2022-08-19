@@ -28,7 +28,8 @@ e2e:
             fi ; \
             echo "deploy project $${ITEM}"; \
 			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
-	  	done ; exit 0
+	  	done ; \
+	  	exit 0
 
 
 .PHONY: init-kind
@@ -39,7 +40,7 @@ init-kind: checkBin clean
 	- sysctl -w fs.inotify.max_user_watches=524288 || true
 	- sysctl -w fs.inotify.max_user_instances=512  || true
 	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH) --kubeconfig $(KIND_KUBECONFIG)
-	- kubectl --kubeconfig $(KIND_KUBECONFIG) taint nodes --all node-role.kubernetes.io/master-
+	- kubectl --kubeconfig $(KIND_KUBECONFIG) taint nodes --all node-role.kubernetes.io/master- || true
 	@echo "===================== deploy prometheus CRD ========== "
 	# install servicemonitor
 	timeout 10 kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml \
@@ -85,7 +86,7 @@ deploy: checkBin
 		chmod +x $(INSTALL_PATH) ; \
 		$(INSTALL_PATH) "$${CHART_DIR}"  "$(KIND_KUBECONFIG)" ; \
 		(($?==0)) || { echo "error, failed to deploy $(PROJECT) "  ; exit 1 ; } ; \
-		echo "succeeded to deploy $(PROJECT)"
+		echo "succeeded to deploy $(PROJECT)" ; exit 0
 
 
 .PHONY: checkBin
