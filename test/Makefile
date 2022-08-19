@@ -18,6 +18,8 @@ e2e:
 			INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
 			if [ -n "$(PROJECT)" ]; then \
 			    [ -f "$${INSTALL_PATH}" ] || { echo "error, miss $${INSTALL_PATH}" ; exit 1 ; } ; \
+		  	else \
+			    [ ! -f "$${INSTALL_PATH}" ] && continue ; \
             fi ; \
             echo "============ run e2e for project $${ITEM} ===================="; \
             if [ -f "$${KIND_CONFIG_PATH}" ] ; then  \
@@ -26,7 +28,7 @@ e2e:
             fi ; \
             echo "deploy project $${ITEM}"; \
 			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
-	  	done ; exit 0 
+	  	done ; exit 0
 
 
 .PHONY: init-kind
