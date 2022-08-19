@@ -1,5 +1,8 @@
 # network-charts-repackage
 
+[![Nightly E2E](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/night-ci.yml/badge.svg)](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/night-ci.yml)
+[![Release Chart](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/release-chart.yml/badge.svg)](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/release-chart.yml)
+
 ***
 
 ## requirement
