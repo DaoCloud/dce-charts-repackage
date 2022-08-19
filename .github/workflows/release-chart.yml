@@ -5,7 +5,7 @@ env:
   PR_LABEL: pr/release/robot_update_githubpage
   PR_REVIWER: weizhoublue
   DAOCLOUD_HARBOR_URL: https://release.daocloud.io
-  HARBOR_PROJECT: addon
+  DEFAULT_HARBOR_PROJECT: addon
 
 on:
   push:
@@ -22,10 +22,14 @@ on:
         required: true
         default: main
       daocloud:
-        description: 'push to daocloud repo'
+        description: 'enable push to daocloud repo'
         required: true
         type: boolean
         default: true
+      daocloudProject:
+        description: 'project of daocloud repo'
+        required: true
+        default: addon
 
 permissions: write-all
 
@@ -49,12 +53,14 @@ jobs:
               # release to github pages
               echo ::set-output name=release::${{ github.event.inputs.daocloud }}
               echo ::set-output name=tag::${{ github.event.inputs.ref }}
+              echo ::set-output name=reponame::${{ github.event.inputs.daocloudProject }}
           elif ${{ github.event_name == 'push' }} ; then
               echo "call by tag push"
               echo ::set-output name=project::all
               echo ::set-output name=release::true
               # release to github pages
               echo ::set-output name=tag::${{ github.sha }}
+              echo ::set-output name=reponame::${{ env.DEFAULT_HARBOR_PROJECT }}
           else
             echo "unexpected event: ${{ github.event_name }}"
             exit 1
@@ -105,13 +111,13 @@ jobs:
       - name: push to daocloud
         if: ${{ steps.get_ref.outputs.release == 'true' }}
         run: |
-          helm repo add harborrepo ${{ env.DAOCLOUD_HARBOR_URL }}/chartrepo/${{ env.HARBOR_PROJECT }} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} 
+          helm repo add harborrepo ${{ env.DAOCLOUD_HARBOR_URL }}/chartrepo/${{ steps.get_ref.outputs.reponame }} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} 
           cd _upload
           LIST=`ls *.tgz`
           for ITEM in $LIST ; do
               helm cm-push ${ITEM}  harborrepo --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}
-              (($?!=0)) && echo "push $ITEM to ${{ env.HARBOR_PROJECT }} of daocloud chart repo " && exit 1
-              echo "push $ITEM to ${{ env.HARBOR_PROJECT }} of daocloud chart repo"
+              (($?!=0)) && echo "push $ITEM to ${{ steps.get_ref.outputs.reponame }} of daocloud chart repo " && exit 1
+              echo "push $ITEM to ${{ steps.get_ref.outputs.reponame }} of daocloud chart repo"
           done
 
   # update /index.yaml in the target branch
