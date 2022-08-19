@@ -112,9 +112,10 @@ jobs:
       - name: push to daocloud
         if: ${{ steps.get_ref.outputs.release == 'true' }}
         run: |
+          ROOT_DIR=`pwd`
           cd _upload
           for ITEM in ${{ steps.package.outputs.project_list }} ; do
-              DAO_PROJECT=` grep "DAOCLOUD_REPO_PROJECT" charts/${ITEM}/config | awk -F= '{print $2}' | tr -d ' ' `
+              DAO_PROJECT=` grep "DAOCLOUD_REPO_PROJECT" ${ROOT_DIR}/charts/${ITEM}/config | awk -F= '{print $2}' | tr -d ' ' `
               [ -z "$DAO_PROJECT" ] && echo "error, failed to find DAOCLOUD_REPO_PROJECT config in charts/${ITEM}/config " && exit 1
               CHART_FILE=` ls ${ITEM}*.tgz `
               [ -z "${CHART_FILE}" ] && echo "error, failed to find chart.tgz for $ITEM " && exit 2
