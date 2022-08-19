@@ -66,7 +66,7 @@ install：
 
 ### github action
 
-按照 .github/workflows/ci-spiderpool.yml ， 创建一份copy，编辑下其中的项目名字， 提交 PR
+按照 .github/workflows/ci-spiderpool.yml ， 创建一份copy，编辑下其中的项目名字， 提交 并 合入 PR
 
 ***
 
