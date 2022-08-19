@@ -66,6 +66,7 @@ jobs:
           for ITEM in ${PLIST} ; do
               [ ! -d "charts/${ITEM}/${ITEM}" ] && echo "error, did not find project chart ${ITEM} " && exit 1
           done
+          echo ::set-output name=project_list::${PLIST}
           exit 0
 
       - name: Set up Helm
