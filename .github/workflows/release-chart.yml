@@ -125,6 +125,7 @@ jobs:
               helm cm-push ${CHART_FILE}  daocloud-${DAO_PROJECT} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}
               (($?!=0)) && echo "push $ITEM to ${DAO_PROJECT} of daocloud chart repo " && exit 1
           done
+          exit 0
 
   # update /index.yaml in the target branch
   update_githubpage:
