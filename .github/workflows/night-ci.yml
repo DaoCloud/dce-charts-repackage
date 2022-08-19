@@ -1,0 +1,14 @@
+name: Nightly E2E
+
+on:
+  schedule:
+    # each day
+    - cron: "0 20 * * *"
+
+jobs:
+  call_e2e:
+    uses: ./.github/workflows/call-e2e.yml
+    with:
+      project: ""
+      ref: main
+    secrets: inherit
