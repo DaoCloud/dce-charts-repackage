@@ -19,6 +19,14 @@ local host needs install：
 
 * kubectl (e2e)
 
+## notice
+
+增加一个新的chart，主要开发如下2个目录，细节请看后续说明
+
+* /charts/${PROJECT}
+
+* /test/${PROJECT}/install.sh
+
 ***
 
 ## 生成chart
@@ -78,10 +86,6 @@ local host needs install：
 > e2e 流程
 > 1 安装 全局 kind 集群，会安装好 promethues 的 CRD 。 （ 如果存在 /test/${PROJECT}/kind.yaml ， 则安装你的定制 kind ）
 > 2 运行 你的 /test/${PROJECT}/install.sh ， 在kind集群中 进行安装。 如果安装成功，则测试通过
-
-### github action
-
-按照 .github/workflows/ci-spiderpool.yml ， 创建一份copy，编辑下其中的项目名字， 提交 并 合入 PR
 
 ***
 
