@@ -38,6 +38,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{github.event.pull_request.head.ref}}
+          path: thisPorject
 
       - name: Execute readme-generator-for-helm
         run: |
@@ -52,10 +53,13 @@ jobs:
           # Adding || true to avoid "Process exited with code 1" errors
           charts_changed="$(echo "$files_changed" | xargs dirname | grep -E -o "charts/([^/]*)/\1" | grep -o "charts/[^/]*" | sort | uniq | awk -F'/' '{print $2}' | tr '\n' ' ' || true)"
           echo "charts_changed: $charts_changed"
+          echo "ls: `ls` "
+          echo "ls: `ls readme-generator-for-helm` " || true
+          echo "ls: `ls readme-generator-for-helm/bin` " || true
           for ITEM in $charts_changed ; do
             echo "------ Updating README.md for ${ITEM}"
-            readme-generator-for-helm/bin/index.js --values "charts/${ITEM}/${ITEM}/values.yaml" --readme "charts/${ITEM}/${ITEM}/README.md" --schema "/tmp/schema.json"
-            cat charts/${ITEM}/${ITEM}/README.md
+            readme-generator-for-helm/bin/index.js --values "thisPorject/charts/${ITEM}/${ITEM}/values.yaml" --readme "thisPorject/charts/${ITEM}/${ITEM}/README.md" --schema "/tmp/schema.json"
+            cat thisPorject/charts/${ITEM}/${ITEM}/README.md
           done
 
       - name: remove readme-generator-for-helm
