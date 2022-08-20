@@ -1,0 +1,50 @@
+name: PR E2E CI
+
+on:
+  pull_request_target:
+    branches:
+      - main
+
+jobs:
+  check_change:
+    runs-on: ubuntu-latest
+    outputs:
+      project: ${{ steps.check_change.outputs.changed_project }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: check change
+        id: check_change
+        run: |
+          # Using the Github API to detect the files changed as git merge-base stops working when the branch is behind
+          # and jitterbit/get-changed-files does not support pull_request_target
+          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
+          files_changed_data=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -X GET -G "$URL")
+          echo "files_changed_data: $files_changed_data"
+          files_changed="$(echo $files_changed_data | jq -r '.[] | .filename')"
+          echo "files_changed: files_changed"
+          #--------------------
+          # Adding || true to avoid "Process exited with code 1" errors
+          charts_changed="$(echo "$files_changed" | xargs dirname | grep -E -o "charts/([^/]*)/\1" | grep -o "charts/[^/]*" | sort | uniq | awk -F'/' '{print $2}' | tr '\n' ' ' || true)"
+          echo "charts_changed: $charts_changed"
+          #--------------------
+          test_dir_changed="$(echo "$files_changed" | xargs dirname |  grep -o "test/[^/]*" | sort | uniq  || true)"
+          if [ -n "$test_dir_changed" ] ; then
+              # add spiderppool for testing test changes
+              charts_changed=` echo "$charts_changed spiderpool" | tr -s ' ' | tr ' ' '\n' | sort | uniq | tr '\n' ' ' || true`
+              echo "detect test changrs, add spiderpool, charts_changed: $charts_changed"
+          fi
+          charts_changed=` echo $charts_changed `
+          echo ::set-output name=changed_project::${charts_changed}
+
+  call_e2e:
+    uses: ./.github/workflows/call-e2e.yml
+    needs: [check_change]
+    if: ${{ needs.check_change.outputs.project != '' }}
+    with:
+      project: ${{ needs.check_change.outputs.project }}
+      ref: ${{ github.event.pull_request.head.sha }}
+    secrets: inherit
