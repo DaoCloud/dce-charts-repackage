@@ -33,7 +33,6 @@ jobs:
         run: |
           cd readme-generator-for-helm
           npm install
-          cd .. && rm -rf readme-generator-for-helm
 
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -58,6 +57,10 @@ jobs:
             readme-generator-for-helm/bin/index.js --values "charts/${ITEM}/${ITEM}/values.yaml" --readme "charts/${ITEM}/${ITEM}/README.md" --schema "/tmp/schema.json"
             cat charts/${ITEM}/${ITEM}/README.md
           done
+
+      - name: remove readme-generator-for-helm
+        run: |
+          rm -rf readme-generator-for-helm
 
 #      - name: Push changes
 #        run: |
