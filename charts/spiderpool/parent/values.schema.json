@@ -1,135 +1,409 @@
 {
-  "$schema": "http://json-schema.org/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema",
   "type": "object",
   "properties": {
-    "clusterDefaultPool": {
+    "spiderpool": {
+      "title": "The spiderpool Schema",
       "type": "object",
       "properties": {
-        "installIPv4IPPool": {
-          "type": "boolean"
-        },
-        "installIPv6IPPool": {
-          "type": "boolean"
-        },
-        "ipv4IPRanges": {
-          "type": "array"
-        },
-        "ipv4Subnet": {
-          "type": "string"
-        },
-        "ipv6IPRanges": {
-          "type": "array"
-        },
-        "ipv6Subnet": {
-          "type": "string"
-        }
-      }
-    },
-    "ipFamily": {
-      "type": "object",
-      "properties": {
-        "enableIPv4": {
-          "type": "boolean"
-        },
-        "enableIPv6": {
-          "type": "boolean"
-        }
-      }
-    },
-    "spiderpoolAgent": {
-      "type": "object",
-      "properties": {
-        "image": {
+        "global": {
+          "title": "The global Schema",
           "type": "object",
+          "default": {},
           "properties": {
-            "pullPolicy": {
-              "type": "string"
-            },
-            "repository": {
-              "type": "string"
-            },
-            "tag": {
-              "type": "string"
+            "imageRegistryOverride": {
+              "title": "The imageRegistryOverride Schema",
+              "type": "string",
+              "default": "",
+              "examples": [
+                ""
+              ]
             }
           }
         },
-        "prometheus": {
+        "feature": {
+          "title": "The feature Schema",
           "type": "object",
+          "default": {},
+          "required": [
+            "enableIPv4",
+            "enableIPv6"
+          ],
           "properties": {
-            "enabled": {
-              "type": "boolean"
+            "enableIPv4": {
+              "title": "The enableIPv4 Schema",
+              "type": "boolean",
+              "default": false,
+              "examples": [
+                true
+              ]
             },
-            "port": {
-              "type": "integer"
-            },
-            "prometheusRule": {
-              "type": "object",
-              "properties": {
-                "enabled": {
-                  "type": "boolean"
-                }
-              }
-            },
-            "serviceMonitor": {
-              "type": "object",
-              "properties": {
-                "annotations": {
-                  "type": "object"
-                },
-                "labels": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "spiderpoolController": {
-      "type": "object",
-      "properties": {
-        "image": {
-          "type": "object",
-          "properties": {
-            "pullPolicy": {
-              "type": "string"
-            },
-            "repository": {
-              "type": "string"
-            },
-            "tag": {
-              "type": "string"
+            "enableIPv6": {
+              "title": "The enableIPv6 Schema",
+              "type": "boolean",
+              "default": false,
+              "examples": [
+                true
+              ]
             }
           }
         },
-        "prometheus": {
+        "clusterDefaultPool": {
+          "title": "The clusterDefaultPool Schema",
           "type": "object",
+          "default": {},
+          "required": [
+            "installIPv4IPPool",
+            "installIPv6IPPool",
+            "ipv4IPPoolName",
+            "ipv6IPPoolName",
+            "ipv4Subnet",
+            "ipv6Subnet",
+            "ipv4IPRanges",
+            "ipv6IPRanges"
+          ],
           "properties": {
-            "enabled": {
-              "type": "boolean"
+            "installIPv4IPPool": {
+              "title": "The installIPv4IPPool Schema",
+              "type": "boolean",
+              "default": false,
+              "examples": [
+                false
+              ]
             },
-            "port": {
-              "type": "integer"
+            "installIPv6IPPool": {
+              "title": "The installIPv6IPPool Schema",
+              "type": "boolean",
+              "default": false,
+              "examples": [
+                false
+              ]
             },
-            "prometheusRule": {
+            "ipv4IPPoolName": {
+              "title": "The ipv4IPPoolName Schema",
+              "type": "string",
+              "default": "default-v4-ippool",
+              "examples": [
+                "default-v4-ippool"
+              ]
+            },
+            "ipv6IPPoolName": {
+              "title": "The ipv6IPPoolName Schema",
+              "type": "string",
+              "default": "default-v6-ippool",
+              "examples": [
+                "default-v6-ippool"
+              ]
+            },
+            "ipv4Subnet": {
+              "title": "The ipv4Subnet Schema",
+              "type": "string",
+              "pattern": "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}/[0-9]+$",
+              "default": "",
+              "examples": [
+                "192.168.1.0/24"
+              ]
+            },
+            "ipv6Subnet": {
+              "title": "The ipv6Subnet Schema",
+              "type": "string",
+              "default": "",
+              "examples": [
+                "fd00::/64"
+              ]
+            },
+            "ipv4IPRanges": {
+              "title": "The ipv4IPRanges Schema",
+              "type": "array",
+              "default": [],
+              "items": {},
+              "examples": [
+                ["192.168.1.10-192.168.1.200"]
+              ]
+            },
+            "ipv6IPRanges": {
+              "title": "The ipv6IPRanges Schema",
+              "type": "array",
+              "default": [],
+              "items": {},
+              "examples": [
+                ["fd00::10-fd00::200"]
+              ]
+            }
+          }
+        },
+        "spiderpoolAgent": {
+          "title": "The spiderpoolAgent Schema",
+          "type": "object",
+          "default": {},
+          "properties": {
+            "image": {
+              "title": "The image Schema",
               "type": "object",
+              "default": {},
               "properties": {
-                "enabled": {
-                  "type": "boolean"
+                "registry": {
+                  "title": "The registry Schema",
+                  "type": "string",
+                  "default": "ghcr.io",
+                  "examples": [
+                    "ghcr.io"
+                  ]
+                },
+                "repository": {
+                  "title": "The repository Schema",
+                  "type": "string",
+                  "default": "spidernet-io/spiderpool/spiderpool-agent",
+                  "examples": [
+                    "spidernet-io/spiderpool/spiderpool-agent"
+                  ]
                 }
               }
             },
-            "serviceMonitor": {
+            "resources": {
+              "title": "The resources Schema",
               "type": "object",
+              "default": {},
               "properties": {
-                "annotations": {
-                  "type": "object"
+                "limits": {
+                  "title": "The limits Schema",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ],
+                  "properties": {
+                    "cpu": {
+                      "title": "The cpu limits",
+                      "type": "string",
+                      "default": "1000m",
+                      "examples": [
+                        "1000m"
+                      ]
+                    },
+                    "memory": {
+                      "title": "The memory limits",
+                      "type": "string",
+                      "default": "1024Mi",
+                      "examples": [
+                        "1024Mi"
+                      ]
+                    }
+                  }
                 },
+                "requests": {
+                  "title": "The requests Schema",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ],
+                  "properties": {
+                    "cpu": {
+                      "title": "The cpu requests",
+                      "type": "string",
+                      "default": "100m",
+                      "examples": [
+                        "100m"
+                      ]
+                    },
+                    "memory": {
+                      "title": "The memory requests",
+                      "type": "string",
+                      "default": "128Mi",
+                      "examples": [
+                        "128Mi"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "prometheus": {
+              "title": "The prometheus Schema",
+              "type": "object",
+              "default": {},
+              "properties": {
                 "enabled": {
-                  "type": "boolean"
+                  "title": "The enabled Schema",
+                  "type": "boolean",
+                  "default": true,
+                  "examples": [
+                    false
+                  ]
                 },
-                "labels": {
-                  "type": "object"
+                "serviceMonitor": {
+                  "title": "The serviceMonitor Schema",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "The install Schema",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  }
+                },
+                "prometheusRule": {
+                  "title": "The prometheusRule Schema",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "The install Schema",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "spiderpoolController": {
+          "title": "The spiderpoolController Schema",
+          "type": "object",
+          "default": {},
+          "properties": {
+            "replicas": {
+              "title": "The replicas Schema",
+              "type": "integer",
+              "default": 1,
+              "minimum": 1,
+              "examples": [
+                1
+              ]
+            },
+            "image": {
+              "title": "The image Schema",
+              "type": "object",
+              "default": {},
+              "properties": {
+                "registry": {
+                  "title": "The registry Schema",
+                  "type": "string",
+                  "default": "ghcr.io"
+                },
+                "repository": {
+                  "title": "The repository Schema",
+                  "type": "string",
+                  "default": "spidernet-io/spiderpool/spiderpool-controller"
+                }
+              }
+            },
+            "resources": {
+              "title": "The resources Schema",
+              "type": "object",
+              "default": {},
+              "properties": {
+                "limits": {
+                  "title": "The limits Schema",
+                  "type": "object",
+                  "default": {},
+                  "properties": {
+                    "cpu": {
+                      "title": "The cpu limits",
+                      "type": "string",
+                      "default": "500m"
+                    },
+                    "memory": {
+                      "title": "The memory limits",
+                      "type": "string",
+                      "default": "1024Mi"
+                    }
+                  }
+                },
+                "requests": {
+                  "title": "The requests Schema",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ],
+                  "properties": {
+                    "cpu": {
+                      "title": "The cpu requests",
+                      "type": "string",
+                      "default": "100m"
+                    },
+                    "memory": {
+                      "title": "The memory requests",
+                      "type": "string",
+                      "default": "128Mi"
+                    }
+                  }
+                }
+              }
+            },
+            "prometheus": {
+              "title": "The prometheus Schema",
+              "type": "object",
+              "default": {},
+              "properties": {
+                "enabled": {
+                  "title": "The enabled Schema",
+                  "type": "boolean",
+                  "default": false,
+                  "examples": [
+                    false
+                  ]
+                },
+                "serviceMonitor": {
+                  "title": "The serviceMonitor Schema",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "The install Schema",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  },
+                  "examples": [{
+                    "install": false
+                  }]
+                },
+                "prometheusRule": {
+                  "title": "The prometheusRule Schema",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "The install Schema",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  },
+                  "examples": [{
+                    "install": false
+                  }]
                 }
               }
             }
