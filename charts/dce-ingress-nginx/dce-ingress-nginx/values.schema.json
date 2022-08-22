@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/schema#",
+  "type": "object",
+  "default": {},
+  "properties": {
+    "ingress-nginx": {
+      "type": "object",
+      "default": {},
+      "title": "Ingress configuration",
+      "properties": {
+        "controller": {
+          "type": "object",
+          "default": {},
+          "properties": {
+            "replicaCount": {
+              "type": "integer",
+              "default": 2,
+              "title": "Replica Count"
+            },
+            "metrics": {
+              "type": "object",
+              "default": {},
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false,
+                  "title": "Enable"
+                },
+                "serviceMonitor": {
+                  "type": "object",
+                  "default": {},
+                  "properties": {
+                    "enabled": {
+                      "title": "Service Monitor",
+                      "type": "boolean",
+                      "description": "The ServiceMonitor custom resource definition (CRD) allows to declarative define how a dynamic set of services should be monitored."
+                    }
+                  }
+                }
+              },
+              "title": "Metrics"
+            },
+            "ingressClassResource": {
+              "type": "object",
+              "title": "Ingress Class",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Ingress Class Name"
+                },
+                "default": {
+                  "type": "boolean",
+                  "title": "Default Ingress",
+                  "description": "Is this the default ingressClass for the cluster."
+                }
+              }
+            },
+            "electionID": {
+              "type": "string",
+              "title": "Election ID",
+              "description": "If you need to install all instances in the same namespace, then you need to specify a different election id."
+            },
+            "service": {
+              "type": "object",
+              "properties": {
+                "ipFamilyPolicy": {
+                  "type": "string",
+                  "title": "IP Family Policy",
+                  "enum": [
+                    "SingleStack",
+                    "PreferDualStack",
+                    "RequireDualStack"
+                  ]
+                },
+                "type": {
+                  "type": "string",
+                  "title": "Type",
+                  "enum": [
+                    "LoadBalancer",
+                    "NodePort",
+                    "ClusterIP"
+                  ]
+                }
+              },
+              "title": "Service"
+            }
+          },
+          "title": "Controller"
+        }
+      }
+    },
+    "alert": {
+      "type": "object",
+      "title": "Alert Configurations",
+      "properties": {
+        "prometheusRule": {
+          "type": "object",
+          "properties": {
+            "create": {
+              "type": "boolean"
+            }
+          },
+          "title": "Prometheus Rule"
+        }
+      }
+    }
+  }
+}
