@@ -1,0 +1,50 @@
+ingress-nginx:
+  controller:
+    replicaCount: 2
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: false
+    resources:
+    service:
+      ipFamilyPolicy: "SingleStack"
+      type: "LoadBalancer"
+    image:
+      registry: "k8s.m.daocloud.io"
+      image: "ingress-nginx/controller"
+      tag: "v1.3.0"
+      pullPolicy: IfNotPresent
+      digest: ""
+    admissionWebhooks:
+      patch:
+        enabled: true
+        image:
+          registry: "k8s.m.daocloud.io"
+          image: "ingress-nginx/kube-webhook-certgen"
+          pullPolicy: IfNotPresent
+          tag: "v1.3.0"
+          digest: ""
+    ingressClassResource:
+      name: nginx
+      default: false
+    ingressClass: nginx
+    electionID: "ingress-controller-leader"
+alert:
+  prometheusRule:
+    create: false
+    nginxHighHttp5xxErrorRate: 5
+    nginxHighHttp4xxErrorRate: 5
+    nginxLatencySecond: 3
+  alertManagerConfig:
+    create: false
+    wechat:
+      apiURL: 'https://qyapi.weixin.qq.com/cgi-bin/'
+      apiSecret: "change me"
+      corpID: "change me"
+      agentID: "change me"
+      toUser: "@all"
+buildIn:
+  prometheus:
+    enable: false
+  alertManager:
+    enable: false

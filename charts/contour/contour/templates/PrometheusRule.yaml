@@ -1,0 +1,54 @@
+{{ if .Values.alert.prometheusRule.create }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: prometheus-contour
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: contour
+spec:
+  groups:
+    - name: contour
+      rules:
+        - alert: ContourAbsent
+          expr: absent(up{job="contour"})
+          for: 5m
+          annotations:
+            message: Contour has disappeared from Prometheus service discovery.
+            message_zh: "不能抓取 Contour 指标，容器可能 Down 掉。"
+          labels:
+            severity: critical
+        - alert: HTTPProxyNotReady
+          annotations:
+            message: "HTTPProxy is not ready, namespace {{ "{{ $labels.namespace }}" }}, vhost {{ "{{ $labels.vhost }}" }}."
+            message_zh: "HTTPProxy 未就绪，租户 {{ "{{ $labels.namespace }}" }}，vhost {{ "{{ $labels.vhost }}" }}。"
+          expr: |
+            contour_httpproxy_invalid != 0
+          for: 5m
+          labels:
+            severity: critical
+        - alert: LatencyHigh
+          expr: histogram_quantile(0.99, sum(rate(envoy_cluster_upstream_rq_time_bucket[1m])) by (le, service, namespace)) > {{ .Values.alert.prometheusRule.latencyMillisecond }}
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            message: "Envoy p99 latency is higher than {{ .Values.alert.prometheusRule.latencyMillisecond }} Millisecond\n  VALUE = {{ "{{ $value }}" }}\n  LABELS = {{ "{{ $labels }}" }}"
+            message_zh: "Envoy p99 latency is higher than {{ .Values.alert.prometheusRule.latencyMillisecond }} Millisecond\n  VALUE = {{ "{{ $value }}" }}\n  LABELS = {{ "{{ $labels }}" }}"
+        - alert: HighHttp5xxErrorRate
+          expr: sum(rate(envoy_cluster_upstream_rq_xx{envoy_response_code_class="5"}[5m])) / sum(rate(envoy_cluster_upstream_rq_total[5m])) > {{ .Values.alert.prometheusRule.highHttp5xxErrorRate }}
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            message: "Too many HTTP requests with status 5xx (> {{ .Values.alert.prometheusRule.highHttp5xxErrorRate }}%)\n  VALUE = {{ "{{ $value }}" }}\n  LABELS = {{ "{{ $labels }}" }}"
+            message_zh: "Too many HTTP requests with status 5xx (> {{ .Values.alert.prometheusRule.highHttp5xxErrorRate }}%)\n  VALUE = {{ "{{ $value }}" }}\n  LABELS = {{ "{{ $labels }}" }}"
+        - alert: HighHttp4xxErrorRate
+          expr: sum(rate(envoy_cluster_upstream_rq_xx{envoy_response_code_class="4"}[5m])) / sum(rate(envoy_cluster_upstream_rq_total[5m])) > {{ .Values.alert.prometheusRule.highHttp4xxErrorRate }}
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            message: "Too many HTTP requests with status 4xx (> {{ .Values.alert.prometheusRule.highHttp4xxErrorRate }}%)\n  VALUE = {{ "{{ $value }}" }}\n  LABELS = {{ "{{ $labels }}" }}"
+            message_zh: "Too many HTTP requests with status 4xx (> {{ .Values.alert.prometheusRule.highHttp4xxErrorRate }}%)\n  VALUE = {{ "{{ $value }}" }}\n  LABELS = {{ "{{ $labels }}" }}"
+{{ end }}

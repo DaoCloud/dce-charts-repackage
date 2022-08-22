@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "global": {
+      "type": "object",
+      "title": "Global",
+      "properties": {
+        "imageRegistry": {
+          "type": "string",
+          "title": "Global Image Registry"
+        }
+      }
+    },
+    "contour": {
+      "type": "object",
+      "properties": {
+        "contour": {
+          "type": "object",
+          "properties": {
+            "manageCRDs": {
+              "type": "boolean",
+              "title": "Manage CRDs"
+            },
+            "replicaCount": {
+              "type": "integer",
+              "title": "Replica Count"
+            },
+            "ingressClass": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Name"
+                },
+                "default": {
+                  "type": "boolean",
+                  "title": "Default",
+                  "description": "Is this the default ingressClass for the cluster."
+                }
+              },
+              "title": "IngressClass"
+            },
+            "debug": {
+              "type": "boolean",
+              "title": "Debug",
+              "description": "Enable Contour debug log level"
+            }
+          }
+        },
+        "envoy": {
+          "type": "object",
+          "properties": {
+            "replicaCount": {
+              "type": "integer",
+              "title": "Replica Count"
+            },
+            "kind": {
+              "type": "string",
+              "title": "kind",
+              "enum": [
+                "deployment",
+                "daemonset"
+              ]
+            },
+            "logLevel": {
+              "type": "string",
+              "title": "Log Level"
+            },
+            "service": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "title": "Type",
+                  "enum": [
+                    "LoadBalancer",
+                    "NodePort",
+                    "ClusterIP"
+                  ]
+                },
+                "ipFamilyPolicy": {
+                  "type": "string",
+                  "title": "IP Family Policy",
+                  "enum": [
+                    "SingleStack",
+                    "PreferDualStack",
+                    "RequireDualStack"
+                  ]
+                }
+              },
+              "title": "Service"
+            }
+          },
+          "title": "Envoy"
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "serviceMonitor": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "title": "Enable"
+                }
+              },
+              "title": "ServiceMonitor"
+            }
+          },
+          "title": "Metrics"
+        }
+      },
+      "title": "Contour"
+    },
+    "alert": {
+      "type": "object",
+      "properties": {
+        "prometheusRule": {
+          "type": "object",
+          "properties": {
+            "create": {
+              "type": "boolean"
+            }
+          },
+          "title": "Prometheus Rule"
+        }
+      },
+      "title": "Alert Configurations"
+    }
+  }
+}
