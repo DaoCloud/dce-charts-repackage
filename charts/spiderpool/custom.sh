@@ -22,7 +22,6 @@ sed -i -E 's/tlsKey.*/tlsKey: "'${TLS_KEY}'"/'  values.yaml
 echo "insert insight label"
 INSIGHT_LABEL="labels: { \"operator.insight.io/managed-by\": \"insight\" }"
 
-set -x
 
 LINE=`cat values.yaml | grep -n spiderpoolController.prometheus.grafanaDashboard.labels  | awk -F: '{print $1}' `
 [ -z "$LINE" ] && echo "failed to find line" && exit 1

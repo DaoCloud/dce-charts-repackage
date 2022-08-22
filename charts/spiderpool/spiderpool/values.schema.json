@@ -7,22 +7,23 @@
       "type": "object",
       "properties": {
         "global": {
-          "title": "The global Schema",
+          "title": "Global Setting",
           "type": "object",
           "default": {},
+          "required": [
+            "imageRegistryOverride"
+          ],
           "properties": {
             "imageRegistryOverride": {
-              "title": "The imageRegistryOverride Schema",
+              "title": "global image Registry",
               "type": "string",
-              "default": "",
-              "examples": [
-                ""
-              ]
+              "default": "ghcr.io",
+              "examples": [ "ghcr.io" ]
             }
           }
         },
         "feature": {
-          "title": "The feature Schema",
+          "title": "Feature Setting",
           "type": "object",
           "default": {},
           "required": [
@@ -31,7 +32,7 @@
           ],
           "properties": {
             "enableIPv4": {
-              "title": "The enableIPv4 Schema",
+              "title": "enable IPv4",
               "type": "boolean",
               "default": false,
               "examples": [
@@ -39,7 +40,7 @@
               ]
             },
             "enableIPv6": {
-              "title": "The enableIPv6 Schema",
+              "title": "enable IPv6",
               "type": "boolean",
               "default": false,
               "examples": [
@@ -49,7 +50,7 @@
           }
         },
         "clusterDefaultPool": {
-          "title": "The clusterDefaultPool Schema",
+          "title": "Cluster Default Pool Installation",
           "type": "object",
           "default": {},
           "required": [
@@ -64,7 +65,7 @@
           ],
           "properties": {
             "installIPv4IPPool": {
-              "title": "The installIPv4IPPool Schema",
+              "title": "install default ipv4 ippool",
               "type": "boolean",
               "default": false,
               "examples": [
@@ -72,7 +73,7 @@
               ]
             },
             "installIPv6IPPool": {
-              "title": "The installIPv6IPPool Schema",
+              "title": "install default ipv6 ippool",
               "type": "boolean",
               "default": false,
               "examples": [
@@ -80,7 +81,7 @@
               ]
             },
             "ipv4IPPoolName": {
-              "title": "The ipv4IPPoolName Schema",
+              "title": "the name of default ipv4 ippool",
               "type": "string",
               "default": "default-v4-ippool",
               "examples": [
@@ -88,7 +89,7 @@
               ]
             },
             "ipv6IPPoolName": {
-              "title": "The ipv6IPPoolName Schema",
+              "title": "the name of default ipv6 ippool",
               "type": "string",
               "default": "default-v6-ippool",
               "examples": [
@@ -96,7 +97,7 @@
               ]
             },
             "ipv4Subnet": {
-              "title": "The ipv4Subnet Schema",
+              "title": "ipv4 Subnet for default ipv4 ippool",
               "type": "string",
               "pattern": "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}/[0-9]+$",
               "default": "",
@@ -105,7 +106,7 @@
               ]
             },
             "ipv6Subnet": {
-              "title": "The ipv6Subnet Schema",
+              "title": "ipv6 Subnet for default ipv6 ippool",
               "type": "string",
               "default": "",
               "examples": [
@@ -113,19 +114,23 @@
               ]
             },
             "ipv4IPRanges": {
-              "title": "The ipv4IPRanges Schema",
+              "title": "IP Ranges for default ipv4 ippool",
               "type": "array",
               "default": [],
-              "items": {},
+              "items": {
+                "type": "string"
+              },
               "examples": [
                 ["192.168.1.10-192.168.1.200"]
               ]
             },
             "ipv6IPRanges": {
-              "title": "The ipv6IPRanges Schema",
+              "title": "IP Ranges for default ipv6 ippool",
               "type": "array",
               "default": [],
-              "items": {},
+              "items": {
+                "type": "string"
+              },
               "examples": [
                 ["fd00::10-fd00::200"]
               ]
@@ -133,25 +138,17 @@
           }
         },
         "spiderpoolAgent": {
-          "title": "The spiderpoolAgent Schema",
+          "title": "Spiderpool Agent Setting",
           "type": "object",
           "default": {},
           "properties": {
             "image": {
-              "title": "The image Schema",
+              "title": "Image Setting",
               "type": "object",
               "default": {},
               "properties": {
-                "registry": {
-                  "title": "The registry Schema",
-                  "type": "string",
-                  "default": "ghcr.io",
-                  "examples": [
-                    "ghcr.io"
-                  ]
-                },
                 "repository": {
-                  "title": "The repository Schema",
+                  "title": "repository",
                   "type": "string",
                   "default": "spidernet-io/spiderpool/spiderpool-agent",
                   "examples": [
@@ -161,12 +158,12 @@
               }
             },
             "resources": {
-              "title": "The resources Schema",
+              "title": "Resources Setting",
               "type": "object",
               "default": {},
               "properties": {
                 "limits": {
-                  "title": "The limits Schema",
+                  "title": "limits",
                   "type": "object",
                   "default": {},
                   "required": [
@@ -175,7 +172,7 @@
                   ],
                   "properties": {
                     "cpu": {
-                      "title": "The cpu limits",
+                      "title": "CPU limits",
                       "type": "string",
                       "default": "1000m",
                       "examples": [
@@ -183,7 +180,7 @@
                       ]
                     },
                     "memory": {
-                      "title": "The memory limits",
+                      "title": "memory limits",
                       "type": "string",
                       "default": "1024Mi",
                       "examples": [
@@ -193,7 +190,7 @@
                   }
                 },
                 "requests": {
-                  "title": "The requests Schema",
+                  "title": "Requests Setting",
                   "type": "object",
                   "default": {},
                   "required": [
@@ -202,7 +199,7 @@
                   ],
                   "properties": {
                     "cpu": {
-                      "title": "The cpu requests",
+                      "title": "CPU requests",
                       "type": "string",
                       "default": "100m",
                       "examples": [
@@ -210,7 +207,7 @@
                       ]
                     },
                     "memory": {
-                      "title": "The memory requests",
+                      "title": "Memory requests",
                       "type": "string",
                       "default": "128Mi",
                       "examples": [
@@ -222,12 +219,12 @@
               }
             },
             "prometheus": {
-              "title": "The prometheus Schema",
+              "title": "Spiderpool Agent Prometheus Setting",
               "type": "object",
               "default": {},
               "properties": {
                 "enabled": {
-                  "title": "The enabled Schema",
+                  "title": "enable metrics",
                   "type": "boolean",
                   "default": true,
                   "examples": [
@@ -235,7 +232,7 @@
                   ]
                 },
                 "serviceMonitor": {
-                  "title": "The serviceMonitor Schema",
+                  "title": "ServiceMonitor Setting",
                   "type": "object",
                   "default": {},
                   "required": [
@@ -243,7 +240,7 @@
                   ],
                   "properties": {
                     "install": {
-                      "title": "The install Schema",
+                      "title": "Install",
                       "type": "boolean",
                       "default": false,
                       "examples": [
@@ -253,7 +250,7 @@
                   }
                 },
                 "prometheusRule": {
-                  "title": "The prometheusRule Schema",
+                  "title": "PrometheusRule Setting",
                   "type": "object",
                   "default": {},
                   "required": [
@@ -261,7 +258,25 @@
                   ],
                   "properties": {
                     "install": {
-                      "title": "The install Schema",
+                      "title": "Install",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  }
+                },
+                "grafanaDashboard": {
+                  "title": "GrafanaDashboard Setting",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "Install",
                       "type": "boolean",
                       "default": false,
                       "examples": [
@@ -275,12 +290,12 @@
           }
         },
         "spiderpoolController": {
-          "title": "The spiderpoolController Schema",
+          "title": "Spiderpool Controller Setting",
           "type": "object",
           "default": {},
           "properties": {
             "replicas": {
-              "title": "The replicas Schema",
+              "title": "replicas number",
               "type": "integer",
               "default": 1,
               "minimum": 1,
@@ -289,46 +304,41 @@
               ]
             },
             "image": {
-              "title": "The image Schema",
+              "title": "Image Setting",
               "type": "object",
               "default": {},
               "properties": {
-                "registry": {
-                  "title": "The registry Schema",
-                  "type": "string",
-                  "default": "ghcr.io"
-                },
                 "repository": {
-                  "title": "The repository Schema",
+                  "title": "repository",
                   "type": "string",
                   "default": "spidernet-io/spiderpool/spiderpool-controller"
                 }
               }
             },
             "resources": {
-              "title": "The resources Schema",
+              "title": "Resources Setting",
               "type": "object",
               "default": {},
               "properties": {
                 "limits": {
-                  "title": "The limits Schema",
+                  "title": "Limits Setting",
                   "type": "object",
                   "default": {},
                   "properties": {
                     "cpu": {
-                      "title": "The cpu limits",
+                      "title": "CPU Limits",
                       "type": "string",
                       "default": "500m"
                     },
                     "memory": {
-                      "title": "The memory limits",
+                      "title": "Memory Limits",
                       "type": "string",
                       "default": "1024Mi"
                     }
                   }
                 },
                 "requests": {
-                  "title": "The requests Schema",
+                  "title": "Requests Setting",
                   "type": "object",
                   "default": {},
                   "required": [
@@ -337,12 +347,12 @@
                   ],
                   "properties": {
                     "cpu": {
-                      "title": "The cpu requests",
+                      "title": "CPU Requests",
                       "type": "string",
                       "default": "100m"
                     },
                     "memory": {
-                      "title": "The memory requests",
+                      "title": "Memory Requests",
                       "type": "string",
                       "default": "128Mi"
                     }
@@ -351,20 +361,20 @@
               }
             },
             "prometheus": {
-              "title": "The prometheus Schema",
+              "title": "Spiderpool Controller Prometheus Setting",
               "type": "object",
               "default": {},
               "properties": {
                 "enabled": {
-                  "title": "The enabled Schema",
+                  "title": "Enable Metrics",
                   "type": "boolean",
-                  "default": false,
+                  "default": true,
                   "examples": [
                     false
                   ]
                 },
                 "serviceMonitor": {
-                  "title": "The serviceMonitor Schema",
+                  "title": "serviceMonitor",
                   "type": "object",
                   "default": {},
                   "required": [
@@ -372,7 +382,7 @@
                   ],
                   "properties": {
                     "install": {
-                      "title": "The install Schema",
+                      "title": "Install",
                       "type": "boolean",
                       "default": false,
                       "examples": [
@@ -385,7 +395,7 @@
                   }]
                 },
                 "prometheusRule": {
-                  "title": "The prometheusRule Schema",
+                  "title": "prometheusRule",
                   "type": "object",
                   "default": {},
                   "required": [
@@ -393,7 +403,7 @@
                   ],
                   "properties": {
                     "install": {
-                      "title": "The install Schema",
+                      "title": "Install",
                       "type": "boolean",
                       "default": false,
                       "examples": [
@@ -404,6 +414,24 @@
                   "examples": [{
                     "install": false
                   }]
+                },
+                "grafanaDashboard": {
+                  "title": "GrafanaDashboard Setting",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "Install",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  }
                 }
               }
             }
