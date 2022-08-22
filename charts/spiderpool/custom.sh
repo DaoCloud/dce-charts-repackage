@@ -7,6 +7,7 @@ cd $CHART_DIRECTORY
 echo "custom shell: CHART_DIRECTORY $CHART_DIRECTORY"
 echo "CHART_DIRECTORY $(ls)"
 
+#========================= add your customize bellow ====================
 #===============================
 echo "inject tls to values.yaml"
 TLS_CA="LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURRVENDQWltZ0F3SUJBZ0lVVHN5WmFPenJuTXQxbU02bUxKaFVjNHRYejFZd0RRWUpLb1pJaHZjTkFRRUwKQlFBd01ERXVNQ3dHQTFVRUF3d2xjM0JwWkdWeWNHOXZiQzFqYjI1MGNtOXNiR1Z5TG10MVltVXRjM2x6ZEdWdApMbk4yWXpBZUZ3MHlNakE0TVRnd05ETTFNekphRncwek1qQTRNVFV3TkRNMU16SmFNREF4TGpBc0JnTlZCQU1NCkpYTndhV1JsY25CdmIyd3RZMjl1ZEhKdmJHeGxjaTVyZFdKbExYTjVjM1JsYlM1emRtTXdnZ0VpTUEwR0NTcUcKU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRQ2NtcHNIY1RBbjdVMGkrKzVvajdpZTZGYnlWUFdmQzFvKwoyVkM5ZWlSaHpPYUNrWittdm5Qd3NzdDI3c3FSWGNMKzFxaUpja1BndlNTSUNtemVrekp5NERqSzJzYUMyditoCm5iY25EMlUrVDJJM0E2SFBpaDB4NWhrU2ozQVNxRjNHbGpmbHVoU3RadGZpSGdoUFc4eDVkdFZiQzNoMDRabG4KeTUzNllkKzMrZGV0MHU0Z2pTY2hraFo4MTFab2NFRUVhc0tOeC9DaEUyNG0yRS9LaHRidkRmeGhrKzZhZTdpaApHTGg2amtheVh1VHNNeFg3ZE85N3NLOE9aejBFN0NlN1BQTldYU0VORk04ZGRPaDd0NlpTTG5xaWI2a2tOWWV6CldqYXR2d3JLVFFzTnZkNzdhRk53RW9oMklMYnVjczdTVmNUdyt4RDhnUFN6cUZvWTN4VkZBZ01CQUFHalV6QlIKTUIwR0ExVWREZ1FXQkJUc1AyWlJEa2FaM3ZONHhpQXI3eUdvbFNVL0FqQWZCZ05WSFNNRUdEQVdnQlRzUDJaUgpEa2FaM3ZONHhpQXI3eUdvbFNVL0FqQVBCZ05WSFJNQkFmOEVCVEFEQVFIL01BMEdDU3FHU0liM0RRRUJDd1VBCkE0SUJBUUFmSC9ReGM0ako0b1NSUjFMb2dPVHZxOWxqVC9sS2xFdm0rTWQ2NGNiUUNQeE9Pd0ppQ0dxbDZ3Y2QKSzNPUXZmbFZ6NkdGY0NZUE91b2hDdkhBRmhkVWkxZExIbFVBRHpkNUw4RnNmbFJYdExqQVQ2SWhUemJlb0tzQgpHVWVSaGNrNmlORkVaWUp4NEtMSEJQSG0yRzd3U3Bnb0pqbHp5a1d4Zm14RHlRSUh4WG5NNGZjSm1XT2tYajJpCkNXcm9wSUNtVHFIYy9rdnpIK0t4Z3h1YitLTko4UGd4UWhMNzNWVzZpd2RaYmRkVVVwUUNLTDg1TWRxUy9rdXMKT0kwNjNnZjBkY1VNazNvMFV2d1ZUSURUUStJcmwyM3poWlhZY1ZNdkRSOHROMkNRbjVyYXR5ZkxuYXhxZGdtOApiSGJsS2dRU2ZnL25yajE2Q0ROWnNsS0pHcCtCCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
@@ -16,3 +17,32 @@ TLS_KEY="LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkF
 sed -i -E 's/tlsCert.*/tlsCert: "'${TLS_CERT}'"/'  values.yaml
 sed -i -E 's/tlsCa.*/tlsCa: "'${TLS_CA}'"/'  values.yaml
 sed -i -E 's/tlsKey.*/tlsKey: "'${TLS_KEY}'"/'  values.yaml
+
+#==============================
+echo "insert insight label"
+INSIGHT_LABEL="labels: { \"operator.insight.io/managed-by\": \"insight\" }"
+
+
+LINE=`cat values.yaml | grep -n spiderpoolController.prometheus.grafanaDashboard.labels  | awk -F: '{print $1}' `
+[ -z "$LINE" ] && echo "failed to find line" && exit 1
+sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
+
+LINE=`cat values.yaml | grep -n spiderpoolController.prometheus.prometheusRule.labels  | awk -F: '{print $1}' `
+[ -z "$LINE" ] && echo "failed to find line" && exit 1
+sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
+
+LINE=`cat values.yaml | grep -n spiderpoolController.prometheus.serviceMonitor.labels  | awk -F: '{print $1}' `
+[ -z "$LINE" ] && echo "failed to find line" && exit 1
+sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
+
+LINE=`cat values.yaml | grep -n spiderpoolAgent.prometheus.grafanaDashboard.labels  | awk -F: '{print $1}' `
+[ -z "$LINE" ] && echo "failed to find line" && exit 1
+sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
+
+LINE=`cat values.yaml | grep -n spiderpoolAgent.prometheus.prometheusRule.labels  | awk -F: '{print $1}' `
+[ -z "$LINE" ] && echo "failed to find line" && exit 1
+sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
+
+LINE=`cat values.yaml | grep -n spiderpoolAgent.prometheus.serviceMonitor.labels  | awk -F: '{print $1}' `
+[ -z "$LINE" ] && echo "failed to find line" && exit 1
+sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
