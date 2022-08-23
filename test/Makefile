@@ -11,7 +11,7 @@ all: e2e
 e2e:
 	#setup global kind
 	make init-kind -e KIND_CONFIG_PATH=./yaml/kind.yaml || { echo "error, failed to setup kind " ; exit 1 ; }
-	PROJECT_LIST=$(PROJECT) ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` ; \
+	PROJECT_LIST="$(PROJECT)" ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` ; \
 		for ITEM in $$PROJECT_LIST ; do \
 		    [ -d "$${ITEM}" ] || continue ; \
 			KIND_CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
@@ -61,8 +61,8 @@ init-kind: checkBin clean
 
 
 .PHONY: deploy
-deploy: INSTALL_PATH?=
-deploy: PROJECT?=
+deploy: INSTALL_PATH=
+deploy: PROJECT=
 deploy: TRY_LOAD_LOCAL_IMAGE ?= true
 deploy: checkBin
 	@ echo "helm install for $(PROJECT) with $(INSTALL_PATH)"
