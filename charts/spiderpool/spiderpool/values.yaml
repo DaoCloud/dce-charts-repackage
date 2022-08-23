@@ -8,7 +8,7 @@ spiderpool:
   ##
   global:
     ## @param global.imageRegistryOverride Global Docker image registry
-    imageRegistryOverride: ""
+    imageRegistryOverride: ghcr.io
   
     ## @param global.nameOverride instance name
     ## default spiderpool
@@ -237,7 +237,7 @@ spiderpool:
   
     prometheus:
       ## @param spiderpoolAgent.prometheus.enabled enable spiderpool agent to collect metrics
-      enabled: false
+      enabled: true
   
       ## @param spiderpoolAgent.prometheus.port the metrics port of spiderpool agent
       port: 5711
@@ -452,7 +452,7 @@ spiderpool:
   
     prometheus:
       ## @param spiderpoolController.prometheus.enabled enable spiderpool Controller to collect metrics
-      enabled: false
+      enabled: true
   
       ## @param spiderpoolController.prometheus.port the metrics port of spiderpool Controller
       port: 5721

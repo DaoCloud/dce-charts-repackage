@@ -22,27 +22,29 @@ sed -i -E 's/tlsKey.*/tlsKey: "'${TLS_KEY}'"/'  values.yaml
 echo "insert insight label"
 INSIGHT_LABEL="labels: { \"operator.insight.io/managed-by\": \"insight\" }"
 
+REPLACE_BY_COMMENT(){
+  COMMENT="$1"
+  OLD_DATA="$2"
+  NEW_DATA="$3"
 
-LINE=`cat values.yaml | grep -n spiderpoolController.prometheus.grafanaDashboard.labels  | awk -F: '{print $1}' `
-[ -z "$LINE" ] && echo "failed to find line" && exit 1
-sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
+  LINE=`cat values.yaml | grep -n "$COMMENT"  | awk -F: '{print $1}' `
+  [ -z "$LINE" ] && echo "failed to find comment $COMMENT" && exit 1
+  sed -i -E ''$((LINE+1))' s?'"${OLD_DATA}"'?'"${NEW_DATA}"'?' values.yaml
+  (($?!=0)) && echo  echo "failed to sed " && exit 2
+  return 0
+}
 
-LINE=`cat values.yaml | grep -n spiderpoolController.prometheus.prometheusRule.labels  | awk -F: '{print $1}' `
-[ -z "$LINE" ] && echo "failed to find line" && exit 1
-sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
+REPLACE_BY_COMMENT  "spiderpoolController.prometheus.serviceMonitor.labels"    "labels:.*"  "${INSIGHT_LABEL}"
+REPLACE_BY_COMMENT  "spiderpoolController.prometheus.prometheusRule.labels"    "labels:.*"  "${INSIGHT_LABEL}"
+REPLACE_BY_COMMENT  "spiderpoolController.prometheus.grafanaDashboard.labels"  "labels:.*"  "${INSIGHT_LABEL}"
 
-LINE=`cat values.yaml | grep -n spiderpoolController.prometheus.serviceMonitor.labels  | awk -F: '{print $1}' `
-[ -z "$LINE" ] && echo "failed to find line" && exit 1
-sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
+REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.serviceMonitor.labels"    "labels:.*"  "${INSIGHT_LABEL}"
+REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.prometheusRule.labels"    "labels:.*"  "${INSIGHT_LABEL}"
+REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.grafanaDashboard.labels"  "labels:.*"  "${INSIGHT_LABEL}"
 
-LINE=`cat values.yaml | grep -n spiderpoolAgent.prometheus.grafanaDashboard.labels  | awk -F: '{print $1}' `
-[ -z "$LINE" ] && echo "failed to find line" && exit 1
-sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
+REPLACE_BY_COMMENT  "global.imageRegistryOverride"  'imageRegistryOverride:.*'  "imageRegistryOverride: ghcr.io"
 
-LINE=`cat values.yaml | grep -n spiderpoolAgent.prometheus.prometheusRule.labels  | awk -F: '{print $1}' `
-[ -z "$LINE" ] && echo "failed to find line" && exit 1
-sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
+REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.enabled"  'enabled:.*'  "enabled: true"
+REPLACE_BY_COMMENT  "spiderpoolController.prometheus.enabled"  'enabled:.*'  "enabled: true"
 
-LINE=`cat values.yaml | grep -n spiderpoolAgent.prometheus.serviceMonitor.labels  | awk -F: '{print $1}' `
-[ -z "$LINE" ] && echo "failed to find line" && exit 1
-sed -i ''$((LINE+1))' s?labels: {}?'"${INSIGHT_LABEL}"'?' values.yaml
+exit 0
