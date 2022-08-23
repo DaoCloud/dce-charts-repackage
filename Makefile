@@ -12,7 +12,7 @@ PROJECT ?=
 
 .PHONY: e2e
 e2e:
-	make -C test e2e -e PROJECT=$(PROJECT)
+	make -C test e2e -e PROJECT="$(PROJECT)"
 
 .PHONY: build_chart
 build_chart:

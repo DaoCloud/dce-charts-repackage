@@ -1,0 +1,26 @@
+{{- if .Values.instances.enabled }}
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: {{ .Values.instances.arp.name }}
+  labels:
+    {{- include "dce-metallb.labels" . | nindent 4 }}
+{{- if .Values.instances.arp.labels }}
+{{ toYaml .Values.instances.arp.labels | indent 4 }}
+{{- end }}
+  annotations:
+    {{- include "dce-metallb.helm-hook-annotations" . | nindent 4 }}
+spec:
+  ipAddressPools:
+{{ toYaml .Values.instances.arp.ipAddressPools | indent 2 }}
+{{- if .Values.instances.arp.ipAddressPoolSelectors }}
+  ipAddressPoolSelectors:
+  - matchLabels:
+{{ toYaml .Values.instances.arp.ipAddressPoolSelectors | indent 6 }}
+{{- end }}
+{{- if .Values.instances.arp.nodeSelectors }}
+  nodeSelectors:
+  - matchLabels:
+{{ toYaml .Values.instances.arp.nodeSelectors | indent 6 }}
+{{- end }}
+{{- end }}
