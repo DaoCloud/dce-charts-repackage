@@ -54,7 +54,7 @@ jobs:
       - name: Check Project
         id: project
         run: |
-          PLIST=${{ steps.get_ref.outputs.project_list }}
+          PLIST="${{ steps.get_ref.outputs.project_list }}"
           if [ -z "$PLIST" ] ; then
               TMP=`ls charts`
               for ITEM in $TMP ; do
