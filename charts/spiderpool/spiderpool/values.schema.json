@@ -22,6 +22,325 @@
             }
           }
         },
+        "spiderpoolAgent": {
+          "title": "Spiderpool Agent Setting",
+          "type": "object",
+          "default": {},
+          "properties": {
+            "image": {
+              "title": "Image Setting",
+              "type": "object",
+              "default": {},
+              "required": [
+                "repository"
+              ],
+              "properties": {
+                "repository": {
+                  "title": "repository",
+                  "type": "string",
+                  "default": "spidernet-io/spiderpool/spiderpool-agent",
+                  "examples": [
+                    "spidernet-io/spiderpool/spiderpool-agent"
+                  ]
+                }
+              }
+            },
+            "resources": {
+              "title": "Resources Setting",
+              "type": "object",
+              "default": {},
+              "properties": {
+                "limits": {
+                  "title": "limits",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ],
+                  "properties": {
+                    "cpu": {
+                      "title": "CPU limits",
+                      "type": "string",
+                      "default": "1000m",
+                      "examples": [
+                        "1000m"
+                      ]
+                    },
+                    "memory": {
+                      "title": "memory limits",
+                      "type": "string",
+                      "default": "1024Mi",
+                      "examples": [
+                        "1024Mi"
+                      ]
+                    }
+                  }
+                },
+                "requests": {
+                  "title": "Requests Setting",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ],
+                  "properties": {
+                    "cpu": {
+                      "title": "CPU requests",
+                      "type": "string",
+                      "default": "100m",
+                      "examples": [
+                        "100m"
+                      ]
+                    },
+                    "memory": {
+                      "title": "Memory requests",
+                      "type": "string",
+                      "default": "128Mi",
+                      "examples": [
+                        "128Mi"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "prometheus": {
+              "title": "Spiderpool Agent Prometheus Setting",
+              "type": "object",
+              "default": {},
+              "required": [
+                "enabled"
+              ],
+              "properties": {
+                "enabled": {
+                  "title": "enable metrics",
+                  "type": "boolean",
+                  "default": true,
+                  "examples": [
+                    false
+                  ]
+                },
+                "serviceMonitor": {
+                  "title": "ServiceMonitor Setting",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "Install",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  }
+                },
+                "prometheusRule": {
+                  "title": "PrometheusRule Setting",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "Install",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  }
+                },
+                "grafanaDashboard": {
+                  "title": "GrafanaDashboard Setting",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "Install",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "spiderpoolController": {
+          "title": "Spiderpool Controller Setting",
+          "type": "object",
+          "default": {},
+          "required": [
+            "replicas"
+          ],
+          "properties": {
+            "replicas": {
+              "title": "replicas number",
+              "type": "integer",
+              "default": 1,
+              "minimum": 1,
+              "examples": [
+                1
+              ]
+            },
+            "image": {
+              "title": "Image Setting",
+              "type": "object",
+              "default": {},
+              "required": [
+                "repository"
+              ],
+              "properties": {
+                "repository": {
+                  "title": "repository",
+                  "type": "string",
+                  "default": "spidernet-io/spiderpool/spiderpool-controller"
+                }
+              }
+            },
+            "resources": {
+              "title": "Resources Setting",
+              "type": "object",
+              "default": {},
+              "properties": {
+                "limits": {
+                  "title": "Limits Setting",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ],
+                  "properties": {
+                    "cpu": {
+                      "title": "CPU Limits",
+                      "type": "string",
+                      "default": "500m"
+                    },
+                    "memory": {
+                      "title": "Memory Limits",
+                      "type": "string",
+                      "default": "1024Mi"
+                    }
+                  }
+                },
+                "requests": {
+                  "title": "Requests Setting",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ],
+                  "properties": {
+                    "cpu": {
+                      "title": "CPU Requests",
+                      "type": "string",
+                      "default": "100m"
+                    },
+                    "memory": {
+                      "title": "Memory Requests",
+                      "type": "string",
+                      "default": "128Mi"
+                    }
+                  }
+                }
+              }
+            },
+            "prometheus": {
+              "title": "Spiderpool Controller Prometheus Setting",
+              "type": "object",
+              "default": {},
+              "required": [
+                "enabled"
+              ],
+              "properties": {
+                "enabled": {
+                  "title": "Enable Metrics",
+                  "type": "boolean",
+                  "default": true,
+                  "examples": [
+                    false
+                  ]
+                },
+                "serviceMonitor": {
+                  "title": "serviceMonitor",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "Install",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  },
+                  "examples": [{
+                    "install": false
+                  }]
+                },
+                "prometheusRule": {
+                  "title": "prometheusRule",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "Install",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  },
+                  "examples": [{
+                    "install": false
+                  }]
+                },
+                "grafanaDashboard": {
+                  "title": "GrafanaDashboard Setting",
+                  "type": "object",
+                  "default": {},
+                  "required": [
+                    "install"
+                  ],
+                  "properties": {
+                    "install": {
+                      "title": "Install",
+                      "type": "boolean",
+                      "default": false,
+                      "examples": [
+                        false
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "feature": {
           "title": "Feature Setting",
           "type": "object",
@@ -134,306 +453,6 @@
               "examples": [
                 ["fd00::10-fd00::200"]
               ]
-            }
-          }
-        },
-        "spiderpoolAgent": {
-          "title": "Spiderpool Agent Setting",
-          "type": "object",
-          "default": {},
-          "properties": {
-            "image": {
-              "title": "Image Setting",
-              "type": "object",
-              "default": {},
-              "properties": {
-                "repository": {
-                  "title": "repository",
-                  "type": "string",
-                  "default": "spidernet-io/spiderpool/spiderpool-agent",
-                  "examples": [
-                    "spidernet-io/spiderpool/spiderpool-agent"
-                  ]
-                }
-              }
-            },
-            "resources": {
-              "title": "Resources Setting",
-              "type": "object",
-              "default": {},
-              "properties": {
-                "limits": {
-                  "title": "limits",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ],
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU limits",
-                      "type": "string",
-                      "default": "1000m",
-                      "examples": [
-                        "1000m"
-                      ]
-                    },
-                    "memory": {
-                      "title": "memory limits",
-                      "type": "string",
-                      "default": "1024Mi",
-                      "examples": [
-                        "1024Mi"
-                      ]
-                    }
-                  }
-                },
-                "requests": {
-                  "title": "Requests Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ],
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU requests",
-                      "type": "string",
-                      "default": "100m",
-                      "examples": [
-                        "100m"
-                      ]
-                    },
-                    "memory": {
-                      "title": "Memory requests",
-                      "type": "string",
-                      "default": "128Mi",
-                      "examples": [
-                        "128Mi"
-                      ]
-                    }
-                  }
-                }
-              }
-            },
-            "prometheus": {
-              "title": "Spiderpool Agent Prometheus Setting",
-              "type": "object",
-              "default": {},
-              "properties": {
-                "enabled": {
-                  "title": "enable metrics",
-                  "type": "boolean",
-                  "default": true,
-                  "examples": [
-                    false
-                  ]
-                },
-                "serviceMonitor": {
-                  "title": "ServiceMonitor Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "install"
-                  ],
-                  "properties": {
-                    "install": {
-                      "title": "Install",
-                      "type": "boolean",
-                      "default": false,
-                      "examples": [
-                        false
-                      ]
-                    }
-                  }
-                },
-                "prometheusRule": {
-                  "title": "PrometheusRule Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "install"
-                  ],
-                  "properties": {
-                    "install": {
-                      "title": "Install",
-                      "type": "boolean",
-                      "default": false,
-                      "examples": [
-                        false
-                      ]
-                    }
-                  }
-                },
-                "grafanaDashboard": {
-                  "title": "GrafanaDashboard Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "install"
-                  ],
-                  "properties": {
-                    "install": {
-                      "title": "Install",
-                      "type": "boolean",
-                      "default": false,
-                      "examples": [
-                        false
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "spiderpoolController": {
-          "title": "Spiderpool Controller Setting",
-          "type": "object",
-          "default": {},
-          "properties": {
-            "replicas": {
-              "title": "replicas number",
-              "type": "integer",
-              "default": 1,
-              "minimum": 1,
-              "examples": [
-                1
-              ]
-            },
-            "image": {
-              "title": "Image Setting",
-              "type": "object",
-              "default": {},
-              "properties": {
-                "repository": {
-                  "title": "repository",
-                  "type": "string",
-                  "default": "spidernet-io/spiderpool/spiderpool-controller"
-                }
-              }
-            },
-            "resources": {
-              "title": "Resources Setting",
-              "type": "object",
-              "default": {},
-              "properties": {
-                "limits": {
-                  "title": "Limits Setting",
-                  "type": "object",
-                  "default": {},
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU Limits",
-                      "type": "string",
-                      "default": "500m"
-                    },
-                    "memory": {
-                      "title": "Memory Limits",
-                      "type": "string",
-                      "default": "1024Mi"
-                    }
-                  }
-                },
-                "requests": {
-                  "title": "Requests Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ],
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU Requests",
-                      "type": "string",
-                      "default": "100m"
-                    },
-                    "memory": {
-                      "title": "Memory Requests",
-                      "type": "string",
-                      "default": "128Mi"
-                    }
-                  }
-                }
-              }
-            },
-            "prometheus": {
-              "title": "Spiderpool Controller Prometheus Setting",
-              "type": "object",
-              "default": {},
-              "properties": {
-                "enabled": {
-                  "title": "Enable Metrics",
-                  "type": "boolean",
-                  "default": true,
-                  "examples": [
-                    false
-                  ]
-                },
-                "serviceMonitor": {
-                  "title": "serviceMonitor",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "install"
-                  ],
-                  "properties": {
-                    "install": {
-                      "title": "Install",
-                      "type": "boolean",
-                      "default": false,
-                      "examples": [
-                        false
-                      ]
-                    }
-                  },
-                  "examples": [{
-                    "install": false
-                  }]
-                },
-                "prometheusRule": {
-                  "title": "prometheusRule",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "install"
-                  ],
-                  "properties": {
-                    "install": {
-                      "title": "Install",
-                      "type": "boolean",
-                      "default": false,
-                      "examples": [
-                        false
-                      ]
-                    }
-                  },
-                  "examples": [{
-                    "install": false
-                  }]
-                },
-                "grafanaDashboard": {
-                  "title": "GrafanaDashboard Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "install"
-                  ],
-                  "properties": {
-                    "install": {
-                      "title": "Install",
-                      "type": "boolean",
-                      "default": false,
-                      "examples": [
-                        false
-                      ]
-                    }
-                  }
-                }
-              }
             }
           }
         }
