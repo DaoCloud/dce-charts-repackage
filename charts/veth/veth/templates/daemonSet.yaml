@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kube-{{ .Release.Name }}-ds
+  namespace: kube-system
+  labels:
+    {{- include "veth.labels" . | nindent 4 }}
+{{- if .Values.annotations }}
+  anotations:
+    {{ toYaml .Values.instances.arp.ipAddressPools | indent 2 }}
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: veth
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        {{- include "veth.labels" . | nindent 8 }}
+        app: veth
+    spec:
+      hostNetwork: true
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      nodeSelector: {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+      - operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: kube-{{ .Chart.Name }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}-amd64
+        imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+        env:
+        - name: KUBERNETES_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        {{- if .Values.resources }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
+        {{- end }}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: cnibin
+          mountPath: /host/opt/cni/bin
+      volumes:
+        - name: cnibin
+          hostPath:
+            path: /opt/cni/bin
+
