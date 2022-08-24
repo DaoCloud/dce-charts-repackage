@@ -1,0 +1,28 @@
+{{ if .Values.buildIn.alertManager.enable }}
+apiVersion: monitoring.coreos.com/v1
+kind: Alertmanager
+metadata:
+  name: cert-manager
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  alertmanagerConfigSelector:
+    matchLabels:
+      kind: wechat
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-cert-manager
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: NodePort
+  ports:
+    - name: web
+      nodePort: 30903
+      port: 9093
+      protocol: TCP
+      targetPort: web
+  selector:
+    alertmanager: cert-manager
+{{ end }}

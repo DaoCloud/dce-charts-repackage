@@ -1,0 +1,10 @@
+apiVersion: v2
+name: cert-manager
+description: cert-manager is a Kubernetes addon to automate the management and issuance of TLS certificates from various issuing sources.
+type: application
+version: 1.9.1
+appVersion: "v1.9.1"
+dependencies:
+  - name: cert-manager
+    repository: https://charts.jetstack.io
+    version: v1.9.1

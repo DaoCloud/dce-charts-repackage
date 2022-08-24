@@ -1,0 +1,30 @@
+{{ if .Values.buildIn.prometheus.enable }}
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus-cert-manager
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceAccountName: prometheus-cert-manager
+  resources:
+    requests:
+      memory: 400Mi
+  enableAdminAPI: true
+  serviceMonitorNamespaceSelector:
+    matchLabels:
+      name: {{ .Release.Namespace }}
+  serviceMonitorSelector:
+    matchLabels:
+      app: cert-manager
+  ruleSelector:
+    matchLabels:
+      app: cert-manager
+  ruleNamespaceSelector:
+    matchLabels:
+      name: {{ .Release.Namespace }}
+  alerting:
+    alertmanagers:
+      - namespace: cert-manager
+        name: alertmanager-cert-manager
+        port: web
+{{ end }}
