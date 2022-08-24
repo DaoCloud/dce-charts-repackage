@@ -1,0 +1,17 @@
+{{- if .Values.instances.enabled }}
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: {{ .Values.instances.ipAddressPools.name }}
+{{- if .Values.instances.ipAddressPools.labels }}
+  labels:
+    {{ toYaml .Values.instances.ipAddressPools.labels }}
+{{- end }}
+  annotations:
+    {{- include "dce-metallb.helm-hook-annotations" . | nindent 4 }}
+spec:
+  addresses:
+{{ toYaml .Values.instances.ipAddressPools.addresses | indent 2 }}
+  autoAssign: {{ .Values.instances.ipAddressPools.autoAssign }}
+  avoidBuggyIPs: {{ .Values.instances.ipAddressPools.avoidBuggyIPs }}
+{{- end }}

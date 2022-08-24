@@ -71,13 +71,18 @@ deploy: checkBin
 		[ -d "$${CHART_DIR}" ] || { echo "error, failed to find chart $${CHART_DIR}" ; exit 1 ; } ; \
 		if [ "$(TRY_LOAD_LOCAL_IMAGE)" == "true" ] ; then \
 			echo "try to load local image for $(PROJECT)" ; \
-			IMAGE_LIST=` helm template test $${CHART_DIR}  |& grep " image: " | awk -F '"' '{print $$2}' ` ; \
+			IMAGE_LIST=` helm template test $${CHART_DIR}  | grep " image: " | tr -d '"'| awk '{print $$2}' ` ; \
 			if [ -z "$${IMAGE_LIST}" ] ; then \
 			  	echo "warning, failed to find image from chart template for $(PROJECT)" ; \
 			else \
 				echo "found image from $(PROJECT) chart template: $${IMAGE_LIST} " ; \
   				for IMAGE in $${IMAGE_LIST} ; do \
-  					echo "try to load local image $${IMAGE} for $(PROJECT)" ; \
+  				    EXIST=` docker images | awk '{printf("%s:%s\n",$$1,$$2)}' | grep "$${IMAGE}" ` ; \
+  				    if [ -z "$${EXIST}" ] ; then \
+  				      echo "docker pull $${IMAGE} to local" ; \
+  				      docker pull $${IMAGE} ;\
+  				    fi ;\
+  					echo "load local image $${IMAGE} for $(PROJECT)" ; \
   					kind load docker-image $${IMAGE}  --name $(KIND_CLUSTER_NAME)  ; \
   				done ; \
             fi ; \

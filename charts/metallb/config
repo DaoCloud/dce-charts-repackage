@@ -1,0 +1,14 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+export REPO_URL=https://metallb.github.io/metallb
+export REPO_NAME=metallb
+export CHART_NAME=metallb
+export VERSION=v0.13.4
+
+# optional, for wrapper chart
+export CUSTOM_SHELL=custom.sh
+export APPEND_VALUES_FILE=appendValues.yaml
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=daocloud-system
