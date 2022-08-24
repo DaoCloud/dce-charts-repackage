@@ -1,0 +1,131 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "required": [
+        "metallb"
+    ],
+    "properties": {
+        "metallb": {
+            "type": "object",
+            "title": "MetalLB Install Configuration",
+            "properties": {
+                "controller": {
+                    "type": "object",
+                    "title": "MetalLB Controller",
+                    "properties": {
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Repository",
+                                    "default": "quay.m.daocloud.io/metallb/controller"
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Tag",
+                                    "default": "v0.13.4"
+                                }
+                            }
+                        }
+                    }
+                },
+                "speaker": {
+                    "type": "object",
+                    "title": "MetalLB Speaker",
+                    "properties": {
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Image Repository",
+                                    "default": "quay.m.daocloud.io/metallb/speaker"
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Image Tag",
+                                    "default": "v0.13.4"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "instances": {
+            "type": "object",
+            "default": {},
+            "title": "MetalLB ARP Init",
+            "description": "Metallb supports both ARP and BGP modes to declare LoadBalancer IPs. the BGP mode is complex to configure and requires hardware support (such as BGP Router). If you want to configure BGP. Please refer to https://metallb.universe.tf/configuration/_advanced_bgp_configuration",
+            "properties": {
+                "enable": {
+                    "type": "boolean",
+                    "default": false,
+                    "title": "enable",
+                    "description": "If set it to true, This will initialize the ARP mode (creating CRD instances of IPAddressPools and L2Advertisement). Note: \"--wait\" is required when helm installing."
+                },
+                "ipAddressPools": {
+                    "type": "object",
+                    "title": "IPAddressPool",
+                    "description": "MetalLB assigns ip addresses from the IPAddressPool to LoadBalancer Service",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "default": "default-pool",
+                            "title": "name"
+                        },
+                        "addresses": {
+                            "type": "array",
+                            "title": "Address List",
+                            "description": "A list of IP address ranges over which MetalLB has authority.You can list multiple ranges in a single pool, they will all share the same settings. Each range can be either a CIDR prefix, or an explicit start-end range of IPs. IPv4 and IPv6 enabled.",
+                            "items": {
+                                "type": "string"
+                            },
+                            "default": [
+                                "192.168.10.100-192.168.10.200"
+                            ],
+                            "examples": [
+                                "192.168.10.0/24",
+                                "172.168.1.1-172.168.1.10",
+                                "fd00:81::172:81:0:110/64"
+                            ]
+                        },
+                        "autoAssign": {
+                            "type": "boolean",
+                            "title": "Auto Assign",
+                            "description": "autoAssign flag used to prevent MetallB from automatic allocation for a pool."
+                        },
+                        "avoidBuggyIPs": {
+                            "type": "boolean",
+                            "title": "avoidBuggyIPs",
+                            "description": "avoidBuggyIPs prevents addresses ending with .0 and .255 to be used by a pool."
+                        }
+                    }
+                },
+                "arp": {
+                    "type": "object",
+                    "title": "L2Advertisement",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "title": "name",
+                            "default": "l2advertisement"
+                        },
+                        "ipAddressPools": {
+                            "type": "array",
+                            "title": "ipAddressPools",
+                            "description": "The list of IPAddressPools to advertise via this advertisement, selected by name.",
+                            "items": {
+                                "type": "string"
+                            },
+                            "default": [
+                                "default-pool"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

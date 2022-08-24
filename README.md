@@ -69,7 +69,7 @@ local host needs install：
 
 ### case: 自己 准备好  chart
 
-如果你自己 已经编辑好 chart，不需要自动化帮助生成chart，那么可直接把 chart 放在 /charts/${PROJECT}/${PROJECT} 下 ，且准备好 /charts/${PROJECT}/config （其中设置推送到哪个 daocloud chart仓库项目中）
+如果你自己 已经编辑好 chart，不需要自动化帮助生成chart，那么可直接把 chart 放在 /charts/${PROJECT}/${PROJECT} 下 ，且准备好 /charts/${PROJECT}/config （设置其中 DAOCLOUD_REPO_PROJECT ， 推送到哪个 daocloud chart仓库项目中）
 
 ***
 
@@ -97,9 +97,7 @@ CI 还会并发送一份到 daocloud 仓库 ( 推送到哪个项目下？依据 
 
 你可使用 本工程的 chart repo 来测试
 
-    ```shell
     helm repo add daocloud https://daocloud.github.io/network-charts-repackage/
-    helm pull daocloud/${PROJECT} 
-    ```
+    helm pull daocloud/${PROJECT}
 
 > 如果只 需要 发布 某一个项目 chart ，可 在 github action 中手动触发 "Release Chart" action， 触发推送指定chart
