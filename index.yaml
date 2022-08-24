@@ -3,14 +3,14 @@ entries:
   metallb:
   - apiVersion: v2
     appVersion: 0.13.4
-    created: "2022-08-24T13:05:33.728798638Z"
+    created: "2022-08-24T13:11:29.075736163Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
       version: 0.13.4
     description: A network load-balancer implementation for Kubernetes using standard
       routing protocols
-    digest: 1749cbe387d22e51668affc2b6f630065d5ff205d0fde7945aca62faa35f4673
+    digest: 41d841995d3b5d03bb6cc8a39cd3dc2f682bdfe2567543968b697e2aba8f3599
     name: metallb
     type: application
     urls:
@@ -19,14 +19,14 @@ entries:
   multus:
   - apiVersion: v2
     appVersion: v3.9
-    created: "2022-08-24T13:05:33.729953225Z"
+    created: "2022-08-24T13:11:29.077137171Z"
     dependencies:
     - name: multus
       repository: file://charts/multus-v3.9.tgz
       version: v3.9
     description: Multus CNI enables attaching multiple network interfaces to pods
       in Kubernetes.
-    digest: abb2f285b7d7ba0e5cf33d525561827a26defdd1f9eb01a465b2ecfb201e952d
+    digest: 2f1ee9e10791eb77488bd211f0517c8b56e727a550b97ca494151b81edd9a64c
     name: multus
     type: application
     urls:
@@ -35,13 +35,13 @@ entries:
   spiderpool:
   - apiVersion: v2
     appVersion: v0.0.10
-    created: "2022-08-24T13:05:33.735018605Z"
+    created: "2022-08-24T13:11:29.08320821Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
       version: v0.0.10
     description: ipam for kubernetes cni
-    digest: 57f3440f2b08403c0449a8920d25662c3fe7325ca97f84aea5d15f57dafa7479
+    digest: adc0f484daf35665416b1112a1aeff31eaa293fb91a97f85df2fdce1ac5fdeda
     home: https://spidernet-io.github.io/spiderpool
     keywords:
     - spiderpool
@@ -59,7 +59,7 @@ entries:
     version: v0.0.10
   - apiVersion: v2
     appVersion: v0.0.9
-    created: "2022-08-24T13:05:33.750241748Z"
+    created: "2022-08-24T13:11:29.097964005Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -83,7 +83,7 @@ entries:
     version: v0.0.9
   - apiVersion: v2
     appVersion: v0.0.8
-    created: "2022-08-24T13:05:33.745553896Z"
+    created: "2022-08-24T13:11:29.093211374Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -107,7 +107,7 @@ entries:
     version: v0.0.8
   - apiVersion: v2
     appVersion: v0.0.6
-    created: "2022-08-24T13:05:33.739026906Z"
+    created: "2022-08-24T13:11:29.087480738Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -129,4 +129,20 @@ entries:
     urls:
     - https://DaoCloud.github.io/network-charts-repackage/spiderpool-v0.0.6.tgz
     version: v0.0.6
-generated: "2022-08-24T13:05:33.707155212Z"
+  veth:
+  - apiVersion: v2
+    appVersion: v0.1.1
+    created: "2022-08-24T13:11:29.098452808Z"
+    description: Veth works with macvlan cni to solve some communication problems
+      when macvlan is used as CNI.
+    digest: e532a68813205bdf899ff60ce100b5c80b27b4dee2c5e05bd85c512c70735af4
+    maintainers:
+    - name: Spider-Guys
+    name: veth
+    sources:
+    - https://github.com/spidernet-io/cni-plugins
+    type: application
+    urls:
+    - https://DaoCloud.github.io/network-charts-repackage/veth-v0.1.1.tgz
+    version: v0.1.1
+generated: "2022-08-24T13:11:29.04254715Z"
