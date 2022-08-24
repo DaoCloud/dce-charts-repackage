@@ -1,0 +1,60 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "multus": {
+            "type": "object",
+            "title": "Multus Install Configuration",
+            "properties": {
+                "config": {
+                    "type": "object",
+                    "properties": {
+                        "cni_conf": {
+                            "type": "object",
+                            "properties": {
+                                "clusterNetwork": {
+                                    "type": "string",
+                                    "title": "Default CNI",
+                                    "description": "Multus requires that you have first installed a Kubernetes CNI plugin to serve as your pod-to-pod network(calico or cilium)",
+                                    "default": "calico",
+                                    "enum": [
+                                        "calico",
+                                        "cilium"
+                                    ]
+                                },
+                                "logLevel": {
+                                    "type": "string",
+                                    "title": "Log Level",
+                                    "default": "info",
+                                    "enum": [
+                                        "info",
+                                        "debug",
+                                        "error",
+                                        "verbose",
+                                        "panic"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "image": {
+                    "type": "object",
+                    "title": "Image",
+                    "properties": {
+                        "repository": {
+                            "type": "string",
+                            "title": "Repository",
+                            "default": "ghcr.m.daocloud.io/k8snetworkplumbingwg/multus-cni"
+                        },
+                        "tag": {
+                            "type": "string",
+                            "title": "Tag",
+                            "default": "v3.9"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
