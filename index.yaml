@@ -1,15 +1,47 @@
 apiVersion: v1
 entries:
+  metallb:
+  - apiVersion: v2
+    appVersion: 0.13.4
+    created: "2022-08-24T13:05:33.728798638Z"
+    dependencies:
+    - name: metallb
+      repository: https://metallb.github.io/metallb
+      version: 0.13.4
+    description: A network load-balancer implementation for Kubernetes using standard
+      routing protocols
+    digest: 1749cbe387d22e51668affc2b6f630065d5ff205d0fde7945aca62faa35f4673
+    name: metallb
+    type: application
+    urls:
+    - https://DaoCloud.github.io/network-charts-repackage/metallb-0.13.4.tgz
+    version: 0.13.4
+  multus:
+  - apiVersion: v2
+    appVersion: v3.9
+    created: "2022-08-24T13:05:33.729953225Z"
+    dependencies:
+    - name: multus
+      repository: file://charts/multus-v3.9.tgz
+      version: v3.9
+    description: Multus CNI enables attaching multiple network interfaces to pods
+      in Kubernetes.
+    digest: abb2f285b7d7ba0e5cf33d525561827a26defdd1f9eb01a465b2ecfb201e952d
+    name: multus
+    type: application
+    urls:
+    - https://DaoCloud.github.io/network-charts-repackage/multus-v3.9.tgz
+    version: v3.9
   spiderpool:
   - apiVersion: v2
     appVersion: v0.0.10
-    created: "2022-08-23T07:03:17.055470523Z"
+    created: "2022-08-24T13:05:33.735018605Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
       version: v0.0.10
     description: ipam for kubernetes cni
-    digest: 03491245da5b02cdf48d1b080381a72a08bb898cf5ff47dd4de6ab9d01402cdd
+    digest: 57f3440f2b08403c0449a8920d25662c3fe7325ca97f84aea5d15f57dafa7479
     home: https://spidernet-io.github.io/spiderpool
     keywords:
     - spiderpool
@@ -27,7 +59,7 @@ entries:
     version: v0.0.10
   - apiVersion: v2
     appVersion: v0.0.9
-    created: "2022-08-23T07:03:17.068527153Z"
+    created: "2022-08-24T13:05:33.750241748Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -51,7 +83,7 @@ entries:
     version: v0.0.9
   - apiVersion: v2
     appVersion: v0.0.8
-    created: "2022-08-23T07:03:17.064338212Z"
+    created: "2022-08-24T13:05:33.745553896Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -75,7 +107,7 @@ entries:
     version: v0.0.8
   - apiVersion: v2
     appVersion: v0.0.6
-    created: "2022-08-23T07:03:17.06011237Z"
+    created: "2022-08-24T13:05:33.739026906Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -97,4 +129,4 @@ entries:
     urls:
     - https://DaoCloud.github.io/network-charts-repackage/spiderpool-v0.0.6.tgz
     version: v0.0.6
-generated: "2022-08-23T07:03:17.040588075Z"
+generated: "2022-08-24T13:05:33.707155212Z"
