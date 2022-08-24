@@ -1,0 +1,46 @@
+# Default values for dce-multus.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+crd_conf:
+  calico:
+    name: calico
+    enable: true
+    default_cni: true
+  cilium:
+    name: cilium
+    enable: true
+    default_cni: false
+  macvlan:
+    name: macvlan-conf
+    enable: false
+    default_cni: false
+    config:
+      cniVersion: 0.3.0
+      type: macvlan
+      master: ens192
+      mode: bridge
+      ipam:
+        type: spiderpool
+        default_ipv4_ippool:
+        - default-v4-ippool
+        log_level: INFO
+        log_file_path: /var/log/spidernet/spiderpool.log
+        log_file_max_size: 100
+        log_file_max_age: 30
+        log_file_max_count: 10
+
+multus:
+  image:
+    repository: ghcr.m.daocloud.io/k8snetworkplumbingwg/multus-cni
+    tag: v3.9
+  config:
+    cni_conf:
+      # -- info,debug,error,verbose,panic
+      logLevel: info
+      # -- calico or cilium
+      clusterNetwork: calico

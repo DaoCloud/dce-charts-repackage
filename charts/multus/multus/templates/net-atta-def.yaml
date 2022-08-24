@@ -1,0 +1,22 @@
+{{- if .Values.crd_conf -}}
+{{- range $cni, $conf := .Values.crd_conf -}}
+{{- if $conf.enable }}
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: {{ $conf.name }}
+  namespace: kube-system
+  annotations:
+    {{- include "multus.helm-hook-annotations" . | nindent 4 }}
+{{- if $conf.default_cni }}
+    daocloud.io.multus/default-cni: {{ $conf.name }}
+{{- end }}
+{{- if $conf.config }}
+spec:
+  config: |-
+{{ toJson $conf.config | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
