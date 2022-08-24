@@ -1,0 +1,14 @@
+export USE_OPENSOURCE_CHART=true
+
+# must
+export REPO_URL=https://spidernet-io.github.io/cni-plugins
+export REPO_NAME=cni-plugins
+export CHART_NAME=veth
+export VERSION=v0.1.1
+
+# optional, for wrapper chart
+export CUSTOM_SHELL=custom.sh
+export APPEND_VALUES_FILE=appendValues.yaml
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=daocloud-system
