@@ -1,6 +1,7 @@
 apiVersion: v2
 name: multus
-description: Multus CNI enables attaching multiple network interfaces to pods in Kubernetes.
+
+description: Multi-cni enables attaching multiple network interfaces to pods in Kubernetes. Including multus and veth-plugin.
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -23,6 +24,6 @@ version: v3.9
 # It is recommended to use it with quotes.
 appVersion: "v3.9"
 dependencies:
-- name: multus
-  repository: file://charts/multus-v3.9.tgz
-  version: v3.9
+- name: plugins
+  repository: https://spidernet-io.github.io/cni-plugins
+  version: v0.1.1
