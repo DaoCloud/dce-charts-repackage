@@ -128,7 +128,7 @@ metallb:
     logLevel: info
     image:
       repository: quay.m.daocloud.io/metallb/controller
-      tag:
+      tag: v0.13.4
       pullPolicy: IfNotPresent
     serviceAccount:
       # Specifies whether a ServiceAccount should be created
@@ -179,7 +179,7 @@ metallb:
       mlBindPort: 7946
     image:
       repository: quay.m.daocloud.io/metallb/speaker
-      tag:
+      tag: v0.13.4
       pullPolicy: IfNotPresent
     serviceAccount:
       # Specifies whether a ServiceAccount should be created
