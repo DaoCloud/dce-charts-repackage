@@ -6,6 +6,27 @@ on:
       - main
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: check chart config
+        run : |
+          TMP=`ls charts`
+          for ITEM in $TMP ; do
+              [ ! -d "charts/${ITEM}" ] && continue
+              echo "check config for chart $ITEM "
+              [ ! -f "charts/${ITEM}/config" ] && echo "error, miss charts/${ITEM}/config " && exit 1
+              ! grep "DAOCLOUD_REPO_PROJECT" charts/${ITEM}/config &>/dev/null && echo "error, miss DAOCLOUD_REPO_PROJECT in charts/${ITEM}/config " && exit 1
+              source charts/${ITEM}/config 
+              [ -z "$DAOCLOUD_REPO_PROJECT" ] && echo "error, DAOCLOUD_REPO_PROJECT is empty, in charts/${ITEM}/config " && exit 1
+          done
+          exit 0
+
   check_change:
     runs-on: ubuntu-latest
     outputs:
