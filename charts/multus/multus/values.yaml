@@ -106,7 +106,7 @@ crd_conf:
         - dst: 10.233.0.0/18
         - dst: 10.233.64.0/18
 
-veth:
+plugins:
   image:
     repository: ghcr.m.daocloud.io/spidernet-io/cni-plugins/veth
     tag: v0.1.1
