@@ -1,0 +1,62 @@
+global:
+  imageRegistry: "docker.m.daocloud.io"
+contour:
+  contour:
+    manageCRDs: true
+    image:
+      registry: "docker.m.daocloud.io"
+      repository: "bitnami/contour"
+      tag: "1.22.0-debian-11-r4"
+      pullPolicy: "IfNotPresent"
+    replicaCount: 2
+    ingressClass:
+      name: "contour"
+      default: false
+    extraArgs:
+      - "--envoy-service-http-address=::"
+      - "--envoy-service-https-address=::"
+    debug: false
+  envoy:
+    replicaCount: 2
+    image:
+      registry: "docker.m.daocloud.io"
+      repository: "bitnami/envoy"
+      tag: "1.23.0-debian-11-r8"
+      pullPolicy: "IfNotPresent"
+    kind: "deployment"
+    hostNetwork: false
+    logLevel: "info"
+    service:
+      type: "LoadBalancer"
+      ipFamilyPolicy: "SingleStack"
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 80
+            podAffinityTerm:
+              topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: "metallb"
+  metrics:
+    serviceMonitor:
+      enabled: false
+alert:
+  prometheusRule:
+    create: false
+    highHttp5xxErrorRate: 0.05
+    highHttp4xxErrorRate: 0.05
+    latencyMillisecond: 3000
+  alertManagerConfig:
+    create: false
+    wechat:
+      apiURL: 'https://qyapi.weixin.qq.com/cgi-bin/'
+      apiSecret: "change me"
+      corpID: "change me"
+      agentID: "change me"
+      toUser: "@all"
+buildIn:
+  prometheus:
+    enable: false
+  alertManager:
+    enable: false

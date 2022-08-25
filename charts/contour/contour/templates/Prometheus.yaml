@@ -1,0 +1,45 @@
+{{ if .Values.buildIn.prometheus.enable }}
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus-contour
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceAccountName: prometheus-contour
+  resources:
+    requests:
+      memory: 400Mi
+  enableAdminAPI: true
+  serviceMonitorNamespaceSelector:
+    matchLabels:
+      name: {{ .Release.Namespace }}
+  serviceMonitorSelector:
+    matchLabels:
+      app.kubernetes.io/name: contour
+  ruleSelector:
+    matchLabels:
+      app: contour
+  ruleNamespaceSelector:
+    matchLabels:
+      name: contour
+  alerting:
+    alertmanagers:
+      - namespace: {{ .Release.Namespace }}
+        name: alertmanager-contour
+        port: web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-contour
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: NodePort
+  ports:
+    - name: web
+      nodePort: 30905
+      port: 9090
+      protocol: TCP
+  selector:
+    prometheus: prometheus-contour
+{{ end }}
