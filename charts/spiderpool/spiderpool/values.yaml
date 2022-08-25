@@ -76,16 +76,16 @@ spiderpool:
     ipv6IPPoolName: "default-v6-ippool"
   
     ## @param clusterDefaultPool.ipv4Subnet the subnet of ipv4 spiderpool instance
-    ipv4Subnet: ""
+    ipv4Subnet: "192.168.0.0/16"
   
     ## @param clusterDefaultPool.ipv6Subnet the subnet of ipv6 spiderpool instance
-    ipv6Subnet: ""
+    ipv6Subnet: "fd00::/112"
   
     ## @param clusterDefaultPool.ipv4IPRanges the available IP of ipv4 spiderpool instance
-    ipv4IPRanges: []
+    ipv4IPRanges: ["192.168.0.10-192.168.0.100"]
   
     ## @param clusterDefaultPool.ipv6IPRanges the available IP of ipv6 spiderpool instance
-    ipv6IPRanges: []
+    ipv6IPRanges: ["fd00::10-fd00::100"]
   
   ## @section spiderpoolAgent parameters
   ##
