@@ -42,7 +42,7 @@ REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.serviceMonitor.labels"    "label
 REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.prometheusRule.labels"    "labels:.*"  "${INSIGHT_LABEL}"
 REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.grafanaDashboard.labels"  "labels:.*"  "${INSIGHT_LABEL}"
 
-REPLACE_BY_COMMENT  "global.imageRegistryOverride"  'imageRegistryOverride:.*'  "imageRegistryOverride: ghcr.io"
+REPLACE_BY_COMMENT  "global.imageRegistryOverride"  'imageRegistryOverride:.*'  "imageRegistryOverride: ghcr.m.daocloud.io"
 
 REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.enabled"  'enabled:.*'  "enabled: true"
 REPLACE_BY_COMMENT  "spiderpoolController.prometheus.enabled"  'enabled:.*'  "enabled: true"
