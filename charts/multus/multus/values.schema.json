@@ -4,7 +4,7 @@
     "properties": {
         "multus": {
             "type": "object",
-            "title": "Multus Install Configuration",
+            "title": "Multus Configuration",
             "properties": {
                 "config": {
                     "type": "object",
@@ -40,7 +40,7 @@
                 },
                 "image": {
                     "type": "object",
-                    "title": "Image",
+                    "title": "Image Configuration",
                     "properties": {
                         "repository": {
                             "type": "string",
@@ -51,6 +51,65 @@
                             "type": "string",
                             "title": "Tag",
                             "default": "v3.9"
+                        }
+                    }
+                }
+            }
+        },
+        "crd_conf": {
+            "type": "object",
+            "title": "Multus Default CRs",
+            "properties": {
+                "macvlan-overlay": {
+                    "type": "object",
+                    "title": "Macvlan With Overlay",
+                    "description": "Macvlan with router-plugin, Applied to calico with macvlan. For more configurations, Please select \"yaml\" configuration.",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "default": "macvlan-overlay"
+                        },
+                        "enable": {
+                            "type": "boolean",
+                            "default": true,
+                            "title": "enable"
+                        }
+                    }
+                },
+                "macvlan-standalone": {
+                    "type": "object",
+                    "title": "Macvlan With Alone",
+                    "description": "Macvlan with veth-plugin, Applied to macvlan as default cni. For more configurations, Please select \"yaml\" configuration.",
+                    "properties": {
+                        "enable": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "name": {
+                            "type": "string",
+                            "default": "macvlan-standalone"
+                        }
+                    }
+                }
+            }
+        },
+        "veth": {
+            "type": "object",
+            "title": "Veth-Plugin",
+            "properties": {
+                "image": {
+                    "type": "object",
+                    "title": "Image Configuration",
+                    "properties": {
+                        "repository": {
+                            "type": "string",
+                            "title": "Repository",
+                            "default": "ghcr.m.daocloud.io/spidernet-io/cni-plugins/veth"
+                        },
+                        "tag": {
+                            "type": "string",
+                            "title": "Tag",
+                            "default": "v0.1.1"
                         }
                     }
                 }

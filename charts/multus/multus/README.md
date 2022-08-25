@@ -1,51 +1,85 @@
-# dce-multus
+# multus
 
 ![Version: v3.9](https://img.shields.io/badge/Version-v3.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v3.9](https://img.shields.io/badge/AppVersion-v3.9-informational?style=flat-square)
 
-Multus CNI enables attaching multiple network interfaces to pods in Kubernetes.
+Multi-cni enables attaching multiple network interfaces to pods in Kubernetes. Including multus and veth-plugin.
 
 ## Requirements
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://charts/multus | multus | v3.9 |
+| <https://spidernet-io.github.io/cni-plugins> | veth | v0.1.1 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| multus.config.cni_conf.clusterNetwork | string | `"calico"` |  |
-| multus.config.cni_conf.logLevel | string | `"info"` |  |
+| crd_conf.macvlan-overlay.config.name | string | `"macvlan-overlay"` |  |
+| crd_conf.macvlan-overlay.config.plugins[0].ipam.type | string | `"spiderpool"` |  |
+| crd_conf.macvlan-overlay.config.plugins[0].master | string | `"ens192"` |  |
+| crd_conf.macvlan-overlay.config.plugins[0].type | string | `"macvlan"` |  |
+| crd_conf.macvlan-overlay.config.plugins[1].routes[0].dst | string | `"10.233.0.0/18"` |  |
+| crd_conf.macvlan-overlay.config.plugins[1].routes[1].dst | string | `"10.233.64.0/18"` |  |
+| crd_conf.macvlan-overlay.config.plugins[1].type | string | `"router"` |  |
+| crd_conf.macvlan-overlay.default_cni | bool | `false` |  |
+| crd_conf.macvlan-overlay.enable | bool | `true` |  |
+| crd_conf.macvlan-overlay.name | string | `"macvlan-overlay"` |  |
+| crd_conf.macvlan-veth.config.cniVersion | string | `"0.3.0"` |  |
+| crd_conf.macvlan-veth.config.name | string | `"macvlan-veth"` |  |
+| crd_conf.macvlan-veth.config.plugins[0].ipam.log_file_max_age | int | `30` |  |
+| crd_conf.macvlan-veth.config.plugins[0].ipam.log_file_max_count | int | `10` |  |
+| crd_conf.macvlan-veth.config.plugins[0].ipam.log_file_max_size | int | `100` |  |
+| crd_conf.macvlan-veth.config.plugins[0].ipam.log_file_path | string | `"/var/log/spidernet/spiderpool.log"` |  |
+| crd_conf.macvlan-veth.config.plugins[0].ipam.log_level | string | `"DEBUG"` |  |
+| crd_conf.macvlan-veth.config.plugins[0].ipam.type | string | `"spiderpool"` |  |
+| crd_conf.macvlan-veth.config.plugins[0].master | string | `"ens192"` |  |
+| crd_conf.macvlan-veth.config.plugins[0].mode | string | `"bridge"` |  |
+| crd_conf.macvlan-veth.config.plugins[0].type | string | `"macvlan"` |  |
+| crd_conf.macvlan-veth.config.plugins[1].routes[0].dst | string | `"10.233.0.0/18"` |  |
+| crd_conf.macvlan-veth.config.plugins[1].routes[1].dst | string | `"10.233.64.0/18"` |  |
+| crd_conf.macvlan-veth.config.plugins[1].rp_filter.enable | bool | `true` |  |
+| crd_conf.macvlan-veth.config.plugins[1].rp_filter.value | int | `2` |  |
+| crd_conf.macvlan-veth.config.plugins[1].skip | bool | `false` |  |
+| crd_conf.macvlan-veth.config.plugins[1].type | string | `"veth"` |  |
+| crd_conf.macvlan-veth.enable | bool | `true` |  |
+| crd_conf.macvlan-veth.name | string | `"macvlan-veth"` |  |
+| fullnameOverride | string | `""` |  |
+| imagePullSecrets | list | `[]` |  |
+| multus.config.cni_conf.clusterNetwork | string | `"calico"` | calico or cilium |
+| multus.config.cni_conf.logLevel | string | `"info"` | info,debug,error,verbose,panic |
 | multus.image.repository | string | `"ghcr.m.daocloud.io/k8snetworkplumbingwg/multus-cni"` |  |
 | multus.image.tag | string | `"v3.9"` |  |
+| nameOverride | string | `""` |  |
+| veth.image.repository | string | `"ghcr.m.daocloud.io/spidernet-io/cni-plugins/veth"` |  |
+| veth.image.tag | string | `"v0.1.1"` |  |
 
 ## Configuration and installation details
 
 ### Install
 
-Multus requires that you have first installed a Kubernetes CNI plugin to serve as your pod-to-pod network(calico or cilium), which we 
-refer to as your "default CNI" (a network interface that every pod will be created with). So there are two case:
+Multus requires that you have first installed a Kubernetes CNI plugin to serve as your pod-to-pod network(calico or cilium), which we
+refer to as your "default CNI" (a network interface that every pod will be created with). 
 
-- Calico as the default CNI:
+### Quick Start
 
 ```shell
 helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
-helm install multus daocloud-system/dce-multus -n kube-system
-```
+helm install multus daocloud-system/multus -n kube-system
+````
 
 - Cilium as the default CNI:
 
 ```shell
 helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
-helm install multus daocloud-system/dce-multus \
+helm install multus daocloud-system/multus \
 --set crd_conf.calico.default_cni=false \
 --set crd_conf.cilium.default_cni=true  \
 --set multus.config.cni_conf.clusterNetwork=cilium \
 -n kube-system
 ```
 
-- `crd_conf.calico.default_cni`: Mark default cni is not calico, Default to true. 
-- `crd_conf.cilium.default_cni`: Mark default cni is cilium, Default to false. 
+- `crd_conf.calico.default_cni`: Mark default cni is not calico, Default to true.
+- `crd_conf.cilium.default_cni`: Mark default cni is cilium, Default to false.
 - `multus.config.cni_conf.clusterNetwork`: Tell multus that default cni is cilium, Default to "calico".
 
 ### Upgrade
@@ -59,7 +93,8 @@ helm upgrade multus daocloud-system/dce-multus --set multus.image.tag=v3.9 -n ku
 - Update log level:
 
 ```shell
-helm upgrade multus daocloud-system/dce-multus --set multus.config.cni_conf.logLevel=debug -n kube-system
+helm upgrade multus daocloud-system/multus --set multus.config.cni_conf.logLevel=debug -n kube-system
 ```
 
 ----------------------------------------------
+Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)
