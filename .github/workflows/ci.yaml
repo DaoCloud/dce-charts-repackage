@@ -59,7 +59,13 @@ jobs:
               echo "detect test changrs, add spiderpool, charts_changed: $charts_changed"
           fi
           charts_changed=` echo $charts_changed `
-          echo ::set-output name=changed_project::${charts_changed}
+          RES=""
+          for PRO in ${charts_changed} ; do
+            if [ -d "charts/${PRO}" ] ; then
+              RES+="${P} "
+            fi
+          done
+          echo ::set-output name=changed_project::${RES}
 
   call_e2e:
     uses: ./.github/workflows/call-e2e.yml
