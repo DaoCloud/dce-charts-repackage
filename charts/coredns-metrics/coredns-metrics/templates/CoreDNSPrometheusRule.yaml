@@ -1,0 +1,110 @@
+{{- if .Values.isInstallPR }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    {{ .Values.prometheusRule.insightLabelName }}: {{ .Values.prometheusRule.insightLabelValue }}
+  name: {{ .Release.Name }}-prometheus-rule
+  namespace: {{ .Release.Namespace }}
+spec:
+  groups:
+  - name: coredns
+    rules:
+    - alert: CoreDNSDown
+      annotations:
+        message: 'CoreDNS has disappeared from Prometheus target discovery.'
+        runbook_url: https://github.com/povilasv/coredns-mixin/tree/master/runbook.md#alert-name-corednsdown
+      expr: |
+        absent(up{job="coredns"} == 1)
+      for: 15m
+      labels:
+        severity: critical
+    - alert: CoreDNSReloadFailedCount
+      annotations:
+        message: 'Number of CoreDNS reload failures.'
+      expr: |
+        sum(rate(coredns_reload_failed_total{job="coredns"}[5m])) > 0
+      for: 10m
+      labels:
+        severity: warning
+    - alert: CoreDNSLatencyHigh
+      annotations:
+        message: 'CoreDNS has 99th percentile latency of {{ "{{ $value }}" }} seconds for server
+          {{ "{{ $labels.server }}" }} zone {{ "{{ $labels.zone }}" }} .'
+      expr: |
+        histogram_quantile(0.99, sum(rate(coredns_dns_request_duration_seconds_bucket{job="coredns"}[{{ .Values.prometheusRule.latencyHighRange }}])) by(server, zone, le)) > {{ .Values.prometheusRule.latencyHighValue }}
+      for: 10m
+      labels:
+        severity: {{ .Values.prometheusRule.latencyHighLevel }}
+    - alert: CoreDNSErrorsHigh
+      annotations:
+        message: 'CoreDNS is returning SERVFAIL for {{ "{{ $value }}" }} | humanizePercentage of requests. '
+      expr: |
+        sum(rate(coredns_dns_responses_total{job="coredns",rcode="SERVFAIL"}[{{ .Values.prometheusRule.errorsHighRange }}]))
+          /
+        sum(rate(coredns_dns_responses_total{job="coredns"}[{{ .Values.prometheusRule.errorsHighRange }}])) > {{ .Values.prometheusRule.errorsHighValue }}
+      for: 10m
+      labels:
+        severity: {{ .Values.prometheusRule.errorsHighLevel }}
+    - alert: CoreDNSPanic
+      annotations:
+        message: 'CoreDNS have panic.'
+      expr: |
+        sum(rate(coredns_panics_total{job="coredns"}[5m])) > 0
+      for: 10m
+      labels:
+        severity: critical
+    - alert: CoreDNSLoadHigh
+      annotations:
+        message: 'CoreDNS load is very high.'
+      expr: |
+        histogram_quantile(0.99, sum(rate(coredns_health_request_duration_seconds_bucket{job="coredns"}[{{ .Values.prometheusRule.loadHighRange }}]))) > {{ .Values.prometheusRule.loadHighValue }}
+      for: 5m
+      labels:
+        severity: {{ .Values.prometheusRule.loadHighLevel }}
+  - name: coredns_forward
+    rules:
+    - alert: CoreDNSForwardLatencyHigh
+      annotations:
+        message: 'CoreDNS has 99th percentile latency of {{ "{{ $value }}" }} seconds forwarding
+          requests to {{ "{{ $labels.to }}" }}.'
+      expr: |
+        histogram_quantile(0.99, sum(rate(coredns_forward_request_duration_seconds_bucket{job="coredns"}[{{ .Values.prometheusRule.forwardLatencyHighRange }}])) by(to, le)) > {{ .Values.prometheusRule.forwardLatencyHighValue }}
+      for: 10m
+      labels:
+        severity: {{ .Values.prometheusRule.forwardLatencyHighLevel }}
+    - alert: CoreDNSForwardErrorsHigh
+      annotations:
+        message: 'CoreDNS is returning SERVFAIL for {{ "{{ $value | humanizePercentage }}" }} of forward requests to {{ "{{ $labels.to }}" }}.'
+      expr: |
+        sum(rate(coredns_forward_responses_total{job="coredns",rcode="SERVFAIL"}[5m]))
+          /
+        sum(rate(coredns_forward_responses_total{job="coredns"}[{{ .Values.prometheusRule.forwardErrorsHighRange }}])) > {{ .Values.prometheusRule.forwardErrorsHighValue }}
+      for: 10m
+      labels:
+        severity: {{ .Values.prometheusRule.forwardErrorsHighLevel }}
+    - alert: CoreDNSForwardHealthcheckFailureCount
+      annotations:
+        message: 'CoreDNS health checks have failed to upstream server {{ "{{ $labels.to }}" }}.'
+      expr: |
+        sum(rate(coredns_forward_healthcheck_failures_total{job="coredns"}[5m])) by (to) > 0
+      for: 10m
+      labels:
+        severity: warning
+    - alert: CoreDNSForwardHealthcheckBrokenCount
+      annotations:
+        message: 'CoreDNS health checks have failed for all upstream servers.'
+      expr: |
+        sum(rate(coredns_forward_healthcheck_broken_total{job="coredns"}[5m])) > 0
+      for: 10m
+      labels:
+        severity: warning
+    - alert: CoreDNSForwardMaxConcurrentRejectsCount
+      annotations:
+        message: 'CoreDNS query reaches maximum upstream concurrency request is rejected.'
+      expr: |
+        sum(rate(coredns_forward_max_concurrent_rejects_total{job="coredns"}[5m])) > 0
+      for: 10m
+      labels:
+        severity: warning
+{{- end }}
