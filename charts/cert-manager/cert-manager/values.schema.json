@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/schema#",
+  "type": "object",
+  "default": {},
+  "properties": {
+    "cert-manager": {
+      "type": "object",
+      "default": {},
+      "title": "Cert Manager configuration",
+      "properties": {
+        "replicaCount": {
+          "type": "integer",
+          "title": "Replica Count"
+        },
+        "installCRDs": {
+          "type": "boolean",
+          "title": "Install CRDs"
+        },
+        "webhook": {
+          "type": "object",
+          "properties": {
+            "image": {
+              "type": "object",
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "title": "Repository",
+                  "description": "Repository of webhook component."
+                },
+                "tag": {
+                  "type": "string",
+                  "title": "Tag",
+                  "description": "Image tag of webhook component."
+                }
+              }
+            }
+          },
+          "title": "Webhook component"
+        },
+        "cainjector": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled"
+            },
+            "image": {
+              "type": "object",
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "title": "Repository",
+                  "description": "Repository of cainjector component."
+                },
+                "tag": {
+                  "type": "string",
+                  "title": "Tag",
+                  "description": "Image tag of cainjector component."
+                }
+              },
+              "required": []
+            }
+          },
+          "title": "CA Injector"
+        },
+        "prometheus": {
+          "type": "object",
+          "properties": {
+            "servicemonitor": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "title": "Install Service Monitor"
+                }
+              },
+              "required": []
+            }
+          }
+        }
+      },
+      "required": []
+    },
+    "alert": {
+      "type": "object",
+      "title": "Alert Configurations",
+      "properties": {
+        "prometheusRule": {
+          "type": "object",
+          "properties": {
+            "create": {
+              "type": "boolean"
+            }
+          },
+          "title": "Prometheus Rule"
+        }
+      }
+    }
+  },
+  "required": []
+}

@@ -1,0 +1,40 @@
+cert-manager:
+  installCRDs: true
+  image:
+    repository: quay.m.daocloud.io/jetstack/cert-manager-controller
+    tag: v1.9.1
+  replicaCount: 2
+  webhook:
+    replicaCount: 2
+    image:
+      repository: quay.m.daocloud.io/jetstack/cert-manager-webhook
+      tag: v1.9.1
+  cainjector:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: quay.m.daocloud.io/jetstack/cert-manager-cainjector
+      tag: v1.9.1
+  prometheus:
+    enabled: true
+    servicemonitor:
+      enabled: true
+alert:
+  prometheusRule:
+    create: false
+    nginxHighHttp5xxErrorRate: 5
+    nginxHighHttp4xxErrorRate: 5
+    nginxLatencySecond: 3
+  alertManagerConfig:
+    create: false
+    wechat:
+      apiURL: 'https://qyapi.weixin.qq.com/cgi-bin/'
+      apiSecret: "change me"
+      corpID: "change me"
+      agentID: "change me"
+      toUser: "@all"
+buildIn:
+  prometheus:
+    enable: false
+  alertManager:
+    enable: false
