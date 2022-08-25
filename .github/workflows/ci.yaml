@@ -62,7 +62,7 @@ jobs:
           RES=""
           for PRO in ${charts_changed} ; do
             if [ -d "charts/${PRO}" ] ; then
-              RES+="${P} "
+              RES+="${PRO} "
             fi
           done
           echo ::set-output name=changed_project::${RES}
