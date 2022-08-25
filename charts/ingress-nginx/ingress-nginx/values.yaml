@@ -5,6 +5,8 @@ ingress-nginx:
       enabled: true
       serviceMonitor:
         enabled: false
+        additionalLabels:
+          operator.insight.io/managed-by: insight
     resources:
     service:
       ipFamilyPolicy: "SingleStack"
