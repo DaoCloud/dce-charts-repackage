@@ -157,24 +157,6 @@
                       ]
                     }
                   }
-                },
-                "grafanaDashboard": {
-                  "title": "GrafanaDashboard Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "install"
-                  ],
-                  "properties": {
-                    "install": {
-                      "title": "Install",
-                      "type": "boolean",
-                      "default": false,
-                      "examples": [
-                        false
-                      ]
-                    }
-                  }
                 }
               }
             }
@@ -318,24 +300,6 @@
                   "examples": [{
                     "install": false
                   }]
-                },
-                "grafanaDashboard": {
-                  "title": "GrafanaDashboard Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "install"
-                  ],
-                  "properties": {
-                    "install": {
-                      "title": "Install",
-                      "type": "boolean",
-                      "default": false,
-                      "examples": [
-                        false
-                      ]
-                    }
-                  }
                 }
               }
             }
