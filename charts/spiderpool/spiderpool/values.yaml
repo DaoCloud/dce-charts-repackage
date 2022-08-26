@@ -279,7 +279,7 @@ spiderpool:
         annotations: {}
   
         ## @param spiderpoolAgent.prometheus.grafanaDashboard.labels the additional label of spiderpoolAgent grafanaDashboard
-        labels: { "operator.insight.io/managed-by": "insight" }
+        labels: {}
   
     debug:
       ## @param spiderpoolAgent.debug.logLevel the log level of spiderpool agent [debug, info, warn, error, fatal, panic]
@@ -494,7 +494,7 @@ spiderpool:
         annotations: {}
   
         ## @param spiderpoolController.prometheus.grafanaDashboard.labels the additional label of spiderpoolController grafanaDashboard
-        labels: { "operator.insight.io/managed-by": "insight" }
+        labels: {}
   
     debug:
       ## @param spiderpoolController.debug.logLevel the log level of spiderpool Controller [debug, info, warn, error, fatal, panic]
