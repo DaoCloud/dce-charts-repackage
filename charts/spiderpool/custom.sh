@@ -36,11 +36,11 @@ REPLACE_BY_COMMENT(){
 
 REPLACE_BY_COMMENT  "spiderpoolController.prometheus.serviceMonitor.labels"    "labels:.*"  "${INSIGHT_LABEL}"
 REPLACE_BY_COMMENT  "spiderpoolController.prometheus.prometheusRule.labels"    "labels:.*"  "${INSIGHT_LABEL}"
-REPLACE_BY_COMMENT  "spiderpoolController.prometheus.grafanaDashboard.labels"  "labels:.*"  "${INSIGHT_LABEL}"
+#REPLACE_BY_COMMENT  "spiderpoolController.prometheus.grafanaDashboard.labels"  "labels:.*"  "${INSIGHT_LABEL}"
 
 REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.serviceMonitor.labels"    "labels:.*"  "${INSIGHT_LABEL}"
 REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.prometheusRule.labels"    "labels:.*"  "${INSIGHT_LABEL}"
-REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.grafanaDashboard.labels"  "labels:.*"  "${INSIGHT_LABEL}"
+#REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.grafanaDashboard.labels"  "labels:.*"  "${INSIGHT_LABEL}"
 
 REPLACE_BY_COMMENT  "global.imageRegistryOverride"  'imageRegistryOverride:.*'  "imageRegistryOverride: ghcr.m.daocloud.io"
 
