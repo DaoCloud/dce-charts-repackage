@@ -21,18 +21,6 @@
                                         "calico",
                                         "cilium"
                                     ]
-                                },
-                                "logLevel": {
-                                    "type": "string",
-                                    "title": "Log Level",
-                                    "default": "info",
-                                    "enum": [
-                                        "info",
-                                        "debug",
-                                        "error",
-                                        "verbose",
-                                        "panic"
-                                    ]
                                 }
                             }
                         }
@@ -56,38 +44,194 @@
                 }
             }
         },
-        "crd_conf": {
+        "underlay_crds": {
             "type": "object",
-            "title": "Multus Default CRs",
+            "title": "Multus Underlay CRDs Configuration",
             "properties": {
-                "macvlan-overlay": {
+                "service_subnet": {
                     "type": "object",
-                    "title": "Macvlan With Overlay",
-                    "description": "Macvlan with router-plugin, Applied to calico with macvlan. For more configurations, Please select \"yaml\" configuration.",
+                    "title": "Service Subnet",
                     "properties": {
-                        "name": {
+                        "ipv4": {
                             "type": "string",
-                            "default": "macvlan-overlay"
+                            "title": "*IPv4"
                         },
-                        "enable": {
-                            "type": "boolean",
-                            "default": true,
-                            "title": "enable"
+                        "ipv6": {
+                            "type": "string",
+                            "title": "IPv6",
+                            "description": "Service IPv6 Subnet(optional)"
                         }
                     }
                 },
-                "macvlan-standalone": {
+                "calico_subnet": {
                     "type": "object",
-                    "title": "Macvlan With Alone",
-                    "description": "Macvlan with veth-plugin, Applied to macvlan as default cni. For more configurations, Please select \"yaml\" configuration.",
+                    "properties": {
+                        "ipv4": {
+                            "type": "string",
+                            "title": "*IPv4"
+                        },
+                        "ipv6": {
+                            "type": "string",
+                            "title": "IPv6",
+                            "description": "Calico IPv6 Subnet(optional)"
+                        }
+                    }
+                },
+                "nodePortNodeIPs": {
+                    "type": "array",
+                    "title": "NodePort Node IPs",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "IPs of all nodePort nodes, including IPv4 and IPv6 (if required)"
+                },
+                "macvlan": {
+                    "type": "object",
+                    "title": "Macvlan CRD Configuration",
+                    "properties": {
+                        "macvlan_overlay": {
+                            "type": "object",
+                            "title": "Macvlan Overlay",
+                            "properties": {
+                                "enable": {
+                                    "type": "boolean",
+                                    "tile": "Enable",
+                                    "default": true
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "title": "Name",
+                                    "default": "macvlan-overlay"
+                                },
+                                "custom_route": {
+                                    "type": "string",
+                                    "title": "Custom Route(optional)"
+                                }
+                            }
+                        },
+                        "macvlan_standalone": {
+                            "type": "object",
+                            "title": "Macvlan Standalone",
+                            "properties": {
+                                "enable": {
+                                    "type": "boolean",
+                                    "tile": "Enable",
+                                    "default": true
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "title": "Name",
+                                    "default": "macvlan-standalone"
+                                },
+                                "custom_route": {
+                                    "type": "string",
+                                    "title": "Custom Route(optional)"
+                                }
+                            }
+                        }
+                    }
+                },
+                "sriov": {
+                    "type": "object",
+                    "title": "SRIOV CRD Configuration",
+                    "properties": {
+                        "resourceName": {
+                            "type": "string",
+                            "title": "ResourceName",
+                            "description": "You must be provide resourceName when Sriov-CNI enabled. Multus require specific device information which maybe pre-allocated by K8s device plugin. This could be indicated by providing `k8s.v1.cni.cncf.io/resourceName` annotation in its network attachment definition CRD"
+                        },
+                        "sriov_overlay": {
+                            "type": "object",
+                            "title": "SRIOV Overlay",
+                            "properties": {
+                                "enable": {
+                                    "type": "boolean",
+                                    "tile": "Enable",
+                                    "default": true
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "title": "Name",
+                                    "default": "sriov-overlay"
+                                },
+                                "custom_route": {
+                                    "type": "string",
+                                    "title": "Custom Route(optional)"
+                                }
+                            }
+                        },
+                        "sriov_standalone": {
+                            "type": "object",
+                            "title": "SRIOV Standalone",
+                            "properties": {
+                                "enable": {
+                                    "type": "boolean",
+                                    "tile": "Enable",
+                                    "default": true
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "title": "Name",
+                                    "default": "sriov-standalone"
+                                },
+                                "custom_route": {
+                                    "type": "string",
+                                    "title": "Custom Route(optional)"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "sriov": {
+            "type": "object",
+            "title": "SRIOV Install Configuration",
+            "description": "SR-IOV CNI plugin works with SR-IOV device plugin for VF allocation in Kubernetes",
+            "properties": {
+                "manifests": {
+                    "type": "object",
                     "properties": {
                         "enable": {
-                            "type": "boolean",
-                            "default": true
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "images": {
+                    "type": "object",
+                    "title": "Image Configuration",
+                    "properties": {
+                        "sriovCni": {
+                            "type": "object",
+                            "title": "SRIOV-CNI",
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Repository",
+                                    "default": "ghcr.m.daocloud.io/k8snetworkplumbingwg/sriov-cni"
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Tag",
+                                    "default": "v2.6.3"
+                                }
+                            }
                         },
-                        "name": {
-                            "type": "string",
-                            "default": "macvlan-standalone"
+                        "sriovDevicePlugin": {
+                            "type": "object",
+                            "title": "SRIOV Device Plugin",
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Repository",
+                                    "default": "ghcr.m.daocloud.io/k8snetworkplumbingwg/sriov-network-device-plugin"
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Tag",
+                                    "default": "v3.5.1"
+                                }
+                            }
                         }
                     }
                 }
@@ -95,7 +239,7 @@
         },
         "plugins": {
             "type": "object",
-            "title": "CNI-Meta-Plugins",
+            "title": "Underlay Meta-CNI Plugins Install",
             "properties": {
                 "image": {
                     "type": "object",
