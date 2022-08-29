@@ -1,0 +1,19 @@
+{{- if .Values.isInstallSM }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-service-monitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ .Values.serviceMonitor.insightLabelName }}: {{ .Values.serviceMonitor.insightLabelValue }}
+spec:
+  endpoints:
+    - interval: {{ .Values.serviceMonitor.interval }} 
+      path: {{ .Values.serviceMonitor.path }}
+      port: {{ .Values.serviceMonitor.port }}
+  namespaceSelector:
+    any: {{ .Values.serviceMonitor.nsMatchAny }}
+  selector:
+    matchLabels:
+      kubernetes.io/name: {{ .Values.serviceMonitor.slcName }}
+{{- end }}

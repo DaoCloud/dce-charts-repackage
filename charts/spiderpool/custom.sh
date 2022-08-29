@@ -52,4 +52,7 @@ REPLACE_BY_COMMENT  "clusterDefaultPool.ipv6Subnet"  'ipv6Subnet:.*'  "ipv6Subne
 REPLACE_BY_COMMENT  "clusterDefaultPool.ipv4IPRanges"  'ipv4IPRanges:.*'  "ipv4IPRanges: [\"192.168.0.10-192.168.0.100\"]"
 REPLACE_BY_COMMENT  "clusterDefaultPool.ipv6IPRanges"  'ipv6IPRanges:.*'  "ipv6IPRanges: [\"fd00::10-fd00::100\"]"
 
+
 exit 0
+
+

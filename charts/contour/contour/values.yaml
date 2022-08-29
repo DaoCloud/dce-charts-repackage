@@ -41,6 +41,8 @@ contour:
   metrics:
     serviceMonitor:
       enabled: false
+      labels:
+        operator.insight.io/managed-by: insight
 alert:
   prometheusRule:
     create: false
