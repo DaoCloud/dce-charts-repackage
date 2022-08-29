@@ -21,19 +21,19 @@ prometheusRule:
     insightLabelName: "operator.insight.io/managed-by"
     insightLabelValue: "insight"
     latencyHighRange: "5m"
-    latencyHighValue: 3
+    latencyHighValue: "3"
     latencyHighLevel: "warning"
     errorsHighRange: "5m"
-    errorsHighValue: 0.03
+    errorsHighValue: "0.03"
     errorsHighLevel: "warning"
     loadHighRange: "5m"
-    loadHighValue: 0.03
+    loadHighValue: "0.03"
     loadHighLevel: "warning"
     forwardLatencyHighRange: "5m"
-    forwardLatencyHighValue: 0.03
+    forwardLatencyHighValue: "0.03"
     forwardLatencyHighLevel: "warning"
     forwardErrorsHighRange: "5m"
-    forwardErrorsHighValue: 0.03
+    forwardErrorsHighValue: "0.03"
     forwardErrorsHighLevel: "warning"
 
 grafanaDashboard:
