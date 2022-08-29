@@ -3,7 +3,7 @@ entries:
   cert-manager:
   - apiVersion: v2
     appVersion: v1.9.1
-    created: "2022-08-29T08:45:12.40060976Z"
+    created: "2022-08-29T12:10:28.222989016Z"
     dependencies:
     - name: cert-manager
       repository: https://charts.jetstack.io
@@ -19,7 +19,7 @@ entries:
   contour:
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2022-08-29T08:45:12.407566763Z"
+    created: "2022-08-29T12:10:28.231682125Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -35,7 +35,7 @@ entries:
   coredns-metrics:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-08-29T08:45:12.408175472Z"
+    created: "2022-08-29T12:10:28.232385942Z"
     description: A Helm chart for Kubernetes
     digest: 3d0231436dc88b51153e705ddc58c387d7bffb245bd0c0b9749e3fe0e9b3bf50
     name: coredns-metrics
@@ -46,7 +46,7 @@ entries:
   ingress-nginx:
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2022-08-29T08:45:12.413702553Z"
+    created: "2022-08-29T12:10:28.236753047Z"
     dependencies:
     - name: ingress-nginx
       repository: https://kubernetes.github.io/ingress-nginx
@@ -62,7 +62,7 @@ entries:
   metallb:
   - apiVersion: v2
     appVersion: 0.13.4
-    created: "2022-08-29T08:45:12.416365393Z"
+    created: "2022-08-29T12:10:28.23938291Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
@@ -78,7 +78,7 @@ entries:
   multus:
   - apiVersion: v2
     appVersion: v3.9
-    created: "2022-08-29T08:45:12.417860515Z"
+    created: "2022-08-29T12:10:28.241288356Z"
     dependencies:
     - name: plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -93,8 +93,32 @@ entries:
     version: v3.9
   spiderpool:
   - apiVersion: v2
+    appVersion: v0.1.0
+    created: "2022-08-29T12:10:28.275007868Z"
+    dependencies:
+    - name: spiderpool
+      repository: https://spidernet-io.github.io/spiderpool
+      version: v0.1.0
+    description: ipam for kubernetes cni
+    digest: 64c76c69b57faf78bc90f2776f4dc42639aacbcca776167437fbe8970bc7d9d7
+    home: https://spidernet-io.github.io/spiderpool
+    keywords:
+    - spiderpool
+    - ipam
+    kubeVersion: '>= 1.16.0-0'
+    maintainers:
+    - name: spidernet-io
+      url: https://github.com/spidernet-io
+    name: spiderpool
+    sources:
+    - https://github.com/spidernet-io/spiderpool
+    type: application
+    urls:
+    - https://DaoCloud.github.io/network-charts-repackage/spiderpool-v0.1.0.tgz
+    version: v0.1.0
+  - apiVersion: v2
     appVersion: v0.0.11
-    created: "2022-08-29T08:45:12.469162071Z"
+    created: "2022-08-29T12:10:28.251194695Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -118,7 +142,7 @@ entries:
     version: v0.0.11
   - apiVersion: v2
     appVersion: v0.0.10
-    created: "2022-08-29T08:45:12.421685571Z"
+    created: "2022-08-29T12:10:28.246917492Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -142,7 +166,7 @@ entries:
     version: v0.0.10
   - apiVersion: v2
     appVersion: v0.0.9
-    created: "2022-08-29T08:45:12.479048817Z"
+    created: "2022-08-29T12:10:28.270739165Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -166,7 +190,7 @@ entries:
     version: v0.0.9
   - apiVersion: v2
     appVersion: v0.0.8
-    created: "2022-08-29T08:45:12.475387663Z"
+    created: "2022-08-29T12:10:28.266879472Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -190,7 +214,7 @@ entries:
     version: v0.0.8
   - apiVersion: v2
     appVersion: v0.0.6
-    created: "2022-08-29T08:45:12.472318518Z"
+    created: "2022-08-29T12:10:28.254618277Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -215,7 +239,7 @@ entries:
   veth:
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2022-08-29T08:45:12.479808628Z"
+    created: "2022-08-29T12:10:28.275366176Z"
     description: Veth works with macvlan cni to solve some communication problems
       when macvlan is used as CNI.
     digest: e532a68813205bdf899ff60ce100b5c80b27b4dee2c5e05bd85c512c70735af4
@@ -228,4 +252,4 @@ entries:
     urls:
     - https://DaoCloud.github.io/network-charts-repackage/veth-v0.1.1.tgz
     version: v0.1.1
-generated: "2022-08-29T08:45:12.393852561Z"
+generated: "2022-08-29T12:10:28.217885993Z"
