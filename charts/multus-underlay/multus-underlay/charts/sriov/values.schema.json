@@ -1,0 +1,294 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "config": {
+            "type": "object",
+            "properties": {
+                "netAttachDef": {
+                    "type": "object",
+                    "properties": {
+                        "dpdk": {
+                            "type": "object",
+                            "properties": {
+                                "cniVersion": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "spoofchk": {
+                                    "type": "string"
+                                },
+                                "trust": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "vlan": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "dpdkName": {
+                            "type": "string"
+                        },
+                        "dpdkResourceName": {
+                            "type": "string"
+                        },
+                        "netdevice": {
+                            "type": "object",
+                            "properties": {
+                                "cniVersion": {
+                                    "type": "string"
+                                },
+                                "gateway": {
+                                    "type": "string"
+                                },
+                                "ipam": {
+                                    "type": "object",
+                                    "properties": {
+                                        "rangeEnd": {
+                                            "type": "string"
+                                        },
+                                        "rangeStart": {
+                                            "type": "string"
+                                        },
+                                        "routes": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "dst": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "subnet": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "netdeviceName": {
+                            "type": "string"
+                        },
+                        "netdeviceResourceName": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "scMountPaths": {
+                    "type": "object",
+                    "properties": {
+                        "cnibin": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "sdpMountPaths": {
+                    "type": "object",
+                    "properties": {
+                        "configVolume": {
+                            "type": "string"
+                        },
+                        "deviceInfoPath": {
+                            "type": "string"
+                        },
+                        "deviceSock": {
+                            "type": "string"
+                        },
+                        "log": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "sriov_device_plugin": {
+                    "type": "object",
+                    "properties": {
+                        "resourceList": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "resourceName": {
+                                        "type": "string"
+                                    },
+                                    "selectors": {
+                                        "type": "object",
+                                        "properties": {
+                                            "devices": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "drivers": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "vendors": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "images": {
+            "type": "object",
+            "properties": {
+                "pullPolicy": {
+                    "type": "string"
+                },
+                "registry": {
+                    "type": "string"
+                },
+                "sriovCni": {
+                    "type": "object",
+                    "properties": {
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "sriovDevicePlugin": {
+                    "type": "object",
+                    "properties": {
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "labels": {
+            "type": "object",
+            "properties": {
+                "nodeSelector": {
+                    "type": "object",
+                    "properties": {
+                        "kubernetes.io/arch": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "manifests": {
+            "type": "object",
+            "properties": {
+                "configMap_sriov_device_plugin": {
+                    "type": "boolean"
+                },
+                "daemonSet_sriov_cni": {
+                    "type": "boolean"
+                },
+                "daemonSet_sriov_device_plugin": {
+                    "type": "boolean"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "net_attach_def_dpdk": {
+                    "type": "boolean"
+                },
+                "net_attach_def_netdev": {
+                    "type": "boolean"
+                },
+                "serviceAccount": {
+                    "type": "boolean"
+                },
+                "test_dpdk": {
+                    "type": "boolean"
+                },
+                "test_netdevice": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pod": {
+            "type": "object",
+            "properties": {
+                "resources": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "sriov_cni": {
+                            "type": "object",
+                            "properties": {
+                                "limits": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "requests": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "securityContext": {
+            "type": "object",
+            "properties": {
+                "privileged": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "serviceAccount": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

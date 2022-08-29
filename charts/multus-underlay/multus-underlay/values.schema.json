@@ -67,11 +67,14 @@
                     "type": "object",
                     "properties": {
                         "ipv4": {
-                            "type": "string",
-                            "title": "*IPv4"
+                            "type": "array",
+                            "title": "*IPv4",
+                            "items": {
+                                "type": "string"
+                            }
                         },
                         "ipv6": {
-                            "type": "string",
+                            "type": "array",
                             "title": "IPv6",
                             "description": "Calico IPv6 Subnet(optional)"
                         }
@@ -237,7 +240,7 @@
                 }
             }
         },
-        "plugins": {
+        "meta-plugins": {
             "type": "object",
             "title": "Underlay Meta-CNI Plugins Install",
             "properties": {
@@ -248,7 +251,7 @@
                         "repository": {
                             "type": "string",
                             "title": "Repository",
-                            "default": "ghcr.m.daocloud.io/spidernet-io/cni-plugins/veth"
+                            "default": "ghcr.m.daocloud.io/spidernet-io/cni-plugins/meta-plugins"
                         },
                         "tag": {
                             "type": "string",

@@ -61,8 +61,8 @@ underlay_crds:
     ipv4: "10.244.0.0/18"
     ipv6: ""
   calico_subnet:
-    ipv4: "10.244.64.0/18"
-    ipv6: ""
+    ipv4: ["10.244.64.0/18"]
+    ipv6: []
   # -- all nodePort node ip address, including ipv4 and ipv6(optional)
   nodePortNodeIPs: []
   rp_filter:
@@ -74,24 +74,30 @@ underlay_crds:
       name: macvlan-standalone
       enable: true
       custom_route: ""
-      skip: false
+      skip_call: false
     macvlan_overlay:
       name: macvlan-overlay
       enable: true
+      delDefaultRoute4: true
+      delDefaultRoute6: true
+      defaultOverlayInterface: eth0
       custom_route: ""
-      skip: false
+      skip_call: false
   sriov:
     resourceName: ""
     sriov_standalone:
       name: sriov-standalone
       enable: true
       custom_route: ""
-      skip: false
+      skip_call: false
     sriov_overlay:
       name: sriov-overlay
       enable: true
       custom_route: ""
-      skip: false
+      delDefaultRoute4: true
+      delDefaultRoute6: true
+      defaultOverlayInterface: eth0
+      skip_call: false
 
 sriov:
   images:
@@ -185,7 +191,7 @@ sriov:
     test_netdevice: false
     test_dpdk: false
 
-plugins:
+meta-plugins:
   image:
-    repository: ghcr.m.daocloud.io/spidernet-io/cni-plugins/veth
+    repository: ghcr.m.daocloud.io/spidernet-io/cni-plugins/meta-plugins
     tag: v0.1.1
