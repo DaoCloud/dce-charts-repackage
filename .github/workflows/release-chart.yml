@@ -42,7 +42,7 @@ jobs:
               if ${{ github.event.inputs.project == '' }} ; then
                   echo ::set-output name=project::all
               else
-                  echo ::set-output name=project::${{ github.event.inputs.ref }}
+                  echo ::set-output name=project::${{ github.event.inputs.project }}
               fi
               # release to github pages
               echo ::set-output name=release::${{ github.event.inputs.daocloud }}
@@ -93,7 +93,7 @@ jobs:
           mkdir _upload
           cd _upload
           for ITEM in $project_list ; do
-              [ ! -d "${ROOT_DIR}/charts/${ITEM}/${ITEM}" ] && echo "error, find to find project $ITEM in /charts" && exit 1
+              [ ! -d "${ROOT_DIR}/charts/${ITEM}/${ITEM}" ] && echo "error, failed to find project $ITEM in /charts" && exit 1
               helm package ${ROOT_DIR}/charts/${ITEM}/${ITEM}
           done
           echo ::set-output name=project_list::${project_list}
