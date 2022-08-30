@@ -1,0 +1,262 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "multus": {
+            "type": "object",
+            "title": "Multus Configuration",
+            "properties": {
+                "config": {
+                    "type": "object",
+                    "properties": {
+                        "cni_conf": {
+                            "type": "object",
+                            "properties": {
+                                "clusterNetwork": {
+                                    "type": "string",
+                                    "title": "Default CNI",
+                                    "description": "Multus requires that you have first installed a Kubernetes CNI plugin to serve as your pod-to-pod network(calico or cilium)",
+                                    "default": "calico",
+                                    "enum": [
+                                        "calico",
+                                        "cilium"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "image": {
+                    "type": "object",
+                    "title": "Image Configuration",
+                    "properties": {
+                        "repository": {
+                            "type": "string",
+                            "title": "Repository",
+                            "default": "ghcr.m.daocloud.io/k8snetworkplumbingwg/multus-cni"
+                        },
+                        "tag": {
+                            "type": "string",
+                            "title": "Tag",
+                            "default": "v3.9"
+                        }
+                    }
+                }
+            }
+        },
+        "underlay_crds": {
+            "type": "object",
+            "title": "Multus Underlay CRDs Configuration",
+            "properties": {
+                "service_subnet": {
+                    "type": "object",
+                    "title": "Service Subnet",
+                    "properties": {
+                        "ipv4": {
+                            "type": "string",
+                            "title": "*IPv4"
+                        },
+                        "ipv6": {
+                            "type": "string",
+                            "title": "IPv6",
+                            "description": "Service IPv6 Subnet(optional)"
+                        }
+                    }
+                },
+                "calico_subnet": {
+                    "type": "object",
+                    "properties": {
+                        "ipv4": {
+                            "type": "array",
+                            "title": "*IPv4",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "ipv6": {
+                            "type": "array",
+                            "title": "IPv6",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "Calico IPv6 Subnet(optional)"
+                        }
+                    }
+                },
+                "macvlan": {
+                    "type": "object",
+                    "title": "Macvlan CRD Configuration",
+                    "properties": {
+                        "macvlan_overlay": {
+                            "type": "object",
+                            "title": "Macvlan Overlay",
+                            "properties": {
+                                "enable": {
+                                    "type": "boolean",
+                                    "tile": "Enable",
+                                    "default": true
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "title": "Name",
+                                    "default": "macvlan-overlay"
+                                },
+                                "custom_route": {
+                                    "type": "string",
+                                    "title": "Custom Route(optional)"
+                                }
+                            }
+                        },
+                        "macvlan_standalone": {
+                            "type": "object",
+                            "title": "Macvlan Standalone",
+                            "properties": {
+                                "enable": {
+                                    "type": "boolean",
+                                    "tile": "Enable",
+                                    "default": true
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "title": "Name",
+                                    "default": "macvlan-standalone"
+                                },
+                                "custom_route": {
+                                    "type": "string",
+                                    "title": "Custom Route(optional)"
+                                }
+                            }
+                        }
+                    }
+                },
+                "sriov": {
+                    "type": "object",
+                    "title": "SRIOV CRD Configuration",
+                    "properties": {
+                        "resourceName": {
+                            "type": "string",
+                            "title": "ResourceName",
+                            "description": "You must be provide resourceName when Sriov-CNI enabled(just like \"intel.com/mlnx_sriov_rdma\"). Multus require specific device information which maybe pre-allocated by K8s device plugin. This could be indicated by providing `k8s.v1.cni.cncf.io/resourceName` annotation in its network attachment definition CRD"
+                        },
+                        "sriov_overlay": {
+                            "type": "object",
+                            "title": "SRIOV Overlay",
+                            "properties": {
+                                "enable": {
+                                    "type": "boolean",
+                                    "tile": "Enable",
+                                    "default": true
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "title": "Name",
+                                    "default": "sriov-overlay"
+                                },
+                                "custom_route": {
+                                    "type": "string",
+                                    "title": "Custom Route(optional)"
+                                }
+                            }
+                        },
+                        "sriov_standalone": {
+                            "type": "object",
+                            "title": "SRIOV Standalone",
+                            "properties": {
+                                "enable": {
+                                    "type": "boolean",
+                                    "tile": "Enable",
+                                    "default": true
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "title": "Name",
+                                    "default": "sriov-standalone"
+                                },
+                                "custom_route": {
+                                    "type": "string",
+                                    "title": "Custom Route(optional)"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "sriov": {
+            "type": "object",
+            "title": "SRIOV Install Configuration",
+            "description": "SR-IOV CNI plugin works with SR-IOV device plugin for VF allocation in Kubernetes",
+            "properties": {
+                "manifests": {
+                    "type": "object",
+                    "properties": {
+                        "enable": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "images": {
+                    "type": "object",
+                    "title": "Image Configuration",
+                    "properties": {
+                        "sriovCni": {
+                            "type": "object",
+                            "title": "SRIOV-CNI",
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Repository",
+                                    "default": "ghcr.m.daocloud.io/k8snetworkplumbingwg/sriov-cni"
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Tag",
+                                    "default": "v2.6.3"
+                                }
+                            }
+                        },
+                        "sriovDevicePlugin": {
+                            "type": "object",
+                            "title": "SRIOV Device Plugin",
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Repository",
+                                    "default": "ghcr.m.daocloud.io/k8snetworkplumbingwg/sriov-network-device-plugin"
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Tag",
+                                    "default": "v3.5.1"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "meta-plugins": {
+            "type": "object",
+            "title": "Underlay Meta-CNI Plugins Install",
+            "description": "meta-plugins provides solutions for underlay-cni communication problems, More details: https://github.com/spidernet-io/cni-plugins",
+            "properties": {
+                "image": {
+                    "type": "object",
+                    "title": "Image Configuration",
+                    "properties": {
+                        "repository": {
+                            "type": "string",
+                            "title": "Repository",
+                            "default": "ghcr.m.daocloud.io/spidernet-io/cni-plugins/meta-plugins"
+                        },
+                        "tag": {
+                            "type": "string",
+                            "title": "Tag",
+                            "default": "v0.1.2"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,5 +1,5 @@
 apiVersion: v2
-name: multus
+name: multus-underlay
 
 description: Multi-cni enables attaching multiple network interfaces to pods in Kubernetes. Including multus and veth-plugin.
 
@@ -24,6 +24,6 @@ version: v3.9
 # It is recommended to use it with quotes.
 appVersion: "v3.9"
 dependencies:
-- name: plugins
+- name: meta-plugins
   repository: https://spidernet-io.github.io/cni-plugins
-  version: v0.1.1
+  version: v0.1.2

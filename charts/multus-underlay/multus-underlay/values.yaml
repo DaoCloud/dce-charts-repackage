@@ -1,0 +1,195 @@
+# Default values for dce-multus.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+multus:
+  pod:
+    resources:
+      enabled: false
+      multus:
+        requests:
+          memory: "128Mi"
+          cpu: "250m"
+        limits:
+          memory: "1024Mi"
+          cpu: "2000m"
+  labels:
+    nodeSelector:
+      kubernetes.io/arch: amd64
+
+  image:
+    repository: ghcr.m.daocloud.io/k8snetworkplumbingwg/multus-cni
+    tag: v3.9
+
+  config:
+    cni_conf:
+      name: multus-cni-network
+      type: multus
+      kubeconfig: /etc/cni/net.d/multus.d/multus.kubeconfig
+      cniVersion: 0.3.1
+      confDir: /etc/cni/net.d
+      cniDir: /var/lib/cni/multus
+      binDir: /opt/cni/bin
+      logFile: /var/log/multus.log
+      # -- info,debug,error,verbose,panic
+      logLevel: info
+      capabilities:
+        portMappings: true
+      readinessindicatorfile: ""
+      namespaceIsolation: false
+      # -- calico or cilium
+      clusterNetwork: calico
+      defaultNetwork: []
+      delegates: []
+      systemNamespaces: ["kube-system"]
+
+crd_conf:
+  calico:
+    name: calico
+    enable: true
+    default_cni: true
+  cilium:
+    name: cilium
+    enable: true
+    default_cni: false
+underlay_crds:
+  service_subnet:
+    ipv4: "10.244.0.0/18"
+    ipv6: ""
+  calico_subnet:
+    ipv4: ["10.244.64.0/18"]
+    ipv6: []
+  rp_filter:
+    enable: true
+    value: 2
+  macvlan:
+    master: "ens192"
+    macvlan_standalone:
+      name: macvlan-standalone
+      enable: true
+      custom_route: ""
+      skip_call: false
+    macvlan_overlay:
+      name: macvlan-overlay
+      enable: true
+      delDefaultRoute4: true
+      delDefaultRoute6: true
+      defaultOverlayInterface: eth0
+      custom_route: ""
+      skip_call: false
+  sriov:
+    resourceName: ""
+    sriov_standalone:
+      name: sriov-standalone
+      enable: false
+      custom_route: ""
+      skip_call: false
+    sriov_overlay:
+      name: sriov-overlay
+      enable: false
+      custom_route: ""
+      delDefaultRoute4: true
+      delDefaultRoute6: true
+      defaultOverlayInterface: eth0
+      skip_call: false
+
+sriov:
+  images:
+    registry: docker.io
+    sriovCni:
+      repository: ghcr.m.daocloud.io/k8snetworkplumbingwg/sriov-cni
+      tag: v2.6.3
+    sriovDevicePlugin:
+      repository: ghcr.m.daocloud.io/k8snetworkplumbingwg/sriov-network-device-plugin
+      tag: v3.5.1
+    pullPolicy: IfNotPresent
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    #create: true
+    # Annotations to add to the service account
+    #annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: sriov-device-plugin-test
+
+  pod:
+    resources:
+      enabled: true
+      sriov_cni:
+        requests:
+          memory: "50Mi"
+          cpu: "100m"
+        limits:
+          memory: "50Mi"
+          cpu: "100m"
+
+  labels:
+    nodeSelector:
+      kubernetes.io/arch: amd64
+
+  config:
+    scMountPaths:
+      cnibin: "/host/opt/cni/bin"
+    sdpMountPaths:
+      deviceSock: "/var/lib/kubelet"
+      log: "/var/log"
+      configVolume: "/etc/pcidp/"
+      deviceInfoPath: "/var/run/k8s.cni.cncf.io/devinfo/dp"
+    sriov_device_plugin:
+      resourceList:
+      - resourceName: intel_sriov_netdevice
+        selectors:
+          vendors:
+          - '8086'
+          devices:
+          - "154c"
+          - "10ed"
+          - "1889"
+          drivers:
+          - i40evf
+          - ixgbevf
+          - iavf
+      - resourceName: intel_sriov_dpdk
+        selectors:
+          vendors:
+          - '8086'
+          devices:
+          - "154c"
+          - "10ed"
+          - "1889"
+          drivers:
+          - vfio-pci
+          pfNames:
+          - enp67s0f1#8-31
+          - enp68s0f0#8-31
+      - resourceName: mlnx_sriov_rdma
+        isRdma: true
+        selectors:
+          vendors:
+          - 15b3
+          devices:
+          - '1018'
+          drivers:
+          - mlx5_ib
+          - mlx5_core
+
+  manifests:
+    enable: false
+    serviceAccount: true
+    configMap_sriov_device_plugin: true
+    daemonSet_sriov_device_plugin: true
+    daemonSet_sriov_cni: true
+    net_attach_def_netdev: false
+    net_attach_def_dpdk: false
+    test_netdevice: false
+    test_dpdk: false
+
+meta-plugins:
+  image:
+    repository: ghcr.m.daocloud.io/spidernet-io/cni-plugins/meta-plugins
+    tag: v0.1.2
