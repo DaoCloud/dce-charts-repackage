@@ -123,17 +123,17 @@ refer to as your "default CNI" (a network interface that every pod will be creat
 
 ```shell
 helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
-helm install multus-underlay-underlay daocloud-system/multus-underlay-underlay -n kube-system
+helm install multus-underlay-underlay-underlay daocloud-system/multus-underlay-underlay-underlay -n kube-system
 ````
 
 #### Cilium as the default CNI
 
 ```shell
 helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
-helm install multus-underlay-underlay daocloud-system/multus-underlay-underlay \
+helm install multus-underlay-underlay-underlay daocloud-system/multus-underlay-underlay-underlay \
 --set crd_conf.calico.default_cni=false \
 --set crd_conf.cilium.default_cni=true  \
---set multus-underlay-underlay.config.cni_conf.clusterNetwork=cilium \
+--set multus-underlay-underlay-underlay.config.cni_conf.clusterNetwork=cilium \
 -n kube-system
 ```
 
@@ -147,7 +147,7 @@ By default, SRIOV not to be installed. You can install SRIOV by following comman
 
 ```shell
 helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
-helm install multus-underlay-underlay daocloud-system/multus-underlay-underlay \
+helm install multus-underlay-underlay-underlay daocloud-system/multus-underlay-underlay-underlay \
 --set sriov.manifests.enable=true \
 -n kube-system
 ```
@@ -156,7 +156,7 @@ helm install multus-underlay-underlay daocloud-system/multus-underlay-underlay \
 
 ```shell
 helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
-helm install multus-underlay-underlay daocloud-system/multus-underlay-underlay \
+helm install multus-underlay-underlay-underlay daocloud-system/multus-underlay-underlay-underlay \
 --set underlay_crds.service_subnet.ipv4="10.244.0.0/18" \ 
 --set underlay_crds.calico_subnet.ipv6="10.244.64.0/18" \ 
 --set underlay_crds.nodePortNodeIPs='{172.17.8.110,172.17.8.120,fed0:abcd::1}'
@@ -169,19 +169,19 @@ helm install multus-underlay-underlay daocloud-system/multus-underlay-underlay \
 - Update image version:
 
 ```shell
-helm upgrade multus-underlay-underlay daocloud-system/dce-multus-underlay-underlay --set multus-underlay-underlay.image.tag=v3.9 -n kube-system
+helm upgrade multus-underlay-underlay-underlay daocloud-system/dce-multus-underlay-underlay-underlay --set multus-underlay-underlay-underlay.image.tag=v3.9 -n kube-system
 ```
 
 - Update log level:
 
 ```shell
-helm upgrade multus-underlay-underlay daocloud-system/multus-underlay-underlay --set multus-underlay-underlay.config.cni_conf.logLevel=debug -n kube-system
+helm upgrade multus-underlay-underlay-underlay daocloud-system/multus-underlay-underlay-underlay --set multus-underlay-underlay-underlay.config.cni_conf.logLevel=debug -n kube-system
 ```
 
 ### Uninstall
 
 ```shell
-helm uninstall multus-underlay-underlay -n kube-system 
+helm uninstall multus-underlay-underlay-underlay -n kube-system 
 ```
 
 > NOTE: After uninstalling multus, you should also clear the multus cni configuration file on each node (path: etc/cni/net.d/00-multus.conf)

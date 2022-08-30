@@ -63,8 +63,6 @@ underlay_crds:
   calico_subnet:
     ipv4: ["10.244.64.0/18"]
     ipv6: []
-  # -- all nodePort node ip address, including ipv4 and ipv6(optional)
-  nodePortNodeIPs: []
   rp_filter:
     enable: true
     value: 2
@@ -87,12 +85,12 @@ underlay_crds:
     resourceName: ""
     sriov_standalone:
       name: sriov-standalone
-      enable: true
+      enable: false
       custom_route: ""
       skip_call: false
     sriov_overlay:
       name: sriov-overlay
-      enable: true
+      enable: false
       custom_route: ""
       delDefaultRoute4: true
       delDefaultRoute6: true
@@ -194,4 +192,4 @@ sriov:
 meta-plugins:
   image:
     repository: ghcr.m.daocloud.io/spidernet-io/cni-plugins/meta-plugins
-    tag: v0.1.1
+    tag: v0.1.2

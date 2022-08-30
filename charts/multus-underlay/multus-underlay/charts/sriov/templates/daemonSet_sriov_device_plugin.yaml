@@ -71,7 +71,7 @@ spec:
             path: {{ .Values.config.sdpMountPaths.log }}
         - name: config-volume
           configMap:
-            name: {{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version }}-config
+            name: {{ .Chart.Name }}-{{ .Chart.Version }}-config
             items:
             - key: config.json
               path: config.json

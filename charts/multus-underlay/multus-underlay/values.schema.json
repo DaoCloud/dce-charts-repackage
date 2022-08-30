@@ -76,17 +76,12 @@
                         "ipv6": {
                             "type": "array",
                             "title": "IPv6",
+                            "items": {
+                                "type": "string"
+                            },
                             "description": "Calico IPv6 Subnet(optional)"
                         }
                     }
-                },
-                "nodePortNodeIPs": {
-                    "type": "array",
-                    "title": "NodePort Node IPs",
-                    "items": {
-                        "type": "string"
-                    },
-                    "description": "IPs of all nodePort nodes, including IPv4 and IPv6 (if required)"
                 },
                 "macvlan": {
                     "type": "object",
@@ -141,7 +136,7 @@
                         "resourceName": {
                             "type": "string",
                             "title": "ResourceName",
-                            "description": "You must be provide resourceName when Sriov-CNI enabled. Multus require specific device information which maybe pre-allocated by K8s device plugin. This could be indicated by providing `k8s.v1.cni.cncf.io/resourceName` annotation in its network attachment definition CRD"
+                            "description": "You must be provide resourceName when Sriov-CNI enabled(just like \"intel.com/mlnx_sriov_rdma\"). Multus require specific device information which maybe pre-allocated by K8s device plugin. This could be indicated by providing `k8s.v1.cni.cncf.io/resourceName` annotation in its network attachment definition CRD"
                         },
                         "sriov_overlay": {
                             "type": "object",
@@ -243,6 +238,7 @@
         "meta-plugins": {
             "type": "object",
             "title": "Underlay Meta-CNI Plugins Install",
+            "description": "meta-plugins provides solutions for underlay-cni communication problems, More details: https://github.com/spidernet-io/cni-plugins",
             "properties": {
                 "image": {
                     "type": "object",
@@ -256,7 +252,7 @@
                         "tag": {
                             "type": "string",
                             "title": "Tag",
-                            "default": "v0.1.1"
+                            "default": "v0.1.2"
                         }
                     }
                 }

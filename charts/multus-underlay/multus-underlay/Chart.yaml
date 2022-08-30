@@ -24,13 +24,6 @@ version: v3.9
 # It is recommended to use it with quotes.
 appVersion: "v3.9"
 dependencies:
-- name: plugins
+- name: meta-plugins
   repository: https://spidernet-io.github.io/cni-plugins
-  version: v0.1.1
-- name: sriov
-  repository: file://charts/sriov
-  version: 0.1.1
-- name: multus
-  repository: file://charts/multus
-  version: v3.9
-
+  version: v0.1.2
