@@ -283,7 +283,7 @@ spiderpool:
   
     debug:
       ## @param spiderpoolAgent.debug.logLevel the log level of spiderpool agent [debug, info, warn, error, fatal, panic]
-      logLevel: "info"
+      logLevel: "debug"
       ## @param spiderpoolAgent.debug.gopsPort the gops port of spiderpool agent
       gopsPort: 5712
   
@@ -498,7 +498,7 @@ spiderpool:
   
     debug:
       ## @param spiderpoolController.debug.logLevel the log level of spiderpool Controller [debug, info, warn, error, fatal, panic]
-      logLevel: "info"
+      logLevel: "debug"
   
       ## @param spiderpoolController.debug.gopsPort the gops port of spiderpool Controller
       gopsPort: 5724
