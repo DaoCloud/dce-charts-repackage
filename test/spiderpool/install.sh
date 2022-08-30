@@ -20,7 +20,7 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 # for default ipv4 ippool
 Ipv4Subnet="172.50.0.0/16"
 # available IP resource
-Ipv4Range="172.250.0.10-172.50.0.200"
+Ipv4Range="172.50.0.10-172.50.0.200"
 # for default ipv6 ippool
 Ipv6Subnet="fd05::/112"
 # available IP resource
