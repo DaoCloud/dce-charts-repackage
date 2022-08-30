@@ -1,4 +1,4 @@
-{{- if .Values.isInstallSM }}
+{{- if .Values.global.isInstallSM }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
