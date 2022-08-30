@@ -21,7 +21,7 @@ set -x
 
 # deploy cert-manager
 # shellcheck disable=SC2086
-helm install contour "${CHART_DIR}" ${HELM_MUST_OPTION} --set contour.envoy.service=NodePort --namespace kube-system
+helm install contour "${CHART_DIR}" ${HELM_MUST_OPTION} --set contour.envoy.service.type=NodePort --namespace kube-system
 
 
 if (($?==0)) ; then
