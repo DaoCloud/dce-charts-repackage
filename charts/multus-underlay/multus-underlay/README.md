@@ -8,7 +8,7 @@ Multi-cni enables attaching multiple network interfaces to pods in Kubernetes. I
 
 | Repository | Name | Version |
 |------------|------|---------|
-| <https://spidernet-io.github.io/cni-plugins> | plugins | v0.1.1 |
+| <https://spidernet-io.github.io/cni-plugins> | plugins | v0.1.3 |
 
 ## Values
 

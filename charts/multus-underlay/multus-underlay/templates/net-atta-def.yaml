@@ -47,7 +47,7 @@ spec:
                 "type": "veth",
                 "routes": [{"dst": "{{ .Values.underlay_crds.service_subnet.ipv4 }}"}{{ range .Values.underlay_crds.calico_subnet.ipv4 }},{"dst": {{ . | quote }}}{{ end }}{{if .Values.underlay_crds.macvlan.macvlan_standalone.custom_route }},{"dst": "{{ .Values.underlay_crds.macvlan.macvlan_standalone.custom_route }}"}{{ end }}{{ range .Values.underlay_crds.calico_subnet.ipv6 }},{"dst": {{ . | quote }}}{{ end }}{{if .Values.underlay_crds.service_subnet.ipv6 }},{"dst": "{{ .Values.underlay_crds.service_subnet.ipv6 }}"}{{ end }}],
                 "rp_filter": {
-                    "enable": {{ .Values.underlay_crds.rp_filter.enable }},
+                    "set_host": {{ .Values.underlay_crds.rp_filter.enable }},
                     "value": {{ .Values.underlay_crds.rp_filter.value }}
                 },
                 "skip_call": {{ .Values.underlay_crds.macvlan.macvlan_standalone.skip_call }}
@@ -87,12 +87,11 @@ spec:
                 "type": "router",
                 "routes": [{"dst": "{{ .Values.underlay_crds.service_subnet.ipv4 }}"}{{ range .Values.underlay_crds.calico_subnet.ipv4 }},{"dst": {{ . | quote }}}{{ end }}{{if .Values.underlay_crds.macvlan.macvlan_overlay.custom_route }},{"dst": "{{ .Values.underlay_crds.macvlan.macvlan_overlay.custom_route }}"}{{ end }}{{if .Values.underlay_crds.service_subnet.ipv6 }},{"dst": "{{ .Values.underlay_crds.service_subnet.ipv6 }}"}{{ end }}{{ range .Values.underlay_crds.nodePortNodeIPs }},{"dst": {{ . | quote }}}{{ end }}],
                 "rp_filter": {
-                    "enable": {{ .Values.underlay_crds.rp_filter.enable }},
+                    "set_host": {{ .Values.underlay_crds.rp_filter.enable }},
                     "value": {{ .Values.underlay_crds.rp_filter.value }}
                 },
-                "delDefaultRoute4": {{ .Values.underlay_crds.macvlan.macvlan_overlay.delDefaultRoute4 }},
-                "delDefaultRoute6": {{ .Values.underlay_crds.macvlan.macvlan_overlay.delDefaultRoute6 }},
-                "defaultOverlayInterface": {{ .Values.underlay_crds.macvlan.macvlan_overlay.defaultOverlayInterface }},
+                "hijack_overlay_reponse": {{ .Values.underlay_crds.macvlan.macvlan_overlay.hijack_overlay_reponse }},
+                "overlayInterface": {{ .Values.underlay_crds.macvlan.macvlan_overlay.overlayInterface }},
                 "skip_call": {{ .Values.underlay_crds.macvlan.macvlan_overlay.skip_call }}
             }
         ]
@@ -129,7 +128,7 @@ spec:
                 "type": "veth",
                 "routes": [{"dst": "{{ .Values.underlay_crds.service_subnet.ipv4 }}"}{{ range .Values.underlay_crds.calico_subnet.ipv4 }},{"dst": {{ . | quote }}}{{ end }}{{ range .Values.underlay_crds.calico_subnet.ipv6 }},{"dst": {{ . | quote }}}{{ end }}{{if .Values.underlay_crds.sriov.sriov_standalone.custom_route }},{"dst": "{{ .Values.underlay_crds.sriov.sriov_standalone.custom_route }}"}{{ end }}{{if .Values.underlay_crds.service_subnet.ipv6 }},{"dst": "{{ .Values.underlay_crds.service_subnet.ipv6 }}"}{{ end }}],
                 "rp_filter": {
-                    "enable": {{ .Values.underlay_crds.rp_filter.enable }},
+                    "set_host": {{ .Values.underlay_crds.rp_filter.enable }},
                     "value": {{ .Values.underlay_crds.rp_filter.value }}
                 },
                 "skip_call": {{ .Values.underlay_crds.sriov.sriov_standalone.skip_call }}
@@ -168,12 +167,11 @@ spec:
                 "type": "router",
                 "routes": [{"dst": "{{ .Values.underlay_crds.service_subnet.ipv4 }}"}{{if .Values.underlay_crds.sriov.sriov_overlay.custom_route }},{"dst": "{{ .Values.underlay_crds.sriov.sriov_overlay.custom_route }}"}{{ end }}{{if .Values.underlay_crds.service_subnet.ipv6 }},{"dst": "{{ .Values.underlay_crds.service_subnet.ipv6 }}"}{{ end }}{{ range .Values.underlay_crds.calico_subnet.ipv4 }},{"dst": {{ . | quote }}}{{ end }}{{ range .Values.underlay_crds.nodePortNodeIPs }},{"dst": {{ . | quote }}}{{ end }}],
                 "rp_filter": {
-                    "enable": {{ .Values.underlay_crds.rp_filter.enable }},
+                    "set_host": {{ .Values.underlay_crds.rp_filter.enable }},
                     "value": {{ .Values.underlay_crds.rp_filter.value }}
                 },
-                "delDefaultRoute4": {{ .Values.underlay_crds.sriov.sriov_overlay.delDefaultRoute4 }},
-                "delDefaultRoute6": {{ .Values.underlay_crds.sriov.sriov_overlay.delDefaultRoute6 }},
-                "defaultOverlayInterface": {{ .Values.underlay_crds.sriov.sriov_overlay.defaultOverlayInterface }},
+                "hijack_overlay_reponse": {{ .Values.underlay_crds.sriov.sriov_overlay.hijack_overlay_reponse }},
+                "overlayInterface": {{ .Values.underlay_crds.sriov.sriov_overlay.overlayInterface }},
                 "skip_call": {{ .Values.underlay_crds.sriov.sriov_overlay.skip_call }}
             }
         ]

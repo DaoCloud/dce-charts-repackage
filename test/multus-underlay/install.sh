@@ -38,17 +38,8 @@ fi
 
 kubectl wait --for=condition=ready -l app=multus --timeout=300s pod -n kube-system --kubeconfig ${KIND_KUBECONFIG}
 
-# check veth-bin exsit
 KIND_NODE=`docker ps | grep 'control-plane' | awk '{print $1}'`
-EXIST=`docker exec ${KIND_NODE} ls /opt/cni/bin | grep "veth" `
-if [ -z "${EXIST}" ] ; then
-  echo "veth not to installed successfully"
-  exit 1
-else
-  echo "ls /opt/cni/bin: "
-  docker exec ${KIND_NODE} ls /opt/cni/bin
-  exit 0
-fi
+EXIST=`docker exec ${KIND_NODE} ls /opt/cni/bin `
 
 kubectl get po -n kube-system --kubeconfig ${KIND_KUBECONFIG}
 kubectl get network-attachment-definitions.k8s.cni.cncf.io -A --kubeconfig ${KIND_KUBECONFIG}

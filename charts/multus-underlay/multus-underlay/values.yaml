@@ -64,7 +64,7 @@ underlay_crds:
     ipv4: ["10.244.64.0/18"]
     ipv6: []
   rp_filter:
-    enable: true
+    set_host: true
     value: 2
   macvlan:
     master: "ens192"
@@ -76,9 +76,8 @@ underlay_crds:
     macvlan_overlay:
       name: macvlan-overlay
       enable: true
-      delDefaultRoute4: true
-      delDefaultRoute6: true
-      defaultOverlayInterface: eth0
+      hijack_overlay_reponse: true
+      overlayInterface: eth0
       custom_route: ""
       skip_call: false
   sriov:
@@ -92,9 +91,8 @@ underlay_crds:
       name: sriov-overlay
       enable: false
       custom_route: ""
-      delDefaultRoute4: true
-      delDefaultRoute6: true
-      defaultOverlayInterface: eth0
+      hijack_overlay_reponse: true
+      overlayInterface: eth0
       skip_call: false
 
 sriov:
@@ -192,4 +190,4 @@ sriov:
 meta-plugins:
   image:
     repository: ghcr.m.daocloud.io/spidernet-io/cni-plugins/meta-plugins
-    tag: v0.1.2
+    tag: v0.1.3
