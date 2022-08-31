@@ -88,10 +88,13 @@ deploy: checkBin
             fi ; \
 		fi  ;\
 		chmod +x $(INSTALL_PATH) ; \
-		$(INSTALL_PATH) "$${CHART_DIR}"  "$(KIND_KUBECONFIG)" ; \
-		(($?==0)) || { echo "error, failed to deploy $(PROJECT) "  ; exit 1 ; } ; \
-		echo "succeeded to deploy $(PROJECT)" ; exit 0
-
+		if $(INSTALL_PATH) "$${CHART_DIR}"  "$(KIND_KUBECONFIG)" ; then \
+			echo "succeeded to deploy $(PROJECT)" ; \
+			exit 0 ; \
+		else  \
+			echo "error, failed to deploy $(PROJECT) "   ; \
+			exit 1 ; \
+		fi
 
 .PHONY: checkBin
 checkBin:

@@ -1,0 +1,42 @@
+# Default values for coredns-metrics.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+    isInstallSM: false
+    isInstallPR: false
+    isInstallGD: false
+
+serviceMonitor:
+    interval: 15s
+    path: '/metrics'
+    port: 'metrics'
+    nsMatchAny: true
+    slcName: 'coredns'
+    nsMatch: "kube-system"
+    insightLabelName: "operator.insight.io/managed-by"
+    insightLabelValue: "insight"
+
+prometheusRule:
+    insightLabelName: "operator.insight.io/managed-by"
+    insightLabelValue: "insight"
+    latencyHighRange: "5m"
+    latencyHighValue: "3"
+    latencyHighLevel: "warning"
+    errorsHighRange: "5m"
+    errorsHighValue: "0.03"
+    errorsHighLevel: "warning"
+    loadHighRange: "5m"
+    loadHighValue: "0.03"
+    loadHighLevel: "warning"
+    forwardLatencyHighRange: "5m"
+    forwardLatencyHighValue: "0.03"
+    forwardLatencyHighLevel: "warning"
+    forwardErrorsHighRange: "5m"
+    forwardErrorsHighValue: "0.03"
+    forwardErrorsHighLevel: "warning"
+
+grafanaDashboard:
+    insightLabelName: "operator.insight.io/managed-by"
+    insightLabelValue: "insight"
+

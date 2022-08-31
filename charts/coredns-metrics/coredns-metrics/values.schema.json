@@ -1,0 +1,212 @@
+{
+  "type": "object",
+  "required": [],
+  "properties": {
+    "global": {
+      "title": "Object",
+      "type": "object",
+      "required": [
+        "isInstallSM",
+        "isInstallGD",
+        "isInstallPR"
+      ],
+      "properties": {
+        "isInstallSM": {
+          "title": "CoreDNS ServiceMonitor 安装",
+          "type": "boolean",
+          "description": "一般每个集群都需要安装",
+          "default": "0",
+          "ui:options": {
+            "activeText": "安装"
+          }
+        },
+        "isInstallGD": {
+          "title": "CoreDNS GrafanaDashboard 安装",
+          "type": "boolean",
+          "description": "一般只在管理集群安装",
+          "default": "0",
+          "ui:options": {
+            "activeText": "安装"
+          }
+        },
+        "isInstallPR": {
+          "title": "CoreDNS PrometheusRule 安装",
+          "type": "boolean",
+          "description": "一般只在管理集群安装",
+          "default": "0",
+          "ui:options": {
+            "activeText": "安装"
+          }
+        }
+      },
+      "ui:order": [
+        "isInstallSM",
+        "isInstallGD",
+        "isInstallPR"
+      ]
+    },
+    "prometheusRule": {
+      "title": "告警规则设置",
+      "type": "object",
+      "required": [],
+      "properties": {
+        "latencyHighRange": {
+          "title": "时间",
+          "type": "string",
+          "description": "多长时间内",
+          "ui:options": {
+            "placeholder": "请输入"
+          }
+        },
+        "latencyHighValue": {
+          "title": "解析耗时",
+          "type": "string",
+          "description": "99% 的解析耗时超过该值时产生告警",
+          "ui:options": {
+            "placeholder": "请输入"
+          }
+        },
+        "latencyHighLevel": {
+          "title": "告警等级",
+          "type": "string",
+          "ui:widget": "SelectWidget",
+          "description": "请选择告警等级",
+          "enum": [
+            "warning",
+            "critical",
+            "emergency"
+          ],
+          "enumNames": [
+            "warning",
+            "critical",
+            "emergency"
+          ]
+        },
+        "errorsHighRange": {
+          "title": "时间",
+          "type": "string",
+          "description": "多长时间内",
+          "ui:options": {
+            "placeholder": "请输入"
+          }
+        },
+        "errorsHighValue": {
+          "title": "错误率",
+          "type": "string",
+          "description": "时间范围内CoreDNS解析错误率超过该值时产生告警",
+          "ui:options": {
+            "placeholder": "请输入"
+          }
+        },
+        "errorsHighLevel": {
+          "title": "告警等级",
+          "type": "string",
+          "ui:widget": "SelectWidget",
+          "description": "请选择告警等级",
+          "enum": [
+            "warning",
+            "critical",
+            "emergency"
+          ],
+          "enumNames": [
+            "warning",
+            "critical",
+            "emergency"
+          ]
+        },
+        "loadHighRange": {
+          "title": "时间",
+          "type": "string",
+          "description": "多长时间内",
+          "ui:options": {
+            "placeholder": "请输入"
+          }
+        },
+        "loadHighValue": {
+          "title": "健康检查耗时",
+          "type": "string",
+          "description": "99% 的自身健康检查耗时超过该值时产生告警",
+          "ui:options": {
+            "placeholder": "请输入"
+          }
+        },
+        "loadHighLevel": {
+          "title": "告警等级",
+          "type": "string",
+          "ui:widget": "SelectWidget",
+          "description": "请选择告警等级",
+          "enum": [
+            "warning",
+            "critical",
+            "emergency"
+          ],
+          "enumNames": [
+            "warning",
+            "critical",
+            "emergency"
+          ]
+        },
+        "forwardLatencyHighRange": {
+          "title": "时间",
+          "type": "string",
+          "description": "多长时间内",
+          "ui:options": {
+            "placeholder": "请输入"
+          }
+        },
+        "forwardLatencyHighValue": {
+          "title": "上游DSN 服务解析耗时",
+          "type": "string",
+          "description": "上游DSN 服务99% 的解析耗时超过该值时产生告警",
+          "ui:options": {
+            "placeholder": "请输入"
+          }
+        },
+        "forwardLatencyHighLevel": {
+          "title": "告警等级",
+          "type": "string",
+          "ui:widget": "SelectWidget",
+          "description": "请选择告警等级",
+          "enum": [
+            "warning",
+            "critical",
+            "emergency"
+          ],
+          "enumNames": [
+            "warning",
+            "critical",
+            "emergency"
+          ]
+        }
+      },
+      "ui:order": [
+        "latencyHighRange",
+        "latencyHighValue",
+        "latencyHighLevel",
+        "errorsHighRange",
+        "errorsHighValue",
+        "errorsHighLevel",
+        "loadHighRange",
+        "loadHighValue",
+        "loadHighLevel",
+        "forwardLatencyHighRange",
+        "forwardLatencyHighValue",
+        "forwardLatencyHighLevel"
+      ],
+      "description": "部分内置告警规则设置"
+    }
+  },
+  "ui:order": [
+    "global",
+    "prometheusRule"
+  ],
+  "uiSchema": {},
+  "formFooter": {
+    "show": false
+  },
+  "formProps": {
+    "layoutColumn": 3,
+    "labelWidth": "100px",
+    "labelSuffix": "："
+  }
+}
