@@ -26,13 +26,12 @@
                   "type": "string",
                   "title": "Repository",
                   "description": "Repository of webhook component."
-                },
-                "tag": {
-                  "type": "string",
-                  "title": "Tag",
-                  "description": "Image tag of webhook component."
                 }
               }
+            },
+            "replicaCount": {
+              "type": "integer",
+              "title": "Replica Count"
             }
           },
           "title": "Webhook component"
@@ -51,14 +50,13 @@
                   "type": "string",
                   "title": "Repository",
                   "description": "Repository of cainjector component."
-                },
-                "tag": {
-                  "type": "string",
-                  "title": "Tag",
-                  "description": "Image tag of cainjector component."
                 }
               },
               "required": []
+            },
+            "replicaCount": {
+              "type": "integer",
+              "title": "Replica Count"
             }
           },
           "title": "CA Injector"
