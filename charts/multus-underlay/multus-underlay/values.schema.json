@@ -101,6 +101,12 @@
                                     "title": "Name",
                                     "default": "macvlan-overlay"
                                 },
+                                "master": {
+                                    "type": "string",
+                                    "title": "Master Interface",
+                                    "default": "ens192",
+                                    "descrieption": "NOTE: The master interface must be exist on the host"
+                                },
                                 "custom_route": {
                                     "type": "string",
                                     "title": "Custom Route(optional)"
@@ -252,7 +258,7 @@
                         "tag": {
                             "type": "string",
                             "title": "Tag",
-                            "default": "v0.1.2"
+                            "default": "v0.1.3"
                         }
                     }
                 }
