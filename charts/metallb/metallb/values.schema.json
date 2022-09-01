@@ -49,7 +49,7 @@
             "title": "MetalLB ARP Init",
             "description": "Metallb supports both ARP and BGP modes to declare LoadBalancer IPs. the BGP mode is complex to configure and requires hardware support (such as BGP Router). If you want to configure BGP. Please refer to https://metallb.universe.tf/configuration/_advanced_bgp_configuration",
             "properties": {
-                "enable": {
+                "enabled": {
                     "type": "boolean",
                     "default": false,
                     "title": "enable",
