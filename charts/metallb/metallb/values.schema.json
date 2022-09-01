@@ -7,7 +7,7 @@
     "properties": {
         "metallb": {
             "type": "object",
-            "title": "MetalLB Install Configuration",
+            "title": "MetalLB Settings",
             "properties": {
                 "controller": {
                     "type": "object",
@@ -34,7 +34,7 @@
                             "properties": {
                                 "repository": {
                                     "type": "string",
-                                    "title": "Image Repository",
+                                    "title": "Repository",
                                     "default": "quay.m.daocloud.io/metallb/speaker"
                                 }
                             }
@@ -46,29 +46,29 @@
         "instances": {
             "type": "object",
             "default": {},
-            "title": "MetalLB ARP Init",
-            "description": "Metallb supports both ARP and BGP modes to declare LoadBalancer IPs. the BGP mode is complex to configure and requires hardware support (such as BGP Router). If you want to configure BGP. Please refer to https://metallb.universe.tf/configuration/_advanced_bgp_configuration",
+            "title": "MetalLB ARP Mode",
+            "description": "Metallb supports ARP and BGP modes to declare LoadBalancer IPs. the BGP mode is complex to configure and requires hardware support (such as BGP Router). If you want to configure BGP. Please refer to https://metallb.universe.tf/configuration/_advanced_bgp_configuration",
             "properties": {
                 "enabled": {
                     "type": "boolean",
                     "default": false,
-                    "title": "enable",
-                    "description": "If set it to true, This will initialize the ARP mode (creating CRD instances of IPAddressPools and L2Advertisement). Note: \"--wait\" is required when helm installing."
+                    "title": "Install ARP Loadbalancer IP Address Pool",
+                    "description": "install an instance of Loadbalancer IP Address Pool working with ARP mode. Note: \"--wait\" is required when helm installing."
                 },
                 "ipAddressPools": {
                     "type": "object",
-                    "title": "IPAddressPool",
+                    "title": "Loadbalancer IP Address Pool Settings",
                     "description": "MetalLB assigns ip addresses from the IPAddressPool to LoadBalancer Service",
                     "properties": {
                         "name": {
                             "type": "string",
                             "default": "default-pool",
-                            "title": "name"
+                            "title": "Pool Name"
                         },
                         "addresses": {
                             "type": "array",
-                            "title": "Address List",
-                            "description": "A list of IP address ranges over which MetalLB has authority.You can list multiple ranges in a single pool, they will all share the same settings. Each range can be either a CIDR prefix, or an explicit start-end range of IPs. IPv4 and IPv6 enabled.",
+                            "title": "Pool Address List",
+                            "description": "A list of IP address for loadbalancer IP address pool. It could be IPv4 or IPv6 address. Each item could be like '192.168.10.0/24', or like '172.168.1.1-172.168.1.10', or like 'fd00:81::172:81:0:110/64' ",
                             "items": {
                                 "type": "string"
                             },
@@ -83,13 +83,13 @@
                         },
                         "autoAssign": {
                             "type": "boolean",
-                            "title": "Auto Assign",
-                            "description": "autoAssign flag used to prevent MetallB from automatic allocation for a pool."
+                            "title": "Pool Auto Assign",
+                            "description": "prevent MetallB from automatic allocation for a pool."
                         },
                         "avoidBuggyIPs": {
                             "type": "boolean",
-                            "title": "avoidBuggyIPs",
-                            "description": "avoidBuggyIPs prevents addresses ending with .0 and .255 to be used by a pool."
+                            "title": "Pool Avoid Buggy IPs",
+                            "description": "avoid to use buggy IP addresse ending with .0 and .255 ."
                         }
                     }
                 },
