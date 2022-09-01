@@ -4,7 +4,7 @@
   "properties": {
     "global": {
       "type": "object",
-      "title": "Global",
+      "title": "Global Settings",
       "properties": {
         "imageRegistry": {
           "type": "string",
@@ -14,65 +14,81 @@
     },
     "contour": {
       "type": "object",
+      "title": "Contour Settings",
       "properties": {
         "contour": {
           "type": "object",
+          "title": "Contour Controller",
           "properties": {
             "manageCRDs": {
               "type": "boolean",
-              "title": "Manage CRDs"
+              "title": "Manage CRDs",
+              "description": "Manage the creation, upgrade and deletion of Contour CRDs"
             },
             "replicaCount": {
               "type": "integer",
-              "title": "Replica Count"
+              "title": "Contour Controller Replica Count"
             },
             "ingressClass": {
               "type": "object",
+              "title": "IngressClass",
               "properties": {
                 "name": {
                   "type": "string",
-                  "title": "Name"
+                  "title": "IngressClass Name"
                 },
                 "default": {
                   "type": "boolean",
-                  "title": "Default",
+                  "title": "Set As Default IngressClass",
                   "description": "Is this the default ingressClass for the cluster."
                 }
-              },
-              "title": "IngressClass"
+              }
             },
             "debug": {
               "type": "boolean",
-              "title": "Debug",
-              "description": "Enable Contour debug log level"
+              "title": "Enable Contour Controller Debug Log"
             }
           }
         },
         "envoy": {
           "type": "object",
+          "title": "Envoy Settings",
+          "description": "envoy is a datapath component to implement ingress",
           "properties": {
             "replicaCount": {
               "type": "integer",
-              "title": "Replica Count"
+              "title": "Envoy Replica Count"
             },
             "kind": {
               "type": "string",
-              "title": "kind",
+              "title": "Envoy Deploy Kind",
+              "description": "envoy component could be deployed with several ways",
               "enum": [
                 "deployment",
                 "daemonset"
               ]
             },
+            "hostNetwork": {
+              "type": "boolean",
+              "title": "Enable HostNetwork",
+              "description": "envoy pod works as hostNetwork mode"
+            },
             "logLevel": {
               "type": "string",
-              "title": "Log Level"
+              "title": "Envoy Access Log Level",
+              "enum": [
+                "info",
+                "error",
+                "disabled"
+              ]
             },
             "service": {
               "type": "object",
+              "title": "Envoy Service",
               "properties": {
                 "type": {
                   "type": "string",
-                  "title": "Type",
+                  "title": "Service Type",
                   "enum": [
                     "LoadBalancer",
                     "NodePort",
@@ -88,45 +104,45 @@
                     "RequireDualStack"
                   ]
                 }
-              },
-              "title": "Service"
+              }
             }
-          },
-          "title": "Envoy"
+          }
         },
         "metrics": {
           "type": "object",
+          "title": "Metrics",
           "properties": {
             "serviceMonitor": {
               "type": "object",
+              "title": "ServiceMonitor",
               "properties": {
                 "enabled": {
                   "type": "boolean",
-                  "title": "Enable"
+                  "title": "Install",
+                  "description": "install serviceMonitor CR for contour. Notice: It is required to install Prometheus CRDs firstly"
                 }
-              },
-              "title": "ServiceMonitor"
+              }
             }
-          },
-          "title": "Metrics"
+          }
         }
-      },
-      "title": "Contour"
+      }
     },
     "alert": {
       "type": "object",
+      "title": "Alert Configurations",
       "properties": {
         "prometheusRule": {
           "type": "object",
           "properties": {
             "create": {
-              "type": "boolean"
+              "title": "Install",
+              "type": "boolean",
+              "description": "install prometheusRule CR for contour. Notice: It is required to install Prometheus CRDs firstly"
             }
           },
           "title": "Prometheus Rule"
         }
-      },
-      "title": "Alert Configurations"
+      }
     }
   }
 }
