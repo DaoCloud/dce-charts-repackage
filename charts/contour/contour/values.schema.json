@@ -27,7 +27,7 @@
             },
             "replicaCount": {
               "type": "integer",
-              "title": "Contour Controller Replica Count"
+              "title": "Controller Replica Count"
             },
             "ingressClass": {
               "type": "object",
@@ -39,14 +39,14 @@
                 },
                 "default": {
                   "type": "boolean",
-                  "title": "Set As Default IngressClass",
+                  "title": "Default IngressClass",
                   "description": "Is this the default ingressClass for the cluster."
                 }
               }
             },
             "debug": {
               "type": "boolean",
-              "title": "Enable Contour Controller Debug Log"
+              "title": "Enable Debug Log"
             }
           }
         },

@@ -10,7 +10,7 @@
       "properties": {
         "replicaCount": {
           "type": "integer",
-          "title": "Cert-Manager Replica Count"
+          "title": "Replica Count"
         },
         "webhook": {
           "type": "object",
@@ -19,7 +19,7 @@
           "properties": {
             "replicaCount": {
               "type": "integer",
-              "title": "Cert-manager-webhook Replica Count"
+              "title": "Replica Count"
             },
             "image": {
               "type": "object",
@@ -57,7 +57,7 @@
             },
             "replicaCount": {
               "type": "integer",
-              "title": "Cert-manager-cainjector Replica Count"
+              "title": "Replica Count"
             }
           }
         },
