@@ -40,7 +40,7 @@ spiderpool:
     enableIPv4: true
   
     ## @param feature.enableIPv6 enable ipv6
-    enableIPv6: true
+    enableIPv6: false
   
     ## @param feature.networkMode the network mode
     networkMode: legacy
@@ -64,7 +64,7 @@ spiderpool:
   ##
   clusterDefaultPool:
     ## @param clusterDefaultPool.installIPv4IPPool install ipv4 spiderpool instance
-    installIPv4IPPool: false
+    installIPv4IPPool: true
   
     ## @param clusterDefaultPool.installIPv6IPPool install ipv6 spiderpool instance
     installIPv6IPPool: false
