@@ -105,6 +105,37 @@
                   ]
                 }
               }
+            },
+            "preferredDuringSchedulingIgnoredDuringExecution": {
+              "type": "array",
+              "title": "Preferred During Scheduling Ignored During Execution",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "preference": {
+                      "type": "object",
+                      "title": "Preference",
+                      "properties": {
+                        "matchExpressions": {
+                          "type": "array",
+                          "title": "Match Expressions",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "string",
+                                "title": "Node Label"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
