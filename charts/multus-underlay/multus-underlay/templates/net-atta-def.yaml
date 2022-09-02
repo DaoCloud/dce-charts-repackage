@@ -132,9 +132,7 @@ spec:
         "plugins": [
             {
                 "type": "sriov",
-                {{- if not ( eq .Values.sriov.sriov_crd.vlanID 0 ) }}
                 "vlan": {{ .Values.sriov.sriov_crd.vlanID }},
-                {{- end }}
                 "ipam": {
                     "type": "spiderpool",
                     "log_level": "DEBUG",
@@ -174,9 +172,7 @@ spec:
         "plugins": [
             {
                 "type": "sriov",
-                {{- if not ( eq .Values.sriov.sriov_crd.vlanID 0 ) }}
                 "vlan": {{ .Values.sriov.sriov_crd.vlanID }},
-                {{- end }}
                 "ipam": {
                     "type": "spiderpool",
                     "log_level": "DEBUG",
