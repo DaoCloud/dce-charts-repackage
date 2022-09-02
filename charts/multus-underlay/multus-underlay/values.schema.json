@@ -39,13 +39,14 @@
                 }
             }
         },
-        "underlay_crds": {
+        "overlay_subnet": {
             "type": "object",
-            "title": "Multus Underlay CRDs Configuration",
+            "title": "Cluster Network CIDR",
+            "description": "Configure the cluster network CIDR, Including service-CIDR and pod-CIDR.",
             "properties": {
                 "service_subnet": {
                     "type": "object",
-                    "title": "Service Subnet",
+                    "title": "Service CIDR",
                     "properties": {
                         "ipv4": {
                             "type": "string",
@@ -54,12 +55,14 @@
                         "ipv6": {
                             "type": "string",
                             "title": "IPv6",
-                            "description": "Service IPv6 Subnet(optional)"
+                            "description": "Service IPv6 CIDR(optional)"
                         }
                     }
                 },
-                "calico_subnet": {
+                "pod_subnet": {
                     "type": "object",
+                    "title": "Pod CIDR",
+                    "description": "The network CIDR of Default CNI(calico or cilium).",
                     "properties": {
                         "ipv4": {
                             "type": "array",
@@ -74,112 +77,46 @@
                             "items": {
                                 "type": "string"
                             },
-                            "description": "Calico IPv6 Subnet(optional)"
+                            "description": "Pod IPv6 Subnet(optional)"
                         }
                     }
+                }
+            }
+        },
+        "macvlan": {
+            "type": "object",
+            "title": "Macvlan Install Configuration",
+            "properties": {
+                "enable": {
+                    "type": "boolean"
                 },
-                "macvlan": {
-                    "type": "object",
-                    "title": "Macvlan CRD Configuration",
-                    "properties": {
-                        "macvlan_overlay": {
-                            "type": "object",
-                            "title": "Macvlan Overlay",
-                            "properties": {
-                                "enable": {
-                                    "type": "boolean",
-                                    "tile": "Enable",
-                                    "default": true
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "title": "Name",
-                                    "default": "macvlan-overlay"
-                                },
-                                "master": {
-                                    "type": "string",
-                                    "title": "Master Interface",
-                                    "default": "ens192",
-                                    "descrieption": "NOTE: The master interface must be exist on the host"
-                                },
-                                "custom_route": {
-                                    "type": "string",
-                                    "title": "Custom Route(optional)"
-                                }
-                            }
-                        },
-                        "macvlan_standalone": {
-                            "type": "object",
-                            "title": "Macvlan Standalone",
-                            "properties": {
-                                "enable": {
-                                    "type": "boolean",
-                                    "tile": "Enable",
-                                    "default": true
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "title": "Name",
-                                    "default": "macvlan-standalone"
-                                },
-                                "custom_route": {
-                                    "type": "string",
-                                    "title": "Custom Route(optional)"
-                                }
-                            }
-                        }
-                    }
+                "type": {
+                    "type": "string",
+                    "title": "Type",
+                    "default": "macvlan-overlay",
+                    "description": "\"macvlan-overlay\" indicates that two NICs will be assigned to the pod, including macvlan and the NIC assigned to the pod by the default cni. \"macvlan-standalone\" indicates that only one NIC with macvlan will be assigned to the pod.",
+                    "enum": [
+                        "macvlan-overlay",
+                        "macvlan-standalone"
+                    ]
                 },
-                "sriov": {
-                    "type": "object",
-                    "title": "SRIOV CRD Configuration",
-                    "properties": {
-                        "resourceName": {
-                            "type": "string",
-                            "title": "ResourceName",
-                            "description": "You must be provide resourceName when Sriov-CNI enabled(just like \"intel.com/mlnx_sriov_rdma\"). Multus require specific device information which maybe pre-allocated by K8s device plugin. This could be indicated by providing `k8s.v1.cni.cncf.io/resourceName` annotation in its network attachment definition CRD"
-                        },
-                        "sriov_overlay": {
-                            "type": "object",
-                            "title": "SRIOV Overlay",
-                            "properties": {
-                                "enable": {
-                                    "type": "boolean",
-                                    "tile": "Enable",
-                                    "default": true
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "title": "Name",
-                                    "default": "sriov-overlay"
-                                },
-                                "custom_route": {
-                                    "type": "string",
-                                    "title": "Custom Route(optional)"
-                                }
-                            }
-                        },
-                        "sriov_standalone": {
-                            "type": "object",
-                            "title": "SRIOV Standalone",
-                            "properties": {
-                                "enable": {
-                                    "type": "boolean",
-                                    "tile": "Enable",
-                                    "default": true
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "title": "Name",
-                                    "default": "sriov-standalone"
-                                },
-                                "custom_route": {
-                                    "type": "string",
-                                    "title": "Custom Route(optional)"
-                                }
-                            }
-                        }
-                    }
+                "name": {
+                    "type": "string",
+                    "title": "Name",
+                    "default": "macvlan-overlay"
+                },
+                "master": {
+                    "type": "string",
+                    "title": "Master Interface",
+                    "default": "ens192",
+                    "description": "NOTE: The master interface must be exist on the host"
+                },
+                "vlanID": {
+                    "type": "integer",
+                    "description": "Indicates which vlan subnet the macvlan pod belongs to, Optionally, default is 0.",
+                    "default": 0,
+                    "minimum": 0,
+                    "maximum": 4094
                 }
             }
         },
@@ -223,13 +160,48 @@
                             }
                         }
                     }
+                },
+                "sriov_crd": {
+                    "type": "object",
+                    "title": "SRIOV Multus-CRs Configuration",
+                    "properties": {
+                        "enable": {
+                            "type": "boolean"
+                        },
+                        "resourceName": {
+                            "type": "string",
+                            "title": "ResourceName",
+                            "description": "You must be provide resourceName when Sriov-CNI enabled(just like \"intel.com/mlnx_sriov_rdma\"). Multus require specific device information which maybe pre-allocated by K8s device plugin. This could be indicated by providing `k8s.v1.cni.cncf.io/resourceName` annotation in its network attachment definition CRD"
+                        },
+                        "type": {
+                            "type": "string",
+                            "title": "Type",
+                            "description": "\"sriov-overlay\" indicates that two NICs will be assigned to the pod, including sriov and the NIC assigned to the pod by the default cni. \"sriov-standalone\" indicates that only one NIC with sriov will be assigned to the pod.",
+                            "default": "sriov-overlay",
+                            "enum": [
+                                "sriov-overlay",
+                                "sriov-standalone"
+                            ]
+                        },
+                        "name": {
+                            "type": "string",
+                            "title": "Name"
+                        },
+                        "vlanID": {
+                            "type": "integer",
+                            "description": "Indicates which vlan subnet the sriov pod belongs to.Optionally, default is 0.",
+                            "default": 0,
+                            "minimum": 0,
+                            "maximum": 4094
+                        }
+                    }
                 }
             }
         },
         "meta-plugins": {
             "type": "object",
-            "title": "Underlay Meta-CNI Plugins Install",
-            "description": "meta-plugins provides solutions for underlay-cni communication problems, More details: https://github.com/spidernet-io/cni-plugins",
+            "title": "Install Underlay Meta-CNI Plugins",
+            "description": "meta cni-plugins works with underlay-cni to solve the communication problem of underlay-cni",
             "properties": {
                 "image": {
                     "type": "object",

@@ -22,6 +22,7 @@ set -x
 # deploy the metallb
 helm install metallb ${CHART_DIR}  ${HELM_MUST_OPTION}   --namespace kube-system \
   --set instances.enabled=true \
+  --set instances.arp.nodeSelectors='{Node1,Node2}' \
   --set instances.ipAddressPools.addresses="{192.168.1.0/24,172.16.20.1-172.16.20.100,fd00:81::172:81:0:110-fd00:81::172:81:0:120}" \
   --set metallb.prometheus.podMonitor.enabled=true \
   --set metallb.prometheus.prometheusRule.enabled=true \

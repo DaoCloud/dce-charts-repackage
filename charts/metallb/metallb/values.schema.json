@@ -60,11 +60,6 @@
                     "title": "Loadbalancer IP Address Pool Settings",
                     "description": "MetalLB assigns ip addresses from the IPAddressPool to LoadBalancer Service",
                     "properties": {
-                        "name": {
-                            "type": "string",
-                            "default": "default-pool",
-                            "title": "Pool Name"
-                        },
                         "addresses": {
                             "type": "array",
                             "title": "Pool Address List",
@@ -88,30 +83,23 @@
                         },
                         "avoidBuggyIPs": {
                             "type": "boolean",
-                            "title": "Pool Avoid Buggy IPs",
-                            "description": "avoid to use buggy IP addresse ending with .0 and .255 ."
+                            "title": "avoidBuggyIPs",
+                            "description": "avoidBuggyIPs prevents addresses ending with .0 and .255 to be used by a pool."
                         }
                     }
                 },
                 "arp": {
                     "type": "object",
-                    "title": "L2Advertisement",
+                    "title": "LoadBalancer Nodes",
+                    "description": "limit the nodes to announce as next hops for the LoadBalancer IP. When empty, all the nodes having  are announced as next hops.",
                     "properties": {
-                        "name": {
-                            "type": "string",
-                            "title": "name",
-                            "default": "l2advertisement"
-                        },
-                        "ipAddressPools": {
+                        "nodeSelectors": {
                             "type": "array",
-                            "title": "ipAddressPools",
-                            "description": "The list of IPAddressPools to advertise via this advertisement, selected by name.",
+                            "title": "Node List",
                             "items": {
-                                "type": "string"
-                            },
-                            "default": [
-                                "default-pool"
-                            ]
+                                "type": "string",
+                                "title": "Node Name"
+                            }
                         }
                     }
                 }
