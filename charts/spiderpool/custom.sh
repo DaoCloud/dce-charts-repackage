@@ -47,6 +47,12 @@ REPLACE_BY_COMMENT  "global.imageRegistryOverride"  'imageRegistryOverride:.*'  
 REPLACE_BY_COMMENT  "spiderpoolAgent.prometheus.enabled"  'enabled:.*'  "enabled: true"
 REPLACE_BY_COMMENT  "spiderpoolController.prometheus.enabled"  'enabled:.*'  "enabled: true"
 
+REPLACE_BY_COMMENT  "feature.enableIPv4"  'enableIPv4:.*'  "enableIPv4: true"
+REPLACE_BY_COMMENT  "feature.enableIPv6"  'enableIPv6:.*'  "enableIPv6: false"
+
+REPLACE_BY_COMMENT  "clusterDefaultPool.installIPv4IPPool"  'installIPv4IPPool:.*'  "installIPv4IPPool: true"
+REPLACE_BY_COMMENT  "clusterDefaultPool.installIPv6IPPool"  'installIPv6IPPool:.*'  "installIPv6IPPool: false"
+
 REPLACE_BY_COMMENT  "clusterDefaultPool.ipv4Subnet"  'ipv4Subnet:.*'  "ipv4Subnet: \"192.168.0.0/16\""
 REPLACE_BY_COMMENT  "clusterDefaultPool.ipv6Subnet"  'ipv6Subnet:.*'  "ipv6Subnet: \"fd00::/112\""
 REPLACE_BY_COMMENT  "clusterDefaultPool.ipv4IPRanges"  'ipv4IPRanges:.*'  "ipv4IPRanges: [\"192.168.0.10-192.168.0.100\"]"
