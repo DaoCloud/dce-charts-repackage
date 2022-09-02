@@ -22,11 +22,9 @@ set -x
 # deploy the spiderpool
 helm install multus ${CHART_DIR}  ${HELM_MUST_OPTION} \
   --namespace kube-system \
-  --set sriov.manifests.enanle=true \
-  --set underlay_crds.sriov.resourceName=intel.com/mlnx_sriov_rdma \
-  --set underlay_crds.service_subnet.ipv6=fed0::1/64 \
-  --set underlay_crds.sriov.sriov_standalone.enable=true \
-  --set underlay_crds.sriov.sriov_overlay.enable=true
+  --set sriov.manifests.enable=true \
+  --set sriov.sriov_crd.resourceName=intel.com/mlnx_sriov_rdma \
+  --set overlay_subnet.service_subnet.ipv6=fed0::1/64
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
