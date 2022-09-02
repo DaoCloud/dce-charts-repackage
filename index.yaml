@@ -3,14 +3,14 @@ entries:
   cert-manager:
   - apiVersion: v2
     appVersion: v1.9.1
-    created: "2022-09-02T16:09:09.839013364Z"
+    created: "2022-09-02T16:54:09.840011089Z"
     dependencies:
     - name: cert-manager
       repository: https://charts.jetstack.io
       version: v1.9.1
     description: cert-manager is a Kubernetes addon to automate the management and
       issuance of TLS certificates from various issuing sources.
-    digest: f758668cb8cd5f367313eb9abc654fa9f0c6c256773bbd1841e2d6d1ae4bf72b
+    digest: 7dc9916840e22dadd3727a2ec312081e9a5d9f7237cca3e821ab534451c33c50
     name: cert-manager
     type: application
     urls:
@@ -19,14 +19,14 @@ entries:
   contour:
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2022-09-02T16:09:09.86298432Z"
+    created: "2022-09-02T16:54:09.863999654Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
       version: 9.1.1
     description: Contour is an open source Kubernetes ingress controller that works
       by deploying the Envoy proxy as a reverse proxy and load balancer.
-    digest: 9f5435ec4db8efc663ac314889f2f2a9b7da8069420dee59e008c1ee41907fe5
+    digest: afef4d56447e8986b43ca26fce14e9b46e0297be61cf245ece87a40ae6493e28
     name: contour
     type: application
     urls:
@@ -34,7 +34,7 @@ entries:
     version: 9.1.1
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2022-09-02T16:09:09.853373498Z"
+    created: "2022-09-02T16:54:09.855201327Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -49,7 +49,7 @@ entries:
     version: 9.0.3
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2022-09-02T16:09:09.847734485Z"
+    created: "2022-09-02T16:54:09.848656209Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -65,9 +65,9 @@ entries:
   coredns-metrics:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-09-02T16:09:09.863636422Z"
+    created: "2022-09-02T16:54:09.864663586Z"
     description: A Helm chart for Kubernetes
-    digest: e5e36ae3ea0269a34bc5fa6c87ddd2dd101b648a44e745fd012e2473316afc03
+    digest: f014ee2c0168303f6914caa89377817ceb966e277a39a88afee32df508e54585
     name: coredns-metrics
     type: application
     urls:
@@ -76,14 +76,14 @@ entries:
   ingress-nginx:
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2022-09-02T16:09:09.87130924Z"
+    created: "2022-09-02T16:54:09.873456614Z"
     dependencies:
     - name: ingress-nginx
       repository: https://kubernetes.github.io/ingress-nginx
       version: 4.2.1
     description: Ingress controller for Kubernetes using NGINX as a reverse proxy
       and load balancer
-    digest: eeb4407ba0babd2e4e6e8573e7b6ad1e38f8d88db7c614739d7da04e0b43e8b2
+    digest: d6ac1201ec927aad82e6b7421b9628a674815eb884e75019a43553cc27f7e7d3
     icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
     keywords:
     - ingress
@@ -96,7 +96,7 @@ entries:
     version: 4.2.1
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2022-09-02T16:09:09.867599931Z"
+    created: "2022-09-02T16:54:09.869153905Z"
     dependencies:
     - name: ingress-nginx
       repository: https://kubernetes.github.io/ingress-nginx
@@ -117,14 +117,14 @@ entries:
   metallb:
   - apiVersion: v2
     appVersion: 0.13.5
-    created: "2022-09-02T16:09:09.876192351Z"
+    created: "2022-09-02T16:54:09.888584848Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
       version: 0.13.5
     description: A network load-balancer implementation for Kubernetes using standard
       routing protocols
-    digest: 064d8b198d720ae00cb96fe103a80fb63b83427beb344af80a63372e87ae460a
+    digest: a77c282c559b27d1a3c8bdab7c3709af0811f0a6e9bdbeb49242df55c33b5bce
     icon: https://raw.githubusercontent.com/DaoCloud/network-charts-repackage/main/charts/metallb/metallb/icon.svg
     name: metallb
     type: application
@@ -133,7 +133,7 @@ entries:
     version: 0.13.5
   - apiVersion: v2
     appVersion: 0.13.4
-    created: "2022-09-02T16:09:09.873648545Z"
+    created: "2022-09-02T16:54:09.884461348Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
@@ -150,7 +150,7 @@ entries:
   multus:
   - apiVersion: v2
     appVersion: v3.9
-    created: "2022-09-02T16:09:09.886235974Z"
+    created: "2022-09-02T16:54:09.899146762Z"
     dependencies:
     - name: plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -166,7 +166,7 @@ entries:
   multus-underlay:
   - apiVersion: v2
     appVersion: v3.9
-    created: "2022-09-02T16:09:09.884885371Z"
+    created: "2022-09-02T16:54:09.897484381Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -181,7 +181,7 @@ entries:
     version: v3.9
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2022-09-02T16:09:09.882722166Z"
+    created: "2022-09-02T16:54:09.894012712Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -194,7 +194,7 @@ entries:
       version: 0.1.1
     description: Multi-cni enables attaching multiple network interfaces to pods in
       Kubernetes. Including multus and veth-plugin.
-    digest: df5b0ca160b63c3f2ad869bb62904d8b8d888fedf064c8045989bbe775d29ca5
+    digest: e9ca81f4124d8b3c0b7cccb0beb55dafc051cd6977bc2d4565595e1c01febd07
     name: multus-underlay
     type: application
     urls:
@@ -202,7 +202,7 @@ entries:
     version: v0.1.1
   - apiVersion: v2
     appVersion: v0.1.0
-    created: "2022-09-02T16:09:09.880463361Z"
+    created: "2022-09-02T16:54:09.89128958Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -218,13 +218,13 @@ entries:
   spiderpool:
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2022-09-02T16:09:09.924594364Z"
+    created: "2022-09-02T16:54:09.932090762Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
       version: v0.1.1
     description: ipam for kubernetes cni
-    digest: 8637d1b504250b675016d84284b468b7f50f460a048d295c5ec72362dfa41962
+    digest: da8948a01cd112dd3b95360eb9be5b98ced9cdf69fa83f17631316722293272e
     home: https://spidernet-io.github.io/spiderpool
     keywords:
     - spiderpool
@@ -242,7 +242,7 @@ entries:
     version: v0.1.1
   - apiVersion: v2
     appVersion: v0.1.0
-    created: "2022-09-02T16:09:09.920890855Z"
+    created: "2022-09-02T16:54:09.926358884Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -266,7 +266,7 @@ entries:
     version: v0.1.0
   - apiVersion: v2
     appVersion: v0.0.11
-    created: "2022-09-02T16:09:09.901282609Z"
+    created: "2022-09-02T16:54:09.909498264Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -290,7 +290,7 @@ entries:
     version: v0.0.11
   - apiVersion: v2
     appVersion: v0.0.10
-    created: "2022-09-02T16:09:09.897018299Z"
+    created: "2022-09-02T16:54:09.904928242Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -314,7 +314,7 @@ entries:
     version: v0.0.10
   - apiVersion: v2
     appVersion: v0.0.9
-    created: "2022-09-02T16:09:09.910377931Z"
+    created: "2022-09-02T16:54:09.922089176Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -338,7 +338,7 @@ entries:
     version: v0.0.9
   - apiVersion: v2
     appVersion: v0.0.8
-    created: "2022-09-02T16:09:09.906991823Z"
+    created: "2022-09-02T16:54:09.918103082Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -362,7 +362,7 @@ entries:
     version: v0.0.8
   - apiVersion: v2
     appVersion: v0.0.6
-    created: "2022-09-02T16:09:09.904094216Z"
+    created: "2022-09-02T16:54:09.912895329Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -387,7 +387,7 @@ entries:
   veth:
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2022-09-02T16:09:09.924932264Z"
+    created: "2022-09-02T16:54:09.932482581Z"
     description: Veth works with macvlan cni to solve some communication problems
       when macvlan is used as CNI.
     digest: e532a68813205bdf899ff60ce100b5c80b27b4dee2c5e05bd85c512c70735af4
@@ -400,4 +400,4 @@ entries:
     urls:
     - https://DaoCloud.github.io/network-charts-repackage/veth-v0.1.1.tgz
     version: v0.1.1
-generated: "2022-09-02T16:09:09.833909853Z"
+generated: "2022-09-02T16:54:09.834457019Z"
