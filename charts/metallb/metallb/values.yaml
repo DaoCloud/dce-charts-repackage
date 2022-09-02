@@ -319,7 +319,7 @@ metallb:
 # create default ipaddress-pool
 instances:
   # -- enable default ip-address pool
-  enabled: false
+  enabled: true
   ipAddressPools:
     # -- default ip-address pool name
     name: default-pool
@@ -328,7 +328,7 @@ instances:
     addresses:
     - 172.17.8.0/24
     autoAssign: true
-    avoidBuggyIPs: false
+    avoidBuggyIPs: true
 
   # create default arp mode
   arp:
