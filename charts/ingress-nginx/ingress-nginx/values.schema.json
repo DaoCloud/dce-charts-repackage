@@ -127,6 +127,54 @@
                   }
                 }
               }
+            },
+            "affinity": {
+              "type": "object",
+              "properties": {
+                "nodeAffinity": {
+                  "type": "object",
+                  "properties": {
+                    "preferredDuringSchedulingIgnoredDuringExecution": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "preference": {
+                            "type": "object",
+                            "title": "Preference",
+                            "properties": {
+                              "matchExpressions": {
+                                "type": "array",
+                                "title": "Match Expressions",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "key": {
+                                      "type": "string",
+                                      "title": "Node Label"
+                                    },
+                                    "operator": {
+                                      "type": "string",
+                                      "title": "Operator"
+                                    }
+                                  }
+                                }
+                              },
+                              "weight": {
+                                "type": "integer",
+                                "title": "Weight"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "title": "Preferred During Scheduling Ignored During Execution"
+                    }
+                  },
+                  "title": "Node Affinity"
+                }
+              },
+              "title": "Affinity"
             }
           }
         }

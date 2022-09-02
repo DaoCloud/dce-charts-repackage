@@ -31,6 +31,14 @@ ingress-nginx:
       default: false
     ingressClass: nginx
     electionID: "ingress-controller-leader"
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+                - key: node-role.kubernetes.io/ingress
+                  operator: Exists
 alert:
   prometheusRule:
     create: false
