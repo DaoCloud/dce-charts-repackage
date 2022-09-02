@@ -8,14 +8,16 @@
             "properties": {
                 "config": {
                     "type": "object",
+                    "title": " ",
                     "properties": {
                         "cni_conf": {
                             "type": "object",
+                            "title": "Default CNI Settings",
                             "properties": {
                                 "clusterNetwork": {
                                     "type": "string",
                                     "title": "Default CNI",
-                                    "description": "Multus requires that you have first installed a Kubernetes CNI plugin to serve as your pod-to-pod network(calico or cilium)",
+                                    "description": "Notice: make sure the selected CNI has been installed in the cluster",
                                     "default": "calico",
                                     "enum": [
                                         "calico",
@@ -28,7 +30,7 @@
                 },
                 "image": {
                     "type": "object",
-                    "title": "Image Configuration",
+                    "title": "Multus Image",
                     "properties": {
                         "repository": {
                             "type": "string",
@@ -46,38 +48,40 @@
             "properties": {
                 "service_subnet": {
                     "type": "object",
-                    "title": "Service CIDR",
+                    "title": "Service ClusterIP CIDR",
                     "properties": {
                         "ipv4": {
                             "type": "string",
-                            "title": "*IPv4"
+                            "title": "IPv4 Subnet",
+                            "description": "input subnet format like '172.16.0.0/16'"
                         },
                         "ipv6": {
                             "type": "string",
-                            "title": "IPv6",
-                            "description": "Service IPv6 CIDR(optional)"
+                            "title": "IPv6 Subnet",
+                            "description": "input subnet format like 'fd01::/64'"
                         }
                     }
                 },
                 "pod_subnet": {
                     "type": "object",
                     "title": "Pod CIDR",
-                    "description": "The network CIDR of Default CNI(calico or cilium).",
+                    "description": "The POD CIDR of Default CNI (calico or cilium).",
                     "properties": {
                         "ipv4": {
                             "type": "array",
-                            "title": "*IPv4",
+                            "title": "IPv4 Subnet",
+                            "description": "for each item, input subnet format like '172.17.0.0/16'",
                             "items": {
                                 "type": "string"
                             }
                         },
                         "ipv6": {
                             "type": "array",
-                            "title": "IPv6",
+                            "title": "IPv6 Subnet",
+                            "description": "for each item, input subnet format like 'fd01::/64'",
                             "items": {
                                 "type": "string"
-                            },
-                            "description": "Pod IPv6 Subnet(optional)"
+                            }
                         }
                     }
                 }
@@ -85,16 +89,17 @@
         },
         "macvlan": {
             "type": "object",
-            "title": "Macvlan Install Configuration",
+            "title": "Macvlan CNI Settings",
             "properties": {
                 "enable": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "title": "Install Macvlan CNI"
                 },
                 "type": {
                     "type": "string",
-                    "title": "Type",
+                    "title": "Macvlan Type",
                     "default": "macvlan-overlay",
-                    "description": "\"macvlan-overlay\" indicates that two NICs will be assigned to the pod, including macvlan and the NIC assigned to the pod by the default cni. \"macvlan-standalone\" indicates that only one NIC with macvlan will be assigned to the pod.",
+                    "description": "The \"macvlan-overlay\" mode is used for the pod with overlay and macvlan interface. The \"macvlan-standalone\" mode is just used for the pod with macvlan interface.",
                     "enum": [
                         "macvlan-overlay",
                         "macvlan-standalone"
@@ -102,18 +107,18 @@
                 },
                 "name": {
                     "type": "string",
-                    "title": "Name",
-                    "default": "macvlan-overlay"
+                    "title": "Multus CR Name"
                 },
                 "master": {
                     "type": "string",
                     "title": "Master Interface",
                     "default": "ens192",
-                    "description": "NOTE: The master interface must be exist on the host"
+                    "description": "Notice: The master interface must exist on the host"
                 },
                 "vlanID": {
                     "type": "integer",
-                    "description": "Indicates which vlan subnet the macvlan pod belongs to, Optionally, default is 0.",
+                    "title": "Vlan ID",
+                    "description": "the vlan id of the master interface",
                     "default": 0,
                     "minimum": 0,
                     "maximum": 4094
@@ -122,13 +127,16 @@
         },
         "sriov": {
             "type": "object",
-            "title": "SRIOV Install Configuration",
-            "description": "SR-IOV CNI plugin works with SR-IOV device plugin for VF allocation in Kubernetes",
+            "title": "SRIOV CNI Settings",
+            "description": "The CNI requires the physical interface who supports SR-IOV feature.",
             "properties": {
                 "manifests": {
                     "type": "object",
+                    "title": " ",
                     "properties": {
                         "enable": {
+                            "title": "Install SRIOV CNI",
+                            "description": "Notice: please do not install SRIOV and Macvlan at the same time.",
                             "type": "boolean"
                         }
                     }
@@ -139,7 +147,7 @@
                     "properties": {
                         "sriovCni": {
                             "type": "object",
-                            "title": "SRIOV-CNI",
+                            "title": "SRIOV CNI Image",
                             "properties": {
                                 "repository": {
                                     "type": "string",
@@ -150,7 +158,7 @@
                         },
                         "sriovDevicePlugin": {
                             "type": "object",
-                            "title": "SRIOV Device Plugin",
+                            "title": "SRIOV Device Plugin Image",
                             "properties": {
                                 "repository": {
                                     "type": "string",
@@ -165,18 +173,15 @@
                     "type": "object",
                     "title": "SRIOV Multus-CRs Configuration",
                     "properties": {
-                        "enable": {
-                            "type": "boolean"
-                        },
                         "resourceName": {
                             "type": "string",
-                            "title": "ResourceName",
+                            "title": "Resource Name",
                             "description": "You must be provide resourceName when Sriov-CNI enabled(just like \"intel.com/mlnx_sriov_rdma\"). Multus require specific device information which maybe pre-allocated by K8s device plugin. This could be indicated by providing `k8s.v1.cni.cncf.io/resourceName` annotation in its network attachment definition CRD"
                         },
                         "type": {
                             "type": "string",
-                            "title": "Type",
-                            "description": "\"sriov-overlay\" indicates that two NICs will be assigned to the pod, including sriov and the NIC assigned to the pod by the default cni. \"sriov-standalone\" indicates that only one NIC with sriov will be assigned to the pod.",
+                            "title": "SRIOV Type",
+                            "description": "The \"sriov-overlay\" mode is used for the pod with overlay and sriov interface. The \"sriov-standalone\" mode is just used for the pod with sriov interface.",
                             "default": "sriov-overlay",
                             "enum": [
                                 "sriov-overlay",
@@ -185,11 +190,12 @@
                         },
                         "name": {
                             "type": "string",
-                            "title": "Name"
+                            "title": "Multus CR Name"
                         },
                         "vlanID": {
                             "type": "integer",
-                            "description": "Indicates which vlan subnet the sriov pod belongs to.Optionally, default is 0.",
+                            "title": "Vlan ID",
+                            "description": "what vlan sriov interface belongs to. Optionally, default is 0.",
                             "default": 0,
                             "minimum": 0,
                             "maximum": 4094
@@ -200,8 +206,8 @@
         },
         "meta-plugins": {
             "type": "object",
-            "title": "Install Underlay Meta-CNI Plugins",
-            "description": "meta cni-plugins works with underlay-cni to solve the communication problem of underlay-cni",
+            "title": "Underlay Meta-CNI Plugins",
+            "description": "meta cni-plugins works with underlay CNI to solve the communication problem of underlay-cni",
             "properties": {
                 "image": {
                     "type": "object",

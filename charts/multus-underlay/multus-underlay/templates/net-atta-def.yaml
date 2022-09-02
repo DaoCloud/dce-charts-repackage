@@ -113,7 +113,7 @@ spec:
 {{- if eq .Values.sriov.sriov_crd.type "sriov-standalone" -}}{{ .Values.sriov.sriov_crd.name }}{{ else }}sriov-standalone{{ end }}
 {{- end -}}
 # sriov-standalone
-{{- if .Values.sriov.sriov_crd.enable }}
+{{- if .Values.sriov.manifests.enable }}
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
@@ -123,7 +123,7 @@ metadata:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
     daocloud.io.multus/underlay-cni: "true"
     daocloud.io.multus/underlay-cni-vlanId: {{ .Values.sriov.sriov_crd.vlanID | quote }}
-    k8s.v1.cni.cncf.io/resourceName: {{ required ".Values.sriov.sriov_crd.resourceName must be defined when .Values.sriov.sriov_crd.enable == true" .Values.sriov.sriov_crd.resourceName }}
+    k8s.v1.cni.cncf.io/resourceName: {{ required ".Values.sriov.sriov_crd.resourceName must be defined when .Values.sriov.manifests.enable == true" .Values.sriov.sriov_crd.resourceName }}
 spec:
   config: |-
     {
@@ -132,6 +132,9 @@ spec:
         "plugins": [
             {
                 "type": "sriov",
+                {{- if not ( eq .Values.sriov.sriov_crd.vlanID 0 ) }}
+                "vlan": {{ .Values.sriov.sriov_crd.vlanID }},
+                {{- end }}
                 "ipam": {
                     "type": "spiderpool",
                     "log_level": "DEBUG",
@@ -162,7 +165,7 @@ metadata:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
     daocloud.io.multus/underlay-cni: "true"
     daocloud.io.multus/underlay-cni-vlanId: {{ .Values.sriov.sriov_crd.vlanID | quote }}
-    k8s.v1.cni.cncf.io/resourceName: {{ required ".Values.sriov.sriov_crd.resourceName must be defined when .Values.sriov.sriov_crd.enable == true" .Values.sriov.sriov_crd.resourceName }}
+    k8s.v1.cni.cncf.io/resourceName: {{ required ".Values.sriov.sriov_crd.resourceName must be defined when .Values.sriov.manifests.enable == true" .Values.sriov.sriov_crd.resourceName }}
 spec:
   config: |-
     {
@@ -171,6 +174,9 @@ spec:
         "plugins": [
             {
                 "type": "sriov",
+                {{- if not ( eq .Values.sriov.sriov_crd.vlanID 0 ) }}
+                "vlan": {{ .Values.sriov.sriov_crd.vlanID }},
+                {{- end }}
                 "ipam": {
                     "type": "spiderpool",
                     "log_level": "DEBUG",

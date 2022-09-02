@@ -71,7 +71,7 @@ overlay_subnet:
 macvlan:
   enable: true
   type: macvlan-overlay
-  name: macvlan-overlay
+  name: macvlan-vlan0
   master: "ens192"
   vlanID: 0
   hijack_overlay_reponse: true
@@ -160,11 +160,10 @@ sriov:
           - mlx5_core
 
   sriov_crd:
-    enable: false
     resourceName: ""
     type: sriov-overlay
-    name: sriov-overlay
-    vlanID: 120
+    name: sriov-vlan0
+    vlanID: 0
     hijack_overlay_reponse: true
     overlayInterface: eth0
     custom_route: []
