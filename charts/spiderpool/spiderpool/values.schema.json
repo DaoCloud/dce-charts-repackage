@@ -46,67 +46,6 @@
                 }
               }
             },
-            "resources": {
-              "title": "Spiderpool Agent Resources",
-              "type": "object",
-              "default": {},
-              "properties": {
-                "limits": {
-                  "title": "Resources Limits",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ],
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU limits",
-                      "type": "string",
-                      "default": "1000m",
-                      "examples": [
-                        "1000m"
-                      ]
-                    },
-                    "memory": {
-                      "title": "memory limits",
-                      "type": "string",
-                      "default": "1024Mi",
-                      "examples": [
-                        "1024Mi"
-                      ]
-                    }
-                  }
-                },
-                "requests": {
-                  "title": "Resources Requests",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ],
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU requests",
-                      "type": "string",
-                      "default": "100m",
-                      "examples": [
-                        "100m"
-                      ]
-                    },
-                    "memory": {
-                      "title": "Memory requests",
-                      "type": "string",
-                      "default": "128Mi",
-                      "examples": [
-                        "128Mi"
-                      ]
-                    }
-                  }
-                }
-              }
-            },
             "prometheus": {
               "title": "Spiderpool Agent Prometheus Setting",
               "type": "object",
@@ -196,55 +135,6 @@
                   "title": "repository",
                   "type": "string",
                   "default": "spidernet-io/spiderpool/spiderpool-controller"
-                }
-              }
-            },
-            "resources": {
-              "title": "Spiderpool Controller Resources",
-              "type": "object",
-              "default": {},
-              "properties": {
-                "limits": {
-                  "title": "Limits Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ],
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU Limits",
-                      "type": "string",
-                      "default": "500m"
-                    },
-                    "memory": {
-                      "title": "Memory Limits",
-                      "type": "string",
-                      "default": "1024Mi"
-                    }
-                  }
-                },
-                "requests": {
-                  "title": "Requests Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ],
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU Requests",
-                      "type": "string",
-                      "default": "100m"
-                    },
-                    "memory": {
-                      "title": "Memory Requests",
-                      "type": "string",
-                      "default": "128Mi"
-                    }
-                  }
                 }
               }
             },
@@ -352,7 +242,7 @@
           ],
           "properties": {
             "installIPv4IPPool": {
-              "title": "install default IPv4 ippool",
+              "title": "install IPv4 ippool",
               "description": "when 'enable IPv4', required to install IPv4 ippool",
               "type": "boolean",
               "default": false,
@@ -361,7 +251,7 @@
               ]
             },
             "installIPv6IPPool": {
-              "title": "install default IPv6 ippool",
+              "title": "install IPv6 ippool",
               "description": "when 'enable IPv6', required to install IPv6 ippool",
               "type": "boolean",
               "default": false,
@@ -370,7 +260,7 @@
               ]
             },
             "ipv4IPPoolName": {
-              "title": "the name of default IPv4 ippool",
+              "title": "IPv4 ippool name",
               "type": "string",
               "default": "default-v4-ippool",
               "examples": [
@@ -378,7 +268,7 @@
               ]
             },
             "ipv6IPPoolName": {
-              "title": "the name of default IPv6 ippool",
+              "title": "IPv6 ippool name",
               "type": "string",
               "default": "default-v6-ippool",
               "examples": [
@@ -386,7 +276,7 @@
               ]
             },
             "ipv4Subnet": {
-              "title": "IPv4 Subnet for default IPv4 ippool",
+              "title": "IPv4 ippool subnet",
               "type": "string",
               "default": "",
               "examples": [
@@ -394,7 +284,7 @@
               ]
             },
             "ipv6Subnet": {
-              "title": "IPv6 Subnet for default IPv6 ippool",
+              "title": "IPv6 ippool subnet",
               "type": "string",
               "default": "",
               "examples": [
