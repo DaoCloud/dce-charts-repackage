@@ -130,9 +130,11 @@
             },
             "affinity": {
               "type": "object",
+              "title": "Node Affinity",
               "properties": {
                 "nodeAffinity": {
                   "type": "object",
+                  "title": " ",
                   "properties": {
                     "preferredDuringSchedulingIgnoredDuringExecution": {
                       "type": "array",
@@ -155,7 +157,8 @@
                                     },
                                     "operator": {
                                       "type": "string",
-                                      "title": "Operator"
+                                      "title": "Operator",
+                                      "enum": ["In", "NotIn", "Exists", "DoesNotExist", "Gt", "Lt"]
                                     }
                                   }
                                 }
@@ -170,11 +173,9 @@
                       },
                       "title": "Preferred During Scheduling Ignored During Execution"
                     }
-                  },
-                  "title": "Node Affinity"
+                  }
                 }
-              },
-              "title": "Affinity"
+              }
             }
           }
         }

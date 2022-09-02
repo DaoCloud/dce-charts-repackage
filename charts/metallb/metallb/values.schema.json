@@ -76,11 +76,6 @@
                                 "fd00:81::172:81:0:110/64"
                             ]
                         },
-                        "autoAssign": {
-                            "type": "boolean",
-                            "title": "Pool Auto Assign",
-                            "description": "prevent MetallB from automatic allocation for a pool."
-                        },
                         "avoidBuggyIPs": {
                             "type": "boolean",
                             "title": "avoidBuggyIPs",
@@ -98,7 +93,7 @@
                             "title": "Node List",
                             "items": {
                                 "type": "string",
-                                "title": "Node Name"
+                                "title": "Node Hostname"
                             }
                         }
                     }
