@@ -291,6 +291,14 @@
                 "fd00::/64"
               ]
             },
+            "ipv4Gateway": {
+              "title": "IPv4 ippool gateway",
+              "type": "string"
+            },
+            "ipv6Gateway": {
+              "title": "IPv6 ippool gateway",
+              "type": "string"
+            },
             "ipv4IPRanges": {
               "title": "IP Ranges for default IPv4 ippool",
               "type": "array",
@@ -321,3 +329,4 @@
     }
   }
 }
+
