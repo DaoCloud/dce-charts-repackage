@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "properties": {
+    "f5-bigip-ctlr": {
+      "type": "object",
+      "default": {},
+      "title": "f5-bigip-ctlr Settings",
+      "properties": {
+        "ingressClass": {
+          "type": "object",
+          "default": {},
+          "title": "IngressClass Settings",
+          "properties": {
+            "create": {
+              "type": "boolean",
+              "default": false,
+              "title": "Install ingressClass"
+            },
+            "ingressClassName": {
+              "type": "string",
+              "title": "IngressClass Name"
+            },
+            "isDefaultIngressController": {
+              "type": "boolean",
+              "title": "Default ingressClass"
+            }
+          }
+        },
+        "namespace": {
+          "type": "string",
+          "title": "namespace"
+        },
+        "args": {
+          "type": "object",
+          "title": "BigIP Settings",
+          "properties": {
+            "bigip_url": {
+              "type": "string",
+              "title": "BigIP URL"
+            },
+            "bigip_partition": {
+              "type": "string",
+              "default": "",
+              "title": "BigIP Partition"
+            },
+            "enable-ipv6": {
+              "type": "boolean",
+              "default": false,
+              "title": "Enable IPv6"
+            },
+            "default_ingress_ip": {
+              "type": "string",
+              "default": "",
+              "title": "Default Ingress IP"
+            },
+            "pool_member_type": {
+              "type": "string",
+              "default": "",
+              "title": "Forward Method",
+              "enum": [
+                "nodeport",
+                "cluster"
+              ]
+            }
+          }
+        },
+        "image": {
+          "type": "object",
+          "default": {},
+          "title": "Image Settings",
+          "properties": {
+            "user": {
+              "type": "string",
+              "default": "",
+              "title": "Registry",
+              "examples": [
+                "docker.m.daocloud.io/f5networks"
+              ]
+            },
+            "repo": {
+              "type": "string",
+              "default": "",
+              "title": "repository",
+              "examples": [
+                "k8s-bigip-ctlr"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "cis-secret": {
+      "type": "object",
+      "default": {},
+      "title": "BigIP Authentication",
+      "required": [
+        "username",
+        "password"
+      ],
+      "properties": {
+        "username": {
+          "type": "string",
+          "default": "",
+          "title": "BigIP Username",
+          "examples": [
+            "admin"
+          ]
+        },
+        "password": {
+          "type": "string",
+          "default": "",
+          "title": "BigIP Password",
+          "examples": [
+            "admin"
+          ]
+        }
+      }
+    },
+    "f5-ipam-controller": {
+      "type": "object",
+      "default": {},
+      "title": "F5-ipam-controller Settings",
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "default": "",
+          "title": "namespace"
+        },
+        "args": {
+          "type": "object",
+          "default": {},
+          "title": "LoadBlancer IPAM",
+          "properties": {
+            "ip_range": {
+              "type": "string",
+              "default": "",
+              "title": "LoadBlancer IP Pool"
+            }
+          }
+        },
+        "image": {
+          "type": "object",
+          "default": {},
+          "title": "Image Settings",
+          "properties": {
+            "user": {
+              "type": "string",
+              "default": "",
+              "title": "Registry",
+              "examples": [
+                "docker.m.daocloud.io/f5networks"
+              ]
+            },
+            "repo": {
+              "type": "string",
+              "default": "",
+              "title": "repository"
+            }
+          }
+        }
+      }
+    },
+    "ipam-pvc": {
+      "type": "object",
+      "default": {},
+      "title": "IPAM PVC Settings",
+      "properties": {
+        "storageClassName": {
+          "type": "string",
+          "default": "",
+          "title": "storageClassName",
+          "examples": [
+            ""
+          ]
+        },
+        "volumesize": {
+          "type": "string",
+          "default": "",
+          "title": "Volume Size"
+        }
+      }
+    }
+  }
+}
