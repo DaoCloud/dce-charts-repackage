@@ -22,7 +22,7 @@ Multus CNI enables attaching multiple network interfaces to pods in Kubernetes.
 |-----|------|---------|-------------|
 | config.cni_conf.binDir | string | `"/opt/cni/bin"` |  |
 | config.cni_conf.capabilities.portMappings | bool | `true` |  |
-| config.cni_conf.clusterNetwork | string | `"k8s-pod-network"` |  |
+| config.cni_conf.clusterNetwork | string | `"calico"` |  |
 | config.cni_conf.cniDir | string | `"/var/lib/cni/multus"` |  |
 | config.cni_conf.cniVersion | string | `"0.3.1"` |  |
 | config.cni_conf.confDir | string | `"/etc/cni/net.d"` |  |
@@ -30,7 +30,7 @@ Multus CNI enables attaching multiple network interfaces to pods in Kubernetes.
 | config.cni_conf.delegates | list | `[]` |  |
 | config.cni_conf.kubeconfig | string | `"/etc/cni/net.d/multus.d/multus.kubeconfig"` |  |
 | config.cni_conf.logFile | string | `"/var/log/multus.log"` |  |
-| config.cni_conf.logLevel | string | `"panic"` |  |
+| config.cni_conf.logLevel | string | `"info"` |  |
 | config.cni_conf.name | string | `"multus-cni-network"` |  |
 | config.cni_conf.namespaceIsolation | bool | `false` |  |
 | config.cni_conf.readinessindicatorfile | string | `""` |  |

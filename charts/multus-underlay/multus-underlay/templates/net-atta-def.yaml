@@ -1,5 +1,5 @@
-{{- if .Values.crd_conf -}}
-{{- range $cni, $conf := .Values.crd_conf -}}
+{{- if .Values.overlay_crds -}}
+{{- range $cni, $conf := .Values.overlay_crds -}}
 {{- if $conf.enable }}
 ---
 apiVersion: "k8s.cni.cncf.io/v1"
@@ -7,12 +7,13 @@ kind: NetworkAttachmentDefinition
 metadata:
   name: {{ $conf.name }}
   namespace: kube-system
+  labels:
+    daocloud.io.multus/overlay-cni: "true"
+{{- if eq $conf.name $.Values.multus.config.cni_conf.clusterNetwork }}
+    daocloud.io.multus/default-cni: "true"
+{{- end }}
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
-{{- if $conf.default_cni }}
-    daocloud.io.multus/default-cni: {{ $conf.name }}
-{{- end }}
-    daocloud.io.multus/overlay-cni: "true"
 {{- end }}
 {{- end }}
 {{- end }}
@@ -29,9 +30,14 @@ kind: NetworkAttachmentDefinition
 metadata:
   name: {{ template "standalone" . }}
   namespace: kube-system
+  labels:
+    daocloud.io.multus/underlay-cni: "true"
+    daocloud.io.multus/underlay-cni-type: "standalone"
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
-    daocloud.io.multus/underlay-cni: "true"
+{{- if eq .Values.macvlan.type "macvlan-standalone" }}
+    daocloud.io.multus/underlay-cni-status: "enable"
+{{- end }}
     daocloud.io.multus/underlay-cni-vlanId: {{ .Values.macvlan.vlanID | quote }}
 spec:
   config: |-
@@ -69,9 +75,14 @@ kind: NetworkAttachmentDefinition
 metadata:
   name: {{ template "overlay" . }}
   namespace: kube-system
+  labels:
+    daocloud.io.multus/underlay-cni: "true"
+    daocloud.io.multus/underlay-cni-type: "overlay"
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
-    daocloud.io.multus/underlay-cni: "true"
+{{- if eq .Values.macvlan.type "macvlan-overlay" }}
+    daocloud.io.multus/underlay-cni-status: "enable"
+{{- end }}
     daocloud.io.multus/underlay-cni-vlanId: {{ .Values.macvlan.vlanID | quote }}
 spec:
   config: |-
@@ -119,9 +130,14 @@ kind: NetworkAttachmentDefinition
 metadata:
   name: {{ template "sriov_standalone" . }}
   namespace: kube-system
+  labels:
+    daocloud.io.multus/underlay-cni: "true"
+    daocloud.io.multus/underlay-cni-type: "standalone"
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
-    daocloud.io.multus/underlay-cni: "true"
+{{- if eq .Values.macvlan.type "macvlan-standalone" }}
+    daocloud.io.multus/underlay-cni-status: "enable"
+{{- end }}
     daocloud.io.multus/underlay-cni-vlanId: {{ .Values.sriov.sriov_crd.vlanID | quote }}
     k8s.v1.cni.cncf.io/resourceName: {{ required ".Values.sriov.sriov_crd.resourceName must be defined when .Values.sriov.manifests.enable == true" .Values.sriov.sriov_crd.resourceName }}
 spec:
@@ -159,9 +175,14 @@ kind: NetworkAttachmentDefinition
 metadata:
   name: {{ template "sriov_overlay" . }}
   namespace: kube-system
+  labels:
+    daocloud.io.multus/underlay-cni: "true"
+    daocloud.io.multus/underlay-cni-type: "overlay"
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
-    daocloud.io.multus/underlay-cni: "true"
+{{- if eq .Values.macvlan.type "macvlan-overlay" }}
+    daocloud.io.multus/underlay-cni-status: "enable"
+{{- end }}
     daocloud.io.multus/underlay-cni-vlanId: {{ .Values.sriov.sriov_crd.vlanID | quote }}
     k8s.v1.cni.cncf.io/resourceName: {{ required ".Values.sriov.sriov_crd.resourceName must be defined when .Values.sriov.manifests.enable == true" .Values.sriov.sriov_crd.resourceName }}
 spec:
