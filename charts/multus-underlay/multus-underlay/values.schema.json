@@ -17,11 +17,12 @@
                                 "clusterNetwork": {
                                     "type": "string",
                                     "title": "Default CNI",
-                                    "description": "Notice: make sure the selected CNI has been installed in the cluster",
+                                    "description": "Notice: make sure the selected CNI has been installed in the cluster, The given value for \"Default CNI\" should match the value for name key in the config file (e.g. \"name\": \"k8s-pod-network\" in \"/etc/cni/net.d/10-calico.conflist\" )",
                                     "default": "calico",
                                     "enum": [
                                         "calico",
-                                        "cilium"
+                                        "cilium",
+                                        "k8s-pod-network"
                                     ]
                                 }
                             }
@@ -44,7 +45,7 @@
         "overlay_subnet": {
             "type": "object",
             "title": "Cluster Network CIDR",
-            "description": "Configure the cluster network CIDR, Including service-CIDR and pod-CIDR.",
+            "description": "Configure the cluster network CIDR, Including service-CIDR and pod-CIDR(NOTE: This needs to be consistent with the CIDR of the services and pods in the cluster).",
             "properties": {
                 "service_subnet": {
                     "type": "object",

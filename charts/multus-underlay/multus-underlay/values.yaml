@@ -47,15 +47,13 @@ multus:
       delegates: []
       systemNamespaces: ["kube-system"]
 
-crd_conf:
+overlay_crds:
   calico:
     name: calico
     enable: true
-    default_cni: true
   cilium:
     name: cilium
     enable: true
-    default_cni: false
 
 overlay_subnet:
   service_subnet:
