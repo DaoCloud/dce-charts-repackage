@@ -17,6 +17,7 @@ f5-bigip-ctlr:
     # node-poll_interval:
     log_level: DEBUG
 
+    # bug: pod health check fails if enabled
     enable-ipv6: false
 
     default_ingress_ip: ""
