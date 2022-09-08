@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "default": {},
+  "title": "Falco",
+  "properties": {
+    "falco":{
+      "type": "object",
+      "title": " ",
+      "properties": {
+        "image": {
+          "type": "object",
+          "default": {},
+          "title": "Image Settings",
+          "properties": {
+            "registry": {
+              "type": "string",
+              "default": "",
+              "title": "Registry"
+            },
+            "repository": {
+              "type": "string",
+              "default": "",
+              "title": "Repository"
+            }
+          }
+        },
+        "driver": {
+          "type": "object",
+          "default": {},
+          "title": "Falco Driver",
+          "properties": {
+            "loader": {
+              "type": "object",
+              "default": {},
+              "title": " ",
+              "properties": {
+                "initContainer": {
+                  "type": "object",
+                  "default": {},
+                  "title": "InitContainer Settings",
+                  "properties": {
+                    "image": {
+                      "type": "object",
+                      "default": {},
+                      "title": "Image Settings",
+                      "properties": {
+                        "registry": {
+                          "type": "string",
+                          "default": "",
+                          "title": "Registry"
+                        },
+                        "repository": {
+                          "type": "string",
+                          "default": "",
+                          "title": "Repository"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "kind": {
+              "type": "string",
+              "default": "",
+              "title": "Driver Kind",
+              "enum": [
+                "ebpf",
+                "module"
+              ],
+              "description": "(1) ebpf kind, uses ebpf to detect event, which require the Linux kernel support ebpf, and CONFIG_BPF_JIT enabled and sysctl net.core.bpf_jit_enable=1. (2) Module kind, use kernel module to detect, which support limited os version referring to https://download.falco.org/?prefix=driver"
+            }
+          }
+        },
+        "falco": {
+          "type": "object",
+          "default": {},
+          "title": " ",
+          "properties": {
+            "log_level": {
+              "type": "string",
+              "default": "",
+              "title": "Log Level",
+              "enum": [
+                "emergency",
+                "alert",
+                "critical",
+                "error",
+                "warning",
+                "notice",
+                "info",
+                "debug"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
