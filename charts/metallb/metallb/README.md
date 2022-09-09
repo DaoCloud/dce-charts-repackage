@@ -41,7 +41,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 ### Quick Install
 
 ```shell
-helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
+helm repo add daocloud-system https://release.daocloud.io/chartrepo/system
 helm install metallb daocloud-system/metallb  -n kube-system
 ```
 

@@ -11,7 +11,7 @@ Contour is an open source Kubernetes ingress controller that works by deploying 
 ## Install
 
 ```shell
-helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
+helm repo add daocloud-system https://release.daocloud.io/chartrepo/system
 helm install contour -f values.yml daocloud-system/contour
 helm ls
 ```
