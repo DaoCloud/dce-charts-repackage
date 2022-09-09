@@ -23,26 +23,25 @@ set -x
 # the kernel of github ubuntu is too high , falco miss driver
 exit 0
 
-if helm get manifest -n kube-system falco --kubeconfig ${KIND_KUBECONFIG} &>/dev/null ; then
-    echo "falco has been tested by falco-exporter"
-    kubectl --kubeconfig ${KIND_KUBECONFIG} get pod -o wide -A
-    exit 0
+
+if ! helm get manifest -n kube-system falco --kubeconfig ${KIND_KUBECONFIG} &>/dev/null ; then
+  ${CURRENT_DIR_PATH}/../falco/install.sh  "${CHART_DIR}/../../falco/falco" "${KIND_KUBECONFIG}"
+  if (($?!=0)) ; then
+    echo "failed to deploy falco"
+    exit 1
+  fi
 fi
 
-helm install falco ${CHART_DIR}  ${HELM_MUST_OPTION} --namespace kube-system  \
-  --set falco.driver.kind=module
+# deploy the spiderpool
+helm install falco-exporter ${CHART_DIR}  ${HELM_MUST_OPTION} --namespace kube-system
+
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
-  kubectl --kubeconfig ${KIND_KUBECONFIG} get pod -o wide -A
-  kubectl --kubeconfig ${KIND_KUBECONFIG} logs -n kube-system   daemonset/falco -c falco-driver-loader
-
   exit 0
 else
   echo "error, faild to deploy $CHART_DIR"
-
-  kubectl --kubeconfig ${KIND_KUBECONFIG} get pod -o wide -A
-  kubectl --kubeconfig ${KIND_KUBECONFIG} logs -n kube-system   daemonset/falco -c falco-driver-loader
+    kubectl --kubeconfig ${KIND_KUBECONFIG} get pod -o wide -A
 
   exit 1
 fi

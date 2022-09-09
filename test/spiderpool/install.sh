@@ -42,5 +42,7 @@ if (($?==0)) ; then
   exit 0
 else
   echo "error, faild to deploy $CHART_DIR"
+    kubectl --kubeconfig ${KIND_KUBECONFIG} get pod -o wide -A
+
   exit 1
 fi
