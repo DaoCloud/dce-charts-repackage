@@ -16,5 +16,7 @@ echo "keywords:" >> Chart.yaml
 echo "- monitoring" >> Chart.yaml
 echo "- security" >> Chart.yaml
 
+sed -i -E 's?^name: event-generator?name: falco-event-generator?' Chart.yaml
+
 sed -i 's?falcosecurity/event-generator?docker.m.daocloud.io/falcosecurity/event-generator?' values.yaml
 
