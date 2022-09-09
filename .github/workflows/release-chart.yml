@@ -115,6 +115,7 @@ jobs:
         run: |
           ROOT_DIR=`pwd`
           cd _upload
+          set -x
           for ITEM in ${{ steps.package.outputs.project_list }} ; do
               DAO_PROJECT=` grep "DAOCLOUD_REPO_PROJECT" ${ROOT_DIR}/charts/${ITEM}/config | awk -F= '{print $2}' | tr -d ' ' `
               [ -z "$DAO_PROJECT" ] && echo "error, failed to find DAOCLOUD_REPO_PROJECT config in charts/${ITEM}/config " && exit 1

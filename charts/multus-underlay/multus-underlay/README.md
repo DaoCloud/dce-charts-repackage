@@ -140,14 +140,14 @@ refer to as your "default CNI" (a network interface that every pod will be creat
 ### Quick Start
 
 ```shell
-helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
+helm repo add daocloud-system https://release.daocloud.io/chartrepo/system
 helm install multus-underlay daocloud-system/multus-underlay -n kube-system
 ````
 
 #### Calico as the default CNI
 
 ```shell
-helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
+helm repo add daocloud-system https://release.daocloud.io/chartrepo/system
 helm install multus-underlay daocloud-system/multus-underlay -n kube-system \
 --set multus.config.cni_conf.clusterNetwork="calico" 
 ```
@@ -157,7 +157,7 @@ helm install multus-underlay daocloud-system/multus-underlay -n kube-system \
 #### Cilium as the default CNI
 
 ```shell
-helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
+helm repo add daocloud-system https://release.daocloud.io/chartrepo/system
 helm install multus-underlay daocloud-system/multus-underlay -n kube-system \
 --set multus.config.cni_conf.clusterNetwork=cilium \
 ```
@@ -191,7 +191,7 @@ helm install multus-underlay daocloud-system/multus-underlay -n kube-system \
 By default, SRIOV not to be installed. You can install SRIOV by following command:
 
 ```shell
-helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
+helm repo add daocloud-system https://release.daocloud.io/chartrepo/system
 helm install multus-underlay daocloud-system/multus-underlay \
 --set sriov.manifests.enable=true \
 -n kube-system

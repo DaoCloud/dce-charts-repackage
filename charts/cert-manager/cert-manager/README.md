@@ -10,7 +10,7 @@ It will ensure certificates are valid and up to date periodically, and attempt t
 ## Install
 
 ```shell
-helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
+helm repo add daocloud-system https://release.daocloud.io/chartrepo/system
 helm install cert-manager daocloud-system/cert-manager
 helm ls
 ```

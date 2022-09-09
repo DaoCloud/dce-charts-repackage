@@ -9,7 +9,7 @@
 默认不安装任何的资源，需要指定打开。其中除了ServiceMonitor需要在所有的集群都安装外，其余只需在管理集群安装。
 
 ```
-helm repo add daocloud-system https://release.daocloud.io/chartrepo/daocloud-system
+helm repo add daocloud-system https://release.daocloud.io/chartrepo/system
 helm install coredns -f values.yml daocloud-system/coredns-metrics
 helm ls
 ```
