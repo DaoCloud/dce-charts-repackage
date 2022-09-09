@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "default": {},
+  "title": "Event Generator For Testing Falco",
+  "properties": {
+    "event-generator": {
+      "type": "object",
+      "default": {},
+      "title": "Deployment Settings",
+      "properties": {
+        "replicasCount": {
+          "type": "integer",
+          "default": 0,
+          "title": "Replicas Count"
+        },
+        "image": {
+          "type": "object",
+          "default": {},
+          "title": "Image Settings",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "default": "",
+              "title": "Repository"
+            }
+          }
+        }
+      }
+    }
+  }
+}
