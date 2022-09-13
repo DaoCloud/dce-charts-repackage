@@ -1,0 +1,59 @@
+name: Chart values override check
+
+on:
+  push:
+    branches:
+      - main
+      - release-*
+    paths:
+      - '**.yml'
+      - '**.yaml'
+  pull_request:
+    branches:
+      - main
+      - release-*
+      - gh-pages
+    paths:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Check all for branch, sha, tag'
+        required: true
+        default: main
+
+jobs:
+  chart-override-check:
+    name: Chart values override check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.ref }}
+
+      - name: Checkout
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: actions/checkout@v3
+
+      - name: "Setup go"
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.19'
+
+      - name: "Chart override check"
+        run: |
+          cd cmd/chart-override-check
+          go mod tidy
+          go build -o chart-override-check main.go
+          mv chart-override-check /usr/local/bin
+          cd ../..
+          chart-override-check -path charts/contour/contour
+          chart-override-check -path charts/ingress-nginx/ingress-nginx
+          chart-override-check -path charts/cert-manager/cert-manager --skipCPath charts/cert-manager/skipConfig.yaml
+          chart-override-check -path charts/metallb/metallb
+          chart-override-check -path charts/falco/falco
+          chart-override-check -path charts/spiderpool/spiderpool

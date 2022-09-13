@@ -7,7 +7,7 @@ ingress-nginx:
         enabled: false
         additionalLabels:
           operator.insight.io/managed-by: insight
-    resources:
+    resources: {}
     service:
       ipFamilyPolicy: "SingleStack"
       type: "LoadBalancer"
