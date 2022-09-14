@@ -38,7 +38,7 @@ init-kind: checkBin clean
 	[ -f $(KIND_CONFIG_PATH) ] || { echo "error, miss file KIND_CONFIG_PATH=$(KIND_CONFIG_PATH)" ; exit 1 ; }
 	- sysctl -w net.ipv6.conf.all.disable_ipv6=0 || true
 	- sysctl -w fs.inotify.max_user_watches=524288 || true
-	- sysctl -w fs.inotify.max_user_instances=512  || true
+	- sysctl -w fs.inotify.max_user_instances=8192  || true
 	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH) --kubeconfig $(KIND_KUBECONFIG)
 	- kubectl --kubeconfig $(KIND_KUBECONFIG) taint nodes --all node-role.kubernetes.io/master- || true
 	- kubectl --kubeconfig $(KIND_KUBECONFIG) taint nodes --all node-role.kubernetes.io/control-plane- || true
