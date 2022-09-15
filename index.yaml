@@ -3,7 +3,7 @@ entries:
   cert-manager:
   - apiVersion: v2
     appVersion: v1.9.1
-    created: "2022-09-09T16:31:32.873647156Z"
+    created: "2022-09-15T05:34:17.513649139Z"
     dependencies:
     - name: cert-manager
       repository: https://charts.jetstack.io
@@ -21,7 +21,7 @@ entries:
   contour:
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2022-09-09T16:31:32.89406862Z"
+    created: "2022-09-15T05:34:17.543590732Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -39,7 +39,7 @@ entries:
     version: 9.1.1
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2022-09-09T16:31:32.88663876Z"
+    created: "2022-09-15T05:34:17.534756234Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -54,7 +54,7 @@ entries:
     version: 9.0.3
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2022-09-09T16:31:32.881049516Z"
+    created: "2022-09-15T05:34:17.527830736Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -70,7 +70,7 @@ entries:
   coredns-metrics:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-09-09T16:31:32.894651025Z"
+    created: "2022-09-15T05:34:17.544210532Z"
     description: A Helm chart for Kubernetes
     digest: 5f89f62fae002ddece7984cf1c0d641627d1ca2c3f9d08f040fb6f0535fc8fa1
     keywords:
@@ -84,7 +84,7 @@ entries:
   f5networks:
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2022-09-09T16:31:32.895787534Z"
+    created: "2022-09-15T05:34:17.545436732Z"
     dependencies:
     - name: f5-bigip-ctlr
       repository: https://f5networks.github.io/charts/stable
@@ -106,7 +106,7 @@ entries:
   falco:
   - apiVersion: v2
     appVersion: 0.32.2
-    created: "2022-09-09T16:31:32.901648081Z"
+    created: "2022-09-15T05:34:17.560224728Z"
     dependencies:
     - name: falco
       repository: https://falcosecurity.github.io/charts
@@ -134,7 +134,7 @@ entries:
   falco-event-generator:
   - apiVersion: v2
     appVersion: 0.9.0
-    created: "2022-09-09T16:31:32.902341086Z"
+    created: "2022-09-15T05:34:17.560937728Z"
     dependencies:
     - name: event-generator
       repository: https://falcosecurity.github.io/charts
@@ -152,7 +152,7 @@ entries:
   falco-exporter:
   - apiVersion: v2
     appVersion: 0.7.0
-    created: "2022-09-09T16:31:32.903892999Z"
+    created: "2022-09-15T05:34:17.562241828Z"
     dependencies:
     - name: falco-exporter
       repository: https://falcosecurity.github.io/charts
@@ -179,7 +179,7 @@ entries:
   ingress-nginx:
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2022-09-09T16:31:32.912094764Z"
+    created: "2022-09-15T05:34:17.574267925Z"
     dependencies:
     - name: ingress-nginx
       repository: https://kubernetes.github.io/ingress-nginx
@@ -199,7 +199,7 @@ entries:
     version: 4.2.1
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2022-09-09T16:31:32.908412635Z"
+    created: "2022-09-15T05:34:17.566769727Z"
     dependencies:
     - name: ingress-nginx
       repository: https://kubernetes.github.io/ingress-nginx
@@ -220,7 +220,7 @@ entries:
   metallb:
   - apiVersion: v2
     appVersion: 0.13.5
-    created: "2022-09-09T16:31:32.917097304Z"
+    created: "2022-09-15T05:34:17.589207522Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
@@ -239,7 +239,7 @@ entries:
     version: 0.13.5
   - apiVersion: v2
     appVersion: 0.13.4
-    created: "2022-09-09T16:31:32.914421183Z"
+    created: "2022-09-15T05:34:17.579050624Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
@@ -256,7 +256,7 @@ entries:
   multus:
   - apiVersion: v2
     appVersion: v3.9
-    created: "2022-09-09T16:31:32.933526336Z"
+    created: "2022-09-15T05:34:17.59749452Z"
     dependencies:
     - name: plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -272,7 +272,7 @@ entries:
   multus-underlay:
   - apiVersion: v2
     appVersion: v3.9
-    created: "2022-09-09T16:31:32.932214526Z"
+    created: "2022-09-15T05:34:17.59615232Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -287,7 +287,7 @@ entries:
     version: v3.9
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2022-09-09T16:31:32.929983508Z"
+    created: "2022-09-15T05:34:17.59385032Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -300,7 +300,7 @@ entries:
       version: 0.1.1
     description: Multi-cni enables attaching multiple network interfaces to pods in
       Kubernetes. Including multus and veth-plugin.
-    digest: 456711f3ed8ee3b3b08daae7b2fee44c79b226db4ef750d236d0cd1faf9cda02
+    digest: 50122a2a29382908b2d5201f8413c0a77248a970d631c931c53b2ef32328d28d
     keywords:
     - networking
     name: multus-underlay
@@ -310,7 +310,7 @@ entries:
     version: v0.1.1
   - apiVersion: v2
     appVersion: v0.1.0
-    created: "2022-09-09T16:31:32.927662689Z"
+    created: "2022-09-15T05:34:17.591558221Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -326,7 +326,7 @@ entries:
   spiderpool:
   - apiVersion: v2
     appVersion: v0.1.3
-    created: "2022-09-09T16:31:32.969789027Z"
+    created: "2022-09-15T05:34:17.651655507Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -351,7 +351,7 @@ entries:
     version: v0.1.3
   - apiVersion: v2
     appVersion: v0.1.2
-    created: "2022-09-09T16:31:32.965551393Z"
+    created: "2022-09-15T05:34:17.647051008Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -375,7 +375,7 @@ entries:
     version: v0.1.2
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2022-09-09T16:31:32.959974248Z"
+    created: "2022-09-15T05:34:17.63635231Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -399,7 +399,7 @@ entries:
     version: v0.1.1
   - apiVersion: v2
     appVersion: v0.1.0
-    created: "2022-09-09T16:31:32.956382719Z"
+    created: "2022-09-15T05:34:17.632455811Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -423,7 +423,7 @@ entries:
     version: v0.1.0
   - apiVersion: v2
     appVersion: v0.0.11
-    created: "2022-09-09T16:31:32.942377207Z"
+    created: "2022-09-15T05:34:17.612688116Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -447,7 +447,7 @@ entries:
     version: v0.0.11
   - apiVersion: v2
     appVersion: v0.0.10
-    created: "2022-09-09T16:31:32.938713778Z"
+    created: "2022-09-15T05:34:17.608720517Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -471,7 +471,7 @@ entries:
     version: v0.0.10
   - apiVersion: v2
     appVersion: v0.0.9
-    created: "2022-09-09T16:31:32.95270329Z"
+    created: "2022-09-15T05:34:17.628585912Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -495,7 +495,7 @@ entries:
     version: v0.0.9
   - apiVersion: v2
     appVersion: v0.0.8
-    created: "2022-09-09T16:31:32.948350455Z"
+    created: "2022-09-15T05:34:17.623784513Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -519,7 +519,7 @@ entries:
     version: v0.0.8
   - apiVersion: v2
     appVersion: v0.0.6
-    created: "2022-09-09T16:31:32.94521143Z"
+    created: "2022-09-15T05:34:17.615694115Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -544,7 +544,7 @@ entries:
   veth:
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2022-09-09T16:31:32.970114929Z"
+    created: "2022-09-15T05:34:17.651998907Z"
     description: Veth works with macvlan cni to solve some communication problems
       when macvlan is used as CNI.
     digest: e532a68813205bdf899ff60ce100b5c80b27b4dee2c5e05bd85c512c70735af4
@@ -557,4 +557,4 @@ entries:
     urls:
     - https://DaoCloud.github.io/network-charts-repackage/veth-v0.1.1.tgz
     version: v0.1.1
-generated: "2022-09-09T16:31:32.86915882Z"
+generated: "2022-09-15T05:34:17.50965954Z"
