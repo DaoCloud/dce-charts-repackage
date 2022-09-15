@@ -27,11 +27,17 @@ jobs:
           done
           exit 0
 
+
   check_change:
     runs-on: ubuntu-latest
     outputs:
       project: ${{ steps.check_change.outputs.changed_project }}
     steps:
+      - name: "Setup go"
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.19'
+
       - name: Checkout code
         uses: actions/checkout@v3
         with:
@@ -56,7 +62,7 @@ jobs:
           if [ -n "$test_dir_changed" ] ; then
               # add spiderppool for testing test changes
               charts_changed=` echo "$charts_changed spiderpool" | tr -s ' ' | tr ' ' '\n' | sort | uniq | tr '\n' ' ' || true`
-              echo "detect test changrs, add spiderpool, charts_changed: $charts_changed"
+              echo "detect test changes, add spiderpool, charts_changed: $charts_changed"
           fi
           charts_changed=` echo $charts_changed `
           RES=""
@@ -66,6 +72,12 @@ jobs:
             fi
           done
           echo ::set-output name=changed_project::${RES}
+
+      - name: check chart override
+        run: |
+          for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
+              go run ./cmd/chart-override-check/main.go -path charts/${PROJECT}/${PROJECT}
+          done
 
   call_e2e:
     uses: ./.github/workflows/call-e2e.yml
