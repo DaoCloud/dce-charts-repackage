@@ -75,8 +75,10 @@ jobs:
 
       - name: check chart override
         run: |
+          BASE=$(PWD)
+          cd cmd/chart-override-check
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
-              go run ./cmd/chart-override-check/main.go -path charts/${PROJECT}/${PROJECT}
+              go run main.go -path ${BASE}/charts/${PROJECT}/${PROJECT}
           done
 
   call_e2e:
