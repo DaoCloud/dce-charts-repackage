@@ -54,6 +54,9 @@ overlay_crds:
   cilium:
     name: cilium
     enable: true
+  k8s-pod-network:
+    name: k8s-pod-network
+    enable: true
 
 overlay_subnet:
   service_subnet:
@@ -120,48 +123,16 @@ sriov:
       configVolume: "/etc/pcidp/"
       deviceInfoPath: "/var/run/k8s.cni.cncf.io/devinfo/dp"
     sriov_device_plugin:
-      resourceList:
-      - resourceName: intel_sriov_netdevice
-        selectors:
-          vendors:
-          - '8086'
-          devices:
-          - "154c"
-          - "10ed"
-          - "1889"
-          drivers:
-          - i40evf
-          - ixgbevf
-          - iavf
-      - resourceName: intel_sriov_dpdk
-        selectors:
-          vendors:
-          - '8086'
-          devices:
-          - "154c"
-          - "10ed"
-          - "1889"
-          drivers:
-          - vfio-pci
-          pfNames:
-          - enp67s0f1#8-31
-          - enp68s0f0#8-31
-      - resourceName: mlnx_sriov_rdma
-        isRdma: true
-        selectors:
-          vendors:
-          - 15b3
-          devices:
-          - '1018'
-          drivers:
-          - mlx5_ib
-          - mlx5_core
+      name: sriov_netdevice
+      vendors: []
+      devices: []
+      drivers: []
+      pfNames: []
 
   sriov_crd:
-    resourceName: ""
     type: sriov-overlay
     name: sriov-vlan0
-    vlanID: 0
+    vlanId: 0
     hijack_overlay_reponse: true
     overlayInterface: eth0
     custom_route: []
@@ -181,4 +152,4 @@ sriov:
 meta-plugins:
   image:
     repository: ghcr.m.daocloud.io/spidernet-io/cni-plugins/meta-plugins
-    tag: "v0.1.5"
+    tag: ""

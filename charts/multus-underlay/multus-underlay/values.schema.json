@@ -174,11 +174,6 @@
                     "type": "object",
                     "title": "SRIOV Multus-CRs Configuration",
                     "properties": {
-                        "resourceName": {
-                            "type": "string",
-                            "title": "Resource Name",
-                            "description": "You must be provide resourceName when Sriov-CNI enabled(just like \"intel.com/mlnx_sriov_rdma\"). Multus require specific device information which maybe pre-allocated by K8s device plugin. This could be indicated by providing `k8s.v1.cni.cncf.io/resourceName` annotation in its network attachment definition CRD"
-                        },
                         "type": {
                             "type": "string",
                             "title": "SRIOV Type",
@@ -186,20 +181,66 @@
                             "default": "sriov-overlay",
                             "enum": [
                                 "sriov-overlay",
-                                "sriov-standalone"
+                                "sriov-standalone",
+                                "sriov-dpdk"
                             ]
                         },
                         "name": {
                             "type": "string",
                             "title": "Multus CR Name"
                         },
-                        "vlanID": {
+                        "vlanId": {
                             "type": "integer",
-                            "title": "Vlan ID",
+                            "title": "Vlan Id",
                             "description": "what vlan sriov interface belongs to. Optionally, default is 0.",
                             "default": 0,
                             "minimum": 0,
                             "maximum": 4094
+                        }
+                    }
+                },
+                "config": {
+                    "type": "object",
+                    "title": "SRIOV Device Plugin Configuration",
+                    "properties": {
+                        "sriov_device_plugin": {
+                            "type": "object",
+                            "properties": {
+                                "sriov_netdevice": {
+                                    "type": "object",
+                                    "title": "SRIOV Net-Device Setting",
+                                    "properties": {
+                                        "vendors": {
+                                            "type": "array",
+                                            "description": "Target device's vendor Hex code as string, each item input format like '8086'",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "devices": {
+                                            "type": "array",
+                                            "description": "Target Devices' device Hex code as string,each item input format like '154c'",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "drivers": {
+                                            "type": "array",
+                                            "description": "Target device driver names as string,each item input format like 'mlx5_core'",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "pfNames": {
+                                            "type": "array",
+                                            "description": "VFs from PF matches list of PF names",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
