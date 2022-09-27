@@ -1,15 +1,16 @@
 apiVersion: v2
 description: Deploy the F5 Networks BIG-IP Controller for Kubernetes and OpenShift
 name: f5networks
-version: 0.1.0
-appVersion: "0.1.0"
+version: 0.2.0
+appVersion: "0.2.0"
 dependencies:
   - name: f5-bigip-ctlr
     repository: https://f5networks.github.io/charts/stable
-    version: 0.0.21
+    version: 0.0.22
   - name: f5-ipam-controller
     repository: https://f5networks.github.io/f5-ipam-controller/helm-charts/stable
-    version: 0.0.1
+    version: 0.0.2
+    condition: f5-bigip-ctlr.ingressClass.create
 keywords:
   - networking
   - loadbalancer

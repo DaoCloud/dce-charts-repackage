@@ -50,17 +50,38 @@ image:
 #       - matchExpressions:
 #         - key: kubernetes.io/arch
 #           operator: Exists
-# securityContext:
-#   runAsUser: 1000
-#   runAsGroup: 3000
-#   fsGroup: 2000
+
+securityContext:
+  runAsUser: 0
+  runAsGroup: 1000
+  fsGroup: 1000
+
 # If you want to specify resources, uncomment the following
 # limits_cpu: 100m
 # limits_memory: 512Mi
 # requests_cpu: 100m
 # requests_memory: 512Mi
 
+pvc:
+  # set create tag to true to create new persistent volume claim and set storageClassName,accessMode and storage
+  create: false
+
+  #name of the  persistent volume claim to be used
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+  #if create set to false below parameters will be ignored
+  storageClassName:
+  accessMode: ReadWriteOnce
+  storage:
+
 volume:
   mountPath: /app/ipamdb
   mountName: fic-volume-mount
-  pvc: fic-volume-claim
+
+# To enable tolerations, uncomment below block and customize key,effect,operator.
+# Below is just an example and different key,value and operators are also supported
+#tolerations:
+#  - key: "node-role.kubernetes.io/master"
+#    effect: "NoSchedule"
+#    operator: "Exists"

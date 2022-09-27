@@ -15,7 +15,8 @@ f5-bigip-ctlr:
     # OPTIONAL PARAMS -- uncomment and provide values for those you wish to use.
     # verify_interval:
     # node-poll_interval:
-    log_level: DEBUG
+
+    #log_level: DEBUG
 
     # bug: pod health check fails if enabled
     enable-ipv6: false
@@ -30,15 +31,21 @@ f5-bigip-ctlr:
     log-as3-response: true
     ipam : true
 
+    node_label_selector: "node-role=f5nodeport"
+
   image:
     user: docker.m.daocloud.io/f5networks
     repo: k8s-bigip-ctlr
     pullPolicy: IfNotPresent
 
   # k8s-bigip-ctlr version
-  version: 2.9.1
+  version: 2.10.0
 
 f5-ipam-controller:
+
+  rbac:
+    create: true
+
   namespace: kube-system
   args:
     orchestration: "kubernetes"
@@ -48,21 +55,26 @@ f5-ipam-controller:
     ip_range: '{"f5ippool":"172.16.1.1-172.16.1.5"}'
 
     # OPTIONAL PARAMS -- uncomment and provide values for those you wish to use.
-    log-level: DEBUG
+    log_level: DEBUG
 
   image:
     # Use the tag to target a specific version of the Controller
     user: 'docker.m.daocloud.io/f5networks'
     repo: f5-ipam-controller
     pullPolicy: IfNotPresent
-    version: 0.1.5
+    version: 0.1.8
 
-  volume:
-    pvc: "f5"
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 1000
+    fsGroup: 1000
 
-ipam-pvc:
-  storageClassName: ""
-  volumesize: "100Mi"
+  pvc:
+    create: true
+    name: "f5"
+    storageClassName: ""
+    accessMode: ReadWriteOnce
+    storage: "100Mi"
 
 cis-secret:
   username: "admin"

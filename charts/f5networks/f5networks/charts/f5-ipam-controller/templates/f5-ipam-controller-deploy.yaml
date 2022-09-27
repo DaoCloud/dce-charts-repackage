@@ -42,24 +42,9 @@ spec:
       {{- end }}
 {{- end }}
       securityContext:
-        {{- $securityContext := .Values.securityContext | default dict }}
-        {{- if $securityContext.runAsUser }}
-        runAsUser: {{ $securityContext.runAsUser }}
-        {{- else }}
-          runAsUser: 1000
-        {{- end }}
-        {{- $securityContext := .Values.securityContext | default dict }}
-        {{- if $securityContext.runAsGroup }}
-        runAsGroup: {{ $securityContext.runAsGroup }}
-        {{- else }}
-          runAsGroup: 1000
-        {{- end }}
-        {{- $securityContext := .Values.securityContext | default dict }}
-        {{- if $securityContext.fsGroup }}
-        fsGroup: {{ $securityContext.fsGroup }}
-        {{- else }}
-          fsGroup: 1000
-        {{- end }}
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
       containers:
       - name: {{ template "f5-ipam-controller.name" . }}
         image: "{{ .Values.image.user }}/{{ .Values.image.repo }}:{{ .Values.image.version }}"
@@ -82,7 +67,8 @@ spec:
         - --infoblox-wapi-version={{ .Values.args.infoblox_wapi_version }}
         - --infoblox-username={{ .Values.args.infoblox_username }}
         - --infoblox-password={{ .Values.args.infoblox_password }}
-        - --infoblox-labels={{ .Values.args.infoblox_labels }}
+        - --infoblox-labels
+        - {{ .Values.args.infoblox_labels | squote }}
         - --infoblox-netview={{ .Values.args.infoblox_netview }}
         {{- end }}
         {{- if .Values.args.infoblox_wapi_port }}
@@ -119,6 +105,6 @@ spec:
       volumes:
       - name: {{ .Values.volume.mountName }}
         persistentVolumeClaim:
-          claimName: {{ .Values.volume.pvc }}
+          claimName: {{ template "f5-ipam-controller.persistentVolumeClaimName" . }}
   {{- end }}
 {{- end }}

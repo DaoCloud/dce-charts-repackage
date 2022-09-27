@@ -51,3 +51,15 @@ Create the name of the service account to use
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+
+
+ {{/*
+Create the name of the Persistent Volume Claim to use
+*/}}
+{{- define "f5-ipam-controller.persistentVolumeClaimName" -}}
+{{- if .Values.pvc.create -}}
+    {{ default (include "f5-ipam-controller.fullname" .) .Values.pvc.name }}
+{{- else -}}
+    {{ default "default" .Values.pvc.name }}
+{{- end -}}
+{{- end -}}
