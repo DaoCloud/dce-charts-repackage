@@ -42,7 +42,7 @@
                 }
             }
         },
-        "overlay_subnet": {
+        "cluster_subnet": {
             "type": "object",
             "title": "Cluster Network CIDR",
             "description": "Configure the cluster network CIDR, Including service-CIDR and pod-CIDR(NOTE: This needs to be consistent with the CIDR of the services and pods in the cluster).",
@@ -64,26 +64,12 @@
                     }
                 },
                 "pod_subnet": {
-                    "type": "object",
+                    "type": "array",
                     "title": "Pod CIDR",
-                    "description": "The POD CIDR of Default CNI (calico or cilium).",
-                    "properties": {
-                        "ipv4": {
-                            "type": "array",
-                            "title": "IPv4 Subnet",
-                            "description": "for each item, input subnet format like '172.17.0.0/16'",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "ipv6": {
-                            "type": "array",
-                            "title": "IPv6 Subnet",
-                            "description": "for each item, input subnet format like 'fd01::/64'",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
+                    "description": "The POD CIDR of Default CNI (calico or cilium). For each item, input subnet format like '172.17.0.0/16' or 'fd01::/64' ",
+                    "items": {
+                        "type": "string",
+                        "title": "Subnet"
                     }
                 }
             }
@@ -133,7 +119,6 @@
             "properties": {
                 "manifests": {
                     "type": "object",
-                    "title": " ",
                     "properties": {
                         "enable": {
                             "title": "Install SRIOV CNI",
@@ -174,11 +159,6 @@
                     "type": "object",
                     "title": "SRIOV Multus-CRs Configuration",
                     "properties": {
-                        "resourceName": {
-                            "type": "string",
-                            "title": "Resource Name",
-                            "description": "You must be provide resourceName when Sriov-CNI enabled(just like \"intel.com/mlnx_sriov_rdma\"). Multus require specific device information which maybe pre-allocated by K8s device plugin. This could be indicated by providing `k8s.v1.cni.cncf.io/resourceName` annotation in its network attachment definition CRD"
-                        },
                         "type": {
                             "type": "string",
                             "title": "SRIOV Type",
@@ -186,20 +166,60 @@
                             "default": "sriov-overlay",
                             "enum": [
                                 "sriov-overlay",
-                                "sriov-standalone"
+                                "sriov-standalone",
+                                "sriov-dpdk"
                             ]
                         },
                         "name": {
                             "type": "string",
-                            "title": "Multus CR Name"
+                            "title": "SRIOV CR Name"
                         },
-                        "vlanID": {
+                        "vlanId": {
                             "type": "integer",
-                            "title": "Vlan ID",
+                            "title": "Vlan Id",
                             "description": "what vlan sriov interface belongs to. Optionally, default is 0.",
                             "default": 0,
                             "minimum": 0,
                             "maximum": 4094
+                        }
+                    }
+                },
+                "config": {
+                    "type": "object",
+                    "title": "SRIOV Device Plugin Configuration",
+                    "properties": {
+                        "sriov_device_plugin": {
+                            "type": "object",
+                            "properties": {
+                                "vendors": {
+                                    "type": "array",
+                                    "description": "Target device's vendor Hex code as string, each item input format like '8086'",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "devices": {
+                                    "type": "array",
+                                    "description": "Target Devices' device Hex code as string,each item input format like '154c'",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "drivers": {
+                                    "type": "array",
+                                    "description": "Target device driver names as string,each item input format like 'mlx5_core'",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "pfNames": {
+                                    "type": "array",
+                                    "description": "VFs from PF matches list of PF names",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -20,6 +20,8 @@ metadata:
   namespace: kube-system
 data:
   config.json: |-
-{{ toJson .Values.config.sriov_device_plugin | indent 4 }}
+    {
+      "resourceList": [{"resourceName": {{ .Values.config.sriov_device_plugin.name | quote }},"selectors": {"device": {{ toJson .Values.config.sriov_device_plugin.devices }},"vendors": {{ toJson .Values.config.sriov_device_plugin.vendors }},"drivers": {{ toJson .Values.config.sriov_device_plugin.drivers }},"pfNames": {{ toJson .Values.config.sriov_device_plugin.pfNames }}}}]
+    }
 {{- end }}
 {{- end }}
