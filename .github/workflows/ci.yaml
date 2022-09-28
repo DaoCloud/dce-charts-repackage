@@ -78,7 +78,8 @@ jobs:
           BASE=$PWD
           cd cmd/chart-override-check
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
-              go run main.go -path ${BASE}/charts/${PROJECT}/${PROJECT}
+              PROJECT_PATH=${BASE}/charts/${PROJECT}
+              go run main.go -path ${PROJECT_PATH}/${PROJECT} -skipCPath ${PROJECT_PATH}/skip-check.yaml
           done
 
   call_e2e:
