@@ -139,8 +139,14 @@
       "type": "object",
       "default": {},
       "title": "F5-ipam-controller Settings",
-      "description": "IPAM for L4 loadbalancer. when deployed as L7 ingress controller, please ignore all settings for f5-ipam-controller",
+      "description": "IPAM for L4 loadbalancer",
       "properties": {
+        "install": {
+          "type": "boolean",
+          "default": "",
+          "title": "install f5-ipam-controller",
+          "description": "required for L4 loadbalancer. when deployed as L7 ingress controller, no need to install and ignore all other settings for f5-ipam-controller"
+        },
         "image": {
           "type": "object",
           "default": {},
