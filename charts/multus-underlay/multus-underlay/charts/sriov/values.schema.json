@@ -118,39 +118,20 @@
                 "sriov_device_plugin": {
                     "type": "object",
                     "properties": {
-                        "resourceList": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "resourceName": {
-                                        "type": "string"
-                                    },
-                                    "selectors": {
-                                        "type": "object",
-                                        "properties": {
-                                            "devices": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "drivers": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "vendors": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                        "devices": {
+                            "type": "array"
+                        },
+                        "drivers": {
+                            "type": "array"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "pfNames": {
+                            "type": "array"
+                        },
+                        "vendors": {
+                            "type": "array"
                         }
                     }
                 }
@@ -224,12 +205,6 @@
                     "type": "boolean"
                 },
                 "serviceAccount": {
-                    "type": "boolean"
-                },
-                "test_dpdk": {
-                    "type": "boolean"
-                },
-                "test_netdevice": {
                     "type": "boolean"
                 }
             }

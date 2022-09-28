@@ -54,14 +54,15 @@ overlay_crds:
   cilium:
     name: cilium
     enable: true
+  k8s-pod-network:
+    name: k8s-pod-network
+    enable: true
 
-overlay_subnet:
+cluster_subnet:
   service_subnet:
     ipv4: "10.233.0.0/18"
     ipv6: ""
-  pod_subnet:
-    ipv4: ["10.233.64.0/18"]
-    ipv6: []
+  pod_subnet: ["10.233.64.0/18"]
   rp_filter:
     set_host: true
     value: 2
@@ -72,10 +73,11 @@ macvlan:
   name: macvlan-vlan0
   master: "ens192"
   vlanID: 0
-  hijack_overlay_reponse: true
+  migrate_route: -1
   overlayInterface: eth0
   custom_route: []
   skip_call: false
+
 sriov:
   images:
     registry: docker.io
@@ -120,52 +122,20 @@ sriov:
       configVolume: "/etc/pcidp/"
       deviceInfoPath: "/var/run/k8s.cni.cncf.io/devinfo/dp"
     sriov_device_plugin:
-      resourceList:
-      - resourceName: intel_sriov_netdevice
-        selectors:
-          vendors:
-          - '8086'
-          devices:
-          - "154c"
-          - "10ed"
-          - "1889"
-          drivers:
-          - i40evf
-          - ixgbevf
-          - iavf
-      - resourceName: intel_sriov_dpdk
-        selectors:
-          vendors:
-          - '8086'
-          devices:
-          - "154c"
-          - "10ed"
-          - "1889"
-          drivers:
-          - vfio-pci
-          pfNames:
-          - enp67s0f1#8-31
-          - enp68s0f0#8-31
-      - resourceName: mlnx_sriov_rdma
-        isRdma: true
-        selectors:
-          vendors:
-          - 15b3
-          devices:
-          - '1018'
-          drivers:
-          - mlx5_ib
-          - mlx5_core
+      name: sriov_netdevice
+      vendors: ["8086"]
+      devices: ["154c"]
+      drivers: []
+      pfNames: []
 
   sriov_crd:
-    resourceName: ""
     type: sriov-overlay
     name: sriov-vlan0
-    vlanID: 0
-    hijack_overlay_reponse: true
+    vlanId: 0
     overlayInterface: eth0
     custom_route: []
     skip_call: false
+    migrate_route: -1
 
   manifests:
     enable: false
@@ -175,10 +145,8 @@ sriov:
     daemonSet_sriov_cni: true
     net_attach_def_netdev: false
     net_attach_def_dpdk: false
-    test_netdevice: false
-    test_dpdk: false
 
 meta-plugins:
   image:
     repository: ghcr.m.daocloud.io/spidernet-io/cni-plugins/meta-plugins
-    tag: "v0.1.5"
+    tag: ""
