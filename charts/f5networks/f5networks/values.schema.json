@@ -92,7 +92,7 @@
               "type": "string",
               "default": "",
               "title": "Node Label Selector",
-              "description": "select k8s nodes to forward traffic. If leave empty, all nodes will be selected"
+              "description": "select k8s nodes to forward traffic. If set, require to label nodes. If leave empty, all nodes will be selected"
             },
             "pool_member_type": {
               "type": "string",
