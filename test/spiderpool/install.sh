@@ -33,8 +33,9 @@ set -x
 # deploy the spiderpool
 helm install spiderpool ${CHART_DIR}  ${HELM_MUST_OPTION} \
   --namespace kube-system \
-  --set spiderpool.spiderpoolController.tls.method=provided \
-  --set spiderpool.ipFamily.enableIPv4=true --set spiderpool.ipFamily.enableIPv6=true \
+  --set spiderpool.spiderpoolController.tls.method=auto \
+  --set spiderpool.feature.enableSpiderSubnet=true \
+  --set spiderpool.feature.enableIPv4=true --set spiderpool.feature.enableIPv6=true \
   --set spiderpool.clusterDefaultPool.installIPv4IPPool=true  --set spiderpool.clusterDefaultPool.installIPv6IPPool=true  \
   --set spiderpool.clusterDefaultPool.ipv4Subnet=${Ipv4Subnet} --set spiderpool.clusterDefaultPool.ipv4IPRanges={${Ipv4Range}} --set spiderpool.clusterDefaultPool.ipv4Gateway=${Ipv4GW}\
   --set spiderpool.clusterDefaultPool.ipv6Subnet=${Ipv6Subnet} --set spiderpool.clusterDefaultPool.ipv6IPRanges={${Ipv6Range}} --set spiderpool.clusterDefaultPool.ipv6Gateway=${Ipv6GW}

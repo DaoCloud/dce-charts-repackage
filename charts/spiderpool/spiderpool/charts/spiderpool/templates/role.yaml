@@ -12,6 +12,7 @@ rules:
   - namespaces
   - nodes
   - pods
+  - secrets
   verbs:
   - get
   - list
@@ -29,9 +30,33 @@ rules:
   - update
   - watch
 - apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  - validatingwebhookconfigurations
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - apps
   resources:
+  - daemonsets
+  - deployments
+  - replicasets
   - statefulsets
+  verbs:
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  - jobs
   verbs:
   - get
   - list
@@ -97,3 +122,23 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - spiderpool.spidernet.io
+  resources:
+  - spidersubnets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - spiderpool.spidernet.io
+  resources:
+  - spidersubnets/status
+  verbs:
+  - get
+  - patch
+  - update
