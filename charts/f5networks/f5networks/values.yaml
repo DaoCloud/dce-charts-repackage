@@ -2,7 +2,7 @@ f5-bigip-ctlr:
   bigip_login_secret: f5-bigip-ctlr-login
 
   ingressClass:
-    create: true
+    create: false
     ingressClassName: f5
     isDefaultIngressController: true
 

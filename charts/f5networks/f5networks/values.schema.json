@@ -83,7 +83,7 @@
               "description": "when deployed as ingress controller, must set this with external VIP of BigIP, or else leave it empty"
             },
             "custom-resource-mode": {
-              "type": "boolen",
+              "type": "boolean",
               "default": "",
               "title": "Only Watch F5 CRD",
               "description": "when deployed as ingress controller, must disable this, or else enable this"
