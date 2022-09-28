@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"gopkg.in/yaml.v2"
@@ -296,6 +297,9 @@ func BuildValuesKeyList(root string, skipPaths []string, values interface{}) []K
 func GetSkipList(path string) (map[string][]string, error) {
 	res := make(map[string][]string, 0)
 	if path == "" {
+		return res, nil
+	}
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 		return res, nil
 	}
 
