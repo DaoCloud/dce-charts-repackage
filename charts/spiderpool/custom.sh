@@ -61,6 +61,10 @@ REPLACE_BY_COMMENT  " clusterDefaultPool.ipv6IPRanges "  'ipv6IPRanges:.*'  "ipv
 REPLACE_BY_COMMENT  " spiderpoolAgent.debug.logLevel "  'logLevel:.*'  'logLevel: "debug"'
 REPLACE_BY_COMMENT  " spiderpoolController.debug.logLevel "  'logLevel:.*'  'logLevel: "debug"'
 
+echo "keywords:" >> Chart.yaml
+echo "  - networking" >> Chart.yaml
+echo "  - ipam" >> Chart.yaml
+
 exit 0
 
 
