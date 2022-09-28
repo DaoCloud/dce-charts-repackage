@@ -10,7 +10,7 @@ dependencies:
   - name: f5-ipam-controller
     repository: https://f5networks.github.io/f5-ipam-controller/helm-charts/stable
     version: 0.0.2
-    condition: f5-bigip-ctlr.ingressClass.create
+    condition: f5-ipam-controller.install
 keywords:
   - networking
   - loadbalancer
