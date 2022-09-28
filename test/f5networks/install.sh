@@ -25,7 +25,7 @@ helm install f5networks ${CHART_DIR}  ${HELM_MUST_OPTION} \
   --set f5-bigip-ctlr.args.bigip_partition="kubernetes" \
   --set f5-bigip-ctlr.args.pool_member_type=nodeport \
   --set f5-ipam-controller.args.ip_range='"{\"welanipam\":\"10.0.2.100-10.0.2.200\"}"' \
-  --set ipam-pvc.storageClassName="local-path" \
+  --set f5-ipam-controller.pvc.storageClassName="local-path" \
   --set cis-secret.username="admin" \
   --set cis-secret.password="admin"
 
