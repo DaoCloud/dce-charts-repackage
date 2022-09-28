@@ -46,6 +46,9 @@ feature:
   ## @param feature.enableStatefulSet the network mode
   enableStatefulSet: true
 
+  ## @param feature.enableSpiderSubnet SpiderSubnet feature gate.
+  enableSpiderSubnet: false
+
   gc:
     ## @param feature.gc.enabled enable retrieve IP in spiderippool CR
     enabled: true
@@ -72,6 +75,12 @@ clusterDefaultPool:
 
   ## @param clusterDefaultPool.ipv6IPPoolName the name of ipv6 spiderpool instance
   ipv6IPPoolName: "default-v6-ippool"
+
+  ## @param clusterDefaultPool.ipv4SubnetName the name of ipv4 spidersubnet instance
+  ipv4SubnetName: "default-v4-subnet"
+
+  ## @param clusterDefaultPool.ipv6SubnetName the name of ipv6 spidersubnet instance
+  ipv6SubnetName: "default-v6-subnet"
 
   ## @param clusterDefaultPool.ipv4Subnet the subnet of ipv4 spiderpool instance
   ipv4Subnet: ""
@@ -114,7 +123,7 @@ spiderpoolAgent:
     digest: ""
 
     ## @param spiderpoolAgent.image.tag the image tag of spiderpoolAgent, overrides the image tag whose default is the chart appVersion.
-    tag: v0.1.4
+    tag: v0.2.0
 
     ## @param spiderpoolAgent.image.imagePullSecrets the image imagePullSecrets of spiderpoolAgent
     imagePullSecrets: []
@@ -320,7 +329,7 @@ spiderpoolController:
     digest: ""
 
     ## @param spiderpoolController.image.tag the image tag of spiderpoolController, overrides the image tag whose default is the chart appVersion.
-    tag: v0.1.4
+    tag: v0.2.0
 
     ## @param spiderpoolController.image.imagePullSecrets the image imagePullSecrets of spiderpoolController
     imagePullSecrets: []
@@ -509,10 +518,11 @@ spiderpoolController:
 
   ## TLS configuration for webhook
   tls:
-    ## @param spiderpoolController.tls.method the method for generating TLS certificates. [ provided , certmanager ]
+    ## @param spiderpoolController.tls.method the method for generating TLS certificates. [ provided , certmanager , auto]
     ## - provided:     provide all certificates by helm options
     ## - certmanager:  This method use cert-manager to generate & rotate certificates.
-    method: provided
+    ## - auto:         Auto generate cert.
+    method: auto
 
     ## @param spiderpoolController.tls.secretName the secret name for storing TLS certificates
     secretName: "spiderpool-controller-server-certs"
@@ -540,6 +550,19 @@ spiderpoolController:
       tlsKey: ""
       tlsCa: ""
 
+    ## for auto method
+    auto:
+      ## @param spiderpoolController.tls.auto.keyBitLength ca key bit length for auto method
+      keyBitLength: 3072
+
+      ## @param spiderpoolController.tls.auto.caExpiration ca expiration for auto method
+      # in day , default 200 years
+      caExpiration: '73000'
+
+      ## @param spiderpoolController.tls.auto.certExpiration server cert expiration for auto method
+      # in day, default 10 years
+      certExpiration: '3650'
+
 ## @section spiderpoolInit parameters
 ##
 spiderpoolInit:
@@ -566,7 +589,7 @@ spiderpoolInit:
     digest: ""
 
     ## @param spiderpoolInit.image.tag the image tag of spiderpoolInit, overrides the image tag whose default is the chart appVersion.
-    tag: v0.1.4
+    tag: v0.2.0
 
     ## @param spiderpoolInit.image.imagePullSecrets the image imagePullSecrets of spiderpoolInit
     imagePullSecrets: []

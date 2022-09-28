@@ -136,6 +136,7 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `feature.enableIPv6`                      | enable ipv6                                                              | `false`  |
 | `feature.networkMode`                     | the network mode                                                         | `legacy` |
 | `feature.enableStatefulSet`               | the network mode                                                         | `true`   |
+| `feature.enableSpiderSubnet`              | SpiderSubnet feature gate.                                               | `false`  |
 | `feature.gc.enabled`                      | enable retrieve IP in spiderippool CR                                    | `true`   |
 | `feature.gc.GcDeletingTimeOutPod.enabled` | enable retrieve IP for the pod who times out of deleting graceful period | `true`   |
 | `feature.gc.GcDeletingTimeOutPod.delay`   | the gc delay seconds after the pod times out of deleting graceful period | `0`      |
@@ -149,6 +150,8 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `clusterDefaultPool.installIPv6IPPool` | install ipv6 spiderpool instance. It is required to set feature.enableIPv6=true | `false`             |
 | `clusterDefaultPool.ipv4IPPoolName`    | the name of ipv4 spiderpool instance                                            | `default-v4-ippool` |
 | `clusterDefaultPool.ipv6IPPoolName`    | the name of ipv6 spiderpool instance                                            | `default-v6-ippool` |
+| `clusterDefaultPool.ipv4SubnetName`    | the name of ipv4 spidersubnet instance                                          | `default-v4-subnet` |
+| `clusterDefaultPool.ipv6SubnetName`    | the name of ipv6 spidersubnet instance                                          | `default-v6-subnet` |
 | `clusterDefaultPool.ipv4Subnet`        | the subnet of ipv4 spiderpool instance                                          | `""`                |
 | `clusterDefaultPool.ipv6Subnet`        | the subnet of ipv6 spiderpool instance                                          | `""`                |
 | `clusterDefaultPool.ipv4IPRanges`      | the available IP of ipv4 spiderpool instance                                    | `[]`                |
@@ -268,7 +271,7 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `spiderpoolController.prometheus.grafanaDashboard.labels`             | the additional label of spiderpoolController grafanaDashboard                                                                     | `{}`                                            |
 | `spiderpoolController.debug.logLevel`                                 | the log level of spiderpool Controller [debug, info, warn, error, fatal, panic]                                                   | `info`                                          |
 | `spiderpoolController.debug.gopsPort`                                 | the gops port of spiderpool Controller                                                                                            | `5724`                                          |
-| `spiderpoolController.tls.method`                                     | the method for generating TLS certificates. [ provided , certmanager ]                                                            | `provided`                                      |
+| `spiderpoolController.tls.method`                                     | the method for generating TLS certificates. [ provided , certmanager , auto]                                                      | `auto`                                          |
 | `spiderpoolController.tls.secretName`                                 | the secret name for storing TLS certificates                                                                                      | `spiderpool-controller-server-certs`            |
 | `spiderpoolController.tls.certmanager.certValidityDuration`           | generated certificates validity duration in days for 'certmanager' method                                                         | `365`                                           |
 | `spiderpoolController.tls.certmanager.issuerName`                     | issuer name of cert manager 'certmanager'. If not specified, a CA issuer will be created.                                         | `""`                                            |
@@ -277,6 +280,9 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `spiderpoolController.tls.provided.tlsCert`                           | encoded tls certificate for provided method                                                                                       | `""`                                            |
 | `spiderpoolController.tls.provided.tlsKey`                            | encoded tls key for provided method                                                                                               | `""`                                            |
 | `spiderpoolController.tls.provided.tlsCa`                             | encoded tls CA for provided method                                                                                                | `""`                                            |
+| `spiderpoolController.tls.auto.keyBitLength`                          | ca key bit length for auto method                                                                                                 | `3072`                                          |
+| `spiderpoolController.tls.auto.caExpiration`                          | ca expiration for auto method                                                                                                     | `73000`                                         |
+| `spiderpoolController.tls.auto.certExpiration`                        | server cert expiration for auto method                                                                                            | `3650`                                          |
 
 
 ### spiderpoolInit parameters
