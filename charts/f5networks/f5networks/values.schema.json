@@ -8,6 +8,10 @@
       "default": {},
       "title": "f5-bigip-ctlr Settings",
       "properties": {
+        "namespace": {
+          "type": "string",
+          "title": "namespace"
+        },
         "image": {
           "type": "object",
           "default": {},
@@ -58,10 +62,6 @@
               "description": "when deployed as ingress controller, must set, or else ignore this"
             }
           }
-        },
-        "namespace": {
-          "type": "string",
-          "title": "namespace"
         },
         "args": {
           "type": "object",
@@ -147,6 +147,11 @@
           "title": "install f5-ipam-controller",
           "description": "required for L4 loadbalancer. when deployed as L7 ingress controller, no need to install and ignore all other settings for f5-ipam-controller"
         },
+        "namespace": {
+          "type": "string",
+          "default": "",
+          "title": "namespace"
+        },
         "image": {
           "type": "object",
           "default": {},
@@ -171,11 +176,6 @@
               "title": "version"
             }
           }
-        },
-        "namespace": {
-          "type": "string",
-          "default": "",
-          "title": "namespace"
         },
         "args": {
           "type": "object",
