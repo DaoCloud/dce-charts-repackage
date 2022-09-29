@@ -22,11 +22,9 @@ set -x
 # deploy the spiderpool
 helm install multus ${CHART_DIR}  ${HELM_MUST_OPTION} \
   --namespace kube-system \
-  --set sriov.manifests.enanle=true \
-  --set underlay_crds.sriov.resourceName=intel.com/mlnx_sriov_rdma \
-  --set underlay_crds.service_subnet.ipv6=fed0::1/64 \
-  --set underlay_crds.sriov.sriov_standalone.enable=true \
-  --set underlay_crds.sriov.sriov_overlay.enable=true
+  --set sriov.manifests.enable=true \
+  --set sriov.sriov_crd.resourceName=intel.com/mlnx_sriov_rdma \
+  --set overlay_subnet.service_subnet.ipv6=fed0::1/64
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
@@ -38,17 +36,8 @@ fi
 
 kubectl wait --for=condition=ready -l app=multus --timeout=300s pod -n kube-system --kubeconfig ${KIND_KUBECONFIG}
 
-# check veth-bin exsit
 KIND_NODE=`docker ps | grep 'control-plane' | awk '{print $1}'`
-EXIST=`docker exec ${KIND_NODE} ls /opt/cni/bin | grep "veth" `
-if [ -z "${EXIST}" ] ; then
-  echo "veth not to installed successfully"
-  exit 1
-else
-  echo "ls /opt/cni/bin: "
-  docker exec ${KIND_NODE} ls /opt/cni/bin
-  exit 0
-fi
+EXIST=`docker exec ${KIND_NODE} ls /opt/cni/bin `
 
 kubectl get po -n kube-system --kubeconfig ${KIND_KUBECONFIG}
 kubectl get network-attachment-definitions.k8s.cni.cncf.io -A --kubeconfig ${KIND_KUBECONFIG}

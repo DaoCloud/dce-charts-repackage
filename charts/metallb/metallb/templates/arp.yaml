@@ -21,6 +21,8 @@ spec:
 {{- if .Values.instances.arp.nodeSelectors }}
   nodeSelectors:
   - matchLabels:
-{{ toYaml .Values.instances.arp.nodeSelectors | indent 6 }}
+{{- range .Values.instances.arp.nodeSelectors }}
+      kubernetes.io/hostname: {{ . | title | quote }}
+{{- end }}
 {{- end }}
 {{- end }}

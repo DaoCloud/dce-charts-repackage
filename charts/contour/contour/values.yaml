@@ -30,6 +30,13 @@ contour:
       type: "LoadBalancer"
       ipFamilyPolicy: "SingleStack"
     affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+                - key: node-role.kubernetes.io/ingress
+                  operator: Exists
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 80

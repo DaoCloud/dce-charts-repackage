@@ -35,7 +35,7 @@ spec:
         effect: NoSchedule
       containers:
       - name: kube-{{ .Chart.Name }}
-        image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}-amd64
+        image: {{ include "meta-plugins.image" . | quote }}
         imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
         env:
         - name: KUBERNETES_NODE_NAME

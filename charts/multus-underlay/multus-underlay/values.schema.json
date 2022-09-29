@@ -8,18 +8,21 @@
             "properties": {
                 "config": {
                     "type": "object",
+                    "title": " ",
                     "properties": {
                         "cni_conf": {
                             "type": "object",
+                            "title": "Default CNI Settings",
                             "properties": {
                                 "clusterNetwork": {
                                     "type": "string",
                                     "title": "Default CNI",
-                                    "description": "Multus requires that you have first installed a Kubernetes CNI plugin to serve as your pod-to-pod network(calico or cilium)",
+                                    "description": "Notice: make sure the selected CNI has been installed in the cluster, The given value for \"Default CNI\" should match the value for name key in the config file (e.g. \"name\": \"k8s-pod-network\" in \"/etc/cni/net.d/10-calico.conflist\" )",
                                     "default": "calico",
                                     "enum": [
                                         "calico",
-                                        "cilium"
+                                        "cilium",
+                                        "k8s-pod-network"
                                     ]
                                 }
                             }
@@ -28,169 +31,98 @@
                 },
                 "image": {
                     "type": "object",
-                    "title": "Image Configuration",
+                    "title": "Multus Image",
                     "properties": {
                         "repository": {
                             "type": "string",
                             "title": "Repository",
                             "default": "ghcr.m.daocloud.io/k8snetworkplumbingwg/multus-cni"
-                        },
-                        "tag": {
-                            "type": "string",
-                            "title": "Tag",
-                            "default": "v3.9"
                         }
                     }
                 }
             }
         },
-        "underlay_crds": {
+        "cluster_subnet": {
             "type": "object",
-            "title": "Multus Underlay CRDs Configuration",
+            "title": "Cluster Network CIDR",
+            "description": "Configure the cluster network CIDR, Including service-CIDR and pod-CIDR(NOTE: This needs to be consistent with the CIDR of the services and pods in the cluster).",
             "properties": {
                 "service_subnet": {
                     "type": "object",
-                    "title": "Service Subnet",
+                    "title": "Service ClusterIP CIDR",
                     "properties": {
                         "ipv4": {
                             "type": "string",
-                            "title": "*IPv4"
+                            "title": "IPv4 Subnet",
+                            "description": "input subnet format like '172.16.0.0/16'"
                         },
                         "ipv6": {
                             "type": "string",
-                            "title": "IPv6",
-                            "description": "Service IPv6 Subnet(optional)"
+                            "title": "IPv6 Subnet",
+                            "description": "input subnet format like 'fd01::/64'"
                         }
                     }
                 },
-                "calico_subnet": {
-                    "type": "object",
-                    "properties": {
-                        "ipv4": {
-                            "type": "array",
-                            "title": "*IPv4",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "ipv6": {
-                            "type": "array",
-                            "title": "IPv6",
-                            "items": {
-                                "type": "string"
-                            },
-                            "description": "Calico IPv6 Subnet(optional)"
-                        }
+                "pod_subnet": {
+                    "type": "array",
+                    "title": "Pod CIDR",
+                    "description": "The POD CIDR of Default CNI (calico or cilium). For each item, input subnet format like '172.17.0.0/16' or 'fd01::/64' ",
+                    "items": {
+                        "type": "string",
+                        "title": "Subnet"
                     }
+                }
+            }
+        },
+        "macvlan": {
+            "type": "object",
+            "title": "Macvlan CNI Settings",
+            "properties": {
+                "enable": {
+                    "type": "boolean",
+                    "title": "Install Macvlan CNI"
                 },
-                "macvlan": {
-                    "type": "object",
-                    "title": "Macvlan CRD Configuration",
-                    "properties": {
-                        "macvlan_overlay": {
-                            "type": "object",
-                            "title": "Macvlan Overlay",
-                            "properties": {
-                                "enable": {
-                                    "type": "boolean",
-                                    "tile": "Enable",
-                                    "default": true
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "title": "Name",
-                                    "default": "macvlan-overlay"
-                                },
-                                "custom_route": {
-                                    "type": "string",
-                                    "title": "Custom Route(optional)"
-                                }
-                            }
-                        },
-                        "macvlan_standalone": {
-                            "type": "object",
-                            "title": "Macvlan Standalone",
-                            "properties": {
-                                "enable": {
-                                    "type": "boolean",
-                                    "tile": "Enable",
-                                    "default": true
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "title": "Name",
-                                    "default": "macvlan-standalone"
-                                },
-                                "custom_route": {
-                                    "type": "string",
-                                    "title": "Custom Route(optional)"
-                                }
-                            }
-                        }
-                    }
+                "type": {
+                    "type": "string",
+                    "title": "Macvlan Type",
+                    "default": "macvlan-overlay",
+                    "description": "The \"macvlan-overlay\" mode is used for the pod with overlay and macvlan interface. The \"macvlan-standalone\" mode is just used for the pod with macvlan interface.",
+                    "enum": [
+                        "macvlan-overlay",
+                        "macvlan-standalone"
+                    ]
                 },
-                "sriov": {
-                    "type": "object",
-                    "title": "SRIOV CRD Configuration",
-                    "properties": {
-                        "resourceName": {
-                            "type": "string",
-                            "title": "ResourceName",
-                            "description": "You must be provide resourceName when Sriov-CNI enabled(just like \"intel.com/mlnx_sriov_rdma\"). Multus require specific device information which maybe pre-allocated by K8s device plugin. This could be indicated by providing `k8s.v1.cni.cncf.io/resourceName` annotation in its network attachment definition CRD"
-                        },
-                        "sriov_overlay": {
-                            "type": "object",
-                            "title": "SRIOV Overlay",
-                            "properties": {
-                                "enable": {
-                                    "type": "boolean",
-                                    "tile": "Enable",
-                                    "default": true
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "title": "Name",
-                                    "default": "sriov-overlay"
-                                },
-                                "custom_route": {
-                                    "type": "string",
-                                    "title": "Custom Route(optional)"
-                                }
-                            }
-                        },
-                        "sriov_standalone": {
-                            "type": "object",
-                            "title": "SRIOV Standalone",
-                            "properties": {
-                                "enable": {
-                                    "type": "boolean",
-                                    "tile": "Enable",
-                                    "default": true
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "title": "Name",
-                                    "default": "sriov-standalone"
-                                },
-                                "custom_route": {
-                                    "type": "string",
-                                    "title": "Custom Route(optional)"
-                                }
-                            }
-                        }
-                    }
+                "name": {
+                    "type": "string",
+                    "title": "Multus CR Name"
+                },
+                "master": {
+                    "type": "string",
+                    "title": "Master Interface",
+                    "default": "ens192",
+                    "description": "Notice: The master interface must exist on the host"
+                },
+                "vlanID": {
+                    "type": "integer",
+                    "title": "Vlan ID",
+                    "description": "the vlan id of the master interface",
+                    "default": 0,
+                    "minimum": 0,
+                    "maximum": 4094
                 }
             }
         },
         "sriov": {
             "type": "object",
-            "title": "SRIOV Install Configuration",
-            "description": "SR-IOV CNI plugin works with SR-IOV device plugin for VF allocation in Kubernetes",
+            "title": "SRIOV CNI Settings",
+            "description": "The CNI requires the physical interface who supports SR-IOV feature.",
             "properties": {
                 "manifests": {
                     "type": "object",
                     "properties": {
                         "enable": {
+                            "title": "Install SRIOV CNI",
+                            "description": "Notice: please do not install SRIOV and Macvlan at the same time.",
                             "type": "boolean"
                         }
                     }
@@ -201,33 +133,91 @@
                     "properties": {
                         "sriovCni": {
                             "type": "object",
-                            "title": "SRIOV-CNI",
+                            "title": "SRIOV CNI Image",
                             "properties": {
                                 "repository": {
                                     "type": "string",
                                     "title": "Repository",
                                     "default": "ghcr.m.daocloud.io/k8snetworkplumbingwg/sriov-cni"
-                                },
-                                "tag": {
-                                    "type": "string",
-                                    "title": "Tag",
-                                    "default": "v2.6.3"
                                 }
                             }
                         },
                         "sriovDevicePlugin": {
                             "type": "object",
-                            "title": "SRIOV Device Plugin",
+                            "title": "SRIOV Device Plugin Image",
                             "properties": {
                                 "repository": {
                                     "type": "string",
                                     "title": "Repository",
                                     "default": "ghcr.m.daocloud.io/k8snetworkplumbingwg/sriov-network-device-plugin"
+                                }
+                            }
+                        }
+                    }
+                },
+                "sriov_crd": {
+                    "type": "object",
+                    "title": "SRIOV Multus-CRs Configuration",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "title": "SRIOV Type",
+                            "description": "The \"sriov-overlay\" mode is used for the pod with overlay and sriov interface. The \"sriov-standalone\" mode is just used for the pod with sriov interface.",
+                            "default": "sriov-overlay",
+                            "enum": [
+                                "sriov-overlay",
+                                "sriov-standalone",
+                                "sriov-dpdk"
+                            ]
+                        },
+                        "name": {
+                            "type": "string",
+                            "title": "SRIOV CR Name"
+                        },
+                        "vlanId": {
+                            "type": "integer",
+                            "title": "Vlan Id",
+                            "description": "what vlan sriov interface belongs to. Optionally, default is 0.",
+                            "default": 0,
+                            "minimum": 0,
+                            "maximum": 4094
+                        }
+                    }
+                },
+                "config": {
+                    "type": "object",
+                    "title": "SRIOV Device Plugin Configuration",
+                    "properties": {
+                        "sriov_device_plugin": {
+                            "type": "object",
+                            "properties": {
+                                "vendors": {
+                                    "type": "array",
+                                    "description": "Target device's vendor Hex code as string, each item input format like '8086'",
+                                    "items": {
+                                        "type": "string"
+                                    }
                                 },
-                                "tag": {
-                                    "type": "string",
-                                    "title": "Tag",
-                                    "default": "v3.5.1"
+                                "devices": {
+                                    "type": "array",
+                                    "description": "Target Devices' device Hex code as string,each item input format like '154c'",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "drivers": {
+                                    "type": "array",
+                                    "description": "Target device driver names as string,each item input format like 'mlx5_core'",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "pfNames": {
+                                    "type": "array",
+                                    "description": "VFs from PF matches list of PF names",
+                                    "items": {
+                                        "type": "string"
+                                    }
                                 }
                             }
                         }
@@ -237,8 +227,8 @@
         },
         "meta-plugins": {
             "type": "object",
-            "title": "Underlay Meta-CNI Plugins Install",
-            "description": "meta-plugins provides solutions for underlay-cni communication problems, More details: https://github.com/spidernet-io/cni-plugins",
+            "title": "Underlay Meta-CNI Plugins",
+            "description": "meta cni-plugins works with underlay CNI to solve the communication problem of underlay-cni",
             "properties": {
                 "image": {
                     "type": "object",
@@ -248,11 +238,6 @@
                             "type": "string",
                             "title": "Repository",
                             "default": "ghcr.m.daocloud.io/spidernet-io/cni-plugins/meta-plugins"
-                        },
-                        "tag": {
-                            "type": "string",
-                            "title": "Tag",
-                            "default": "v0.1.2"
                         }
                     }
                 }

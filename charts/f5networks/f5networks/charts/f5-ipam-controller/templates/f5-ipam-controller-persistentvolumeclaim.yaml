@@ -1,0 +1,25 @@
+{{- if and (eq .Values.args.provider "f5-ip-provider") (eq .Values.pvc.create true) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "f5-ipam-controller.persistentVolumeClaimName" . }}
+  namespace: {{ template "f5-ipam-controller.namespace" . }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/name: {{ template "f5-ipam-controller.name" . }}
+    app: {{ template "f5-ipam-controller.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "-" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  storageClassName: {{ .Values.pvc.storageClassName }}
+  accessModes:
+    - {{ .Values.pvc.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.pvc.storage }}
+  {{- end }}
+
+
+

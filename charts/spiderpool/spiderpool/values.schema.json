@@ -24,11 +24,12 @@
         },
         "spiderpoolAgent": {
           "title": "Spiderpool Agent Setting",
+          "description": "spiderpool agent is a daemonset",
           "type": "object",
           "default": {},
           "properties": {
             "image": {
-              "title": "Image Setting",
+              "title": "Spiderpool Agent Image",
               "type": "object",
               "default": {},
               "required": [
@@ -45,67 +46,6 @@
                 }
               }
             },
-            "resources": {
-              "title": "Resources Setting",
-              "type": "object",
-              "default": {},
-              "properties": {
-                "limits": {
-                  "title": "limits",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ],
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU limits",
-                      "type": "string",
-                      "default": "1000m",
-                      "examples": [
-                        "1000m"
-                      ]
-                    },
-                    "memory": {
-                      "title": "memory limits",
-                      "type": "string",
-                      "default": "1024Mi",
-                      "examples": [
-                        "1024Mi"
-                      ]
-                    }
-                  }
-                },
-                "requests": {
-                  "title": "Requests Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ],
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU requests",
-                      "type": "string",
-                      "default": "100m",
-                      "examples": [
-                        "100m"
-                      ]
-                    },
-                    "memory": {
-                      "title": "Memory requests",
-                      "type": "string",
-                      "default": "128Mi",
-                      "examples": [
-                        "128Mi"
-                      ]
-                    }
-                  }
-                }
-              }
-            },
             "prometheus": {
               "title": "Spiderpool Agent Prometheus Setting",
               "type": "object",
@@ -115,15 +55,16 @@
               ],
               "properties": {
                 "enabled": {
-                  "title": "enable metrics",
+                  "title": "Enable Metrics",
                   "type": "boolean",
+                  "description": "enable metrics feature on spiderpool agent pod",
                   "default": true,
                   "examples": [
                     false
                   ]
                 },
                 "serviceMonitor": {
-                  "title": "ServiceMonitor Setting",
+                  "title": "Spiderpool Agent ServiceMonitor",
                   "type": "object",
                   "default": {},
                   "required": [
@@ -132,6 +73,7 @@
                   "properties": {
                     "install": {
                       "title": "Install",
+                      "description": "install ServiceMonitor CR for spiderpool agent. Notice: It is required to install Prometheus CRDs firstly",
                       "type": "boolean",
                       "default": false,
                       "examples": [
@@ -141,7 +83,7 @@
                   }
                 },
                 "prometheusRule": {
-                  "title": "PrometheusRule Setting",
+                  "title": "Spiderpool Agent PrometheusRule",
                   "type": "object",
                   "default": {},
                   "required": [
@@ -151,6 +93,7 @@
                     "install": {
                       "title": "Install",
                       "type": "boolean",
+                      "description": "install PrometheusRule CR for spiderpool agent. Notice: It is required to install Prometheus CRDs firstly",
                       "default": false,
                       "examples": [
                         false
@@ -164,6 +107,7 @@
         },
         "spiderpoolController": {
           "title": "Spiderpool Controller Setting",
+          "description": "spiderpool controller is a deployment",
           "type": "object",
           "default": {},
           "required": [
@@ -180,7 +124,7 @@
               ]
             },
             "image": {
-              "title": "Image Setting",
+              "title": "Spiderpool Controller Image",
               "type": "object",
               "default": {},
               "required": [
@@ -194,55 +138,6 @@
                 }
               }
             },
-            "resources": {
-              "title": "Resources Setting",
-              "type": "object",
-              "default": {},
-              "properties": {
-                "limits": {
-                  "title": "Limits Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ],
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU Limits",
-                      "type": "string",
-                      "default": "500m"
-                    },
-                    "memory": {
-                      "title": "Memory Limits",
-                      "type": "string",
-                      "default": "1024Mi"
-                    }
-                  }
-                },
-                "requests": {
-                  "title": "Requests Setting",
-                  "type": "object",
-                  "default": {},
-                  "required": [
-                    "cpu",
-                    "memory"
-                  ],
-                  "properties": {
-                    "cpu": {
-                      "title": "CPU Requests",
-                      "type": "string",
-                      "default": "100m"
-                    },
-                    "memory": {
-                      "title": "Memory Requests",
-                      "type": "string",
-                      "default": "128Mi"
-                    }
-                  }
-                }
-              }
-            },
             "prometheus": {
               "title": "Spiderpool Controller Prometheus Setting",
               "type": "object",
@@ -253,6 +148,7 @@
               "properties": {
                 "enabled": {
                   "title": "Enable Metrics",
+                  "description": "enable metrics feature on spiderpool controller pod",
                   "type": "boolean",
                   "default": true,
                   "examples": [
@@ -260,7 +156,7 @@
                   ]
                 },
                 "serviceMonitor": {
-                  "title": "serviceMonitor",
+                  "title": "Spiderpool Controller ServiceMonitor",
                   "type": "object",
                   "default": {},
                   "required": [
@@ -270,6 +166,7 @@
                     "install": {
                       "title": "Install",
                       "type": "boolean",
+                      "description": "install serviceMonitor CR for spiderpool controller. Notice: It is required to install Prometheus CRDs firstly",
                       "default": false,
                       "examples": [
                         false
@@ -281,7 +178,7 @@
                   }]
                 },
                 "prometheusRule": {
-                  "title": "prometheusRule",
+                  "title": "Spiderpool Controller PrometheusRule",
                   "type": "object",
                   "default": {},
                   "required": [
@@ -290,6 +187,7 @@
                   "properties": {
                     "install": {
                       "title": "Install",
+                      "description": "install PrometheusRule CR for spiderpool controller. Notice: It is required to install Prometheus CRDs firstly",
                       "type": "boolean",
                       "default": false,
                       "examples": [
@@ -306,7 +204,7 @@
           }
         },
         "feature": {
-          "title": "Feature Setting",
+          "title": "IP Family Setting",
           "type": "object",
           "default": {},
           "required": [
@@ -316,6 +214,7 @@
           "properties": {
             "enableIPv4": {
               "title": "enable IPv4",
+              "description": "enable IPAM IPv4 feature. Notice: required to create IPv4 ippool",
               "type": "boolean",
               "default": false,
               "examples": [
@@ -324,6 +223,7 @@
             },
             "enableIPv6": {
               "title": "enable IPv6",
+              "description": "enable IPAM IPv6 feature. Notice: required to create IPv6 ippool",
               "type": "boolean",
               "default": false,
               "examples": [
@@ -333,22 +233,17 @@
           }
         },
         "clusterDefaultPool": {
-          "title": "Cluster Default Pool Installation",
+          "title": "Cluster Default Ippool Installation",
           "type": "object",
           "default": {},
           "required": [
             "installIPv4IPPool",
-            "installIPv6IPPool",
-            "ipv4IPPoolName",
-            "ipv6IPPoolName",
-            "ipv4Subnet",
-            "ipv6Subnet",
-            "ipv4IPRanges",
-            "ipv6IPRanges"
+            "installIPv6IPPool"
           ],
           "properties": {
             "installIPv4IPPool": {
-              "title": "install default ipv4 ippool",
+              "title": "install IPv4 ippool",
+              "description": "when 'enable IPv4', required to install IPv4 ippool",
               "type": "boolean",
               "default": false,
               "examples": [
@@ -356,23 +251,40 @@
               ]
             },
             "installIPv6IPPool": {
-              "title": "install default ipv6 ippool",
+              "title": "install IPv6 ippool",
+              "description": "when 'enable IPv6', required to install IPv6 ippool",
               "type": "boolean",
               "default": false,
               "examples": [
                 false
               ]
             },
+            "ipv4SubnetName": {
+              "title": "IPv4 subnet name",
+              "type": "string",
+              "default": "default-v4-subnet",
+              "examples": [
+                "default-v4-subnet"
+              ]
+            },
             "ipv4IPPoolName": {
-              "title": "the name of default ipv4 ippool",
+              "title": "IPv4 ippool name",
               "type": "string",
               "default": "default-v4-ippool",
               "examples": [
                 "default-v4-ippool"
               ]
             },
+            "ipv6SubnetName": {
+              "title": "IPv6 subnet name",
+              "type": "string",
+              "default": "default-v6-subnet",
+              "examples": [
+                "default-v6-subnet"
+              ]
+            },
             "ipv6IPPoolName": {
-              "title": "the name of default ipv6 ippool",
+              "title": "IPv6 ippool name",
               "type": "string",
               "default": "default-v6-ippool",
               "examples": [
@@ -380,7 +292,7 @@
               ]
             },
             "ipv4Subnet": {
-              "title": "ipv4 Subnet for default ipv4 ippool",
+              "title": "IPv4 ippool subnet",
               "type": "string",
               "default": "",
               "examples": [
@@ -388,16 +300,25 @@
               ]
             },
             "ipv6Subnet": {
-              "title": "ipv6 Subnet for default ipv6 ippool",
+              "title": "IPv6 ippool subnet",
               "type": "string",
               "default": "",
               "examples": [
                 "fd00::/64"
               ]
             },
+            "ipv4Gateway": {
+              "title": "IPv4 ippool gateway",
+              "type": "string"
+            },
+            "ipv6Gateway": {
+              "title": "IPv6 ippool gateway",
+              "type": "string"
+            },
             "ipv4IPRanges": {
-              "title": "IP Ranges for default ipv4 ippool",
+              "title": "IP Ranges for default IPv4 ippool",
               "type": "array",
+              "description": "each item could be range format like '192.168.0.10-192.168.0.100', or comma format like '192.168.0.10,192.168.0.11,192.168.0.12'. Notice: all IP address must belong to ipv4Subnet",
               "default": [],
               "items": {
                 "type": "string"
@@ -407,8 +328,9 @@
               ]
             },
             "ipv6IPRanges": {
-              "title": "IP Ranges for default ipv6 ippool",
+              "title": "IP Ranges for default IPv6 ippool",
               "type": "array",
+              "description": "each item could be range format like 'fd00::10-fd00::200', or comma format like 'fd00::10,fd00::20,fd00::30'. Notice: all IP address must belong to ipv6Subnet ",
               "default": [],
               "items": {
                 "type": "string"
@@ -423,3 +345,4 @@
     }
   }
 }
+

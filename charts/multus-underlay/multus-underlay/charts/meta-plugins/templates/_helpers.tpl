@@ -60,3 +60,20 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+return the meta-plugins image
+*/}}
+{{- define "meta-plugins.image" -}}
+{{- $repository := .Values.image.repository -}}
+{{- if .Values.imageRepositoryOverride }}
+    {{- printf "%s" .Values.imageRepositoryOverride -}}
+{{- else -}}
+    {{- printf "%s" $repository -}}
+{{- end -}}
+{{- if .Values.image.tag }}
+    {{- printf ":%s" .Values.image.tag -}}
+{{- else -}}
+    {{- printf ":v%s" .Chart.AppVersion -}}
+{{- end -}}
+{{- end -}}

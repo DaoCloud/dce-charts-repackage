@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "default": {},
+  "title": "Falco Prometheus Exporter",
+  "properties": {
+    "falco-exporter": {
+      "type": "object",
+      "default": {},
+      "title": " ",
+      "properties": {
+        "image": {
+          "type": "object",
+          "default": {},
+          "title": "Image Settings",
+          "properties": {
+            "registry": {
+              "type": "string",
+              "default": "",
+              "title": "Registry",
+              "examples": [
+                "docker.m.daocloud.io"
+              ]
+            },
+            "repository": {
+              "type": "string",
+              "default": "",
+              "title": "Repository",
+              "examples": [
+                "falcosecurity/falco-exporter"
+              ]
+            }
+          }
+        },
+        "serviceMonitor": {
+          "type": "object",
+          "default": {},
+          "title": "Prometheus ServiceMonitor Settings",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "title": "Install ServiceMonitor",
+              "examples": [
+                true
+              ]
+            },
+            "interval": {
+              "type": "string",
+              "default": "",
+              "title": "Scrape Interval",
+              "examples": [
+                ""
+              ]
+            },
+            "scrapeTimeout": {
+              "type": "string",
+              "default": "",
+              "title": "Scrape Timeout",
+              "examples": [
+                ""
+              ]
+            }
+          }
+        },
+        "prometheusRules": {
+          "type": "object",
+          "default": {},
+          "title": "Prometheus prometheusRules",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "title": "Install prometheusRules",
+              "examples": [
+                true
+              ]
+            },
+            "alerts": {
+              "type": "object",
+              "default": {},
+              "title": "Alerts settings",
+              "properties": {
+                "warning": {
+                  "type": "object",
+                  "default": {},
+                  "title": "Warning Alert",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false,
+                      "title": "Enabled",
+                      "examples": [
+                        true
+                      ]
+                    },
+                    "rate_interval": {
+                      "type": "string",
+                      "default": "",
+                      "title": "Rate interval",
+                      "examples": [
+                        "5m"
+                      ]
+                    },
+                    "threshold": {
+                      "type": "integer",
+                      "default": 0,
+                      "title": "Threshold",
+                      "examples": [
+                        0
+                      ]
+                    }
+                  }
+                },
+                "error": {
+                  "type": "object",
+                  "default": {},
+                  "title": "Error Alert",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false,
+                      "title": "enabled",
+                      "examples": [
+                        true
+                      ]
+                    },
+                    "rate_interval": {
+                      "type": "string",
+                      "default": "",
+                      "title": "Rate Interval",
+                      "examples": [
+                        "5m"
+                      ]
+                    },
+                    "threshold": {
+                      "type": "integer",
+                      "default": 0,
+                      "title": "Threshold",
+                      "examples": [
+                        0
+                      ]
+                    }
+                  }
+                },
+                "critical": {
+                  "type": "object",
+                  "default": {},
+                  "title": "Critical Alert",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false,
+                      "title": "enabled",
+                      "examples": [
+                        true
+                      ]
+                    },
+                    "rate_interval": {
+                      "type": "string",
+                      "default": "",
+                      "title": "Rate Interval",
+                      "examples": [
+                        "5m"
+                      ]
+                    },
+                    "threshold": {
+                      "type": "integer",
+                      "default": 0,
+                      "title": "Threshold",
+                      "examples": [
+                        0
+                      ]
+                    }
+                  }
+                },
+                "alert": {
+                  "type": "object",
+                  "default": {},
+                  "title": "Alert Alert",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false,
+                      "title": "enabled",
+                      "examples": [
+                        true
+                      ]
+                    },
+                    "rate_interval": {
+                      "type": "string",
+                      "default": "",
+                      "title": "Rate Interval",
+                      "examples": [
+                        "5m"
+                      ]
+                    },
+                    "threshold": {
+                      "type": "integer",
+                      "default": 0,
+                      "title": "threshold",
+                      "examples": [
+                        0
+                      ]
+                    }
+                  }
+                },
+                "emergency": {
+                  "type": "object",
+                  "default": {},
+                  "title": "Emergency Alert",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false,
+                      "title": "enabled",
+                      "examples": [
+                        true
+                      ]
+                    },
+                    "rate_interval": {
+                      "type": "string",
+                      "default": "",
+                      "title": "Rate Interval",
+                      "examples": [
+                        "1m"
+                      ]
+                    },
+                    "threshold": {
+                      "type": "integer",
+                      "default": 0,
+                      "title": "Threshold",
+                      "examples": [
+                        0
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-{{- if .Values.isInstallGD }}
+{{- if .Values.global.isInstallGD }}
 apiVersion: integreatly.org/v1alpha1
 kind: GrafanaDashboard
 metadata:

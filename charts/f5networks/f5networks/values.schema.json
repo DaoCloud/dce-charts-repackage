@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "properties": {
+    "f5-bigip-ctlr": {
+      "type": "object",
+      "default": {},
+      "title": "f5-bigip-ctlr Settings",
+      "properties": {
+        "image": {
+          "type": "object",
+          "default": {},
+          "title": "Image Settings",
+          "properties": {
+            "user": {
+              "type": "string",
+              "default": "",
+              "title": "Registry",
+              "examples": [
+                "docker.m.daocloud.io/f5networks"
+              ]
+            },
+            "repo": {
+              "type": "string",
+              "default": "",
+              "title": "repository",
+              "examples": [
+                "k8s-bigip-ctlr"
+              ]
+            }
+          }
+        },
+        "version": {
+          "type": "string",
+          "default": "",
+          "title": "f5-bigip-ctlr version"
+        },
+        "ingressClass": {
+          "type": "object",
+          "default": {},
+          "title": "IngressClass Settings",
+          "properties": {
+            "create": {
+              "type": "boolean",
+              "default": false,
+              "title": "Install ingressClass",
+              "description": "when enabled, deployed as ingress controller, or else deploy as L4 loadbalancer"
+            },
+            "ingressClassName": {
+              "type": "string",
+              "title": "IngressClass Name",
+              "description": "when deployed as ingress controller, must set, or else ignore this"
+            },
+            "isDefaultIngressController": {
+              "type": "boolean",
+              "title": "Default ingressClass",
+              "description": "when deployed as ingress controller, must set, or else ignore this"
+            }
+          }
+        },
+        "namespace": {
+          "type": "string",
+          "title": "namespace"
+        },
+        "args": {
+          "type": "object",
+          "title": "BigIP Settings",
+          "properties": {
+            "bigip_url": {
+              "type": "string",
+              "title": "BigIP Management Address"
+            },
+            "bigip_partition": {
+              "type": "string",
+              "default": "",
+              "title": "BigIP Partition"
+            },
+            "default_ingress_ip": {
+              "type": "string",
+              "default": "",
+              "title": "Default Ingress IP",
+              "description": "when deployed as ingress controller, must set this with external VIP of BigIP, or else leave it empty"
+            },
+            "custom-resource-mode": {
+              "type": "boolean",
+              "default": "",
+              "title": "Only Watch F5 CRD",
+              "description": "when deployed as ingress controller, must disable this, or else enable this"
+            },
+            "node_label_selector": {
+              "type": "string",
+              "default": "",
+              "title": "Node Label Selector",
+              "description": "select k8s nodes to forward traffic. If set, require to label nodes. If leave empty, all nodes will be selected"
+            },
+            "pool_member_type": {
+              "type": "string",
+              "default": "",
+              "title": "Forward Method",
+              "enum": [
+                "nodeport",
+                "cluster"
+              ],
+              "description":"nodeport mode, serve for LoadBalancer service. cluster mode, serve for ClusterIP service and require BGP or VXLAN tunnel between BIGP and K8S"
+            }
+          }
+        }
+      }
+    },
+    "cis-secret": {
+      "type": "object",
+      "default": {},
+      "title": "BigIP Authentication",
+      "required": [
+        "username",
+        "password"
+      ],
+      "properties": {
+        "username": {
+          "type": "string",
+          "default": "",
+          "title": "BigIP Username",
+          "examples": [
+            "admin"
+          ]
+        },
+        "password": {
+          "type": "string",
+          "default": "",
+          "title": "BigIP Password",
+          "examples": [
+            "admin"
+          ]
+        }
+      }
+    },
+    "f5-ipam-controller": {
+      "type": "object",
+      "default": {},
+      "title": "F5-ipam-controller Settings",
+      "description": "IPAM for L4 loadbalancer",
+      "properties": {
+        "install": {
+          "type": "boolean",
+          "default": "",
+          "title": "install f5-ipam-controller",
+          "description": "required for L4 loadbalancer. when deployed as L7 ingress controller, no need to install and ignore all other settings for f5-ipam-controller"
+        },
+        "image": {
+          "type": "object",
+          "default": {},
+          "title": "Image Settings",
+          "properties": {
+            "user": {
+              "type": "string",
+              "default": "",
+              "title": "Registry",
+              "examples": [
+                "docker.m.daocloud.io/f5networks"
+              ]
+            },
+            "repo": {
+              "type": "string",
+              "default": "",
+              "title": "repository"
+            },
+            "version": {
+              "type": "string",
+              "default": "",
+              "title": "version"
+            }
+          }
+        },
+        "namespace": {
+          "type": "string",
+          "default": "",
+          "title": "namespace"
+        },
+        "args": {
+          "type": "object",
+          "default": {},
+          "title": "LoadBlancer IPAM",
+          "properties": {
+            "ip_range": {
+              "type": "string",
+              "default": "",
+              "title": "BIGIP L4 IP Pool"
+            }
+          }
+        },
+        "pvc": {
+          "type": "object",
+          "default": {},
+          "title": "PVC Settings",
+          "properties": {
+            "storageClassName": {
+              "type": "string",
+              "default": "",
+              "title": "storageClassName"
+            },
+            "storageSize": {
+              "type": "string",
+              "default": "",
+              "title": "storageSize"
+            }
+          }
+        }
+      }
+    }
+  }
+}

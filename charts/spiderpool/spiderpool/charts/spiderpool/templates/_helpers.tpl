@@ -24,6 +24,17 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
+{{/*
+Common labels
+*/}}
+{{- define "spiderpool.spiderpoolInit.labels" -}}
+helm.sh/chart: {{ include "spiderpool.chart" . }}
+{{ include "spiderpool.spiderpoolInit.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
 
 {{/*
 spiderpoolAgent Common labels
@@ -56,6 +67,14 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: {{ .Values.spiderpoolAgent.name | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{/*
+spiderpoolInit Selector labels
+*/}}
+{{- define "spiderpool.spiderpoolInit.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "spiderpool.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: {{ .Values.spiderpoolInit.name | trunc 63 | trimSuffix "-" }}
+{{- end }}
 
 
 
@@ -125,9 +144,10 @@ return the spiderpoolAgent image
 {{- end -}}
 {{- if .Values.spiderpoolAgent.image.digest }}
     {{- print "@" .Values.spiderpoolAgent.image.digest -}}
+{{- else if .Values.spiderpoolAgent.image.tag -}}
+    {{- printf ":%s" .Values.spiderpoolController.image.tag -}}
 {{- else -}}
-    {{- $tag := default .Chart.AppVersion .Values.spiderpoolAgent.image.tag -}}
-    {{- printf ":%s" $tag -}}
+    {{- printf ":v%s" .Chart.AppVersion -}}
 {{- end -}}
 {{- end -}}
 
@@ -146,8 +166,31 @@ return the spiderpoolController image
 {{- end -}}
 {{- if .Values.spiderpoolController.image.digest }}
     {{- print "@" .Values.spiderpoolController.image.digest -}}
+{{- else if .Values.spiderpoolController.image.tag -}}
+    {{- printf ":%s" .Values.spiderpoolController.image.tag -}}
 {{- else -}}
-    {{- $tag := default .Chart.AppVersion .Values.spiderpoolController.image.tag -}}
-    {{- printf ":%s" $tag -}}
+    {{- printf ":v%s" .Chart.AppVersion -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+return the spiderpoolInit image
+*/}}
+{{- define "spiderpool.spiderpoolInit.image" -}}
+{{- $registryName := .Values.spiderpoolInit.image.registry -}}
+{{- $repositoryName := .Values.spiderpoolInit.image.repository -}}
+{{- if .Values.global.imageRegistryOverride }}
+    {{- printf "%s/%s" .Values.global.imageRegistryOverride $repositoryName -}}
+{{ else if $registryName }}
+    {{- printf "%s/%s" $registryName $repositoryName -}}
+{{- else -}}
+    {{- printf "%s" $repositoryName -}}
+{{- end -}}
+{{- if .Values.spiderpoolInit.image.digest }}
+    {{- print "@" .Values.spiderpoolInit.image.digest -}}
+{{- else if .Values.spiderpoolAgent.image.tag -}}
+    {{- printf ":%s" .Values.spiderpoolAgent.image.tag -}}
+{{- else -}}
+    {{- printf ":v%s" .Chart.AppVersion -}}
 {{- end -}}
 {{- end -}}

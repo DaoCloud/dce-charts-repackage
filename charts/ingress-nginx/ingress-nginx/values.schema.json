@@ -10,6 +10,7 @@
       "properties": {
         "controller": {
           "type": "object",
+          "title": "Ingress Controller",
           "default": {},
           "properties": {
             "replicaCount": {
@@ -19,26 +20,27 @@
             },
             "metrics": {
               "type": "object",
+              "title": "Metrics",
               "default": {},
               "properties": {
                 "enabled": {
                   "type": "boolean",
                   "default": false,
-                  "title": "Enable"
+                  "title": "Enable",
+                  "description": "enable ingress controller metrics"
                 },
                 "serviceMonitor": {
                   "type": "object",
                   "default": {},
                   "properties": {
                     "enabled": {
-                      "title": "Service Monitor",
+                      "title": "Install",
                       "type": "boolean",
-                      "description": "The ServiceMonitor custom resource definition (CRD) allows to declarative define how a dynamic set of services should be monitored."
+                      "description": "install serviceMonitor CR for ingress controller. Notice: It is required to install Prometheus CRDs firstly"
                     }
                   }
                 }
-              },
-              "title": "Metrics"
+              }
             },
             "ingressClassResource": {
               "type": "object",
@@ -50,15 +52,15 @@
                 },
                 "default": {
                   "type": "boolean",
-                  "title": "Default Ingress",
-                  "description": "Is this the default ingressClass for the cluster."
+                  "title": "Default IngressClass",
+                  "description": "set this ingressClass as the default ingressClass for the cluster."
                 }
               }
             },
             "electionID": {
               "type": "string",
               "title": "Election ID",
-              "description": "If you need to install all instances in the same namespace, then you need to specify a different election id."
+              "description": "If more than one ingress controller are installed in a same namespace, it needs specify a different election id."
             },
             "service": {
               "type": "object",
@@ -85,7 +87,7 @@
               "title": "Service"
             },
             "image": {
-              "title": "Controller Image",
+              "title": "Ingress Controller Image",
               "type": "object",
               "properties": {
                 "registry": {
@@ -95,22 +97,21 @@
                 "image": {
                   "type": "string",
                   "title": "Image"
-                },
-                "tag": {
-                  "type": "string",
-                  "title": "Tag"
                 }
               },
               "required": []
             },
             "admissionWebhooks": {
               "type": "object",
+              "title": " ",
               "properties": {
                 "patch": {
                   "type": "object",
+                  "title": "Admission Webhook",
                   "properties": {
                     "image": {
                       "type": "object",
+                      "title": "Admission Webhook Image",
                       "properties": {
                         "registry": {
                           "type": "string",
@@ -119,37 +120,80 @@
                         "image": {
                           "type": "string",
                           "title": "Image"
-                        },
-                        "tag": {
-                          "type": "string",
-                          "title": "Tag"
                         }
                       },
-                      "title": "Admission Webhook Image",
                       "required": []
                     }
                   }
                 }
               }
+            },
+            "affinity": {
+              "type": "object",
+              "title": " ",
+              "properties": {
+                "nodeAffinity": {
+                  "type": "object",
+                  "title": "Node Affinity",
+                  "properties": {
+                    "preferredDuringSchedulingIgnoredDuringExecution": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "preference": {
+                            "type": "object",
+                            "title": "Preference",
+                            "properties": {
+                              "matchExpressions": {
+                                "type": "array",
+                                "title": "Match Expressions",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "key": {
+                                      "type": "string",
+                                      "title": "Node Label"
+                                    },
+                                    "operator": {
+                                      "type": "string",
+                                      "title": "Operator",
+                                      "enum": ["In", "NotIn", "Exists", "DoesNotExist", "Gt", "Lt"]
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "weight": {
+                            "type": "integer",
+                            "title": "Weight"
+                          }
+                        }
+                      },
+                      "title": "Preferred During Scheduling Ignored During Execution"
+                    }
+                  }
+                }
+              }
             }
-          },
-          "title": "Controller"
+          }
         }
       }
     },
     "alert": {
       "type": "object",
-      "title": "Alert",
+      "title": "Alert Settings",
       "properties": {
         "prometheusRule": {
           "type": "object",
           "properties": {
             "create": {
               "title": "Install",
-              "type": "boolean"
+              "type": "boolean",
+              "description": "install PrometheusRule CR for ingress controller. Notice: It is required to install Prometheus CRDs firstly"
             }
-          },
-          "title": "Prometheus Rule"
+          }
         }
       }
     }

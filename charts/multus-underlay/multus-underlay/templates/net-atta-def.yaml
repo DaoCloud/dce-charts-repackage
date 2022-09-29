@@ -1,5 +1,5 @@
-{{- if .Values.crd_conf -}}
-{{- range $cni, $conf := .Values.crd_conf -}}
+{{- if .Values.overlay_crds -}}
+{{- range $cni, $conf := .Values.overlay_crds -}}
 {{- if $conf.enable }}
 ---
 apiVersion: "k8s.cni.cncf.io/v1"
@@ -7,33 +7,50 @@ kind: NetworkAttachmentDefinition
 metadata:
   name: {{ $conf.name }}
   namespace: kube-system
+  labels:
+{{- if eq $conf.name $.Values.multus.config.cni_conf.clusterNetwork }}
+    v1.multus-underlay-cni.io/instance-status: "enable"
+{{- end }}
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
-{{- if $conf.default_cni }}
-    daocloud.io.multus/default-cni: {{ $conf.name }}
-{{- end }}
+    v1.multus-underlay-cni.io/instance-type: "default"
+    v1.multus-underlay-cni.io/vlanId: "0"
+    v1.multus-underlay-cni.io/default-cni: "true"
+    v1.multus-underlay-cni.io/coexist-types: '["macvlan_overlay","sriov_overlay"]'
 {{- end }}
 {{- end }}
 {{- end }}
 ---
-{{- if .Values.underlay_crds.macvlan.macvlan_standalone.enable }}
-# 1 macvlan-standalone
+{{- if .Values.macvlan.enable }}
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
-  name: {{ .Values.underlay_crds.macvlan.macvlan_standalone.name }}
+{{- if eq .Values.macvlan.type "macvlan-standalone" }}
+  name: {{ .Values.macvlan.name }}
+{{- else }}
+  name: macvlan-standalone-vlan{{ .Values.macvlan.vlanID }}
+{{- end }}
   namespace: kube-system
+{{- if eq .Values.macvlan.type "macvlan-standalone" }}
+  labels:
+    v1.multus-underlay-cni.io/instance-status: "enable"
+{{- end }}
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
+    v1.multus-underlay-cni.io/instance-type: "macvlan_standalone"
+    v1.multus-underlay-cni.io/default-cni: "true"
+    v1.multus-underlay-cni.io/underlay-cni: "true"
+    v1.multus-underlay-cni.io/coexist-types: '["macvlan_standalone"]'
+    v1.multus-underlay-cni.io/vlanId: {{ .Values.macvlan.vlanID | quote }}
 spec:
   config: |-
     {
-        "cniVersion": "0.3.0",
+        "cniVersion": "0.3.1",
         "name": "macvlan-standalone",
         "plugins": [
             {
                 "type": "macvlan",
-                "master": {{ .Values.underlay_crds.macvlan.master | quote }},
+                "master": {{ .Values.macvlan.master | quote }},
                 "mode": "bridge",
                 "ipam": {
                     "type": "spiderpool",
@@ -45,35 +62,50 @@ spec:
                 }
             },{
                 "type": "veth",
-                "routes": [{"dst": "{{ .Values.underlay_crds.service_subnet.ipv4 }}"}{{ range .Values.underlay_crds.calico_subnet.ipv4 }},{"dst": {{ . | quote }}}{{ end }}{{if .Values.underlay_crds.macvlan.macvlan_standalone.custom_route }},{"dst": "{{ .Values.underlay_crds.macvlan.macvlan_standalone.custom_route }}"}{{ end }}{{ range .Values.underlay_crds.calico_subnet.ipv6 }},{"dst": {{ . | quote }}}{{ end }}{{if .Values.underlay_crds.service_subnet.ipv6 }},{"dst": "{{ .Values.underlay_crds.service_subnet.ipv6 }}"}{{ end }}],
+                "service_hijack_subnet": [{{if .Values.cluster_subnet.service_subnet.ipv4 }}"{{ .Values.cluster_subnet.service_subnet.ipv4 }}"{{ end }}{{if .Values.cluster_subnet.service_subnet.ipv6 }},"{{ .Values.cluster_subnet.service_subnet.ipv6 }}"{{ end }}],
+                "overlay_hijack_subnet": {{ toJson .Values.cluster_subnet.pod_subnet }},
+                "additional_hijack_subnet": {{ toJson .Values.macvlan.custom_route }},
+                "migrate_route": {{ .Values.macvlan.migrate_route }},
                 "rp_filter": {
-                    "enable": {{ .Values.underlay_crds.rp_filter.enable }},
-                    "value": {{ .Values.underlay_crds.rp_filter.value }}
+                    "set_host": {{ .Values.cluster_subnet.rp_filter.set_host }},
+                    "value": {{ .Values.cluster_subnet.rp_filter.value }}
                 },
-                "skip_call": {{ .Values.underlay_crds.macvlan.macvlan_standalone.skip_call }}
+                "overlay_interface": {{ .Values.macvlan.overlayInterface | quote }},
+                "skip_call": {{ .Values.macvlan.skip_call }}
             }
         ]
     }
-{{- end }}
-{{- if .Values.underlay_crds.macvlan.macvlan_overlay.enable }}
 ---
-# 2 macvlan-overlay
+# macvlan-overlay
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
-  name: {{ .Values.underlay_crds.macvlan.macvlan_overlay.name }}
+{{- if eq .Values.macvlan.type "macvlan-overlay" }}
+  name: {{ .Values.macvlan.name }}
+{{- else }}
+  name: macvlan-overlay-vlan{{ .Values.macvlan.vlanID }}
+{{- end }}
   namespace: kube-system
+{{- if eq .Values.macvlan.type "macvlan-overlay" }}
+  labels:
+    v1.multus-underlay-cni.io/instance-status: "enable"
+{{- end }}
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
+    v1.multus-underlay-cni.io/instance-type: "macvlan_overlay"
+    v1.multus-underlay-cni.io/default-cni: "false"
+    v1.multus-underlay-cni.io/underlay-cni: "true"
+    v1.multus-underlay-cni.io/coexist-types: '["default","macvlan_overlay"]'
+    v1.multus-underlay-cni.io/vlanId: {{ .Values.macvlan.vlanID | quote }}
 spec:
   config: |-
     {
-        "cniVersion": "0.3.0",
+        "cniVersion": "0.3.1",
         "name": "macvlan-overlay",
         "plugins": [
             {
                 "type": "macvlan",
-                "master": {{ .Values.underlay_crds.macvlan.master | quote }},
+                "master": {{ .Values.macvlan.master | quote }},
                 "mode": "bridge",
                 "ipam": {
                     "type": "spiderpool",
@@ -85,38 +117,52 @@ spec:
                 }
             },{
                 "type": "router",
-                "routes": [{"dst": "{{ .Values.underlay_crds.service_subnet.ipv4 }}"}{{ range .Values.underlay_crds.calico_subnet.ipv4 }},{"dst": {{ . | quote }}}{{ end }}{{if .Values.underlay_crds.macvlan.macvlan_overlay.custom_route }},{"dst": "{{ .Values.underlay_crds.macvlan.macvlan_overlay.custom_route }}"}{{ end }}{{if .Values.underlay_crds.service_subnet.ipv6 }},{"dst": "{{ .Values.underlay_crds.service_subnet.ipv6 }}"}{{ end }}{{ range .Values.underlay_crds.nodePortNodeIPs }},{"dst": {{ . | quote }}}{{ end }}],
+                "service_hijack_subnet": [{{if .Values.cluster_subnet.service_subnet.ipv4 }}"{{ .Values.cluster_subnet.service_subnet.ipv4 }}"{{ end }}{{if .Values.cluster_subnet.service_subnet.ipv6 }},"{{ .Values.cluster_subnet.service_subnet.ipv6 }}"{{ end }}],
+                "overlay_hijack_subnet": {{ toJson .Values.cluster_subnet.pod_subnet }},
+                "additional_hijack_subnet": {{ toJson .Values.macvlan.custom_route }},
+                "migrate_route": {{ .Values.macvlan.migrate_route }},
                 "rp_filter": {
-                    "enable": {{ .Values.underlay_crds.rp_filter.enable }},
-                    "value": {{ .Values.underlay_crds.rp_filter.value }}
+                    "set_host": {{ .Values.cluster_subnet.rp_filter.set_host }},
+                    "value": {{ .Values.cluster_subnet.rp_filter.value }}
                 },
-                "delDefaultRoute4": {{ .Values.underlay_crds.macvlan.macvlan_overlay.delDefaultRoute4 }},
-                "delDefaultRoute6": {{ .Values.underlay_crds.macvlan.macvlan_overlay.delDefaultRoute6 }},
-                "defaultOverlayInterface": {{ .Values.underlay_crds.macvlan.macvlan_overlay.defaultOverlayInterface }},
-                "skip_call": {{ .Values.underlay_crds.macvlan.macvlan_overlay.skip_call }}
+                "overlay_interface": {{ .Values.macvlan.overlayInterface | quote }},
+                "skip_call": {{ .Values.macvlan.skip_call }}
             }
         ]
     }
 {{- end }}
 ---
-{{- if .Values.underlay_crds.sriov.sriov_standalone.enable }}
-# 3 sriov-standalone
+# sriov-standalone
+{{- if .Values.sriov.manifests.enable }}
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
-  name: {{ .Values.underlay_crds.sriov.sriov_standalone.name }}
+{{- if eq .Values.sriov.sriov_crd.type "sriov-standalone" }}
+  name: {{ .Values.sriov.sriov_crd.name }}
+{{- else }}
+  name: sriov-standalone-vlan0
+{{- end }}
   namespace: kube-system
+{{- if eq .Values.sriov.sriov_crd.type "sriov-standalone" }}
+  labels:
+    v1.multus-underlay-cni.io/instance-status: "enable"
+{{- end }}
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
-    k8s.v1.cni.cncf.io/resourceName: {{ required ".Values.underlay_crds.sriov.resourceName must be defined when .Values.underlay_crds.sriov.sriov_standalone.enabled == true" .Values.underlay_crds.sriov.resourceName }}
+    v1.multus-underlay-cni.io/instance-type: "sriov_standalone"
+    v1.multus-underlay-cni.io/default-cni: "true"
+    v1.multus-underlay-cni.io/other-cni: '["sriov_standalone"]'
+    v1.multus-underlay-cni.io/vlanId: {{ .Values.sriov.sriov_crd.vlanId | quote }}
+    k8s.v1.cni.cncf.io/resourceName: {{ .Values.sriov.config.sriov_device_plugin.name | quote }}
 spec:
   config: |-
     {
-        "cniVersion": "0.3.0",
+        "cniVersion": "0.3.1",
         "name": "sriov-standalone",
         "plugins": [
             {
                 "type": "sriov",
+                "vlan": {{ .Values.sriov.sriov_crd.vlanId }},
                 "ipam": {
                     "type": "spiderpool",
                     "log_level": "DEBUG",
@@ -127,35 +173,51 @@ spec:
                 }
             },{
                 "type": "veth",
-                "routes": [{"dst": "{{ .Values.underlay_crds.service_subnet.ipv4 }}"}{{ range .Values.underlay_crds.calico_subnet.ipv4 }},{"dst": {{ . | quote }}}{{ end }}{{ range .Values.underlay_crds.calico_subnet.ipv6 }},{"dst": {{ . | quote }}}{{ end }}{{if .Values.underlay_crds.sriov.sriov_standalone.custom_route }},{"dst": "{{ .Values.underlay_crds.sriov.sriov_standalone.custom_route }}"}{{ end }}{{if .Values.underlay_crds.service_subnet.ipv6 }},{"dst": "{{ .Values.underlay_crds.service_subnet.ipv6 }}"}{{ end }}],
+                "service_hijack_subnet": [{{if .Values.cluster_subnet.service_subnet.ipv4 }}"{{ .Values.cluster_subnet.service_subnet.ipv4 }}"{{ end }}{{if .Values.cluster_subnet.service_subnet.ipv6 }},"{{ .Values.cluster_subnet.service_subnet.ipv6 }}"{{ end }}],
+                "overlay_hijack_subnet": {{ toJson .Values.cluster_subnet.pod_subnet }},
+                "additional_hijack_subnet": {{ toJson .Values.sriov.sriov_crd.custom_route }},
+                "migrate_route": {{ .Values.sriov.sriov_crd.migrate_route }},
                 "rp_filter": {
-                    "enable": {{ .Values.underlay_crds.rp_filter.enable }},
-                    "value": {{ .Values.underlay_crds.rp_filter.value }}
+                    "set_host": {{ .Values.cluster_subnet.rp_filter.set_host }},
+                    "value": {{ .Values.cluster_subnet.rp_filter.value }}
                 },
-                "skip_call": {{ .Values.underlay_crds.sriov.sriov_standalone.skip_call }}
+                "overlay_interface": {{ .Values.sriov.sriov_crd.overlayInterface | quote }},
+                "skip_call": {{ .Values.sriov.sriov_crd.skip_call }}
             }
         ]
     }
-{{- end }}
-{{- if .Values.underlay_crds.sriov.sriov_overlay.enable }}
 ---
 # sriov-overlay
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
-  name: {{ .Values.underlay_crds.sriov.sriov_overlay.name }}
+{{- if eq .Values.sriov.sriov_crd.type "sriov-overlay" }}
+  name: {{ .Values.sriov.sriov_crd.name }}
+{{- else }}
+  name: sriov-overlay-vlan{{ .Values.sriov.sriov_crd.vlanId }}
+{{- end }}
   namespace: kube-system
+{{- if eq .Values.sriov.sriov_crd.type "sriov-overlay" }}
+  labels:
+    v1.multus-underlay-cni.io/instance-status: "enable"
+{{- end }}
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
-    k8s.v1.cni.cncf.io/resourceName: {{ required ".Values.underlay_crds.sriov.resourceName must be defined when .Values.underlay_crds.sriov.sriov_overlay.enabled == true" .Values.underlay_crds.sriov.resourceName }}
+    v1.multus-underlay-cni.io/instance-type: "sriov_overlay"
+    v1.multus-underlay-cni.io/default-cni: "true"
+    v1.multus-underlay-cni.io/underlay-cni: "true"
+    v1.multus-underlay-cni.io/coexist-types: '["sriov_overlay"]'
+    v1.multus-underlay-cni.io/vlanId: {{ .Values.sriov.sriov_crd.vlanId | quote }}
+    k8s.v1.cni.cncf.io/resourceName: {{ .Values.sriov.config.sriov_device_plugin.name | quote }}
 spec:
   config: |-
     {
-        "cniVersion": "0.3.0",
+        "cniVersion": "0.3.1",
         "name": "sriov-overlay",
         "plugins": [
             {
                 "type": "sriov",
+                "vlan": {{ .Values.sriov.sriov_crd.vlanId }},
                 "ipam": {
                     "type": "spiderpool",
                     "log_level": "DEBUG",
@@ -166,16 +228,46 @@ spec:
                 }
             },{
                 "type": "router",
-                "routes": [{"dst": "{{ .Values.underlay_crds.service_subnet.ipv4 }}"}{{if .Values.underlay_crds.sriov.sriov_overlay.custom_route }},{"dst": "{{ .Values.underlay_crds.sriov.sriov_overlay.custom_route }}"}{{ end }}{{if .Values.underlay_crds.service_subnet.ipv6 }},{"dst": "{{ .Values.underlay_crds.service_subnet.ipv6 }}"}{{ end }}{{ range .Values.underlay_crds.calico_subnet.ipv4 }},{"dst": {{ . | quote }}}{{ end }}{{ range .Values.underlay_crds.nodePortNodeIPs }},{"dst": {{ . | quote }}}{{ end }}],
+                "service_hijack_subnet": [{{if .Values.cluster_subnet.service_subnet.ipv4 }}"{{ .Values.cluster_subnet.service_subnet.ipv4 }}"{{ end }}{{if .Values.cluster_subnet.service_subnet.ipv6 }},"{{ .Values.cluster_subnet.service_subnet.ipv6 }}"{{ end }}],
+                "overlay_hijack_subnet": {{ toJson .Values.cluster_subnet.pod_subnet }},
+                "additional_hijack_subnet": {{ toJson .Values.sriov.sriov_crd.custom_route }},
+                "migrate_route": {{ .Values.sriov.sriov_crd.migrate_route }},
                 "rp_filter": {
-                    "enable": {{ .Values.underlay_crds.rp_filter.enable }},
-                    "value": {{ .Values.underlay_crds.rp_filter.value }}
+                    "set_host": {{ .Values.cluster_subnet.rp_filter.set_host }},
+                    "value": {{ .Values.cluster_subnet.rp_filter.value }}
                 },
-                "delDefaultRoute4": {{ .Values.underlay_crds.sriov.sriov_overlay.delDefaultRoute4 }},
-                "delDefaultRoute6": {{ .Values.underlay_crds.sriov.sriov_overlay.delDefaultRoute6 }},
-                "defaultOverlayInterface": {{ .Values.underlay_crds.sriov.sriov_overlay.defaultOverlayInterface }},
-                "skip_call": {{ .Values.underlay_crds.sriov.sriov_overlay.skip_call }}
+                "overlay_interface": {{ .Values.sriov.sriov_crd.overlayInterface | quote }},
+                "skip_call": {{ .Values.sriov.sriov_crd.skip_call }}
             }
         ]
     }
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+{{- if eq .Values.sriov.sriov_crd.type "sriov-dpdk" }}
+  name: {{ .Values.sriov.sriov_crd.name }}
+{{- else }}
+  name: sriov-dpdk-vlan{{ .Values.sriov.sriov_crd.vlanId }}
+{{- end }}
+{{- if eq .Values.sriov.sriov_crd.type "sriov-dpdk" }}
+  labels:
+    v1.multus-underlay-cni.io/instance-status: "enable"
+{{- end }}
+  annotations:
+    {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
+    v1.multus-underlay-cni.io/instance-type: "sriov_dpdk"
+    v1.multus-underlay-cni.io/default-cni: "false"
+    v1.multus-underlay-cni.io/underlay-cni: "true"
+    v1.multus-underlay-cni.io/coexist-types: '["default"]'
+    v1.multus-underlay-cni.io/vlanId: {{ .Values.sriov.sriov_crd.vlanId | quote }}
+    k8s.v1.cni.cncf.io/resourceName: {{ .Values.sriov.config.sriov_device_plugin.name | quote }}
+spec:
+  config: |-
+      {
+        "cniVersion": "0.3.1",
+        "name": "sriov-dpdk",
+        "type": "sriov",
+        "vlan": {{ .Values.sriov.sriov_crd.vlanId }}
+      }
 {{- end }}

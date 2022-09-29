@@ -1,0 +1,12 @@
+f5-bigip-ctlr:
+  - args/enable-ipv6
+  - args/insecure
+  - args/node_label_selector
+  - args/pool_member_type
+  - args/default_ingress_ip
+  - args/log-as3-response
+  - args/ipam
+  - args/custom-resource-mode
+f5-ipam-controller:
+  - args/log_level
+  - install

@@ -1,0 +1,110 @@
+{{- if or (not .Values.args.orchestration) (not .Values.args.provider) }}
+{{/*
+Generate errors for missing required values.
+*/}}
+{{- else -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "f5-ipam-controller.fullname" . }}
+  namespace: {{ template "f5-ipam-controller.namespace" . }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/name: {{ template "f5-ipam-controller.name" . }}
+    app: {{ template "f5-ipam-controller.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "-" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "f5-ipam-controller.name" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/name: {{ template "f5-ipam-controller.name" . }}
+        app: {{ template "f5-ipam-controller.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+{{- if .Values.affinity }}
+      affinity:
+{{ toYaml .Values.affinity | indent 8 }}
+{{- end }}
+      serviceAccountName: {{ template "f5-ipam-controller.serviceAccountName" . }}
+{{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+      {{- range $pullSecret := .Values.image.pullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
+{{- end }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+      containers:
+      - name: {{ template "f5-ipam-controller.name" . }}
+        image: "{{ .Values.image.user }}/{{ .Values.image.repo }}:{{ .Values.image.version }}"
+      {{- if eq .Values.args.provider "f5-ip-provider" }}
+        volumeMounts:
+        - name: {{ .Values.volume.mountName }}
+          mountPath: {{ .Values.volume.mountPath }}
+      {{- end }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+        - /app/bin/f5-ipam-controller
+        args:
+        - --orchestration={{ .Values.args.orchestration }}
+        - --ipam-provider={{ .Values.args.provider }}
+        {{- if eq .Values.args.provider "f5-ip-provider" }}
+        - --ip-range={{ .Values.args.ip_range | replace "_" "-" }}
+        {{- end }}
+        {{- if eq .Values.args.provider "infoblox" }}
+        - --infoblox-grid-host={{ .Values.args.infoblox_grid_host }}
+        - --infoblox-wapi-version={{ .Values.args.infoblox_wapi_version }}
+        - --infoblox-username={{ .Values.args.infoblox_username }}
+        - --infoblox-password={{ .Values.args.infoblox_password }}
+        - --infoblox-labels
+        - {{ .Values.args.infoblox_labels | squote }}
+        - --infoblox-netview={{ .Values.args.infoblox_netview }}
+        {{- end }}
+        {{- if .Values.args.infoblox_wapi_port }}
+        - --infoblox-wapi-port={{ .Values.args.infoblox_wapi_port }}
+        {{- end }}
+        {{- if .Values.args.log_level }}
+        - --log-level={{ .Values.args.log_level }}
+        {{- end }}
+        {{- if .Values.args.version }}
+        - --version={{ .Values.args.version }}
+        {{- end }}
+        {{- if .Values.args.credentials_directory }}
+        - --credentials-directory={{ .Values.args.credentials_directory }}
+        {{- end }}
+        {{- if .Values.args.insecure }}
+        - --insecure={{ .Values.args.insecure }}
+        {{- end }}
+        resources:
+          limits:
+            cpu: {{ .Values.limits_cpu | default "100m" }}
+            memory: {{ .Values.limits_memory | default "512Mi" }}
+          requests:
+            cpu: {{ .Values.requests_cpu | default "100m" }}
+            memory: {{ .Values.requests_memory | default "512Mi" }}
+{{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+{{- end }}
+{{- if .Values.tolerations }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 6}}
+{{- end }}
+  {{- if eq .Values.args.provider "f5-ip-provider" }}
+      volumes:
+      - name: {{ .Values.volume.mountName }}
+        persistentVolumeClaim:
+          claimName: {{ template "f5-ipam-controller.persistentVolumeClaimName" . }}
+  {{- end }}
+{{- end }}
