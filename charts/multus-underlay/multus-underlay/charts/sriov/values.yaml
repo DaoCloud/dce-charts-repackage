@@ -95,6 +95,7 @@ config:
     deviceInfoPath: "/var/run/k8s.cni.cncf.io/devinfo/dp"
   sriov_device_plugin:
     name: sriov_netdevice
+    resourcePrefix: intel.com
     vendors: []
     devices: []
     drivers: []
