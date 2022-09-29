@@ -10,3 +10,7 @@ f5-bigip-ctlr:
 f5-ipam-controller:
   - args/log_level
   - install
+  - securityContext/fsGroup
+  - securityContext/runAsUser
+  - securityContext/runAsGroup
+  - securityContext
