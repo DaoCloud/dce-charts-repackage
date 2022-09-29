@@ -6,8 +6,6 @@ f5-bigip-ctlr:
     ingressClassName: f5
     isDefaultIngressController: true
 
-  namespace: kube-system
-
   args:
     bigip_url: "https://172.17.8.10:443"
     bigip_partition: kubernetes
@@ -47,7 +45,6 @@ f5-ipam-controller:
   rbac:
     create: true
 
-  namespace: kube-system
   args:
     orchestration: "kubernetes"
     provider: "f5-ip-provider"
@@ -77,6 +74,11 @@ f5-ipam-controller:
     accessMode: ReadWriteOnce
     storage: "100Mi"
 
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 1000
+    fsGroup: 1000 
+      
 cis-secret:
   username: "admin"
   password: "admin"
