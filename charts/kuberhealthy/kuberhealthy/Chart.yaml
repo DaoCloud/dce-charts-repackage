@@ -1,0 +1,15 @@
+apiVersion: v2
+appVersion: v2.7.1
+icon: https://raw.githubusercontent.com/kuberhealthy/kuberhealthy/master/images/logo-square.png
+keywords:
+  - health
+  - testing
+  - monitoring
+dependencies:
+  - name: kuberhealthy
+    repository: https://kuberhealthy.github.io/kuberhealthy/helm-repos
+    version: 87
+description: "An operator for synthetic test and monitoring. Works great with Prometheus."
+name: kuberhealthy
+type: application
+version: 87
