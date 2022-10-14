@@ -122,7 +122,8 @@ sriov:
       configVolume: "/etc/pcidp/"
       deviceInfoPath: "/var/run/k8s.cni.cncf.io/devinfo/dp"
     sriov_device_plugin:
-      name: intel.com/sriov_netdevice
+      name: sriov_netdevice
+      resourcePrefix: intel.com
       vendors: ["8086"]
       devices: ["154c"]
       drivers: []

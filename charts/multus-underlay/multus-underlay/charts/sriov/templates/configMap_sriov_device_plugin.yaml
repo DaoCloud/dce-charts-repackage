@@ -21,7 +21,7 @@ metadata:
 data:
   config.json: |-
     {
-      "resourceList": [{"resourceName": {{ .Values.config.sriov_device_plugin.name | quote }},"selectors": {"device": {{ toJson .Values.config.sriov_device_plugin.devices }},"vendors": {{ toJson .Values.config.sriov_device_plugin.vendors }},"drivers": {{ toJson .Values.config.sriov_device_plugin.drivers }},"pfNames": {{ toJson .Values.config.sriov_device_plugin.pfNames }}}}]
+      "resourceList": [{"resourceName": {{ .Values.config.sriov_device_plugin.name | quote }},"resourcePrefix": {{ .Values.config.sriov_device_plugin.resourcePrefix | quote }},"selectors": {"device": {{ toJson .Values.config.sriov_device_plugin.devices }},"vendors": {{ toJson .Values.config.sriov_device_plugin.vendors }},"drivers": {{ toJson .Values.config.sriov_device_plugin.drivers }},"pfNames": {{ toJson .Values.config.sriov_device_plugin.pfNames }}}}]
     }
 {{- end }}
 {{- end }}

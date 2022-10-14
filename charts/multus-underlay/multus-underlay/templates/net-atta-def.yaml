@@ -153,7 +153,7 @@ metadata:
     v1.multus-underlay-cni.io/default-cni: "true"
     v1.multus-underlay-cni.io/other-cni: '["sriov_standalone"]'
     v1.multus-underlay-cni.io/vlanId: {{ .Values.sriov.sriov_crd.vlanId | quote }}
-    k8s.v1.cni.cncf.io/resourceName: {{ .Values.sriov.config.sriov_device_plugin.name | quote }}
+    k8s.v1.cni.cncf.io/resourceName: "{{ .Values.sriov.config.sriov_device_plugin.resourcePrefix }}/{{ .Values.sriov.config.sriov_device_plugin.name }}"
 spec:
   config: |-
     {
@@ -208,7 +208,7 @@ metadata:
     v1.multus-underlay-cni.io/underlay-cni: "true"
     v1.multus-underlay-cni.io/coexist-types: '["sriov_overlay"]'
     v1.multus-underlay-cni.io/vlanId: {{ .Values.sriov.sriov_crd.vlanId | quote }}
-    k8s.v1.cni.cncf.io/resourceName: {{ .Values.sriov.config.sriov_device_plugin.name | quote }}
+    k8s.v1.cni.cncf.io/resourceName: "{{ .Values.sriov.config.sriov_device_plugin.resourcePrefix }}/{{ .Values.sriov.config.sriov_device_plugin.name }}"
 spec:
   config: |-
     {
@@ -261,7 +261,7 @@ metadata:
     v1.multus-underlay-cni.io/underlay-cni: "true"
     v1.multus-underlay-cni.io/coexist-types: '["default"]'
     v1.multus-underlay-cni.io/vlanId: {{ .Values.sriov.sriov_crd.vlanId | quote }}
-    k8s.v1.cni.cncf.io/resourceName: {{ .Values.sriov.config.sriov_device_plugin.name | quote }}
+    k8s.v1.cni.cncf.io/resourceName: "{{ .Values.sriov.config.sriov_device_plugin.resourcePrefix }}/{{ .Values.sriov.config.sriov_device_plugin.name }}"
 spec:
   config: |-
       {
