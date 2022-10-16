@@ -82,6 +82,18 @@ jobs:
               go run main.go -path ${PROJECT_PATH}/${PROJECT} -skipCPath ${PROJECT_PATH}/skip-check.yaml
           done
 
+      - name: check chart trivy
+        run: |
+          BASE=$PWD
+          for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
+              docker run --rm \
+                  -v /tmp/trivy:/root/trivy.cache/  \
+                    -v ${BASE}:/tmp/src  \
+                    aquasec/trivy:latest config --exit-code 1  --severity CRITICAL /tmp/src/charts/${PROJECT}/${PROJECT}
+              (( $? == 0 )) || { echo "error, failed to check chart trivy" && exit 1 ; }
+              echo "chart trivy check: pass charts/${PROJECT}/${PROJECT} "
+          done
+          
   call_e2e:
     uses: ./.github/workflows/call-e2e.yml
     needs: [check_change]
