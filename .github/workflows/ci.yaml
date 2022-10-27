@@ -32,6 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       project: ${{ steps.check_change.outputs.changed_project }}
+      pro_version_changed: ${{ env.PRO_CHANGED_VERSION }}
     steps:
       - name: "Setup go"
         uses: actions/setup-go@v3
@@ -57,6 +58,19 @@ jobs:
           # Adding || true to avoid "Process exited with code 1" errors
           charts_changed="$(echo "$files_changed" | xargs dirname | grep -E -o "charts/([^/]*)/\1" | grep -o "charts/[^/]*" | sort | uniq | awk -F'/' '{print $2}' | tr '\n' ' ' || true)"
           echo "charts_changed: $charts_changed"
+          #--------------------
+          # issue: just release one project
+          PRO_CHANGED_VERSION=""
+          for PRO in ${charts_changed} ; do
+            if [ -d "charts/${PRO}" ] ; then
+               if grep  "charts/${PRO}/${PRO}/Chart.yaml" <<< "${files_changed}" &>/dev/null ; then
+                   PRO_CHANGED_VERSION="${PRO}"
+                  break
+               fi
+            fi
+          done
+          echo "PRO_CHANGED_VERSION=${PRO_CHANGED_VERSION}"
+          echo "PRO_CHANGED_VERSION=${PRO_CHANGED_VERSION}" >> $GITHUB_ENV
           #--------------------
           test_dir_changed="$(echo "$files_changed" | xargs dirname |  grep -o "test/[^/]*" | sort | uniq  || true)"
           if [ -n "$test_dir_changed" ] ; then
@@ -102,3 +116,21 @@ jobs:
       project: ${{ needs.check_change.outputs.project }}
       ref: ${{ github.event.pull_request.head.sha }}
     secrets: inherit
+
+#  nofity_version_changed:
+#    runs-on: ubuntu-latest
+#    needs: [ check_change ]
+#    if: ${{ needs.check_change.outputs.pro_version_changed != '' }}
+#    steps:
+#      - name: create an issue
+#        uses: dacbd/create-issue-action@main
+#        with:
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#          repo: DaoCloud/DaoCloud-docs
+#          title: "project ${{ needs.check_change.outputs.pro_version_changed }} update to version "
+#          body: my new issue
+#
+#      - name: Print outputs
+#        run: |
+#          echo ${{ steps.create-issue.outputs.id }}
+#          echo ${{ steps.create-issue.outputs.number }}
