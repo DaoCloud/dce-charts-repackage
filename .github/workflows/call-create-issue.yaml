@@ -7,6 +7,11 @@ jobs:
   nofity_version_changed:
     runs-on: ubuntu-latest
     steps:
+      - name: echo
+        run: |
+          echo ${{ github.context.repo.owner }}
+          echo ${{ github.context.repo.repo }}
+          
       - name: create an issue
         uses: dacbd/create-issue-action@main
         with:
