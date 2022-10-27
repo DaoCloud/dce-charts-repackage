@@ -11,12 +11,14 @@ jobs:
         run: |
           echo ${{ github.repository }}
           echo ${{ github.repository_owner }}
-          
+
       - name: create an issue
         uses: dacbd/create-issue-action@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          owner: DaoCloud
+          repo: DaoCloud-docs
           title: "welan test issue"
           body: |
-              my new issue
-              line2 
+            my new issue
+            line2
