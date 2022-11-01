@@ -74,7 +74,7 @@ jobs:
           echo ::set-output name=ref::${ref}
 
       - name: Set up Helm
-        uses: azure/setup-helm@v3.3
+        uses: azure/setup-helm@v3.4
 
       - name: package chart
         id: package
