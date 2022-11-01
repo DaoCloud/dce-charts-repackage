@@ -43,7 +43,13 @@ for PRO in ${CHART_LIST} ; do
         docker save -o ${TAR_NAME}.tar  $IMAGE
         (( $? != 0 )) && echo "error, failed to save image ${IMAGE}" && exit 1
     done
-
 done
 
+mkdir images
+mv *.tar images
+
+mkdir charts
+mv *.tgz charts
+
+echo "all artifact output to ${OUTPUT_DIR}"
 exit 0
