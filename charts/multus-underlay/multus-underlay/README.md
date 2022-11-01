@@ -1,6 +1,6 @@
 # multus-underlay
 
-![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.1.3](https://img.shields.io/badge/AppVersion-0.1.3-informational?style=flat-square)
+![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.1.4](https://img.shields.io/badge/AppVersion-0.1.4-informational?style=flat-square)
 
 Multus-underlay works with underlay-cni and enables attaching multiple network interfaces to pods in Kubernetes.
 
@@ -11,7 +11,7 @@ Multus-underlay works with underlay-cni and enables attaching multiple network i
 |------------|------|---------|
 | <https://github.com/intel/multus-cni> | multus | v3.9 |
 | <https://github.com/intel/sriov-network-device-plugin> | sriov | 0.1.1 |
-| <https://spidernet-io.github.io/cni-plugins> | meta-plugins | 0.1.7 |
+| <https://spidernet-io.github.io/cni-plugins> | meta-plugins | 0.1.8 |
 
 ## Values
 
@@ -29,7 +29,7 @@ Multus-underlay works with underlay-cni and enables attaching multiple network i
 | macvlan.type | string | `"macvlan-overlay"` |  |
 | macvlan.vlanID | int | `0` |  |
 | meta-plugins.image.repository | string | `"ghcr.m.daocloud.io/spidernet-io/cni-plugins/meta-plugins"` |  |
-| meta-plugins.image.tag | string | `"v0.1.5"` |  |
+| meta-plugins.image.tag | string | `"v0.1.8"` |  |
 | multus.config.cni_conf.binDir | string | `"/opt/cni/bin"` |  |
 | multus.config.cni_conf.capabilities.portMappings | bool | `true` |  |
 | multus.config.cni_conf.clusterNetwork | string | `"calico"` | calico or cilium |

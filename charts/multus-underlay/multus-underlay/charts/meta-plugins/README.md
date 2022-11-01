@@ -1,6 +1,6 @@
 # meta-plugins
 
-![Version: v0.1.7](https://img.shields.io/badge/Version-v0.1.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.1.7](https://img.shields.io/badge/AppVersion-v0.1.7-informational?style=flat-square)
+![Version: v0.1.8](https://img.shields.io/badge/Version-v0.1.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.1.8](https://img.shields.io/badge/AppVersion-v0.1.8-informational?style=flat-square)
 
 Veth works with macvlan cni to solve some communication problems when macvlan is used as CNI.
 

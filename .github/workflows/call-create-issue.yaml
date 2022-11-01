@@ -3,6 +3,8 @@ name: Call Create Issue
 on:
   workflow_dispatch:
 
+permissions: write-all
+
 jobs:
   nofity_version_changed:
     runs-on: ubuntu-latest
