@@ -74,11 +74,6 @@ f5-ipam-controller:
     accessMode: ReadWriteOnce
     storage: "100Mi"
 
-  securityContext:
-    runAsUser: 0
-    runAsGroup: 1000
-    fsGroup: 1000 
-      
 cis-secret:
   username: "admin"
   password: "admin"
