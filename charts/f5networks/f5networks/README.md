@@ -30,6 +30,10 @@ Refer to [compatibility](https://clouddocs.f5.com/containers/latest/userguide/wh
 
 - Create a BIG-IP partition to manage Kubernetes objects. This partition can be created either via the GUI (System > Users > Partition List)
 
+- Do not install 'metallb' who will race to assign external-ip for the service
+
+- if installed as L4 loadbalancer, the IPAM component requires 'storageClass' support
+
 ## reference
 
 <https://clouddocs.f5.com/containers/latest/userguide/cis-installation.html>
