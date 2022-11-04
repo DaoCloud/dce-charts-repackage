@@ -1,4 +1,7 @@
-name: PR E2E CI
+name: PR E2E C
+
+env:
+  SKIP_CHART_LIST: "nmstate"
 
 on:
   pull_request_target:
@@ -86,6 +89,8 @@ jobs:
         run: |
           BASE=$PWD
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
+              # skip chart trivy
+              grep " ${PROJECT} " <<< " ${{ env.SKIP_CHART_LIST }} " && continue
               docker run --rm \
                   -v /tmp/trivy:/root/trivy.cache/  \
                     -v ${BASE}:/tmp/src  \
