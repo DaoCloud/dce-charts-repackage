@@ -303,7 +303,7 @@
               "title": "IP Ranges for default IPv4 ippool",
               "type": "array",
               "minItems": 1,
-              "description": "each item could be range format like '192.168.0.10-192.168.0.100', or comma format like '192.168.0.10,192.168.0.11,192.168.0.12'. Notice: all IP address must belong to ipv4Subnet",
+              "description": "for each item, it could be range format like '192.168.0.10-192.168.0.100', or signle format like '192.168.0.10'. Notice: all IP address must belong to ipv4Subnet",
               "default": [],
               "items": {
                 "type": "string"
@@ -316,7 +316,7 @@
               "title": "IP Ranges for default IPv6 ippool",
               "type": "array",
               "minItems": 1,
-              "description": "each item could be range format like 'fd00::10-fd00::200', or comma format like 'fd00::10,fd00::20,fd00::30'. Notice: all IP address must belong to ipv6Subnet ",
+              "description": "for each item, it could be range format like 'fd00::10-fd00::200', or signle IP 'fd00::10'. Notice: all IP address must belong to ipv6Subnet ",
               "default": [],
               "items": {
                 "type": "string"
