@@ -1,0 +1,31 @@
+# Default values for nmstate.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+startHandler: false
+runOperator: ""
+
+image:
+  operator:
+    repository: quay.m.daocloud.io/nmstate/kubernetes-nmstate-operator
+    # Overrides the image tag whose default is the chart appVersion.
+  handler:
+    repository: quay.m.daocloud.io/nmstate/kubernetes-nmstate-handler
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+resources:
+  requests:
+    cpu: 60m
+    memory: 30Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

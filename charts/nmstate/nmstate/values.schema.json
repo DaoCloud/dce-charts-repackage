@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "image": {
+            "type": "object",
+            "title": "Nmstate Image",
+            "properties": {
+                "handler": {
+                    "type": "object",
+                    "title": "Nmstate Handler",
+                    "properties": {
+                        "repository": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "operator": {
+                    "type": "object",
+                    "title": "Nmstate Operator",
+                    "properties": {
+                        "repository": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "replicaCount": {
+            "type": "integer",
+            "title": "Nmstate Operator Replicas"
+        },
+        "startHandler": {
+            "type": "boolean",
+            "title": "Start Handler",
+            "description": "If set it to true, Nmstate start collecting and watching to the node's network informationch. Notice: it require for enable helm flag '--wait', More detail refer to README.md"
+        }
+    }
+}

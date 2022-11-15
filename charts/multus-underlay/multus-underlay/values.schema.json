@@ -65,7 +65,7 @@
                 },
                 "pod_subnet": {
                     "type": "array",
-                    "title": "Pod CIDR",
+                    "title": "Pod IPv4/IPv6 CIDR",
                     "description": "The POD CIDR of Default CNI (calico or cilium). For each item, input subnet format like '172.17.0.0/16' or 'fd01::/64' ",
                     "items": {
                         "type": "string",

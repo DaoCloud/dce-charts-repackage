@@ -1,0 +1,150 @@
+# Nmstate
+
+![Version: 0.74.0](https://img.shields.io/badge/Version-0.74.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.74.0](https://img.shields.io/badge/AppVersion-v0.74.0-informational?style=flat-square)
+
+A Helm chart for Kubernetes
+
+## Source Code
+
+* <https://github.com/nmstate/kubernetes-nmstate>
+
+## Install
+
+### Notice
+
+#### *Nmstate and NetworkManager*
+
+Nmstate's external dependency is `NetworkManager` must be running on nodes and  version be >= 1.22. More details ref to below table: 
+
+|-|NetworkManager|Support|
+|---|---|---|
+| centos 7/7.6/7.9 |1.18.8-2.el7_9|No|
+| centos 8 |1.32.10-4.el8|Yes|
+| rhel8 | 1.36.0-4.el8 | Yes |
+| rhel9 | 1.36.0-4.el9_0 | Yes |
+| oracle8 | 1.36.0-9.0.1.el8_6 | Yes |
+| oracle9 | 1.36.0-5.0.1.el9_0 | Yes |
+| kylin os | 1.26.2-4.ky10 | Yes |
+| ubuntu | No Install | No |
+| debian | No Install | No |
+| fedora | No Install | No |
+
+you can confirm it by the following:
+
+```shell
+[root@master]# /usr/sbin/NetworkManager --version
+1.22.8-4.el8
+```
+
+Output is `1.22.8-4.el8`, Congratulations! You can use nmstate on your node.
+
+If output is < v1.22, you can manually try to upgrade networkManager, for example in centos:
+
+```shell
+yum -y upgrade NetworkManager
+```
+
+#### *Nmstate and Trivy*
+
+Nmstate requires all permissions for secrets and rbac, otherwise it will not work. and this also means that nmstate can't pass the trivy check.
+
+```shell
+2022-11-10T16:56:14.479+0800    INFO    Misconfiguration scanning is enabled
+2022-11-10T16:56:17.444+0800    INFO    Detected config files: 5
+
+templates/role.yaml (rbac)
+
+Tests: 6 (SUCCESSES: 5, FAILURES: 1, EXCEPTIONS: 0)
+Failures: 1 (CRITICAL: 1)
+
+CRITICAL: Role permits management of secret(s)
+═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Check whether role permits managing secrets
+
+See https://avd.aquasec.com/misconfig/ksv041
+```
+
+### Quick Start
+
+```shell
+helm repo add daocloud https://daocloud.github.io/network-charts-repackage/ 
+helm install nmstate -n nmstate daocloud/nmstate --create-namespace
+```
+
+> NOTE: it's highly recommended installing nmstate into namespace nmstate. so you can create namespace name nmstate or using helm install with flag --create-namespace:
+
+```shell
+kubectl create ns nmstate && helm install nmstate -n nmstate daocloud/nmstate
+```
+
+or
+
+```shell
+helm install nmstate -n nmstate daocloud/nmstate --create-namespace
+```
+
+Wait all pod is running, you will see:
+
+```shell
+[root@root ~]# kubectl get po -n nmstate
+NAME                                    READY   STATUS    RESTARTS       AGE
+nmstate-cert-manager-7b68956b69-ff27s   1/1     Running   2 (5d1h ago)   8d
+nmstate-operator-5dfc976fd5-cmzmm       1/1     Running   2 (5d1h ago)   8d
+nmstate-webhook-554c87969-mmtfw         1/1     Running   2 (5d1h ago)   8d
+```
+
+To trigger nmstate to start collecting and watching the network information of each node, You can make it work in the following way:
+
+```shell
+cat <<EOF | kubectl create -f -
+apiVersion: nmstate.io/v1
+kind: NMState
+metadata:
+  name: nmstate
+EOF
+```
+
+And then, you will see nmstate-handler start works:
+
+```shell
+[root@10-6-185-30 ~]# kubectl get po -n nmstate  | grep handler
+nmstate-handler-dxz28                   1/1     Running   2 (5d1h ago)   8d
+nmstate-handler-rzrbx                   1/1     Running   3 (5d1h ago)   8d
+[root@10-6-185-30 ~]# kubectl get nns
+NAME          AGE
+10-6-185-30   8d
+10-6-185-40   8d
+```
+
+Also, you can do this part of the work during the helm install, refer to following:
+
+```shell
+helm install nmstate -n nmstate daocloud/nmstate --set startHandler=true --wait
+```
+
+> NOTE: '--wait' is required for this!
+> '--set startHandler=true' means that a crd instance of NMState will be created. To trigger nmstate start work.
+
+## Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| affinity | object | `{}` |  |
+| fullnameOverride | string | `""` |  |
+| image.handler.repository | string | `"quay.m.daocloud.io/nmstate/kubernetes-nmstate-handler"` |  |
+| image.operator.pullPolicy | string | `"IfNotPresent"` |  |
+| image.operator.repository | string | `"quay.m.daocloud.io/nmstate/kubernetes-nmstate-operator"` |  |
+| image.pullPolicy | string | `"IfNotPresent"` |  |
+| image.tag | string | `""` |  |
+| imagePullSecrets | list | `[]` |  |
+| nameOverride | string | `""` |  |
+| nodeSelector | object | `{}` |  |
+| replicaCount | int | `1` |  |
+| resources.requests.cpu | string | `"60m"` |  |
+| resources.requests.memory | string | `"30Mi"` |  |
+| runOperator | string | `""` |  |
+| startHandler | bool | `false` |  |
+| tolerations | list | `[]` |  |
+
+----------------------------------------------
+Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)

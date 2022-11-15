@@ -1,0 +1,8 @@
+{{- if .Values.startHandler }}
+apiVersion: nmstate.io/v1
+kind: NMState
+metadata:
+  name: nmstate
+  labels:
+    {{- include "nmstate.labels" . | nindent 4 }}
+{{- end }}
