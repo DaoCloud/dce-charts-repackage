@@ -29,6 +29,7 @@ contour:
     service:
       type: "LoadBalancer"
       ipFamilyPolicy: "SingleStack"
+      externalTrafficPolicy: "Cluster"
     affinity:
       nodeAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:

@@ -103,6 +103,15 @@
                     "PreferDualStack",
                     "RequireDualStack"
                   ]
+                },
+                "externalTrafficPolicy": {
+                  "type": "string",
+                  "title": "External Traffic Policy",
+                  "description": "Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints. There are two available options: Cluster (default) and Local. ",
+                  "enum": [
+                    "Cluster",
+                    "Local"
+                  ]
                 }
               }
             },
@@ -137,7 +146,14 @@
                                     "operator": {
                                       "type": "string",
                                       "title": "Operator",
-                                      "enum": ["In", "NotIn", "Exists", "DoesNotExist", "Gt", "Lt"]
+                                      "enum": [
+                                        "In",
+                                        "NotIn",
+                                        "Exists",
+                                        "DoesNotExist",
+                                        "Gt",
+                                        "Lt"
+                                      ]
                                     }
                                   }
                                 }
