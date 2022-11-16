@@ -11,6 +11,8 @@ ingress-nginx:
     service:
       ipFamilyPolicy: "SingleStack"
       type: "LoadBalancer"
+      internal:
+        externalTrafficPolicy: "Cluster"
     image:
       registry: "k8s.m.daocloud.io"
       image: "ingress-nginx/controller"
