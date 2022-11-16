@@ -82,6 +82,19 @@
                     "NodePort",
                     "ClusterIP"
                   ]
+                },
+                "internal": {
+                  "type": "object",
+                  "properties": {
+                    "externalTrafficPolicy": {
+                      "type": "string",
+                      "enum": [
+                        "Cluster",
+                        "Local"
+                      ],
+                      "description": "Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints. There are two available options: Cluster (default) and Local."
+                    }
+                  }
                 }
               },
               "title": "Service"
@@ -158,7 +171,14 @@
                                     "operator": {
                                       "type": "string",
                                       "title": "Operator",
-                                      "enum": ["In", "NotIn", "Exists", "DoesNotExist", "Gt", "Lt"]
+                                      "enum": [
+                                        "In",
+                                        "NotIn",
+                                        "Exists",
+                                        "DoesNotExist",
+                                        "Gt",
+                                        "Lt"
+                                      ]
                                     }
                                   }
                                 }
