@@ -1,11 +1,11 @@
 global:
-  imageRegistry: "docker.m.daocloud.io"
+  imageRegistry: "release.daocloud.io"
 contour:
   contour:
     manageCRDs: true
     image:
-      registry: "docker.m.daocloud.io"
-      repository: "bitnami/contour"
+      registry: "release.daocloud.io"
+      repository: "contour/contour"
       tag: "1.22.0-debian-11-r4"
       pullPolicy: "IfNotPresent"
     replicaCount: 2
@@ -19,8 +19,8 @@ contour:
   envoy:
     replicaCount: 2
     image:
-      registry: "docker.m.daocloud.io"
-      repository: "bitnami/envoy"
+      registry: "release.daocloud.io"
+      repository: "contour/envoy"
       tag: "1.23.0-debian-11-r8"
       pullPolicy: "IfNotPresent"
     kind: "deployment"
