@@ -1,6 +1,6 @@
 # metallb
 
-![Version: 0.13.4](https://img.shields.io/badge/Version-0.13.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.13.4](https://img.shields.io/badge/AppVersion-0.13.4-informational?style=flat-square)
+![Version: 0.13.5](https://img.shields.io/badge/Version-0.13.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.13.5](https://img.shields.io/badge/AppVersion-0.13.5-informational?style=flat-square)
 
 A network load-balancer implementation for Kubernetes using standard routing protocols
 
@@ -8,7 +8,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 
 | Repository | Name | Version |
 |------------|------|---------|
-| <https://metallb.github.io/metallb> | metallb | 0.13.4 |
+| <https://metallb.github.io/metallb> | metallb | 0.13.5 |
 
 ## Values
 
@@ -21,7 +21,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | ipAddressPools.name | string | `"default-address-pool"` | default ip-address pool name |
 | metallb.controller.image.pullPolicy | string | `"IfNotPresent"` |  |
 | metallb.controller.image.repository | string | `"quay.m.daocloud.io/metallb/controller"` |  |
-| metallb.controller.image.tag | string | `v0.13.4` |  |
+| metallb.controller.image.tag | string | `v0.13.5` |  |
 | metallb.controller.logLevel | string | `"info"` | Controller log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none` |
 | metallb.controller.nodeSelector | object | `{}` |  |
 | metallb.controller.resources | object | `{}` |  |
@@ -41,7 +41,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 ### Quick Install
 
 ```shell
-helm repo add daocloud-system https://release.daocloud.io/chartrepo/system
+helm repo add daocloud-system https://release.daocloud.io/chartrepo/addon
 helm install metallb daocloud-system/metallb  -n kube-system
 ```
 

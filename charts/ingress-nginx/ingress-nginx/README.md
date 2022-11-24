@@ -10,7 +10,7 @@ Ingress controller for Kubernetes using NGINX as a reverse proxy and load balanc
 ## Install
 
 ```shell
-helm repo add daocloud-system https://release.daocloud.io/chartrepo/system
+helm repo add daocloud-system https://release.daocloud.io/chartrepo/addon
 helm install ingress-nginx -f values.yml  daocloud-system/ingress-nginx
 helm ls
 ```
