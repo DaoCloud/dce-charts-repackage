@@ -1,0 +1,210 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "node-problem-detector": {
+            "type": "object",
+            "properties": {
+                "affinity": {
+                    "type": "object"
+                },
+                "annotations": {
+                    "type": "object"
+                },
+                "env": {
+                    "type": "null"
+                },
+                "extraContainers": {
+                    "type": "array"
+                },
+                "extraVolumeMounts": {
+                    "type": "array"
+                },
+                "extraVolumes": {
+                    "type": "array"
+                },
+                "fullnameOverride": {
+                    "type": "string"
+                },
+                "hostNetwork": {
+                    "type": "boolean"
+                },
+                "hostPID": {
+                    "type": "boolean"
+                },
+                "image": {
+                    "type": "object",
+                    "properties": {
+                        "pullPolicy": {
+                            "type": "string"
+                        },
+                        "registry": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "imagePullSecrets": {
+                    "type": "array"
+                },
+                "labels": {
+                    "type": "object"
+                },
+                "logDir": {
+                    "type": "object",
+                    "properties": {
+                        "host": {
+                            "type": "string"
+                        },
+                        "pod": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "maxUnavailable": {
+                    "type": "integer"
+                },
+                "metrics": {
+                    "type": "object",
+                    "properties": {
+                        "annotations": {
+                            "type": "object"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "prometheusRule": {
+                            "type": "object",
+                            "properties": {
+                                "additionalLabels": {
+                                    "type": "object"
+                                },
+                                "additionalRules": {
+                                    "type": "array"
+                                },
+                                "defaultRules": {
+                                    "type": "object",
+                                    "properties": {
+                                        "create": {
+                                            "type": "boolean"
+                                        },
+                                        "disabled": {
+                                            "type": "array"
+                                        }
+                                    }
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "serviceMonitor": {
+                            "type": "object",
+                            "properties": {
+                                "additionalLabels": {
+                                    "type": "object"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                },
+                "nameOverride": {
+                    "type": "string"
+                },
+                "nodeSelector": {
+                    "type": "object"
+                },
+                "priorityClassName": {
+                    "type": "string"
+                },
+                "rbac": {
+                    "type": "object",
+                    "properties": {
+                        "create": {
+                            "type": "boolean"
+                        },
+                        "pspEnabled": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "resources": {
+                    "type": "object"
+                },
+                "securityContext": {
+                    "type": "object",
+                    "properties": {
+                        "privileged": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "serviceAccount": {
+                    "type": "object",
+                    "properties": {
+                        "create": {
+                            "type": "boolean"
+                        },
+                        "name": {
+                            "type": "null"
+                        }
+                    }
+                },
+                "settings": {
+                    "type": "object",
+                    "properties": {
+                        "custom_monitor_definitions": {
+                            "type": "object"
+                        },
+                        "custom_plugin_monitors": {
+                            "type": "array"
+                        },
+                        "extraArgs": {
+                            "type": "array"
+                        },
+                        "heartBeatPeriod": {
+                            "type": "string"
+                        },
+                        "log_monitors": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "prometheus_address": {
+                            "type": "string"
+                        },
+                        "prometheus_port": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "tolerations": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "effect": {
+                                "type": "string"
+                            },
+                            "operator": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "updateStrategy": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
