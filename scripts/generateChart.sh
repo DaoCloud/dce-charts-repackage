@@ -98,7 +98,7 @@ fi
 
 if [ -d "${PROJECT_SRC_DIR}/parent" ] ;then
     echo "overwrite /chart to parent chart"
-    cp -rf ${PROJECT_SRC_DIR}/parent/*  ${CHART_BUILD_DIR}
+    cp -rf ${PROJECT_SRC_DIR}/parent/ ${CHART_BUILD_DIR}
 fi
 
 if [ ! -f ${CHART_BUILD_DIR}/values.schema.json ] ; then
