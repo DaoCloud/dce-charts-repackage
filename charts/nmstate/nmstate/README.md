@@ -88,9 +88,7 @@ Wait all pod is running, you will see:
 ```shell
 [root@root ~]# kubectl get po -n nmstate
 NAME                                    READY   STATUS    RESTARTS       AGE
-nmstate-cert-manager-7b68956b69-ff27s   1/1     Running   2 (5d1h ago)   8d
 nmstate-operator-5dfc976fd5-cmzmm       1/1     Running   2 (5d1h ago)   8d
-nmstate-webhook-554c87969-mmtfw         1/1     Running   2 (5d1h ago)   8d
 ```
 
 To trigger nmstate to start collecting and watching the network information of each node, You can make it work in the following way:
@@ -107,9 +105,12 @@ EOF
 And then, you will see nmstate-handler start works:
 
 ```shell
-[root@10-6-185-30 ~]# kubectl get po -n nmstate  | grep handler
-nmstate-handler-dxz28                   1/1     Running   2 (5d1h ago)   8d
-nmstate-handler-rzrbx                   1/1     Running   3 (5d1h ago)   8d
+[root@10-6-185-30 ~]# kubectl get po -n nmstate  
+nmstate-cert-manager-78d85c65-jg4cr   1/1     Running   0          19m
+nmstate-handler-mmr4d                 1/1     Running   0          19m
+nmstate-handler-qgsfl                 1/1     Running   0          19m
+nmstate-operator-56549f6dc-wc9hv      1/1     Running   0          122m
+nmstate-webhook-6454979789-grwsb      1/1     Running   0          19m
 [root@10-6-185-30 ~]# kubectl get nns
 NAME          AGE
 10-6-185-30   8d
