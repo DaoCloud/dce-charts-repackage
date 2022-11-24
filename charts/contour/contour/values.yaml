@@ -17,6 +17,7 @@ contour:
       - "--envoy-service-https-address=::"
     debug: false
   envoy:
+    useHostPort: false
     replicaCount: 2
     image:
       registry: "release.daocloud.io"
