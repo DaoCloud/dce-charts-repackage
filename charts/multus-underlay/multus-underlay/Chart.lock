@@ -1,6 +1,12 @@
 dependencies:
 - name: meta-plugins
   repository: https://spidernet-io.github.io/cni-plugins
-  version: v0.1.6
-digest: sha256:7acb66156e5d404ecfdf7c988b54e76905e00d7334ba405f2c975fac24232bf6
-generated: "2022-09-02T19:29:38.753151+08:00"
+  version: 0.1.9
+- name: multus
+  repository: file://charts/multus
+  version: v3.9
+- name: sriov
+  repository: file://charts/sriov
+  version: 0.1.2
+digest: sha256:5786cc5cb0439b06cf51571f988fb681493905d530cda311c1776aef6a099ba9
+generated: "2022-11-27T13:26:18.428979+08:00"

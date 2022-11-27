@@ -16,23 +16,25 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.1.4
+version: 0.1.5
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.1.4"
+appVersion: "0.1.5"
 dependencies:
 - name: meta-plugins
   repository: https://spidernet-io.github.io/cni-plugins
-  version: 0.1.8
+  version: 0.1.9
 - name: multus
-  repository: https://github.com/intel/multus-cni
+  repository: file://charts/multus
   version: v3.9
 - name: sriov
-  repository: https://github.com/intel/sriov-network-device-plugin
-  version: 0.1.1
+  repository: file://charts/sriov
+  version: 0.1.2
 
 keywords:
   - networking
+  - underlay
+  - cni

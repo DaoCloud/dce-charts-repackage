@@ -19,7 +19,7 @@ multus:
           cpu: "2000m"
   labels:
     nodeSelector:
-      kubernetes.io/arch: amd64
+      kubernetes.io/os: linux
 
   image:
     repository: ghcr.m.daocloud.io/k8snetworkplumbingwg/multus-cni
@@ -39,6 +39,7 @@ multus:
       logLevel: info
       capabilities:
         portMappings: true
+        bandwidth: true
       readinessindicatorfile: ""
       namespaceIsolation: false
       # -- calico or cilium
@@ -70,7 +71,7 @@ cluster_subnet:
 macvlan:
   enable: true
   type: macvlan-overlay
-  name: macvlan-vlan0
+  name: macvlan-overlay-vlan0
   master: "ens192"
   vlanID: 0
   migrate_route: -1
@@ -83,7 +84,7 @@ sriov:
     registry: docker.io
     sriovCni:
       repository: ghcr.m.daocloud.io/k8snetworkplumbingwg/sriov-cni
-      tag: v2.6.3
+      tag: v2.7.0
     sriovDevicePlugin:
       repository: ghcr.m.daocloud.io/k8snetworkplumbingwg/sriov-network-device-plugin
       tag: v3.5.1
@@ -111,7 +112,7 @@ sriov:
 
   labels:
     nodeSelector:
-      kubernetes.io/arch: amd64
+      kubernetes.io/os: linux
 
   config:
     scMountPaths:
@@ -131,7 +132,7 @@ sriov:
 
   sriov_crd:
     type: sriov-overlay
-    name: sriov-vlan0
+    name: sriov-overlay-vlan0
     vlanId: 0
     overlayInterface: eth0
     custom_route: []
