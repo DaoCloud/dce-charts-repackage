@@ -102,7 +102,7 @@ metadata:
 EOF
 ```
 
-And then, you will see nmstate-handler start works:
+And then, you will see nmstate start works, All pod of nmstate has been created:
 
 ```shell
 [root@10-6-185-30 ~]# kubectl get po -n nmstate  

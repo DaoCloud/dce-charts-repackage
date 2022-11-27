@@ -9,6 +9,7 @@ image:
   tag: ""
 
 imagePullSecrets: []
+imageRepositoryOverride: ""
 nameOverride: ""
 fullnameOverride: ""
 
@@ -27,7 +28,7 @@ resources: {}
   #   memory: 128Mi
 
 nodeSelector:
-  kubernetes.io/arch: amd64
+  kubernetes.io/os: linux
 
 tolerations: []
 

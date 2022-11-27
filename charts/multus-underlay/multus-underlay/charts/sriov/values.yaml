@@ -22,7 +22,7 @@ images:
   registry: docker.io
   sriovCni:
     repository: ghcr.io/k8snetworkplumbingwg/sriov-cni
-    tag: v2.6.3
+    tag: v2.7.0
   sriovDevicePlugin:
     repository: ghcr.io/k8snetworkplumbingwg/sriov-network-device-plugin
     tag: v3.5.1
@@ -83,7 +83,7 @@ securityContext:
 
 labels:
   nodeSelector:
-    kubernetes.io/arch: amd64
+    kubernetes.io/os: linux
 
 config:
   scMountPaths:

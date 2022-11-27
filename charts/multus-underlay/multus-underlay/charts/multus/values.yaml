@@ -77,7 +77,7 @@ pod:
 
 labels:
   nodeSelector: 
-    kubernetes.io/arch: amd64
+    kubernetes.io/os: linux
 
 config:
   cni_conf:
