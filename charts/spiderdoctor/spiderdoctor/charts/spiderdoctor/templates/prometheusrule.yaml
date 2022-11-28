@@ -1,0 +1,53 @@
+{{- if .Values.spiderdoctorAgent.prometheus.prometheusRule.install -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Values.spiderdoctorAgent.name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ default .Release.Namespace .Values.spiderdoctorAgent.prometheus.prometheusRule.namespace }}
+  labels:
+    {{- include "project.spiderdoctorAgent.labels" . | nindent 4 }}
+    {{- if .Values.global.commonLabels }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.spiderdoctorAgent.prometheus.prometheusRule.labels }}
+    {{- include "tplvalues.render" ( dict "value" .Values.spiderdoctorAgent.prometheus.prometheusRule.labels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.global.commonAnnotations .Values.spiderdoctorAgent.prometheus.prometheusRule.annotations }}
+  annotations:
+    {{- if .Values.global.commonAnnotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.spiderdoctorAgent.prometheus.prometheusRule.annotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.spiderdoctorAgent.prometheus.prometheusRule.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  groups: []
+{{- end }}
+---
+{{- if .Values.spiderdoctorController.prometheus.prometheusRule.install -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Values.spiderdoctorController.name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ default .Release.Namespace .Values.spiderdoctorController.prometheus.prometheusRule.namespace }}
+  labels:
+    {{- include "project.spiderdoctorController.labels" . | nindent 4 }}
+    {{- if .Values.global.commonLabels }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.spiderdoctorController.prometheus.prometheusRule.labels }}
+    {{- include "tplvalues.render" ( dict "value" .Values.spiderdoctorController.prometheus.prometheusRule.labels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.global.commonAnnotations .Values.spiderdoctorController.prometheus.prometheusRule.annotations }}
+  annotations:
+    {{- if .Values.global.commonAnnotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.spiderdoctorController.prometheus.prometheusRule.annotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.spiderdoctorController.prometheus.prometheusRule.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  groups: []
+{{- end }}

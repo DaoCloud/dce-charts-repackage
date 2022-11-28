@@ -1,0 +1,118 @@
+{{- if .Values.feature.enableIPv4 }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "project.spiderdoctorAgent.serviceIpv4Name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  {{- if or .Values.global.commonAnnotations .Values.spiderdoctorAgent.service.annotations }}
+  annotations:
+    {{- if .Values.global.commonAnnotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.spiderdoctorAgent.service.annotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.spiderdoctorAgent.service.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  labels:
+    {{- if .Values.global.commonLabels }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- include "project.spiderdoctorAgent.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.spiderdoctorAgent.service.type }}
+  ports:
+    {{- if .Values.spiderdoctorAgent.prometheus.enabled }}
+    - name: metrics
+      port: {{ .Values.spiderdoctorAgent.prometheus.port }}
+      targetPort: metrics
+      protocol: TCP
+    {{- end }}
+    {{- if .Values.feature.enableIPv4 }}
+    - name: http
+      port: {{ .Values.spiderdoctorAgent.httpServer.port }}
+      targetPort: http
+      protocol: TCP
+    {{- end }}
+  ipFamilyPolicy: SingleStack
+  ipFamilies:
+    - IPv4
+  selector:
+    {{- include "project.spiderdoctorAgent.selectorLabels" . | nindent 4 }}
+{{- end }}
+---
+{{- if .Values.feature.enableIPv6 }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "project.spiderdoctorAgent.serviceIpv6Name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  {{- if or .Values.global.commonAnnotations .Values.spiderdoctorAgent.service.annotations }}
+  annotations:
+    {{- if .Values.global.commonAnnotations }}
+      {{- include "tplvalues.render" ( dict "value" .Values.global.commonAnnotations "context" $ ) | nindent 4 }}
+      {{- end }}
+      {{- if .Values.spiderdoctorAgent.service.annotations }}
+      {{- include "tplvalues.render" ( dict "value" .Values.spiderdoctorAgent.service.annotations "context" $ ) | nindent 4 }}
+      {{- end }}
+  {{- end }}
+  labels:
+    {{- if .Values.global.commonLabels }}
+      {{- include "tplvalues.render" ( dict "value" .Values.global.commonLabels "context" $ ) | nindent 4 }}
+      {{- end }}
+      {{- include "project.spiderdoctorAgent.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.spiderdoctorAgent.service.type }}
+  ports:
+    {{- if .Values.spiderdoctorAgent.prometheus.enabled }}
+    - name: metrics
+      port: {{ .Values.spiderdoctorAgent.prometheus.port }}
+      targetPort: metrics
+      protocol: TCP
+    {{- end }}
+    {{- if .Values.feature.enableIPv6 }}
+    - name: http
+      port: {{ .Values.spiderdoctorAgent.httpServer.port }}
+      targetPort: http
+      protocol: TCP
+    {{- end }}
+  ipFamilyPolicy: SingleStack
+  ipFamilies:
+    - IPv6
+  selector:
+    {{- include "project.spiderdoctorAgent.selectorLabels" . | nindent 4 }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.spiderdoctorController.name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace | quote }}
+  {{- if or .Values.global.commonAnnotations .Values.spiderdoctorController.service.annotations }}
+  annotations:
+    {{- if .Values.global.commonAnnotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.spiderdoctorController.service.annotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.spiderdoctorController.service.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  labels:
+    {{- if .Values.global.commonLabels }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- include "project.spiderdoctorController.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.spiderdoctorController.service.type }}
+  ports:
+    {{- if .Values.spiderdoctorController.prometheus.enabled }}
+    - name: metrics
+      port: {{ .Values.spiderdoctorController.prometheus.port }}
+      targetPort: metrics
+      protocol: TCP
+    {{- end }}
+    - name: webhook
+      port: {{ .Values.spiderdoctorController.webhookPort }}
+      targetPort: webhook
+      protocol: TCP
+  selector:
+    {{- include "project.spiderdoctorController.selectorLabels" . | nindent 4 }}

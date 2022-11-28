@@ -81,7 +81,7 @@ local host needs install：
 
 > 默认，E2E 在一个共享 kind 集群中 测试 所有项目的 安装，如果你的项目需要一个定制、独立的 kind 集群，则可生成一份 /test/${PROJECT}/kind.yaml ，那么 E2E 只会在你的独立 kind 中跑 你的安装
 
-工程目录下，执行 `make e2e` 运行所有 chart 安装测试，或者 运行 `make e2e -e PRORJECT=${PROJECT}` 只测试某个项目
+工程目录下，执行 `make e2e` 运行所有 chart 安装测试，或者 运行 `make e2e -e PROJECT=${PROJECT}` 只测试某个项目
 
 > e2e 流程
 > 1 安装 全局 kind 集群，会安装好 promethues 的 CRD 。 （ 如果存在 /test/${PROJECT}/kind.yaml ， 则安装你的定制 kind ）
