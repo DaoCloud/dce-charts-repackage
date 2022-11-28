@@ -70,7 +70,6 @@ spec:
                     "set_host": {{ .Values.cluster_subnet.rp_filter.set_host }},
                     "value": {{ .Values.cluster_subnet.rp_filter.value }}
                 },
-                "overlay_interface": {{ .Values.macvlan.overlayInterface | quote }},
                 "skip_call": {{ .Values.macvlan.skip_call }}
             }
         ]
@@ -181,7 +180,6 @@ spec:
                     "set_host": {{ .Values.cluster_subnet.rp_filter.set_host }},
                     "value": {{ .Values.cluster_subnet.rp_filter.value }}
                 },
-                "overlay_interface": {{ .Values.sriov.sriov_crd.overlayInterface | quote }},
                 "skip_call": {{ .Values.sriov.sriov_crd.skip_call }}
             }
         ]
