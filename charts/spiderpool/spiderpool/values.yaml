@@ -55,13 +55,16 @@ spiderpool:
       ## @param feature.gc.enabled enable retrieve IP in spiderippool CR
       enabled: true
   
+      gcAll:
+        ## @param feature.gc.gcAll.intervalInSecond the gc all interval duration
+        intervalInSecond: 600
+  
       GcDeletingTimeOutPod:
         ## @param feature.gc.GcDeletingTimeOutPod.enabled enable retrieve IP for the pod who times out of deleting graceful period
         enabled: true
   
         ## @param feature.gc.GcDeletingTimeOutPod.delay the gc delay seconds after the pod times out of deleting graceful period
         delay: 0
-  
   
   ## @section clusterDefaultPool parameters
   ##
@@ -125,7 +128,7 @@ spiderpool:
       digest: ""
   
       ## @param spiderpoolAgent.image.tag the image tag of spiderpoolAgent, overrides the image tag whose default is the chart appVersion.
-      tag: v0.3.2
+      tag: v0.3.3
   
       ## @param spiderpoolAgent.image.imagePullSecrets the image imagePullSecrets of spiderpoolAgent
       imagePullSecrets: []
@@ -270,6 +273,9 @@ spiderpool:
         ## @param spiderpoolAgent.prometheus.serviceMonitor.labels the additional label of spiderpoolAgent serviceMonitor
         labels: { "operator.insight.io/managed-by": "insight" }
   
+        ## @param spiderpoolAgent.prometheus.serviceMonitor.interval represents the interval of spiderpoolAgent serviceMonitor's scraping action
+        interval: "10s"
+  
       prometheusRule:
         ## @param spiderpoolAgent.prometheus.prometheusRule.install install prometheusRule for spiderpool agent. This requires the prometheus CRDs to be available
         install: false
@@ -282,6 +288,21 @@ spiderpool:
   
         ## @param spiderpoolAgent.prometheus.prometheusRule.labels the additional label of spiderpoolAgent prometheusRule
         labels: { "operator.insight.io/managed-by": "insight" }
+  
+        ## @param spiderpoolAgent.prometheus.prometheusRule.enableWarningIPAMAllocationFailure the additional rule of spiderpoolAgent prometheusRule
+        enableWarningIPAMAllocationFailure: true
+  
+        ## @param spiderpoolAgent.prometheus.prometheusRule.enableWarningIPAMAllocationOverTime the additional rule of spiderpoolAgent prometheusRule
+        enableWarningIPAMAllocationOverTime: true
+  
+        ## @param spiderpoolAgent.prometheus.prometheusRule.enableWarningIPAMHighAllocationDurations the additional rule of spiderpoolAgent prometheusRule
+        enableWarningIPAMHighAllocationDurations: true
+  
+        ## @param spiderpoolAgent.prometheus.prometheusRule.enableWarningIPAMReleaseFailure the additional rule of spiderpoolAgent prometheusRule
+        enableWarningIPAMReleaseFailure: true
+  
+        ## @param spiderpoolAgent.prometheus.prometheusRule.enableWarningIPAMReleaseOverTime the additional rule of spiderpoolAgent prometheusRule
+        enableWarningIPAMReleaseOverTime: true
   
       grafanaDashboard:
         ## @param spiderpoolAgent.prometheus.grafanaDashboard.install install grafanaDashboard for spiderpool agent. This requires the prometheus CRDs to be available
@@ -331,7 +352,7 @@ spiderpool:
       digest: ""
   
       ## @param spiderpoolController.image.tag the image tag of spiderpoolController, overrides the image tag whose default is the chart appVersion.
-      tag: v0.3.2
+      tag: v0.3.3
   
       ## @param spiderpoolController.image.imagePullSecrets the image imagePullSecrets of spiderpoolController
       imagePullSecrets: []
@@ -485,6 +506,9 @@ spiderpool:
         ## @param spiderpoolController.prometheus.serviceMonitor.labels the additional label of spiderpoolController serviceMonitor
         labels: { "operator.insight.io/managed-by": "insight" }
   
+        ## @param spiderpoolController.prometheus.serviceMonitor.interval represents the interval of spiderpoolController serviceMonitor's scraping action
+        interval: "10s"
+  
       prometheusRule:
         ## @param spiderpoolController.prometheus.prometheusRule.install install prometheusRule for spiderpool agent. This requires the prometheus CRDs to be available
         install: false
@@ -497,6 +521,9 @@ spiderpool:
   
         ## @param spiderpoolController.prometheus.prometheusRule.labels the additional label of spiderpoolController prometheusRule
         labels: { "operator.insight.io/managed-by": "insight" }
+  
+        ## @param spiderpoolController.prometheus.prometheusRule.enableWarningIPGCFailureCounts the additional rule of spiderpoolController prometheusRule
+        enableWarningIPGCFailureCounts: true
   
       grafanaDashboard:
         ## @param spiderpoolController.prometheus.grafanaDashboard.install install grafanaDashboard for spiderpool agent. This requires the prometheus CRDs to be available
@@ -594,7 +621,7 @@ spiderpool:
       digest: ""
   
       ## @param spiderpoolInit.image.tag the image tag of spiderpoolInit, overrides the image tag whose default is the chart appVersion.
-      tag: v0.3.2
+      tag: v0.3.3
   
       ## @param spiderpoolInit.image.imagePullSecrets the image imagePullSecrets of spiderpoolInit
       imagePullSecrets: []
