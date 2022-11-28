@@ -19,6 +19,6 @@ data:
     nethttp_defaultRequest_Qps: {{ .Values.feature.nethttp_defaultRequest_Qps }}
     nethttp_defaultRequest_MaxQps: {{ .Values.feature.nethttp_defaultRequest_MaxQps }}
     nethttp_defaultRequest_DurationInSecond: {{ .Values.feature.nethttp_defaultRequest_DurationInSecond }}
-    nethttp_defaultRequest_PerRequestTimeoutInSecond: {{ .Values.feature.nethttp_defaultRequest_PerRequestTimeoutInSecond }}
+    nethttp_defaultRequest_PerRequestTimeoutInMS: {{ .Values.feature.nethttp_defaultRequest_PerRequestTimeoutInMS }}
     multusPodAnnotationKey: {{ .Values.feature.multusPodAnnotationKey }}
     crdMaxHistory: {{ .Values.feature.crdMaxHistory }}
