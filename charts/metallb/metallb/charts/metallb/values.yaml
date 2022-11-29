@@ -42,12 +42,15 @@ prometheus:
   # certificate to be used.
   controllerMetricsTLSSecret: ""
 
+  # prometheus doens't have the permission to scrape all namespaces so we give it permission to scrape metallb's one
+  rbacPrometheus: true
+
   # the service account used by prometheus
-  # required when .Values.prometheus.podMonitor.enabled == true
+  # required when " .Values.prometheus.rbacPrometheus == true " and " .Values.prometheus.podMonitor.enabled=true or prometheus.serviceMonitor.enabled=true "
   serviceAccount: ""
 
   # the namespace where prometheus is deployed
-  # required when .Values.prometheus.podMonitor.enabled == true
+  # required when " .Values.prometheus.rbacPrometheus == true " and " .Values.prometheus.podMonitor.enabled=true or prometheus.serviceMonitor.enabled=true "
   namespace: ""
 
   # the image to be used for the kuberbacproxy container
@@ -219,10 +222,10 @@ controller:
     # nobody
     runAsUser: 65534
     fsGroup: 65534
-  resources: {}
-    # limits:
-      # cpu: 100m
-      # memory: 100Mi
+  resources:
+    #limits:
+     # cpu: 10m
+     # memory: 50Mi
   nodeSelector: {}
   tolerations: []
   priorityClassName: ""
@@ -278,10 +281,10 @@ speaker:
   ## By default secretName: {{ "metallb.fullname" }}-memberlist
   ##
   # secretName:
-  resources: {}
+  resources:
     # limits:
-      # cpu: 100m
-      # memory: 100Mi
+     # cpu: 100m
+     # memory: 100Mi
   nodeSelector: {}
   tolerations: []
   priorityClassName: ""
@@ -312,10 +315,18 @@ speaker:
       tag: v7.5.1
       pullPolicy:
     metricsPort: 7473
+    resources: {}
 
     # if set, enables a rbac proxy sidecar container on the speaker to
     # expose the frr metrics via tls.
     # secureMetricsPort: 9121
 
+  reloader:
+    resources: {}
+
+  frrMetrics:
+    resources: {}
+
 crds:
   enabled: true
+  validationFailurePolicy: Fail

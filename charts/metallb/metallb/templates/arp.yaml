@@ -18,11 +18,11 @@ spec:
   - matchLabels:
 {{ toYaml .Values.instances.arp.ipAddressPoolSelectors | indent 6 }}
 {{- end }}
-{{- if .Values.instances.arp.nodeSelectors }}
+{{- if and .Values.instances.arp.nodeSelectors.key .Values.instances.arp.nodeSelectors.value }}
   nodeSelectors:
   - matchLabels:
-{{- range .Values.instances.arp.nodeSelectors }}
-      kubernetes.io/hostname: {{ . | title | quote }}
+      {{ .Values.instances.arp.nodeSelectors.key }}: {{ .Values.instances.arp.nodeSelectors.value | quote}}
 {{- end }}
-{{- end }}
+  interfaces:
+{{ toYaml .Values.instances.arp.interfaces | indent 2 }}
 {{- end }}

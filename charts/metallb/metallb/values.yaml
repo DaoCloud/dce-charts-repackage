@@ -38,12 +38,15 @@ metallb:
     # certificate to be used.
     controllerMetricsTLSSecret: ""
 
+    # prometheus doens't have the permission to scrape all namespaces so we give it permission to scrape metallb's one
+    rbacPrometheus: true
+
     # the service account used by prometheus
-    # required when .Values.prometheus.podMonitor.enabled == true
+    # required when " .Values.prometheus.rbacPrometheus == true " and " .Values.prometheus.podMonitor.enabled=true or prometheus.serviceMonitor.enabled=true "
     serviceAccount: ""
 
     # the namespace where prometheus is deployed
-    # required when .Values.prometheus.podMonitor.enabled == true
+    # required when " .Values.prometheus.rbacPrometheus == true " and " .Values.prometheus.podMonitor.enabled=true or prometheus.serviceMonitor.enabled=true "
     namespace: ""
 
     # the image to be used for the kuberbacproxy container
@@ -215,10 +218,10 @@ metallb:
       # nobody
       runAsUser: 65534
       fsGroup: 65534
-    resources: {}
-      # limits:
-        # cpu: 100m
-        # memory: 100Mi
+    resources:
+      requests:
+        cpu: 5m
+        memory: 50Mi
     nodeSelector: {}
     tolerations: []
     priorityClassName: ""
@@ -274,10 +277,10 @@ metallb:
     ## By default secretName: {{ "metallb.fullname" }}-memberlist
     ##
     # secretName:
-    resources: {}
-      # limits:
-        # cpu: 100m
-        # memory: 100Mi
+    resources:
+      requests:
+        cpu: 40m
+        memory: 80Mi
     nodeSelector: {}
     tolerations: []
     priorityClassName: ""
@@ -304,14 +307,21 @@ metallb:
     frr:
       enabled: false
       image:
-        repository: frrouting/frr
+        repository: docker.m.daocloud.io/frrouting/frr
         tag: v7.5.1
         pullPolicy:
       metricsPort: 7473
+      resources: {}
 
       # if set, enables a rbac proxy sidecar container on the speaker to
       # expose the frr metrics via tls.
       # secureMetricsPort: 9121
+
+    reloader:
+      resources: {}
+
+    frrMetrics:
+      resources: {}
 
   crds:
     enabled: true
@@ -319,14 +329,13 @@ metallb:
 # create default ipaddress-pool
 instances:
   # -- enable default ip-address pool
-  enabled: true
+  enabled: false
   ipAddressPools:
     # -- default ip-address pool name
     name: default-pool
     # labels: {}
     # -- list of addresses pool, include ipv4/ipv6
-    addresses:
-    - 172.17.8.0/24
+    addresses: []
     autoAssign: true
     avoidBuggyIPs: true
 
@@ -339,7 +348,10 @@ instances:
     ipAddressPools:
     - default-pool
     # ipAddressPoolSelectors: {}
-    nodeSelectors: []
+    nodeSelectors:
+      key: "kubernetes.io/os"
+      value: "linux"
+    interfaces: []
 
 global:
   imageRegistry: ""

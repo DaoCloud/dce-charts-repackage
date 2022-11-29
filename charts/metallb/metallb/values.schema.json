@@ -85,15 +85,32 @@
                 },
                 "arp": {
                     "type": "object",
-                    "title": "LoadBalancer Nodes",
-                    "description": "limit the nodes to announce as next hops for the LoadBalancer IP. When empty, all the nodes having  are announced as next hops.",
+                    "title": "L2Advertisement Setting",
                     "properties": {
                         "nodeSelectors": {
+                            "type": "object",
+                            "title": "NodeSelectors",
+                            "description": "NodeSelectors allows to limit the nodes to announce as next hops for the LoadBalancer IP. When empty, all the nodes having are announced as next hops",
+                            "properties": {
+                                "key": {
+                                    "type": "string",
+                                    "title": "Key",
+                                    "description": "The key of the label, such as \"kubernetes.io\/os\""
+                                },
+                                "value": {
+                                    "type": "string",
+                                    "title": "Value",
+                                    "description": "The value of the label."
+                                }
+                            }
+                        },
+                        "interfaces": {
                             "type": "array",
-                            "title": "Node List",
+                            "title": "Interfaces",
+                            "description": "A list of interfaces to announce from. The LB IP will be announced only from these interfaces. If the field is not set, we advertise from all the interfaces on the host",
                             "items": {
                                 "type": "string",
-                                "title": "Node Hostname"
+                                "description": "The name of Network-Interface,"
                             }
                         }
                     }

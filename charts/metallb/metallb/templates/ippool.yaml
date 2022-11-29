@@ -11,7 +11,11 @@ metadata:
     {{- include "dce-metallb.helm-hook-annotations" . | nindent 4 }}
 spec:
   addresses:
+{{- if .Values.instances.ipAddressPools.addresses }}
 {{ toYaml .Values.instances.ipAddressPools.addresses | indent 2 }}
+{{- else }}
+{{- fail "Pool Address List can't be empty when enabled arp mode" }}
+{{- end }}
   autoAssign: {{ .Values.instances.ipAddressPools.autoAssign }}
   avoidBuggyIPs: {{ .Values.instances.ipAddressPools.avoidBuggyIPs }}
 {{- end }}
