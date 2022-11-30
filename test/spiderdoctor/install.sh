@@ -22,7 +22,8 @@ set -x
 # deploy the spiderpool
 helm install spiderdoctor ${CHART_DIR}  ${HELM_MUST_OPTION} \
   --namespace kube-system \
-	--set feature.enableIPv4=true --set feature.enableIPv6=true
+	--set spiderdoctor.feature.enableIPv4=true --set spiderdoctor.feature.enableIPv6=true \
+  --set spiderdoctor.global.imageRegistryOverride="ghcr.io"
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
