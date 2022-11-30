@@ -16,7 +16,10 @@ e2e:
 		RUN_DANGEROUS_ITEM=false ; \
 		for ITEM in $$PROJECT_LIST ; do \
 		    [ -d "$${ITEM}" ] || continue ; \
-		  	[ "$${ITEM}" != "$(DANGEROUS_MULTUS)" ] || { RUN_DANGEROUS_ITEM=true ; continue  ; } ; \
+			if [ "$${ITEM}" == "$(DANGEROUS_MULTUS)" ] ; then  \
+					RUN_DANGEROUS_ITEM=true ; \
+					continue ; \
+			fi ; \
 			KIND_CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
 			INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
 			if [ -n "$(PROJECT)" ]; then \
@@ -36,7 +39,6 @@ e2e:
 	  			PROJECT_LIST=" $(DANGEROUS_MULTUS) "  ; \
 				for ITEM in $$PROJECT_LIST ; do \
 					[ -d "$${ITEM}" ] || continue ; \
-					[ "$${ITEM}" != "$(DANGEROUS_MULTUS)" ] || { RUN_DANGEROUS_ITEM=true ; continue  ; } ; \
 					KIND_CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
 					INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
 					if [ -n "$(PROJECT)" ]; then \
