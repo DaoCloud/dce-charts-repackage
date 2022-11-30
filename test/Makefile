@@ -4,6 +4,7 @@ PROJECT ?=
 KIND_CLUSTER_NAME ?= network-chart
 KIND_KUBECONFIG := $(ROOT_DIR)/test/.config
 
+DANGEROUS_MULTUS := multus-underlay
 .PHONY: all
 all: e2e
 
@@ -12,8 +13,10 @@ e2e:
 	#setup global kind
 	make init-kind -e KIND_CONFIG_PATH=./yaml/kind.yaml || { echo "error, failed to setup kind " ; exit 1 ; }
 	PROJECT_LIST="$(PROJECT)" ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` ; \
+		RUN_DANGEROUS_ITEM=false ; \
 		for ITEM in $$PROJECT_LIST ; do \
 		    [ -d "$${ITEM}" ] || continue ; \
+		  	[ "$${ITEM}" != "$(DANGEROUS_MULTUS)" ] || { RUN_DANGEROUS_ITEM=true ; continue  ; } ; \
 			KIND_CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
 			INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
 			if [ -n "$(PROJECT)" ]; then \
@@ -29,6 +32,27 @@ e2e:
             echo "deploy project $${ITEM}"; \
 			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
 	  	done ; \
+	  	if [ "$${RUN_DANGEROUS_ITEM}" == "true" ] ; then \
+	  			PROJECT_LIST=" $(DANGEROUS_MULTUS) "  ; \
+				for ITEM in $$PROJECT_LIST ; do \
+					[ -d "$${ITEM}" ] || continue ; \
+					[ "$${ITEM}" != "$(DANGEROUS_MULTUS)" ] || { RUN_DANGEROUS_ITEM=true ; continue  ; } ; \
+					KIND_CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
+					INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
+					if [ -n "$(PROJECT)" ]; then \
+						[ -f "$${INSTALL_PATH}" ] || { echo "error, miss $${INSTALL_PATH}" ; exit 1 ; } ; \
+					else \
+						[ ! -f "$${INSTALL_PATH}" ] && continue ; \
+					fi ; \
+					echo "============ run e2e for project $${ITEM} ===================="; \
+					if [ -f "$${KIND_CONFIG_PATH}" ] ; then  \
+						echo "the project $${ITEM}  needs a standby kind cluster" ; \
+						make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
+					fi ; \
+					echo "deploy project $${ITEM}"; \
+					make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
+				done ; \
+  	    fi ;\
 	  	exit 0
 
 
