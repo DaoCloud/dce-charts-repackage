@@ -2,6 +2,8 @@ include ../Makefile.defs
 
 PROJECT ?=
 KIND_CLUSTER_NAME ?= network-chart
+RUN_ON_LOCAL ?= false
+KIND_NODE_TAG ?= v1.25.0
 KIND_KUBECONFIG := $(ROOT_DIR)/test/.config
 
 .PHONY: all
@@ -27,7 +29,7 @@ e2e:
 				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
             fi ; \
             echo "deploy project $${ITEM}"; \
-			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
+			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} -e RUN_ON_LOCAL=$${RUN_ON_LOCAL} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
 	  	done ; \
 	  	exit 0
 
@@ -39,7 +41,7 @@ init-kind: checkBin clean
 	- sysctl -w net.ipv6.conf.all.disable_ipv6=0 || true
 	- sysctl -w fs.inotify.max_user_watches=524288 || true
 	- sysctl -w fs.inotify.max_user_instances=8192  || true
-	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH) --kubeconfig $(KIND_KUBECONFIG)
+	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH) --image=kindest/node:$(KIND_NODE_TAG) --kubeconfig $(KIND_KUBECONFIG)
 	- kubectl --kubeconfig $(KIND_KUBECONFIG) taint nodes --all node-role.kubernetes.io/master- || true
 	- kubectl --kubeconfig $(KIND_KUBECONFIG) taint nodes --all node-role.kubernetes.io/control-plane- || true
 	@echo "===================== deploy prometheus CRD ========== "
@@ -63,30 +65,13 @@ init-kind: checkBin clean
 .PHONY: deploy
 deploy: INSTALL_PATH=
 deploy: PROJECT=
-deploy: TRY_LOAD_LOCAL_IMAGE ?= true
 deploy: checkBin
 	@ echo "helm install for $(PROJECT) with $(INSTALL_PATH)"
-	@ [ -f "$(INSTALL_PATH)" ] || { echo "error, failed to find INSTALL_PATH $(INSTALL_PATH)" ;  exit 1 ; }
+	@ [ -f "$(INSTALL_PATH)" ] || { echo "error, failed to find INSTALL_PATH $(INSTALL_PATH)" ;  exit 1 ; } ; \
+    export E2E_KIND_CLUSTER_NAME=${KIND_CLUSTER_NAME} ; \
+    export RUN_ON_LOCAL=${RUN_ON_LOCAL} ; \
 	CHART_DIR=$(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT) ; \
 		[ -d "$${CHART_DIR}" ] || { echo "error, failed to find chart $${CHART_DIR}" ; exit 1 ; } ; \
-		if [ "$(TRY_LOAD_LOCAL_IMAGE)" == "true" ] ; then \
-			echo "try to load local image for $(PROJECT)" ; \
-			IMAGE_LIST=` helm template test $${CHART_DIR}  | grep " image: " | tr -d '"'| awk '{print $$2}' ` ; \
-			if [ -z "$${IMAGE_LIST}" ] ; then \
-			  	echo "warning, failed to find image from chart template for $(PROJECT)" ; \
-			else \
-				echo "found image from $(PROJECT) chart template: $${IMAGE_LIST} " ; \
-  				for IMAGE in $${IMAGE_LIST} ; do \
-  				    EXIST=` docker images | awk '{printf("%s:%s\n",$$1,$$2)}' | grep "$${IMAGE}" ` ; \
-  				    if [ -z "$${EXIST}" ] ; then \
-  				      echo "docker pull $${IMAGE} to local" ; \
-  				      docker pull $${IMAGE} ;\
-  				    fi ;\
-  					echo "load local image $${IMAGE} for $(PROJECT)" ; \
-  					kind load docker-image $${IMAGE}  --name $(KIND_CLUSTER_NAME)  ; \
-  				done ; \
-            fi ; \
-		fi  ;\
 		chmod +x $(INSTALL_PATH) ; \
 		if $(INSTALL_PATH) "$${CHART_DIR}"  "$(KIND_KUBECONFIG)" ; then \
 			echo "succeeded to deploy $(PROJECT)" ; \

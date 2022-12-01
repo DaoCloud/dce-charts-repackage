@@ -85,7 +85,7 @@ local host needs install：
 
 > e2e 流程
 > 1 安装 全局 kind 集群，会安装好 promethues 的 CRD 。 （ 如果存在 /test/${PROJECT}/kind.yaml ， 则安装你的定制 kind ）
-> 2 运行 你的 /test/${PROJECT}/install.sh ， 在kind集群中 进行安装。 如果安装成功，则测试通过
+> 2 运行 你的 /test/${PROJECT}/install.sh ， 在kind集群中 进行安装。 如果安装成功，则测试通过。 注意区分是否使用镜像加速，当 e2e 运行在你的本地环境时(RUN_ON_LOCAL=true),这将会使用加速的镜像地址。如果运行在 github , 则不需要加速。
 
 ***
 

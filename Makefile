@@ -9,10 +9,11 @@ include Makefile.defs
 all: build_chart
 
 PROJECT ?=
+RUN_ON_LOCAL ?= false
 
 .PHONY: e2e
 e2e:
-	make -C test e2e -e PROJECT="$(PROJECT)"
+	make -C test e2e -e PROJECT="$(PROJECT)" -e RUN_ON_LOCAL=${RUN_ON_LOCAL}
 
 .PHONY: build_chart
 build_chart:

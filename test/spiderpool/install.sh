@@ -8,6 +8,7 @@ KIND_KUBECONFIG=$2
 
 [ -d "$CHART_DIR" ] || { echo "error, failed to find chart $CHART_DIR " ; exit 1 ; }
 [ -f "$KIND_KUBECONFIG" ] || { echo "error, failed to find kubeconfig $KIND_KUBECONFIG " ; exit 1 ; }
+[ -n "$E2E_KIND_CLUSTER_NAME" ] || { echo "error, no specify kind cluster name"; exit 1 ; }
 
 echo "CHART_DIR $CHART_DIR"
 echo "KIND_KUBECONFIG $KIND_KUBECONFIG"
@@ -27,6 +28,28 @@ Ipv6Subnet="fd05::/112"
 Ipv6GW="fd05::1"
 # available IP resource
 Ipv6Range="fd05::10-fd05::200"
+
+if [ "${RUN_ON_LOCAL}" = "false" ]; then
+  HELM_MUST_OPTION+=" --set spiderpool.global.imageRegistryOverride=ghcr.io "
+fi
+
+#==================== add your deploy code bellow =============
+#==================== notice , prometheus CRD has been deployed , so you no need to =============
+IMAGE_LIST=` helm template test ${CHART_DIR} ${HELM_MUST_OPTION} | grep " image: " | tr -d '"'| awk '{print $2}' `
+if [ -z "${IMAGE_LIST}" ] ; then
+  echo "warning, failed to find image from chart template for spiderpool"
+else
+  echo "found image from spiderpool chart template: ${IMAGE_LIST}"
+  for IMAGE in ${IMAGE_LIST} ; do
+      EXIST=` docker images | awk '{printf("%s:%s\n",$1,$2)}' | grep "${IMAGE}" `
+      if [ -z "${EXIST}" ] ; then
+        echo "docker pull ${IMAGE} to local"
+        docker pull ${IMAGE}
+      fi
+    echo "load local image ${IMAGE} for spiderpool"
+    kind load docker-image ${IMAGE}  --name ${E2E_KIND_CLUSTER_NAME}
+  done
+fi
 
 set -x
 
