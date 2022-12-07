@@ -171,3 +171,7 @@ generate the CA cert
 {{- define "project.spiderdoctorAgent.serviceIpv6Name" -}}
 {{- printf "%s-ipv6" .Values.spiderdoctorAgent.name -}}
 {{- end -}}
+
+{{- define "project.spiderdoctorAgent.ingressName" -}}
+{{- printf "%s" .Values.spiderdoctorAgent.name -}}
+{{- end -}}

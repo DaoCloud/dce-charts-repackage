@@ -147,8 +147,18 @@ spiderdoctorAgent:
     ## @param spiderdoctorAgent.service.annotations the annotations for spiderdoctorAgent service
     annotations: {}
     ## @param spiderdoctorAgent.service.type the type for spiderdoctorAgent service
-    type: NodePort
+    type: LoadBalancer
     #type: ClusterIP
+
+  ingress:
+    ## @param spiderdoctorAgent.ingress.enable install ingress
+    enable: true
+
+    ## @param spiderdoctorAgent.ingress.ingressClass ingress class name
+    ingressClass: ""
+
+    ## @param spiderdoctorAgent.ingress.route the route of agent ingress. Default to "/spiderdoctoragent", if it changes, ingress please re-write url forwarded to "/spiderdoctoragent"
+    route: "/spiderdoctoragent"
 
   ## @skip spiderdoctorAgent.tolerations
   # --  Node tolerations
