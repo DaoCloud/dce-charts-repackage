@@ -22,3 +22,11 @@ data:
     nethttp_defaultRequest_PerRequestTimeoutInMS: {{ .Values.feature.nethttp_defaultRequest_PerRequestTimeoutInMS }}
     multusPodAnnotationKey: {{ .Values.feature.multusPodAnnotationKey }}
     crdMaxHistory: {{ .Values.feature.crdMaxHistory }}
+    {{- if .Values.feature.enableIPv4 }}
+    agentSerivceIpv4Name: {{ include "project.spiderdoctorAgent.serviceIpv4Name" . }}
+    {{- end }}
+    {{- if .Values.feature.enableIPv6 }}
+    agentSerivceIpv6Name: {{ include "project.spiderdoctorAgent.serviceIpv6Name" . }}
+    {{- end }}
+    agentDaemonsetName: {{ .Values.spiderdoctorAgent.name | trunc 63 | trimSuffix "-" }}
+    agentIngressName: {{ include "project.spiderdoctorAgent.ingressName" . }}

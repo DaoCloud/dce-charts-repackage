@@ -155,14 +155,6 @@ spec:
               value: {{ .Values.spiderdoctorAgent.grpcServer.port | quote }}
             - name: ENV_CLUSTER_DNS_DOMAIN
               value: {{ .Values.global.clusterDnsDomain | quote }}
-            {{- if .Values.feature.enableIPv4 }}
-            - name: ENV_AGENT_IPV4_SERVICE_NAME
-              value: {{ include "project.spiderdoctorAgent.serviceIpv4Name" . }}
-            {{- end }}
-            {{- if .Values.feature.enableIPv6 }}
-            - name: ENV_AGENT_IPV6_SERVICE_NAME
-              value: {{ include "project.spiderdoctorAgent.serviceIpv6Name" . }}
-            {{- end }}
             - name: ENV_ENABLE_AGGREGATE_AGENT_REPORT
               value: {{ .Values.feature.aggregateReport.enabled | quote }}
             {{- if .Values.feature.aggregateReport.enabled }}
@@ -187,8 +179,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            - name: ENV_AGENT_DAEMONSET_NAME
-              value: {{ .Values.spiderdoctorAgent.name | trunc 63 | trimSuffix "-" }}
             {{- with .Values.spiderdoctorAgent.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
