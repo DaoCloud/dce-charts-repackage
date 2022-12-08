@@ -221,11 +221,11 @@ spiderpool:
       ## @param spiderpoolAgent.resources.requests.cpu the cpu requests of spiderpoolAgent pod
       ## @param spiderpoolAgent.resources.requests.memory the memory requests of spiderpoolAgent pod
       limits:
-        cpu: 1000m
+        cpu: "2"
         memory: 1024Mi
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 10m
+        memory: 32Mi
   
     ## @param spiderpoolAgent.securityContext the security Context of spiderpoolAgent pod
     securityContext: {}
@@ -445,11 +445,11 @@ spiderpool:
       ## @param spiderpoolController.resources.requests.cpu the cpu requests of spiderpoolController pod
       ## @param spiderpoolController.resources.requests.memory the memory requests of spiderpoolController pod
       limits:
-        cpu: 500m
+        cpu: "2"
         memory: 1024Mi
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 10m
+        memory: 64Mi
   
     podDisruptionBudget:
       ## @param spiderpoolController.podDisruptionBudget.enabled enable podDisruptionBudget for spiderpoolController pod
