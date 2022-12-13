@@ -23,6 +23,8 @@ spec:
   - matchLabels:
       {{ .Values.instances.arp.nodeSelectors.key }}: {{ .Values.instances.arp.nodeSelectors.value | quote}}
 {{- end }}
+{{- if .Values.instances.arp.interfaces }}
   interfaces:
 {{ toYaml .Values.instances.arp.interfaces | indent 2 }}
+{{- end }}
 {{- end }}
