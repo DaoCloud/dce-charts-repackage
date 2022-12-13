@@ -141,7 +141,7 @@ jobs:
       - name: Create Release
         id: create_release
         if: ${{ steps.get_ref.outputs.publishversion == 'true' }}
-        uses: ncipollo/release-action@v1.11.2
+        uses: ncipollo/release-action@v1.12.0
         with:
           artifacts: "_upload/*"
           allowUpdates: true
