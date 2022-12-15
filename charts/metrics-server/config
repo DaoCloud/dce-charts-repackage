@@ -1,0 +1,13 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+export REPO_URL=https://kubernetes-sigs.github.io/metrics-server
+export REPO_NAME=metrics-server
+export CHART_NAME=metrics-server
+export VERSION=3.8.3
+
+# optional, for wrapper chart
+export CUSTOM_SHELL=custom.sh
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon
