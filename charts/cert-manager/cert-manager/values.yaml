@@ -1,5 +1,9 @@
 cert-manager:
   installCRDs: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
   image:
     repository: quay.m.daocloud.io/jetstack/cert-manager-controller
     tag: v1.9.1
@@ -9,16 +13,28 @@ cert-manager:
     image:
       repository: quay.m.daocloud.io/jetstack/cert-manager-webhook
       tag: v1.9.1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
   cainjector:
     enabled: true
     replicaCount: 2
     image:
       repository: quay.m.daocloud.io/jetstack/cert-manager-cainjector
       tag: v1.9.1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
   startupapicheck:
     image:
       repository: quay.m.daocloud.io/jetstack/cert-manager-ctl
       tag: v1.9.1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
   prometheus:
     enabled: true
     servicemonitor:
