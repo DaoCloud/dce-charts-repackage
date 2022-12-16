@@ -7,7 +7,10 @@ ingress-nginx:
         enabled: false
         additionalLabels:
           operator.insight.io/managed-by: insight
-    resources: {}
+    resources:
+      requests:
+        cpu: 20m
+        memory: 150Mi
     service:
       ipFamilyPolicy: "SingleStack"
       type: "LoadBalancer"

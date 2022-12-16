@@ -16,7 +16,15 @@ contour:
       - "--envoy-service-http-address=::"
       - "--envoy-service-https-address=::"
     debug: false
+    resources:
+      requests:
+        cpu: 15m
+        memory: 30Mi
   envoy:
+    resources:
+      requests:
+        cpu: 20m
+        memory: 30Mi
     useHostPort: false
     replicaCount: 2
     image:
