@@ -1,0 +1,13 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+export REPO_URL=https://charts.fairwinds.com/stable
+export REPO_NAME=fairwinds-stable
+export CHART_NAME=vpa
+export VERSION=1.5.0
+
+# optional, for wrapper chart
+export CUSTOM_SHELL=custom.sh
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon
