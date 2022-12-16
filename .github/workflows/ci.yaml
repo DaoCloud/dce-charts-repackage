@@ -2,6 +2,7 @@ name: PR E2E C
 
 env:
   SKIP_CHART_LIST: "nmstate"
+  IMAGE_HINT_FILE_NAME: ".relok8s-images.yaml"
 
 on:
   pull_request_target:
@@ -113,6 +114,15 @@ jobs:
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
               PROJECT_PATH=${BASE}/charts/${PROJECT}
               go run main.go -path ${PROJECT_PATH}/${PROJECT} -skipCPath ${PROJECT_PATH}/skip-check.yaml
+          done
+
+      - name: check image hint file
+        run: |
+          BASE=$PWD
+          for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
+              CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
+              [ -f "${CHART_PATH}/${{ env.IMAGE_HINT_FILE_NAME }}" ] \
+                  || { echo "error, miss ${{ env.IMAGE_HINT_FILE_NAME }} file in chart ${PROJECT} " ; exit 1 ; }
           done
 
       - name: check chart trivy

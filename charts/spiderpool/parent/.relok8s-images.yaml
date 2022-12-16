@@ -1,0 +1,3 @@
+- "{{ .spiderpool.global.imageRegistryOverride }}/{{ .spiderpool.spiderpoolAgent.image.repository }}:{{ .spiderpool.spiderpoolAgent.image.tag }}"
+- "{{ .spiderpool.global.imageRegistryOverride }}/{{ .spiderpool.spiderpoolController.image.repository }}:{{ .spiderpool.spiderpoolController.image.tag }}"
+- "{{ .spiderpool.global.imageRegistryOverride }}/{{ .spiderpool.spiderpoolInit.image.repository }}:{{ .spiderpool.spiderpoolInit.image.tag }}"
