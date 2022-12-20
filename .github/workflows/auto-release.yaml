@@ -1,0 +1,108 @@
+name: Auto Release Chart
+
+env:
+  DEFAULT_FAIL_REVIEWER: "weizhoublue"
+  DEFAULT_SUCCEED_REVIEWER: "yulng,bzsuni,ty-dc"
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  get_chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: get chart
+        env:
+          GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
+        run: |
+          set -x
+          DATA_FILE="/tmp/`date +%Y%m%d%H%M%S%N`"
+          echo '${{ toJSON(github) }}' > ${DATA_FILE}
+          echo "============ print var ======== "
+              grep -Eio "Merge pull request #[0-9]+ " < ${DATA_FILE}
+          PR_NUMBER=` cat ${DATA_FILE} | grep -Eio "Merge pull request #[0-9]+ " | grep -Eo "[0-9]+" | uniq `
+              [ -n "${PR_NUMBER}" ] || { echo "no PR number, ignore" ; }
+          PR_URL="https://github.com/${{ github.repository }}/pull/${PR_NUMBER}"
+          ACTION_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              grep '"username":'  < ${DATA_FILE}
+          PR_AUTHOR=` cat ${DATA_FILE} | grep '"username":'  | awk -F'"' '{print $4}' | sort | uniq  | grep -v "web-flow"  | head -1 | tr -d '\n' `
+              [ -n "${PR_AUTHOR}" ] || { echo "no PR_AUTHOR, ignore" ; }
+          gh pr view ${PR_NUMBER}
+          PR_LABEL=` gh pr view ${PR_NUMBER} | grep -i "^labels:" | tr ',' ' ' | tr -s ' ' | sed 's/labels://g' `
+              [ -n "${PR_LABEL}" ] || { echo "no PR_LABEL, ignore" ; }
+          PR_TITLE=`gh pr view ${PR_NUMBER} | sed -n '1 p' `
+               [ -n "${PR_TITLE}" ] || { echo "error, no PR_TITLE " ; exit 1 ; }
+          #
+              cat ${DATA_FILE} | grep -Ei "https://github.com/.*/commit"
+          PR_COMMITS=` cat ${DATA_FILE} | grep -Ei "https://github.com/.*/commit" | awk -F'"' '{print $4}' | uniq -c | awk '{ if ($1 == 1 ) print $2}' | awk -F'/' '{print $NF}' | tr '\n' ' '  `
+              [ -n "${PR_COMMITS}" ] || { echo "no PR_COMMITS, ignore" ; }
+          #
+          echo "number: ${PR_NUMBER}"
+          echo "action url: ${ACTION_URL}"
+          echo "PR_COMMITS: ${PR_COMMITS}"
+          echo "author: ${PR_AUTHOR}"
+          echo "url: ${PR_URL}"
+          echo "PR_LABEL: ${PR_LABEL}"
+          echo "PR_TITLE: ${PR_TITLE}"
+          echo "============= get changed chart========"
+          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}/files"
+          files_changed_data=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -X GET -G "$URL")
+          echo "files_changed_data: $files_changed_data"
+          files_changed="$(echo $files_changed_data | jq -r '.[] | .filename')"
+          echo "files_changed: $files_changed"
+          #--------------------
+          # Adding || true to avoid "Process exited with code 1" errors
+          charts_changed="$(echo "$files_changed" | xargs dirname | grep -E -o "charts/([^/]*)/\1" | grep -o "charts/[^/]*" | sort | uniq | awk -F'/' '{print $2}' | tr '\n' ' ' || true)"
+          echo "charts_changed: $charts_changed"
+          echo "ENV_charts_changed=${charts_changed}" >> $GITHUB_ENV
+          echo "ENV_PR_AUTHOR=${PR_AUTHOR}" >> $GITHUB_ENV
+          echo "ENV_PR_NUMBER=${PR_NUMBER}" >> $GITHUB_ENV
+
+      - name: release
+        if: ${{ env.ENV_charts_changed != '' }}
+        continue-on-error: true
+        uses: ./.github/workflows/release-chart.yml
+        secrets: inherit
+        with:
+          project: "${{ env.ENV_charts_changed }}"
+          ref: "main"
+
+      - name: create issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
+        if: ${{ env.ENV_charts_changed != '' }}
+        run : |
+          set -x
+          PROJECT_LIST="${{ env.ENV_charts_changed }}"
+          ACTION_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PR_NUMBER="${{ env.ENV_PR_NUMBER }}"
+          PR_URL="https://github.com/${{ github.repository }}/pull/${PR_NUMBER}"
+          
+          if ${{ steps.release.outcome == 'failure' }} ; then
+              echo "failed to release chart ${PROJECT_LIST} "
+              LABEL="robot/release-chart-fail"
+              gh label create "${LABEL}" --force || true
+              #
+              REVIWER=${{ ENV.ENV_PR_AUTHOR }}
+              [ -n "${REVIWER}" ] || REVIWER=${{ env.DEFAULT_FAIL_REVIEWER }}
+              #
+              gh issue create  \
+                  --body "I am robot, failed to release chart ${PROJECT_LIST} to daocloud chart registery. Trigger by PR <${PR_URL}>. Refer to Github Action <${ACTION_URL}>" \
+                  --title "failed to release chart ${PROJECT_LIST} by PR ${PR_NUMBER}" \
+                  --label "${LABEL}" \
+                  --assignee "${REVIWER}"
+          else
+              echo "succeeded to release chart ${PROJECT_LIST} "
+              LABEL="robot/release-chart-succeed"
+              gh label create "${LABEL}" --force || true
+              REVIWER=${{ env.DEFAULT_SUCCEED_REVIEWER }}
+              #
+              gh issue create  \
+                  --body "I am robot, Trigger by PR <${PR_URL}>, charts ${PROJECT_LIST} has been released with new version to daocloud chart registery. Refer to Github Action <${ACTION_URL}>" \
+                  --title "please test new version for ${PROJECT_LIST} by PR ${PR_NUMBER}" \
+                  --label "${LABEL}" \
+                  --assignee "${REVIWER}"
+          fi
+          

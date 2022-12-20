@@ -25,6 +25,14 @@ on:
         required: true
         type: boolean
         default: true
+  workflow_call:
+    inputs:
+      project:
+        required: true
+        type: string
+      ref:
+        required: true
+        type: string
 
 permissions: write-all
 
@@ -37,7 +45,13 @@ jobs:
       - name: Get Ref
         id: get_ref
         run: |
-          if ${{ github.event_name == 'workflow_dispatch' }} ; then
+          if ${{ inputs.project != '' }} ; then
+              echo "trigger by workflow_call"
+              echo ::set-output name=project::${{ inputs.project }}
+              echo ::set-output name=release::true
+              echo ::set-output name=ref::${{ inputs.ref }}
+              echo ::set-output name=publishversion::true
+          elif ${{ github.event_name == 'workflow_dispatch' }} ; then
               echo "call by self workflow_dispatch"
               if ${{ github.event.inputs.project == '' }} ; then
                   echo ::set-output name=project::all
