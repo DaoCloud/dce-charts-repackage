@@ -89,6 +89,17 @@ local host needs install：
 
 ***
 
+## 自动升级
+
+在项目的 config 配置文件中，变量 UPGRADE_METHOD 控制着自动chart包升级的方式
+
+* 值为 pr ：E2E 每晚会自动根据 config 中的配置，检查开源最新版本，基于 make build_chart 升级，并提交 PR 给 UPGRADE_REVIWER
+
+* 值为 issue ：E2E 每晚会自动根据 config 中的配置，检查开源最新版本，提交 issue 提醒给 UPGRADE_REVIWER
+
+* 值为 none ：不会自动升级该组件
+
+
 ## chart 发布到 github pages 和 daocloud 仓库
 
 (1) 打tag 方式

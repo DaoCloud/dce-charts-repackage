@@ -1,0 +1,166 @@
+name: Nightly E2E
+
+env:
+  ISSUE_LABEL: "robot-upgrade"
+  DEFAULT_REVIEWER: "weizhoublue"
+
+on:
+  schedule:
+    # each day
+    - cron: "0 20 * * *"
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'project names seperated by comma, or else empty for all projects'
+        required: false
+
+jobs:
+  check_project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: check project
+        run: |
+          #get all existed project
+          TMP=`ls charts`
+          PROJECT_LIST=""
+          for ITEM in $TMP ; do
+              if [ -d "charts/${ITEM}/${ITEM}" ] ; then
+                PROJECT_LIST+=" ${ITEM} "
+              fi
+          done
+          echo "all existed projects: ${PROJECT_LIST}"
+          [ -n "$PROJECT_LIST" ] || { echo "error, found no projects" ; exit 1 ; }
+          if ${{ github.event_name == 'workflow_dispatch' }} ; then
+              echo "workflow_dispatch event"
+              var=${{ github.event.inputs.project }}
+              echo "input $var"
+              if [ -n "${var}" ] ; then
+                  for ITEM in ${var} ; do
+                      grep " $ITEM " <<< "$PROJECT_LIST" &>/dev/null && continue
+                      echo "error, project $ITEM is forbidden to upgrade"
+                      exit 1
+                  done
+                  echo "ENV_UPGRADE_PROJECT_LIST=${var}" >> $GITHUB_ENV
+              else
+                  echo "empty input, upgrade all projects"
+                  echo "ENV_UPGRADE_PROJECT_LIST=${PROJECT_LIST}" >> $GITHUB_ENV
+              fi
+          else
+              echo "schedule event, upgrade all projects"
+              echo "ENV_UPGRADE_PROJECT_LIST=${PROJECT_LIST}" >> $GITHUB_ENV
+          fi
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3.5
+
+      - name: upgrade
+        env:
+          GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
+        run: |
+          set -x
+          PROJECTS="${{ env.ENV_UPGRADE_PROJECT_LIST }}"
+          echo "begin to upgrade for projects ${PROJECTS}"
+          FAILED_MESSAGE=""
+          git branch
+          git config  user.email "robot@example.com"
+          git config  user.name "robot"
+          for PROJECT in $PROJECTS ; do
+              CONFIG_FILE="charts/${PROJECT}/config"
+              REPO_URL=` source ${CONFIG_FILE} && echo ${REPO_URL} `
+              REPO_NAME=` source ${CONFIG_FILE} && echo ${REPO_NAME} `
+              CHART_NAME=` source ${CONFIG_FILE} && echo ${CHART_NAME} `
+              VERSION=` source ${CONFIG_FILE} && echo ${VERSION} `
+              METHOD=` source ${CONFIG_FILE} && echo ${UPGRADE_METHOD} `
+              UPGRADE_REVIWER=` source ${CONFIG_FILE} && echo ${UPGRADE_REVIWER} `
+
+              [ -n "$REPO_URL" ] || { MSG="error, project ${PROJECT} miss REPO_URL" ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
+              [ -n "$REPO_NAME" ] || { MSG="error, project ${PROJECT} miss REPO_NAME" ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
+              [ -n "$CHART_NAME" ] || { MSG="error, project ${PROJECT} miss CHART_NAME" ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
+              [ -n "$VERSION" ] || { MSG="error, project ${PROJECT} miss VERSION" ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
+              [ -n "$METHOD" ] || METHOD="none"
+              [ -n "$UPGRADE_REVIWER" ] || UPGRADE_REVIWER=${{ env.DEFAULT_REVIEWER }}
+          
+              echo "${PROJECT} REPO_URL=${REPO_URL}"
+              echo "${PROJECT} REPO_NAME=${REPO_NAME}"
+              echo "${PROJECT} CHART_NAME=${CHART_NAME}"
+              echo "${PROJECT} VERSION=${VERSION}"
+              echo "${PROJECT} METHOD=${METHOD}"
+              echo "${PROJECT} UPGRADE_REVIWER=${UPGRADE_REVIWER}"
+          
+              if [ "${METHOD}" == "none" ]; then
+                echo "no need to upgrade for project $PROJECT "
+                continue
+              fi
+          
+              helm repo remove $REPO_NAME || true
+              helm repo add $REPO_NAME $REPO_URL || echo { MSG="error, failed to add REPO_URL $REPO_URL for project ${PROJECT} " ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
+              helm repo update $REPO_NAME
+              helm search repo ${REPO_NAME}/${REPO_NAME}
+              LATEST_VERSION=` helm search repo ${REPO_NAME}/${REPO_NAME} | sed '1 d' | grep "^${REPO_NAME}/${REPO_NAME} | awk '{print $2}' "`
+              [ -n "${LATEST_VERSION}" ] || { MSG="error, failed to find latest chart version for project ${PROJECT} " ; FAILED_MESSAGE+="${MSG} \n"; continue ; }
+              echo "latest chart version of project ${PROJECT} is $LATEST_VERSION"
+              
+              if [ "${LATEST_VERSION}" == "${VERSION}" ] ; then
+                  echo "no need to upgrade for project $PROJECT "
+                  continue
+              fi
+              echo "begin to upgrade for project $PROJECT "
+              
+              if [ "${METHOD}" == "issue" ]; then
+                  echo "upgrade to issue"
+                  gh issue create  \
+                      --body "project ${PROJECT} chart could upgrade from $VERSION to ${LATEST_VERSION} " \
+                      --title "UPGRADE NOTE: project ${PROJECT} chart could upgrade from $VERSION to ${LATEST_VERSION} " \
+                      --label "${{ env.ISSUE_LABEL }}" \
+                      --assignee "${UPGRADE_REVIWER}"
+                  continue
+              else
+                  if ! make build_chart -e PROJECT=${PROJECT} ; then
+                      MSG="error, failed to build_chart for project ${PROJECT} for LATEST_VERSION=$LATEST_VERSION"
+                      FAILED_MESSAGE+="${MSG} \n"
+                      git reset --hard HEAD || true
+                      continue
+                  fi
+          
+                  if git diff --exit-code --quiet ; then
+                      MSG="error, no code change, when build_chart for project ${PROJECT} for LATEST_VERSION=$LATEST_VERSION"
+                      FAILED_MESSAGE+="${MSG} \n"
+                      git reset --hard HEAD || true
+                      continue
+                  fi
+          
+                  PR_BRANCH=upgrade/${PROJECT}/${LATEST_VERSION}
+                  git checkout -b ${PR_BRANCH}
+                  git add .
+                  git commit -s -m "robot:  project ${PROJECT} chart upgrades from $VERSION to ${LATEST_VERSION}"
+                  git push origin ${PR_BRANCH}:${PR_BRANCH} -f
+          
+                  gh pr create --title "upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
+                      --assignee "${UPGRADE_REVIWER}" \
+                      --label ${{ env.ISSUE_LABEL }} \
+                      --body "upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
+                      --base main
+          
+                  echo "succeeded to upgrade project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}"
+              fi
+          done
+          echo "ENV_FAILED_MESSAGE=${FAILED_MESSAGE}" >> $GITHUB_ENV
+          
+      - name: result
+        env:
+          GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
+        run: |
+          FAILED_MESSAGE="${{ env.ENV_FAILED_MESSAGE }}"
+          echo "FAILED_MESSAGE=${FAILED_MESSAGE}"
+          if [ -n "$FAILED_MESSAGE" ] ; then
+              exit 1
+          else
+              exit 0
+          fi
+          
+        
