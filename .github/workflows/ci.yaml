@@ -36,7 +36,7 @@ jobs:
                       VAL=` source charts/${ITEM}/config && echo ${!VAR} `
                       [ -n "$VAL" ] || { echo "error, miss $VAR in charts/${ITEM}/config"; exit 1 ; }
                   done
-              elif [ "$UPGRADE_METHOD" == "none" ]
+              elif [ "$UPGRADE_METHOD" == "none" ] ; then
                   echo ""
               else
                   echo "error, UPGRADE_METHOD=$UPGRADE_METHOD must be 'pr'/'issue'/'none' in charts/${ITEM}/config"
