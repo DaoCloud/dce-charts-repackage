@@ -31,7 +31,7 @@ jobs:
               done
               
               UPGRADE_METHOD=` source charts/${ITEM}/config && echo $UPGRADE_METHOD `
-              if [ "$UPGRADE_METHOD" == "pr" ] && [ "$UPGRADE_METHOD" == "issue" ] ; then
+              if [ "$UPGRADE_METHOD" == "pr" ] || [ "$UPGRADE_METHOD" == "issue" ] ; then
                   for VAR in REPO_URL REPO_NAME CHART_NAME VERSION UPGRADE_REVIWER ; do
                       VAL=` source charts/${ITEM}/config && echo ${!VAR} `
                       [ -n "$VAL" ] || { echo "error, miss $VAR in charts/${ITEM}/config"; exit 1 ; }
