@@ -5,9 +5,12 @@ export REPO_URL=https://charts.deliveryhero.io
 export REPO_NAME=node-problem-detector
 export CHART_NAME=node-problem-detector
 export VERSION=2.3.1
+# pr, issue, none
+export UPGRADE_METHOD=pr
 
 # optional, for wrapper chart
 export CUSTOM_SHELL=custom.sh
+export UPGRADE_REVIWER=learner0810
 
 # push to daocloud repo
 export DAOCLOUD_REPO_PROJECT=community
