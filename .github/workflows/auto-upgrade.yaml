@@ -123,7 +123,7 @@ jobs:
                   echo "upgrade to issue"
 
                   TITLE_PREFIX="Robot Upgrade: ${PROJECT} chart upgrade"
-                  FINAL_TITLE="${TITLE_PREFIX} upgrade from $VERSION to ${LATEST_VERSION}"
+                  FINAL_TITLE="${TITLE_PREFIX} from $VERSION to ${LATEST_VERSION}"
           
                   gh issue list --label  "${LABEL}" 
                   HIS=`gh issue list --label  "${LABEL}"`
@@ -172,7 +172,7 @@ jobs:
                   git push origin ${PR_BRANCH}:${PR_BRANCH} -f
           
                   TITLE_PREFIX="Robot Upgrade: ${PROJECT} chart upgrade"
-                  FINAL_TITLE="${TITLE_PREFIX} upgrade from $VERSION to ${LATEST_VERSION}"
+                  FINAL_TITLE="${TITLE_PREFIX} from $VERSION to ${LATEST_VERSION}"
 
                   gh pr list --label  "${LABEL}" 
                   HIS=`gh pr list --label  "${LABEL}"`
