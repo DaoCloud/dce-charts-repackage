@@ -1,7 +1,7 @@
 name: Auto Upgrade Chart
 
 env:
-  ISSUE_LABEL: "robot-upgrade"
+  ISSUE_LABEL_PREFIX: "robot-upgrade/"
   DEFAULT_REVIEWER: "weizhoublue"
 
 on:
@@ -65,7 +65,6 @@ jobs:
           set -x
           PROJECTS="${{ env.ENV_UPGRADE_PROJECT_LIST }}"
           echo "begin to upgrade for projects ${PROJECTS}"
-          gh label create ${{ env.ISSUE_LABEL }} --force || true
           FAILED_MESSAGE=""
           SUCCEED_PROJECT=""
           git branch
@@ -114,15 +113,31 @@ jobs:
               fi
               echo "begin to upgrade for project $PROJECT "
           
+              LABEL="${{ env.ISSUE_LABEL_PREFIX }}/${PROJECT}"
+              gh label create "${LABEL}" --force || true
+          
               git reset --hard HEAD || true
               git checkout main
               
               if [ "${METHOD}" == "issue" ]; then
                   echo "upgrade to issue"
+
+                  TITLE_PREFIX="Robot Upgrade: ${PROJECT} chart upgrade"
+          
+                  gh issue list --label  "${LABEL}" 
+                  HIS=`gh issue list --label  "${LABEL}"`
+                  if grep "${TITLE_PREFIX}" <<< "$HIS" &>/dev/null ; then
+                      LIST=`grep "${TITLE_PREFIX}" <<< "$HIS" | awk '{print \$1}' | tr '\n' ' ' ` || true
+                      echo "remove historical robot ISSUE for project ${PROJECT}: ${LIST}"
+                      for ISSUE_NUM in ${LIST} ; do
+                          gh issue close ${ISSUE_NUM} -c "robot: found newer version ${LATEST_VERSION}"
+                      done
+                  fi
+          
                   gh issue create  \
                       --body "I am robot, ${PROJECT} chart could upgrade from $VERSION to ${LATEST_VERSION} " \
-                      --title "Robot Upgrade Hint: project ${PROJECT} chart could upgrade from $VERSION to ${LATEST_VERSION} " \
-                      --label "${{ env.ISSUE_LABEL }}" \
+                      --title "${TITLE_PREFIX} upgrade from $VERSION to ${LATEST_VERSION} " \
+                      --label "${LABEL}" \
                       --assignee "${UPGRADE_REVIWER}"
                   SUCCEED_PROJECT+=" new ${PROJECT} commits to issue \n"
                   continue
@@ -151,9 +166,21 @@ jobs:
                   git commit -s -m "robot:  project ${PROJECT} chart upgrades from $VERSION to ${LATEST_VERSION}"
                   git push origin ${PR_BRANCH}:${PR_BRANCH} -f
           
-                  gh pr create --title "Robot Upgrade: ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
+                  TITLE_PREFIX="Robot Upgrade: ${PROJECT} chart upgrade"
+          
+                  gh pr list --label  "${LABEL}" 
+                  HIS=`gh pr list --label  "${LABEL}"`
+                  if grep "${TITLE_PREFIX}" <<< "$HIS" &>/dev/null ; then
+                      LIST=`grep "${TITLE_PREFIX}" <<< "$HIS" | awk '{print \$1}' | tr '\n' ' ' ` || true
+                      echo "remove historical robot PR for project ${PROJECT}: ${LIST}"
+                      for PR_NUM in ${LIST} ; do
+                          gh pr close ${PR_NUM} -c "robot: found newer version ${LATEST_VERSION}"
+                      done
+                  fi
+          
+                  gh pr create --title "${TITLE_PREFIX} from $VERSION to ${LATEST_VERSION}" \
                       --assignee "${UPGRADE_REVIWER}" \
-                      --label ${{ env.ISSUE_LABEL }} \
+                      --label "${LABEL}" \
                       --body "I am robot, upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
                       --base main
                   SUCCEED_PROJECT+=" new ${PROJECT} commits to pr\n"
