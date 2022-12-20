@@ -98,7 +98,7 @@ jobs:
               fi
           
               helm repo remove $REPO_NAME || true
-              helm repo add $REPO_NAME $REPO_URL || echo { MSG="error, failed to add REPO_URL $REPO_URL for project ${PROJECT} " ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
+              helm repo add $REPO_NAME $REPO_URL || { MSG="error, failed to add REPO_URL $REPO_URL for project ${PROJECT} " ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
               helm repo update $REPO_NAME
               helm search repo ${REPO_NAME}/${REPO_NAME}
               LATEST_VERSION=` helm search repo ${REPO_NAME}/${REPO_NAME} | sed '1 d' | grep "^${REPO_NAME}/${REPO_NAME} | awk '{print $2}' "`
