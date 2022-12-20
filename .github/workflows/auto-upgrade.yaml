@@ -123,9 +123,14 @@ jobs:
                   echo "upgrade to issue"
 
                   TITLE_PREFIX="Robot Upgrade: ${PROJECT} chart upgrade"
+                  FINAL_TITLE="${TITLE_PREFIX} upgrade from $VERSION to ${LATEST_VERSION}"
           
                   gh issue list --label  "${LABEL}" 
                   HIS=`gh issue list --label  "${LABEL}"`
+                  if grep "${FINAL_TITLE}" <<< "$HIS" &>/dev/null ; then
+                     echo "an issue has been submitted for ${PROJECT} ${LATEST_VERSION}, ignore"
+                     continue
+                  fi
                   if grep "${TITLE_PREFIX}" <<< "$HIS" &>/dev/null ; then
                       LIST=`grep "${TITLE_PREFIX}" <<< "$HIS" | awk '{print \$1}' | tr '\n' ' ' ` || true
                       echo "remove historical robot ISSUE for project ${PROJECT}: ${LIST}"
@@ -136,7 +141,7 @@ jobs:
           
                   gh issue create  \
                       --body "I am robot, ${PROJECT} chart could upgrade from $VERSION to ${LATEST_VERSION} " \
-                      --title "${TITLE_PREFIX} upgrade from $VERSION to ${LATEST_VERSION} " \
+                      --title "${FINAL_TITLE}" \
                       --label "${LABEL}" \
                       --assignee "${UPGRADE_REVIWER}"
                   SUCCEED_PROJECT+=" new ${PROJECT} commits to issue \n"
@@ -167,9 +172,14 @@ jobs:
                   git push origin ${PR_BRANCH}:${PR_BRANCH} -f
           
                   TITLE_PREFIX="Robot Upgrade: ${PROJECT} chart upgrade"
-          
+                  FINAL_TITLE="${TITLE_PREFIX} upgrade from $VERSION to ${LATEST_VERSION}"
+
                   gh pr list --label  "${LABEL}" 
                   HIS=`gh pr list --label  "${LABEL}"`
+                  if grep "${FINAL_TITLE}" <<< "$HIS" &>/dev/null ; then
+                     echo "an PR has been submitted for ${PROJECT} ${LATEST_VERSION}, ignore"
+                     continue
+                  fi
                   if grep "${TITLE_PREFIX}" <<< "$HIS" &>/dev/null ; then
                       LIST=`grep "${TITLE_PREFIX}" <<< "$HIS" | awk '{print \$1}' | tr '\n' ' ' ` || true
                       echo "remove historical robot PR for project ${PROJECT}: ${LIST}"
@@ -178,7 +188,7 @@ jobs:
                       done
                   fi
           
-                  gh pr create --title "${TITLE_PREFIX} from $VERSION to ${LATEST_VERSION}" \
+                  gh pr create --title "${FINAL_TITLE}" \
                       --assignee "${UPGRADE_REVIWER}" \
                       --label "${LABEL}" \
                       --body "I am robot, upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
