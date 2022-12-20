@@ -120,8 +120,8 @@ jobs:
               if [ "${METHOD}" == "issue" ]; then
                   echo "upgrade to issue"
                   gh issue create  \
-                      --body "project ${PROJECT} chart could upgrade from $VERSION to ${LATEST_VERSION} " \
-                      --title "UPGRADE NOTE: project ${PROJECT} chart could upgrade from $VERSION to ${LATEST_VERSION} " \
+                      --body "I am robot, ${PROJECT} chart could upgrade from $VERSION to ${LATEST_VERSION} " \
+                      --title "Robot Upgrade Hint: project ${PROJECT} chart could upgrade from $VERSION to ${LATEST_VERSION} " \
                       --label "${{ env.ISSUE_LABEL }}" \
                       --assignee "${UPGRADE_REVIWER}"
                   SUCCEED_PROJECT+=" ${PROJECT} "
@@ -151,10 +151,10 @@ jobs:
                   git commit -s -m "robot:  project ${PROJECT} chart upgrades from $VERSION to ${LATEST_VERSION}"
                   git push origin ${PR_BRANCH}:${PR_BRANCH} -f
           
-                  gh pr create --title "upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
+                  gh pr create --title "Robot Upgrade: ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
                       --assignee "${UPGRADE_REVIWER}" \
                       --label ${{ env.ISSUE_LABEL }} \
-                      --body "upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
+                      --body "I am robot, upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
                       --base main
                   SUCCEED_PROJECT+=" ${PROJECT} "
                   echo "succeeded to upgrade project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}"
