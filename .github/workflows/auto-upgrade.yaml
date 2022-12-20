@@ -65,6 +65,7 @@ jobs:
           set -x
           PROJECTS="${{ env.ENV_UPGRADE_PROJECT_LIST }}"
           echo "begin to upgrade for projects ${PROJECTS}"
+          gh label create ${{ env.ISSUE_LABEL }} --force || true
           FAILED_MESSAGE=""
           SUCCEED_PROJECT=""
           git branch
@@ -127,6 +128,8 @@ jobs:
                   continue
               else
                   sed -iE 's?export VERSION=.*?export VERSION='"${LATEST_VERSION}"'?' ${CONFIG_FILE}
+                  rm -f ${CONFIG_FILE}E || true
+                  
                   if ! make build_chart -e PROJECT=${PROJECT} ; then
                       MSG="error, failed to build_chart for project ${PROJECT} for LATEST_VERSION=$LATEST_VERSION"
                       FAILED_MESSAGE+="${MSG} \n"
