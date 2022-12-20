@@ -2,6 +2,7 @@
 
 [![Nightly E2E](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/night-ci.yml/badge.svg)](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/night-ci.yml)
 [![Release Chart](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/release-chart.yml/badge.svg)](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/release-chart.yml)
+[![Auto Upgrade Chart](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/auto-upgrade.yaml/badge.svg)](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/auto-upgrade.yaml)
 
 ***
 
