@@ -24,9 +24,25 @@ jobs:
               [ ! -d "charts/${ITEM}" ] && continue
               echo "check config for chart $ITEM "
               [ ! -f "charts/${ITEM}/config" ] && echo "error, miss charts/${ITEM}/config " && exit 1
-              ! grep "DAOCLOUD_REPO_PROJECT" charts/${ITEM}/config &>/dev/null && echo "error, miss DAOCLOUD_REPO_PROJECT in charts/${ITEM}/config " && exit 1
-              source charts/${ITEM}/config 
-              [ -z "$DAOCLOUD_REPO_PROJECT" ] && echo "error, DAOCLOUD_REPO_PROJECT is empty, in charts/${ITEM}/config " && exit 1
+          
+              for VAR in DAOCLOUD_REPO_PROJECT UPGRADE_METHOD ; do
+                  VAL=` source charts/${ITEM}/config && echo ${!VAR} `
+                  [ -n "$VAL" ] || { echo "error, miss $VAR in charts/${ITEM}/config"; exit 1 ; }
+              done
+              
+              UPGRADE_METHOD=` source charts/${ITEM}/config && echo $UPGRADE_METHOD `
+              if [ "$UPGRADE_METHOD" == "pr" ] && [ "$UPGRADE_METHOD" == "issue" ] ; then
+                  for VAR in REPO_URL REPO_NAME CHART_NAME VERSION UPGRADE_REVIWER ; do
+                      VAL=` source charts/${ITEM}/config && echo ${!VAR} `
+                      [ -n "$VAL" ] || { echo "error, miss $VAR in charts/${ITEM}/config"; exit 1 ; }
+                  done
+              elif [ "$UPGRADE_METHOD" == "none" ]
+                  echo ""
+              else
+                  echo "error, UPGRADE_METHOD=$UPGRADE_METHOD must be 'pr'/'issue'/'none' in charts/${ITEM}/config"
+                  exit 1
+              fi
+
           done
           exit 0
 

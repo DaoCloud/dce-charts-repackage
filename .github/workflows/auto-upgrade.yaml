@@ -66,6 +66,7 @@ jobs:
           PROJECTS="${{ env.ENV_UPGRADE_PROJECT_LIST }}"
           echo "begin to upgrade for projects ${PROJECTS}"
           FAILED_MESSAGE=""
+          SUCCEED_PROJECT=""
           git branch
           git config  user.email "robot@example.com"
           git config  user.name "robot"
@@ -102,15 +103,18 @@ jobs:
               helm repo add $REPO_NAME $REPO_URL || { MSG="error, failed to add REPO_URL $REPO_URL for project ${PROJECT} " ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
               helm repo update $REPO_NAME
               helm search repo ${REPO_NAME}/${CHART_NAME} || true
-              LATEST_VERSION=` helm search repo ${REPO_NAME}/${CHART_NAME} | sed '1 d' | grep -E "^${REPO_NAME}/${CHART_NAME} " | awk '{print \$2}' ` || true
+              LATEST_VERSION=` helm search repo ${REPO_NAME}/${CHART_NAME} | sed '1 d' | grep -E "^${REPO_NAME}\/${CHART_NAME}[[:space:]]" | awk '{print \$2}' ` || true
               [ -n "${LATEST_VERSION}" ] || { MSG="error, failed to find latest chart version for project ${PROJECT} " ; FAILED_MESSAGE+="${MSG} \n"; continue ; }
               echo "latest chart version of project ${PROJECT} is $LATEST_VERSION"
               
               if [ "${LATEST_VERSION}" == "${VERSION}" ] ; then
-                  echo "no need to upgrade for project $PROJECT "
+                  echo "no chart change for project $PROJECT "
                   continue
               fi
               echo "begin to upgrade for project $PROJECT "
+          
+              git reset --hard HEAD || true
+              git checkout main
               
               if [ "${METHOD}" == "issue" ]; then
                   echo "upgrade to issue"
@@ -119,15 +123,18 @@ jobs:
                       --title "UPGRADE NOTE: project ${PROJECT} chart could upgrade from $VERSION to ${LATEST_VERSION} " \
                       --label "${{ env.ISSUE_LABEL }}" \
                       --assignee "${UPGRADE_REVIWER}"
+                  SUCCEED_PROJECT+=" ${PROJECT} "
                   continue
               else
+                  sed -iE 's?export VERSION=.*?export VERSION='"${LATEST_VERSION}"'?' ${CONFIG_FILE}
                   if ! make build_chart -e PROJECT=${PROJECT} ; then
                       MSG="error, failed to build_chart for project ${PROJECT} for LATEST_VERSION=$LATEST_VERSION"
                       FAILED_MESSAGE+="${MSG} \n"
                       git reset --hard HEAD || true
                       continue
                   fi
-          
+                  
+                  git status
                   if git diff --exit-code --quiet ; then
                       MSG="error, no code change, when build_chart for project ${PROJECT} for LATEST_VERSION=$LATEST_VERSION"
                       FAILED_MESSAGE+="${MSG} \n"
@@ -146,17 +153,20 @@ jobs:
                       --label ${{ env.ISSUE_LABEL }} \
                       --body "upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
                       --base main
-          
+                  SUCCEED_PROJECT+=" ${PROJECT} "
                   echo "succeeded to upgrade project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}"
               fi
           done
           echo "ENV_FAILED_MESSAGE=${FAILED_MESSAGE}" >> $GITHUB_ENV
-          
+          echo "SUCCEED_PROJECT=${SUCCEED_PROJECT}" >> $GITHUB_ENV
+
       - name: result
         env:
           GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
         run: |
+          SUCCEED_PROJECT="${{ env.SUCCEED_PROJECT }}"
           FAILED_MESSAGE="${{ env.ENV_FAILED_MESSAGE }}"
+          echo -e "SUCCEED_PROJECT=${SUCCEED_PROJECT}"
           echo -e "FAILED_MESSAGE=${FAILED_MESSAGE}"
           if [ -n "$FAILED_MESSAGE" ] ; then
               exit 1
