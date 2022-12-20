@@ -124,7 +124,7 @@ jobs:
                       --title "Robot Upgrade Hint: project ${PROJECT} chart could upgrade from $VERSION to ${LATEST_VERSION} " \
                       --label "${{ env.ISSUE_LABEL }}" \
                       --assignee "${UPGRADE_REVIWER}"
-                  SUCCEED_PROJECT+=" ${PROJECT} "
+                  SUCCEED_PROJECT+=" new ${PROJECT} commits to issue \n"
                   continue
               else
                   sed -iE 's?export VERSION=.*?export VERSION='"${LATEST_VERSION}"'?' ${CONFIG_FILE}
@@ -156,7 +156,7 @@ jobs:
                       --label ${{ env.ISSUE_LABEL }} \
                       --body "I am robot, upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
                       --base main
-                  SUCCEED_PROJECT+=" ${PROJECT} "
+                  SUCCEED_PROJECT+=" new ${PROJECT} commits to pr\n"
                   echo "succeeded to upgrade project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}"
               fi
           done
