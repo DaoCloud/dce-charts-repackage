@@ -70,6 +70,7 @@ jobs:
           git config  user.email "robot@example.com"
           git config  user.name "robot"
           for PROJECT in $PROJECTS ; do
+              echo "====================== checking project $PROJECT ================="
               CONFIG_FILE="charts/${PROJECT}/config"
               REPO_URL=` source ${CONFIG_FILE} && echo ${REPO_URL} `
               REPO_NAME=` source ${CONFIG_FILE} && echo ${REPO_NAME} `
@@ -78,11 +79,16 @@ jobs:
               METHOD=` source ${CONFIG_FILE} && echo ${UPGRADE_METHOD} `
               UPGRADE_REVIWER=` source ${CONFIG_FILE} && echo ${UPGRADE_REVIWER} `
 
+              [ -n "$METHOD" ] || METHOD="none"
+              if [ "${METHOD}" == "none" ]; then
+                echo "no need to upgrade for project $PROJECT "
+                continue
+              fi
+
               [ -n "$REPO_URL" ] || { MSG="error, project ${PROJECT} miss REPO_URL" ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
               [ -n "$REPO_NAME" ] || { MSG="error, project ${PROJECT} miss REPO_NAME" ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
               [ -n "$CHART_NAME" ] || { MSG="error, project ${PROJECT} miss CHART_NAME" ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
               [ -n "$VERSION" ] || { MSG="error, project ${PROJECT} miss VERSION" ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
-              [ -n "$METHOD" ] || METHOD="none"
               [ -n "$UPGRADE_REVIWER" ] || UPGRADE_REVIWER=${{ env.DEFAULT_REVIEWER }}
           
               echo "${PROJECT} REPO_URL=${REPO_URL}"
@@ -92,16 +98,11 @@ jobs:
               echo "${PROJECT} METHOD=${METHOD}"
               echo "${PROJECT} UPGRADE_REVIWER=${UPGRADE_REVIWER}"
           
-              if [ "${METHOD}" == "none" ]; then
-                echo "no need to upgrade for project $PROJECT "
-                continue
-              fi
-          
               helm repo remove $REPO_NAME || true
               helm repo add $REPO_NAME $REPO_URL || { MSG="error, failed to add REPO_URL $REPO_URL for project ${PROJECT} " ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
               helm repo update $REPO_NAME
               helm search repo ${REPO_NAME}/${CHART_NAME} || true
-              LATEST_VERSION=` helm search repo ${REPO_NAME}/${CHART_NAME} | sed '1 d' | grep "^${REPO_NAME}/${CHART_NAME} | awk '{print $2}' "` || true
+              LATEST_VERSION=` helm search repo ${REPO_NAME}/${CHART_NAME} | sed '1 d' | grep -E "^${REPO_NAME}/${CHART_NAME} | awk '{print $2}' "` || true
               [ -n "${LATEST_VERSION}" ] || { MSG="error, failed to find latest chart version for project ${PROJECT} " ; FAILED_MESSAGE+="${MSG} \n"; continue ; }
               echo "latest chart version of project ${PROJECT} is $LATEST_VERSION"
               
@@ -156,7 +157,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
         run: |
           FAILED_MESSAGE="${{ env.ENV_FAILED_MESSAGE }}"
-          echo "FAILED_MESSAGE=${FAILED_MESSAGE}"
+          echo -e "FAILED_MESSAGE=${FAILED_MESSAGE}"
           if [ -n "$FAILED_MESSAGE" ] ; then
               exit 1
           else
