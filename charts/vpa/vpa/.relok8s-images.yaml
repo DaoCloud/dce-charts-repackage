@@ -1,1 +1,5 @@
-- "{{ .vpa.image.registry }}/{{ .vpa.image.repository }}:{{ .vpa.image.tag }}"
+- "{{ .vpa.recommender.image.registry }}/{{ .vpa.recommender.image.repository }}:{{ .vpa.recommender.image.tag }}"
+- "{{ .vpa.updater.image.registry }}/{{ .vpa.updater.image.repository }}:{{ .vpa.updater.image.tag }}"
+- "{{ .vpa.admissionController.image.registry }}/{{ .vpa.admissionController.image.repository }}:{{ .vpa.admissionController.image.tag }}"
+- "{{ .vpa.admissionController.certGen.image.registry }}/{{ .vpa.admissionController.certGen.image.repository }}:{{ .vpa.admissionController.certGen.image.tag }}"
+- "{{ .vpa.admissionController.cleanupOnDelete.image.registry }}/{{ .vpa.admissionController.cleanupOnDelete.image.repository }}:{{ .vpa.admissionController.cleanupOnDelete.image.tag }}"
