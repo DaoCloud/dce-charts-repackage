@@ -103,11 +103,17 @@ local host needs install：
 
 ## chart 发布到 github pages 和 daocloud 仓库
 
-(1) 打tag 方式
+1. 如果 PR 中修改了某个chart， 其被合入 main 分支，会 触发 自动 release CI。
+如果 CI 成功，会自动创建 issue 提醒测试同事 测试新chart；如果 CI 失败，会自动创建 ISSUE 提醒作者
 
-给工程 推送 任意 tag，github action 自动会制作所有项目的 chart tgz，并提交 PR 到 github pages (需要 approve 下 PR) (go-pages branch)，作为调试 chart 仓库使用
+2. 手动点击 action 中的“release chart” 
 
-CI 还会并发送一份到 daocloud 仓库 ( 推送到哪个项目下？依据  charts/${PROJECT}/config 文件中的 DAOCLOUD_REPO_PROJECT 设置 )
+3. 打tag 方式。
+
+    给工程 推送 任意 tag，github action 自动会制作所有项目的 chart tgz，并提交 PR 到 github pages (需要 approve 下 PR) (go-pages branch)，作为调试 chart 仓库使用
+
+    CI 还会并发送一份到 daocloud 仓库 ( 推送到哪个项目下？依据  charts/${PROJECT}/config 文件中的 DAOCLOUD_REPO_PROJECT 设置 )
+
 
 你可使用 本工程的 chart repo 来测试
 
@@ -115,5 +121,3 @@ CI 还会并发送一份到 daocloud 仓库 ( 推送到哪个项目下？依据 
     helm pull daocloud/${PROJECT}
 
 > 如果只 需要 发布 某一个项目 chart ，可 在 github action 中手动触发 "Release Chart" action， 触发推送指定chart
-
-（2）手动点击 action 中的“release chart” ，也能够完成 如上操作
