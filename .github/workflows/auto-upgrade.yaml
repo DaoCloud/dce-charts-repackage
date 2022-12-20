@@ -102,7 +102,7 @@ jobs:
               helm repo add $REPO_NAME $REPO_URL || { MSG="error, failed to add REPO_URL $REPO_URL for project ${PROJECT} " ; echo "${MSG}"; FAILED_MESSAGE+="${MSG} \n"; continue ; }
               helm repo update $REPO_NAME
               helm search repo ${REPO_NAME}/${CHART_NAME} || true
-              LATEST_VERSION=` helm search repo ${REPO_NAME}/${CHART_NAME} | sed '1 d' | grep -E "^${REPO_NAME}/${CHART_NAME} | awk '{print $2}' "` || true
+              LATEST_VERSION=` helm search repo ${REPO_NAME}/${CHART_NAME} | sed '1 d' | grep -E "^${REPO_NAME}/${CHART_NAME} " | awk '{print \$2}' ` || true
               [ -n "${LATEST_VERSION}" ] || { MSG="error, failed to find latest chart version for project ${PROJECT} " ; FAILED_MESSAGE+="${MSG} \n"; continue ; }
               echo "latest chart version of project ${PROJECT} is $LATEST_VERSION"
               
