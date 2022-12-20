@@ -112,6 +112,9 @@ jobs:
                   continue
               fi
               echo "begin to upgrade for project $PROJECT "
+          
+              git reset --hard HEAD || true
+              git checkout main
               
               if [ "${METHOD}" == "issue" ]; then
                   echo "upgrade to issue"
@@ -123,6 +126,7 @@ jobs:
                   SUCCEED_PROJECT+=" ${PROJECT} "
                   continue
               else
+                  sed -iE 's?export VERSION=.*?export VERSION='"${LATEST_VERSION}"'?' ${CONFIG_FILE}
                   if ! make build_chart -e PROJECT=${PROJECT} ; then
                       MSG="error, failed to build_chart for project ${PROJECT} for LATEST_VERSION=$LATEST_VERSION"
                       FAILED_MESSAGE+="${MSG} \n"
