@@ -5,8 +5,29 @@ numbering uses [semantic versioning](http://semver.org).
 
 Before release 0.1.20, the helm chart can be found in `falcosidekick` [repository](https://github.com/falcosecurity/falcosidekick/tree/master/deploy/helm/falcosidekick).
 
+## 0.5.9
 
-## 0.5.3
+* Fix: remove `namespace` from `clusterrole` and `clusterrolebinding` metadata
+
+## 0.5.8
+
+* Support `storageEnabled` for `redis` to allow ephemeral installs
+
+## 0.5.7
+
+* Removing unused Kafka config values
+
+## 0.5.6
+
+* Fixing Syslog's port import in `secrets.yaml`
+
+## 0.5.5
+
+* Add `webui.externalRedis` with `enabled`, `url` and `port` to values to set an external Redis database with RediSearch > v2 for the WebUI
+* Add `webui.redis.enabled` option to disable the deployment of the database.
+* `webui.redis.enabled ` and `webui.externalRedis.enabled` are mutually exclusive
+
+## 0.5.4
 
 * Upgrade image to fix Panic of `Prometheus` output when `customfields` is set
 * Add `extralabels` for `Loki` and `Prometheus` outputs to set fields to use as labels
