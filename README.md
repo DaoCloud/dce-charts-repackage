@@ -109,7 +109,7 @@ local host needs install：
 1. 如果 PR 中修改了某个chart， 其被合入 main 分支，会 触发 自动 release CI, 使得chart 发布到 daocloud 仓库。
 如果 CI 成功，会自动创建 issue 提醒测试同事 测试新chart；如果 CI 失败，会自动创建 ISSUE 提醒作者
 
-2. 手动点击 action 中的“release chart” 
+2. 手动点击 action 中的 “Manually Release Chart” 
 
 3. 打tag 方式。
 
