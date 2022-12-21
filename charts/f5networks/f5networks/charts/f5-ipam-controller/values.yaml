@@ -57,8 +57,13 @@ image:
 # If you want to specify resources, uncomment the following
 # limits_cpu: 100m
 # limits_memory: 512Mi
-# requests_cpu: 100m
-# requests_memory: 512Mi
+requests_cpu: 3m
+requests_memory: 15Mi
+
+# updateStrategy is used to set the update strategy for f5-ipam-controller deployment.
+# The default update strategy is RollingUpdate, however if you want to set it to Recreate then uncomment the following line.
+# Note: Setting updateStrategy to Recreate may have some downtime during the update.
+#updateStrategy: Recreate
 
 pvc:
   # set create tag to true to create new persistent volume claim and set storageClassName,accessMode and storage

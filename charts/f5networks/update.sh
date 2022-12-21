@@ -46,3 +46,14 @@ sed -i $ASSERT_LINE'  a \        runAsUser: {{ .Values.securityContext.runAsUser
 
 grep "  namespace: " ./* -Rl   | xargs -n 1 -i sed -i 's?namespace:.*?namespace: {{ .Release.Namespace }}?' {}
 
+
+echo "update custom resources"
+CUSTOM_F5_BIGIP_CPU='10m'
+CUSTOM_F5_BIGIP_MEMORY='80Mi'
+CUSTOM_F5_IPAM_CPU='3m'
+CUSTOM_F5_IPAM_MEMORY='15Mi'
+
+grep "requests_cpu:" ./f5-bigip-ctlr/values.yaml -Rl   | xargs -n 1 -i sed -i "s?# requests_cpu:.*?requests_cpu: $CUSTOM_F5_BIGIP_CPU?" {}
+grep "requests_memory:" ./f5-bigip-ctlr/values.yaml -Rl   | xargs -n 1 -i sed -i "s?# requests_memory:.*?requests_memory: $CUSTOM_F5_BIGIP_MEMORY?" {}
+grep "requests_cpu:" ./f5-ipam-controller/values.yaml -Rl   | xargs -n 1 -i sed -i "s?# requests_cpu:.*?requests_cpu: $CUSTOM_F5_IPAM_CPU?" {}
+grep "requests_memory:" ./f5-ipam-controller/values.yaml -Rl   | xargs -n 1 -i sed -i "s?# requests_memory:.*?requests_memory: $CUSTOM_F5_IPAM_MEMORY?" {}

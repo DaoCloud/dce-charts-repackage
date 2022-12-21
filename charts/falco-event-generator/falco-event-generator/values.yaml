@@ -68,3 +68,8 @@ event-generator:
       enabled: false
       # -- Path to the Falco grpc socket.
       bindAddress: "unix:///var/run/falco/falco.sock"
+
+  resources: 
+    requests: 
+      cpu: 180m
+      memory: 60Mi

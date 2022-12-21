@@ -17,6 +17,10 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
+{{- if .Values.updateStrategy }}
+  strategy:
+    type: {{  .Values.updateStrategy }}
+{{- end }}
   replicas: 1
   selector:
     matchLabels:
