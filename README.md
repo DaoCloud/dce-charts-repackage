@@ -42,7 +42,9 @@ local host needs install：
 
 ### case: 自动化制作做父chart
 
-针对需要制作 父chart ，dependency 依赖 开源的chart
+针对需要制作 父chart ，dependency 依赖 开源的chart. 
+
+目前，基本所有项目都遵循该制作方式，基于父子chart封装，保持开源子chart原滋原味，而父chart中可加入 schema、roleK8、调优参数、下发CRD实例等，使得产品安装更加简单
 
 1. 创建请  /charts/${PROJECT}/config，确保其中 USE_OPENSOURCE_CHART=false （可参考 spiderpool）。
 
