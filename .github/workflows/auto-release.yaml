@@ -64,6 +64,13 @@ jobs:
           echo "ENV_charts_changed=${charts_changed}" >> $GITHUB_ENV
           echo "ENV_PR_AUTHOR=${PR_AUTHOR}" >> $GITHUB_ENV
           echo "ENV_PR_NUMBER=${PR_NUMBER}" >> $GITHUB_ENV
+          #-------------------
+          UPGRADE_INFO=""
+          for PROJECT in $charts_changed ; do
+              VERSION=`source charts/${PROJECT}/config && echo ${VERSION} `
+              UPGRADE_INFO+=" ${PROJECT}<${VERSION}> "
+          done
+          echo "ENV_UPGRADE_INFO=${UPGRADE_INFO}" >> $GITHUB_ENV
 
       - name: release
         if: ${{ env.ENV_charts_changed != '' }}
@@ -79,13 +86,14 @@ jobs:
         if: ${{ env.ENV_charts_changed != '' }}
         run : |
           set -x
-          PROJECT_LIST="${{ env.ENV_charts_changed }}"
+          #PROJECT_LIST="${{ env.ENV_charts_changed }}"
+          PROJECT_INFO="${{ env.ENV_UPGRADE_INFO }}"
           ACTION_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           PR_NUMBER="${{ env.ENV_PR_NUMBER }}"
           PR_URL="https://github.com/${{ github.repository }}/pull/${PR_NUMBER}"
           
           if ${{ steps.release.outcome == 'failure' }} ; then
-              echo "failed to release chart ${PROJECT_LIST} "
+              echo "failed to release chart ${PROJECT_INFO} "
               LABEL="robot/release-chart-fail"
               gh label create "${LABEL}" --force || true
               #
@@ -93,19 +101,19 @@ jobs:
               [ -n "${REVIWER}" ] || REVIWER=${{ env.DEFAULT_FAIL_REVIEWER }}
               #
               gh issue create  \
-                  --body "I am robot, failed to release chart ${PROJECT_LIST} to daocloud chart registery. Trigger by PR <${PR_URL}>. Refer to Github Action <${ACTION_URL}>" \
-                  --title "failed to release chart ${PROJECT_LIST} by PR ${PR_NUMBER}" \
+                  --body "I am robot, failed to release chart ${PROJECT_INFO} to daocloud chart registery. Trigger by PR <${PR_URL}>. Refer to Github Action <${ACTION_URL}>" \
+                  --title "robot: failed to release ${PROJECT_INFO} by PR ${PR_NUMBER}" \
                   --label "${LABEL}" \
                   --assignee "${REVIWER}"
           else
-              echo "succeeded to release chart ${PROJECT_LIST} "
+              echo "succeeded to release chart ${PROJECT_INFO} "
               LABEL="robot/release-chart-succeed"
               gh label create "${LABEL}" --force || true
               REVIWER=${{ env.DEFAULT_SUCCEED_REVIEWER }}
               #
               gh issue create  \
-                  --body "I am robot, Trigger by PR <${PR_URL}>, charts ${PROJECT_LIST} has been released with new version to daocloud chart registery. Refer to Github Action <${ACTION_URL}>" \
-                  --title "please test new version for ${PROJECT_LIST} by PR ${PR_NUMBER}" \
+                  --body "I am robot, Trigger by PR <${PR_URL}>, charts ${PROJECT_INFO} has been released with new version to daocloud chart registery. Refer to Github Action <${ACTION_URL}>" \
+                  --title "robot: test new version ${PROJECT_INFO} by PR ${PR_NUMBER}" \
                   --label "${LABEL}" \
                   --assignee "${REVIWER}"
           fi
