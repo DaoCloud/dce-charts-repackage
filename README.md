@@ -1,8 +1,8 @@
-# network-charts-repackage
+# dce-charts-repackage
 
-[![Nightly E2E](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/night-ci.yml/badge.svg)](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/night-ci.yml)
-[![Release Chart](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/release-chart.yml/badge.svg)](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/release-chart.yml)
-[![Auto Upgrade Chart](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/auto-upgrade.yaml/badge.svg)](https://github.com/DaoCloud/network-charts-repackage/actions/workflows/auto-upgrade.yaml)
+[![Nightly E2E](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/night-ci.yml/badge.svg)](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/night-ci.yml)
+[![Release Chart](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/release-chart.yml/badge.svg)](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/release-chart.yml)
+[![Auto Upgrade Chart](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/auto-upgrade.yaml/badge.svg)](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/auto-upgrade.yaml)
 
 ***
 
@@ -117,7 +117,7 @@ local host needs install：
 
 你可使用 本工程的 chart repo 来测试
 
-    helm repo add daocloud https://daocloud.github.io/network-charts-repackage/
+    helm repo add daocloud https://daocloud.github.io/dce-charts-repackage/
     helm pull daocloud/${PROJECT}
 
 > 如果只 需要 发布 某一个项目 chart ，可 在 github action 中手动触发 "Release Chart" action， 触发推送指定chart

@@ -67,7 +67,7 @@ See https://avd.aquasec.com/misconfig/ksv041
 ### Quick Start
 
 ```shell
-helm repo add daocloud https://daocloud.github.io/network-charts-repackage/ 
+helm repo add daocloud https://daocloud.github.io/dce-charts-repackage/ 
 helm install nmstate -n nmstate daocloud/nmstate --create-namespace
 ```
 

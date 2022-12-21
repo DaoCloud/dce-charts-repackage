@@ -1,4 +1,4 @@
-module github.com/daocloud/network-charts-repackage/cmd/override-check
+module github.com/daocloud/dce-charts-repackage/cmd/override-check
 
 go 1.19
 
