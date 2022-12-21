@@ -45,9 +45,9 @@
 
     * （可选）/charts/${PROJECT}/appendValues.yaml
 
-    * （可选）/src/PROJECT/custom.sh
+    * （可选）/src/${PROJECT}/custom.sh
 
-    * （可选）/src/PROJECT/skip-check.yaml : PR CI 会检查父子chart间的 values 映射关系，如果父chart中定制了一个 子chart中不存在的values，CI就会报错。对于必要的例外情况，你可以加入这种value到本文件，让 CI 忽略
+    * （可选）/src/${PROJECT}/skip-check.yaml : PR CI 会检查父子chart间的 values 映射关系，如果父chart中定制了一个 子chart中不存在的values，CI就会报错。对于必要的例外情况，你可以加入这种value到本文件，让 CI 忽略
     
 2. 执行`make -e PROJECT=${PROJECT}`， 工程自动化 执行如下流程 来 生成 chart （具体参考脚本 scripts/generateChart.sh ）
 
