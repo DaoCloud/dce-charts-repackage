@@ -9,7 +9,7 @@ apiVersion: {{ template "deployment.apiVersion" . }}
 kind: Deployment
 metadata:
   name: {{ template "f5-bigip-ctlr.fullname" . }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ template "f5-bigip-ctlr.namespace" . }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
