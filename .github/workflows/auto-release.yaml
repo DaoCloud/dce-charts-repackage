@@ -87,7 +87,7 @@ jobs:
           PROJECT_INFO=""
           for PROJECT in $PROJECT_LIST ; do
               VERSION=`source charts/${PROJECT}/config && echo ${VERSION} `
-              UPGRADE_INFO+=" ${PROJECT}<${VERSION}> "
+              PROJECT_INFO+=" ${PROJECT}<${VERSION}> "
           done
           
           if ${{ steps.release.outcome == 'failure' }} ; then
