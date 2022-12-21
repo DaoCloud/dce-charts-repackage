@@ -48,7 +48,7 @@ vpa:
       # recommender.image.pullPolicy -- The pull policy for the recommender image. Recommend not changing this
       pullPolicy: Always
       # recommender.image.tag -- Overrides the image tag whose default is the chart appVersion
-      tag: ""
+      tag: "0.12.0"
     # recommender.podAnnotations -- Annotations to add to the recommender pod
     podAnnotations: {}
     # recommender.podLabels -- Labels to add to the recommender pod
@@ -88,7 +88,7 @@ vpa:
       # updater.image.pullPolicy -- The pull policy for the updater image. Recommend not changing this
       pullPolicy: Always
       # updater.image.tag -- Overrides the image tag whose default is the chart appVersion
-      tag: ""
+      tag: "0.12.0"
     # updater.podAnnotations -- Annotations to add to the updater pod
     podAnnotations: {}
     # updater.podLabels -- Labels to add to the updater pod
@@ -161,7 +161,7 @@ vpa:
       # admissionController.image.pullPolicy -- The pull policy for the admission controller image. Recommend not changing this
       pullPolicy: Always
       # admissionController.image.tag -- Overrides the image tag whose default is the chart appVersion
-      tag: ""
+      tag: "0.12.0"
     # admissionController.podAnnotations -- Annotations to add to the admission controller pod
     podAnnotations: {}
     # admissionController.podLabels -- Labels to add to the admission controller pod
