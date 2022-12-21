@@ -1,8 +1,9 @@
 # dce-charts-repackage
 
+[![Auto Release Chart](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/auto-release.yaml/badge.svg)](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/auto-release.yaml)
+[![Auto Upgrade Chart](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/auto-upgrade.yaml/badge.svg)](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/auto-upgrade.yaml)
 [![Nightly E2E](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/night-ci.yml/badge.svg)](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/night-ci.yml)
 [![Release Chart](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/release-chart.yml/badge.svg)](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/release-chart.yml)
-[![Auto Upgrade Chart](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/auto-upgrade.yaml/badge.svg)](https://github.com/DaoCloud/dce-charts-repackage/actions/workflows/auto-upgrade.yaml)
 
 ***
 
