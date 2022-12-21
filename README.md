@@ -160,6 +160,8 @@
 1. 如果 PR 中修改了某个chart， 被合入 main 分支，则会自动 触发 release CI, 其 发布 变更 chart 到 daocloud 仓库。
 
     如果该 CI 成功，会自动创建 issue 提醒测试同事 测试新chart ；如果该 CI 失败，会自动创建 ISSUE 提醒 PR 作者
+    
+    注意：如果是直接以 commit 提交给 main ，而不是 PR 形式，是不会触发的
 
 2. 手动点击 action 中的 “Manually Release Chart” 
 
