@@ -2,7 +2,7 @@ name: Auto Release Chart
 
 env:
   DEFAULT_FAIL_REVIEWER: "weizhoublue"
-  DEFAULT_SUCCEED_REVIEWER: "yulng,bzsuni,ty-dc"
+  DEFAULT_SUCCEED_REVIEWER: "liyue,ty-dc"
 
 on:
   push:
@@ -64,13 +64,6 @@ jobs:
           echo "ENV_charts_changed=${charts_changed}" >> $GITHUB_ENV
           echo "ENV_PR_AUTHOR=${PR_AUTHOR}" >> $GITHUB_ENV
           echo "ENV_PR_NUMBER=${PR_NUMBER}" >> $GITHUB_ENV
-          #-------------------
-          UPGRADE_INFO=""
-          for PROJECT in $charts_changed ; do
-              VERSION=`source charts/${PROJECT}/config && echo ${VERSION} `
-              UPGRADE_INFO+=" ${PROJECT}<${VERSION}> "
-          done
-          echo "ENV_UPGRADE_INFO=${UPGRADE_INFO}" >> $GITHUB_ENV
 
       - name: release
         if: ${{ env.ENV_charts_changed != '' }}
@@ -86,11 +79,16 @@ jobs:
         if: ${{ env.ENV_charts_changed != '' }}
         run : |
           set -x
-          #PROJECT_LIST="${{ env.ENV_charts_changed }}"
-          PROJECT_INFO="${{ env.ENV_UPGRADE_INFO }}"
+          PROJECT_LIST="${{ env.ENV_charts_changed }}"
           ACTION_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           PR_NUMBER="${{ env.ENV_PR_NUMBER }}"
           PR_URL="https://github.com/${{ github.repository }}/pull/${PR_NUMBER}"
+          
+          PROJECT_INFO=""
+          for PROJECT in $PROJECT_LIST ; do
+              VERSION=`source charts/${PROJECT}/config && echo ${VERSION} `
+              UPGRADE_INFO+=" ${PROJECT}<${VERSION}> "
+          done
           
           if ${{ steps.release.outcome == 'failure' }} ; then
               echo "failed to release chart ${PROJECT_INFO} "
@@ -109,12 +107,33 @@ jobs:
               echo "succeeded to release chart ${PROJECT_INFO} "
               LABEL="robot/release-chart-succeed"
               gh label create "${LABEL}" --force || true
-              REVIWER=${{ env.DEFAULT_SUCCEED_REVIEWER }}
-              #
-              gh issue create  \
-                  --body "I am robot, Trigger by PR <${PR_URL}>, charts ${PROJECT_INFO} has been released with new version to daocloud chart registery. Refer to Github Action <${ACTION_URL}>" \
-                  --title "robot: test new version ${PROJECT_INFO} by PR ${PR_NUMBER}" \
-                  --label "${LABEL}" \
-                  --assignee "${REVIWER}"
+
+              FAILED=""
+              for PROJECT in $PROJECT_LIST ; do
+                  VERSION=`source charts/${PROJECT}/config && echo ${VERSION} `
+          
+                  TEST_ASSIGNER=`source charts/${PROJECT}/config && echo ${TEST_ASSIGNER} ` || true
+                  if [ -n "$TEST_ASSIGNER" ] ; then 
+                      echo "valid assigner $TEST_ASSIGNER"
+                  else
+                      echo "invalid assigner $TEST_ASSIGNER, assign to default"
+                      TEST_ASSIGNER=${{ env.DEFAULT_SUCCEED_REVIEWER }}          
+                  fi
+          
+                  echo "---------- create issue for $PROJECT -------"
+                  # maybe the TEST_ASSIGNER is wrong or not existed, failed to execute
+                  gh issue create  \
+                      --body "I am robot, Trigger by PR <${PR_URL}>, charts ${PROJECT} ${VERSION} has been released with new version to daocloud chart registery. Refer to Github Action <${ACTION_URL}>" \
+                      --title "robot: test new version ${PROJECT_INFO} by PR ${PR_NUMBER}" \
+                      --label "${LABEL}" \
+                      --assignee "${TEST_ASSIGNER}" || FAILED="true"
+              done
+              if [ -n "$FAILED" ] ; then
+                  echo "failed to create issue for some project"
+                  exit 1
+              else
+                  echo "all succeed"
+              fi
+
           fi
           
