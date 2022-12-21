@@ -41,29 +41,31 @@
     
     * （必须）/charts/${PROJECT}/config，确保其中 USE_OPENSOURCE_CHART=false （可参考 spiderpool）。
 
+    * （必须）父 chart 的添加内容放置在 /charts/${PROJECT}/parent 目录中
+
     * （可选）/charts/${PROJECT}/appendValues.yaml
 
     * （可选）/src/PROJECT/custom.sh
 
-    * （必须）父 chart 的添加内容放置在 /charts/${PROJECT}/parent 目录中
-
+    * （可选）/src/PROJECT/skip-check.yaml : PR CI 会检查父子chart间的values 对于关系，如果父chart中定制了一个 子chart中不存在的values，CI就会报错。对于必要的例外情况，你可以加入这种value到本文件
+    
 2. 执行`make -e PROJECT=${PROJECT}`， 工程自动化 执行如下流程 来 生成 chart （具体参考脚本 scripts/generateChart.sh ）
 
-    （1）脚本流程会准备好一个 '父chart临时目录' ，基于/charts/${PROJECT}/config 中的配置，把依赖的 dependency开源 chart 中的 README.md values.yaml Chart.yaml values.schema.json ，放置在 '父chart临时目录' 中
+    1. 脚本流程会准备好一个 '父chart临时目录' ，基于/charts/${PROJECT}/config 中的配置，把依赖的 dependency开源 chart 中的 README.md values.yaml Chart.yaml values.schema.json ，放置在 '父chart临时目录' 中
 
-    （2）对于'父chart临时目录' 中的chart.yaml ， 脚本流程会主动注入 /charts/${PROJECT}/config 中的依赖内容 ，且把 dependency chart 自动放置在 '父chart临时目录/charts' 目录下
+    2. 对于'父chart临时目录' 中的chart.yaml ， 脚本流程会主动注入 /charts/${PROJECT}/config 中的依赖内容 ，且把 dependency chart 自动放置在 '父chart临时目录/charts' 目录下
 
-    （3）如果存在 /charts/${PROJECT}/appendValues.yaml  ， 脚本流程会把其中内容追加到 '父chart临时目录' 的 values.yaml 中
+    3. 如果存在 /charts/${PROJECT}/appendValues.yaml  ， 脚本流程会把其中内容追加到 '父chart临时目录' 的 values.yaml 中
 
-    （4）如果存在 /charts/${PROJECT}/parent 目录（在此目录中，你可以事先准备好 子定义的 README.md values.yaml Chart.yaml values.schema.json， 从而 覆盖以上3步的效果 ），脚本流程会则把其中的所有文件  覆盖拷贝到 '父chart临时目录' 中
+    4. 如果存在 /charts/${PROJECT}/parent 目录（在此目录中，你可以事先准备好 子定义的 README.md values.yaml Chart.yaml values.schema.json， 从而 覆盖以上3步的效果 ），脚本流程会则把其中的所有文件  覆盖拷贝到 '父chart临时目录' 中
 
-    （5）如果 '父chart临时目录'  缺失 values.schema.json 文件，脚本流程会 则自动生成 values.schema.json
+    5. 如果 '父chart临时目录'  缺失 values.schema.json 文件，脚本流程会 则自动生成 values.schema.json
 
-    （6）如果存在 /src/${PROJECT}/custom.sh， 脚本流程会执行它， 脚本的第一个入参是 '父chart临时目录'的路径 。 在此脚本中，你可以自定义代码，实现 复杂的 自定义修改 。 （可参考 spiderpool）
+    6. 如果存在 /src/${PROJECT}/custom.sh， 脚本流程会执行它， 脚本的第一个入参是 '父chart临时目录'的路径 。 在此脚本中，你可以自定义代码，实现 复杂的 自定义修改 。 （可参考 spiderpool）
 
-    （7）最终 ， '父chart临时目录'  拷贝于 /charts/${PROJECT}/${PROJECT}
+    7. 最终 ， '父chart临时目录'  拷贝于 /charts/${PROJECT}/${PROJECT}
 
-    注：如上流程看似复杂，其实为了满足 不同人的 制作 需求，您可以依赖 其中的几个步骤 来 完成 你的chart 制作
+> 如上流程看似复杂，其实为了满足 不同人的 制作 需求，您可以依赖 其中的几个步骤 来 完成 你的chart 制作
 
 
 #### /charts/${PROJECT}/config 文件说明：
@@ -106,7 +108,7 @@
 
     最终，执行`make -e PROJECT=${PROJECT}` ， 开源chart 最终生成到 /charts/${PROJECT}/${PROJECT}
 
-### case: 自己 准备好  chart
+### case: 自己 准备好  chart (**没特殊情况，部门不允许使用这种，不能自动化升级**)
 
 如果你自己 已经编辑好 chart，不需要自动化帮助生成chart，那么可直接把 chart 放在 /charts/${PROJECT}/${PROJECT} 下 ，且准备好 /charts/${PROJECT}/config （设置其中 DAOCLOUD_REPO_PROJECT ， 推送到哪个 daocloud chart仓库项目中）
 
