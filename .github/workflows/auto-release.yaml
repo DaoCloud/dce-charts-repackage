@@ -64,7 +64,6 @@ jobs:
         if: ${{ env.ENV_charts_changed != '' }}
         continue-on-error: true
         uses: ./.github/workflows/release-chart.yml
-        secrets: inherit
         with:
           project: "${{ env.ENV_charts_changed }}"
           ref: "main"
