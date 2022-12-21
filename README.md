@@ -65,7 +65,8 @@
 
     注：如上流程看似复杂，其实为了满足 不同人的 制作 需求，您可以依赖 其中的几个步骤 来 完成 你的chart 制作
 
-/charts/${PROJECT}/config 文件说明：
+
+#### /charts/${PROJECT}/config 文件说明：
 
 * USE_OPENSOURCE_CHART ： 自动化做包的方式
 
@@ -89,7 +90,7 @@
 
     * 值为 issue ：E2E 每晚会自动根据 config 中的配置，检查开源最新版本，提交 issue 提醒给 UPGRADE_REVIWER
 
-    * 值为 none ：(没特殊情况，部门不允许使用这种) 不会自动升级该组件
+    * 值为 none ：(**没特殊情况，部门不允许使用这种**) 不会自动升级该组件
 
 * UPGRADE_REVIWER ：github账号名（多个用逗号分割），当 UPGRADE_METHOD=pr 或者 UPGRADE_METHOD=issue 时必填，指定 issue 或者 pr 的assigne，
 
@@ -123,9 +124,11 @@
 
 工程目录下，执行 `make e2e` 运行所有 chart 安装测试，或者 运行 `make e2e -e PROJECT=${PROJECT}` 只测试某个项目
 
-> e2e 流程
-> 1 安装 全局 kind 集群，会安装好 promethues 的 CRD 。 （ 如果存在 /test/${PROJECT}/kind.yaml ， 则安装你的定制 kind ）
-> 2 运行 你的 /test/${PROJECT}/install.sh ， 在kind集群中 进行安装。 如果安装成功，则测试通过
+e2e 流程:
+
+1. 安装 全局 kind 集群，会安装好 promethues 的 CRD 。 （ 如果存在 /test/${PROJECT}/kind.yaml ， 则安装你的定制 kind ）
+
+2. 运行 你的 /test/${PROJECT}/install.sh ， 在kind集群中 进行安装。 如果安装成功，则测试通过
 
 本地测试时，需要安装如下工具：
 
@@ -151,7 +154,7 @@
 
 * 值为 none ：不会自动升级该组件
 
-> 对于自动升级的 PR 或者 ISSUE ，如果不想合入，只要不合入即可。不需要 close，因为每晚还是会提交 PR 上来，并且，自动提交的 PR 是比较智能的，会删除历史 未合入的 升级PR，覆盖最新版本的 升级 PR
+**对于自动升级的 PR 或者 ISSUE ，如果不想发布，只要不合入PR即可。不需要 close，因为每晚还是会提交新 PR 或者 ISSUE 上来，并且，自动提交的 PR 和 ISSUE 是比较智能的，会删除历史 未合入的 升级PR，覆盖最新版本的 升级 PR**
 
 ## chart 发布到 github pages 和 daocloud 仓库
 
