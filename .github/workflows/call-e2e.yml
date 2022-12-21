@@ -28,6 +28,11 @@ jobs:
       ref: ${{ steps.get_ref.outputs.tag }}
       release: ${{ steps.get_ref.outputs.release }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: Get Ref
         id: get_ref
         run: |

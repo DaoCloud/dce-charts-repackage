@@ -21,9 +21,9 @@ jobs:
           DATA_FILE="/tmp/`date +%Y%m%d%H%M%S%N`"
           echo '${{ toJSON(github) }}' > ${DATA_FILE}
           echo "============ print var ======== "
-              grep -Eio "Merge pull request #[0-9]+ " < ${DATA_FILE}
-          PR_NUMBER=` cat ${DATA_FILE} | grep -Eio "Merge pull request #[0-9]+ " | grep -Eo "[0-9]+" | uniq `
-              [ -n "${PR_NUMBER}" ] || { echo "no PR number, ignore" ; }
+              grep -Eio "Merge pull request #[0-9]+ " < ${DATA_FILE} || true
+          PR_NUMBER=` cat ${DATA_FILE} | grep -Eio "Merge pull request #[0-9]+ " | grep -Eo "[0-9]+" | uniq ` || true
+              [ -n "${PR_NUMBER}" ] || { echo "no PR number, ignore" ;  exit 0 ; }
           PR_URL="https://github.com/${{ github.repository }}/pull/${PR_NUMBER}"
           ACTION_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
               grep '"username":'  < ${DATA_FILE}
@@ -63,7 +63,6 @@ jobs:
       - name: release
         if: ${{ env.ENV_charts_changed != '' }}
         continue-on-error: true
-        uses: ./.github/workflows/release-chart.yml
         secrets: inherit
         with:
           project: "${{ env.ENV_charts_changed }}"
