@@ -89,7 +89,7 @@
 
     * 值为 issue ：E2E 每晚会自动根据 config 中的配置，检查开源最新版本，提交 issue 提醒给 UPGRADE_REVIWER
 
-    * 值为 none ：不会自动升级该组件
+    * 值为 none ：(没特殊情况，部门不允许使用这种) 不会自动升级该组件
 
 * UPGRADE_REVIWER ：github账号名（多个用逗号分割），当 UPGRADE_METHOD=pr 或者 UPGRADE_METHOD=issue 时必填，指定 issue 或者 pr 的assigne，
 
@@ -151,6 +151,7 @@
 
 * 值为 none ：不会自动升级该组件
 
+> 对于自动升级的 PR 或者 ISSUE ，如果不想合入，只要不合入即可。不需要 close，因为每晚还是会提交 PR 上来，并且，自动提交的 PR 是比较智能的，会删除历史 未合入的 升级PR，覆盖最新版本的 升级 PR
 
 ## chart 发布到 github pages 和 daocloud 仓库
 
