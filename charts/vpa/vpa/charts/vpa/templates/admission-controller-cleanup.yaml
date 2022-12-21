@@ -65,7 +65,7 @@ spec:
       {{- end }}
       containers:
       - name: cleanup
-        image: {{ .Values.admissionController.cleanupOnDelete.image.repository }}:{{ .Values.admissionController.cleanupOnDelete.image.tag }}
+        image: {{ .Values.admissionController.cleanupOnDelete.image.registry }}/{{ .Values.admissionController.cleanupOnDelete.image.repository }}:{{ .Values.admissionController.cleanupOnDelete.image.tag }}
         command: ["bash"]
         args:
           - -c
