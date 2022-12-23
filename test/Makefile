@@ -33,7 +33,22 @@ e2e:
 				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
             fi ; \
             echo "deploy project $${ITEM}"; \
-			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
+            CHART_PATH=$(ROOT_DIR)/charts/$${ITEM} ; \
+            VERSION=`sed -n  '/VERSION/p' $${CHART_PATH}/config|awk -F = '{print $$2}'` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
+            mkdir -p _tmp && DIR=_tmp ;\
+            relok8s chart move $${CHART_PATH}/$${ITEM} --to-intermediate-bundle $${DIR}/$${ITEM}_$${VERSION}.bundle.tar -y || { echo "error, failed to save charts and images to local" ; exit 1 ; } ; \
+            CONFIG=" \
+source:  \n \
+     intermediateBundlesPath: ${ROOT_DIR}/test/$${DIR} \n \
+target:  \n \
+     containerRegistry: 127.0.0.1:30080 \n \
+     repo:  \n \
+         kind: CHARTMUSEUM \n \
+         url: http://127.0.0.1:30081"; \
+         echo -e "$${CONFIG}" > $${DIR}/config.yaml ; \
+         charts-syncer sync --config $${DIR}/config.yaml --insecure true || { echo "error, failed to sync charts and images to local registry" ; exit 1 ; } ; \
+         rm -rf $${DIR} ; \
+         make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
 	  	done ; \
 	  	if [ "$${RUN_DANGEROUS_ITEM}" == "true" ] ; then \
 	  			PROJECT_LIST=" $(DANGEROUS_MULTUS) "  ; \
@@ -84,12 +99,19 @@ init-kind: checkBin clean
 	@echo "   deploy kind cluster $(KIND_CLUSTER_NAME)             "
 	@echo "  kubectl get node --kubeconfig $(KIND_KUBECONFIG)      "
 	@echo "========================================================"
-
+	echo "install registry and chart museum"
+	helm repo add twuni https://helm.twun.io --force-update  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add registry repo"; exit 1 ; }
+	helm upgrade --debug --install --create-namespace --cleanup-on-fail --namespace registry-system --set service.type=NodePort  --set service.nodePort=30080  registry twuni/docker-registry --wait --version  2.2.2 --kubeconfig $(KIND_KUBECONFIG) || \
+	{ echo "error, failed to deploy registry"; exit 1 ; }
+	helm repo add chartmuseum https://chartmuseum.github.io/charts --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add chartmuseum repo"; exit 1 ; }
+	helm upgrade --debug --install --create-namespace --cleanup-on-fail --namespace chartmuseum-system  --set service.type=NodePort  --set service.nodePort=30081 --set env.open.DISABLE_API=false  chartmuseum chartmuseum/chartmuseum --wait --version 3.9.2 --kubeconfig $(KIND_KUBECONFIG) || \
+	{ echo "error, failed to deploy chartmuseum"; exit 1 ; }
+	helm repo add chart-museum  http://127.0.0.1:30081 --force-update --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add charts repo"; exit 1 ; }
 
 .PHONY: deploy
 deploy: INSTALL_PATH=
 deploy: PROJECT=
-deploy: TRY_LOAD_LOCAL_IMAGE ?= true
+deploy: TRY_LOAD_LOCAL_IMAGE ?= false
 deploy: checkBin
 	@ echo "helm install for $(PROJECT) with $(INSTALL_PATH)"
 	@ [ -f "$(INSTALL_PATH)" ] || { echo "error, failed to find INSTALL_PATH $(INSTALL_PATH)" ;  exit 1 ; }
@@ -126,6 +148,8 @@ deploy: checkBin
 checkBin:
 	which kind &>/dev/null || { echo "error, please install kind" ; exit 1 ; }
 	which kubectl &>/dev/null || { echo "error, please install kubectl" ; exit 1 ; }
+	which charts-syncer &>/dev/null || { echo "error, please install charts-syncer" ; exit 1 ; }
+	which relok8s &>/dev/null || { echo "error, please install relok8s" ; exit 1 ; }
 
 .PHONY: clean
 clean: checkBin
