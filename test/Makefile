@@ -8,11 +8,14 @@ DANGEROUS_MULTUS := multus-underlay
 .PHONY: all
 all: e2e
 
+test:
+	echo "test"
+
 .PHONY: e2e
 e2e:
 	#setup global kind
-	make init-kind -e KIND_CONFIG_PATH=./yaml/kind.yaml || { echo "error, failed to setup kind " ; exit 1 ; }
-	PROJECT_LIST="$(PROJECT)" ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` ; \
+	make test # init-kind -e KIND_CONFIG_PATH=./yaml/kind.yaml || { echo "error, failed to setup kind " ; exit 1 ; }
+	PROJECT_LIST="$(PROJECT)" ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` \
 		RUN_DANGEROUS_ITEM=false ; \
 		for ITEM in $$PROJECT_LIST ; do \
 		    [ -d "$${ITEM}" ] || continue ; \
@@ -33,7 +36,22 @@ e2e:
 				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
             fi ; \
             echo "deploy project $${ITEM}"; \
-			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
+            CHART_PATH=$(ROOT_DIR)/charts/$${ITEM} ; \
+            VERSION=`sed -n  '/VERSION/p' $${CHART_PATH}/config|awk -F = '{print $$2}'` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
+            mkdir -p _tmp && DIR=_tmp ;\
+            relok8s chart move $${CHART_PATH}/$${ITEM} --to-intermediate-bundle $${DIR}/$${ITEM}_$${VERSION}.bundle.tar -y || { echo "error, failed to save charts and images to local" ; exit 1 ; } ; \
+            CONFIG=' \
+source:  \n \
+     intermediateBundlesPath: ${ROOT_DIR}/test \n \
+target:  \n \
+     containerRegistry: localhost \n \
+     repo:  \n \
+         kind: CHARTMUSEUM \n \
+         url:  http://localhost:8081 \n';\
+         echo -e "$${CONFIG}" > $${DIR}/config.yaml ;\
+         charts-syncer sync --config $${DIR}/config.yaml --insecure true || { echo "error, failed to sync charts and images to local registry" ; exit 1 ; } ; \
+         rm -rf $${DIR} ;\
+         make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
 	  	done ; \
 	  	if [ "$${RUN_DANGEROUS_ITEM}" == "true" ] ; then \
 	  			PROJECT_LIST=" $(DANGEROUS_MULTUS) "  ; \
@@ -65,31 +83,38 @@ init-kind: checkBin clean
 	- sysctl -w net.ipv6.conf.all.disable_ipv6=0 || true
 	- sysctl -w fs.inotify.max_user_watches=524288 || true
 	- sysctl -w fs.inotify.max_user_instances=8192  || true
-	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH)  --kubeconfig $(KIND_KUBECONFIG) --image kindest/node:v1.25.0
+	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH)  --kubeconfig $(KIND_KUBECONFIG) --image  release-ci.daocloud.io/kpanda/kindest-node:v1.25.3
 	- kubectl --kubeconfig $(KIND_KUBECONFIG) taint nodes --all node-role.kubernetes.io/master- || true
 	- kubectl --kubeconfig $(KIND_KUBECONFIG) taint nodes --all node-role.kubernetes.io/control-plane- || true
 	@echo "===================== deploy prometheus CRD ========== "
-	{ timeout 10 kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml ; } \
-		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG)  -f ./yaml/monitoring.coreos.com_servicemonitors.yaml
-	{ timeout 10 kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml ; } \
-		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f ./yaml/monitoring.coreos.com_podmonitors.yaml
-	{ timeout 10 kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml ; } \
-		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f ./yaml/monitoring.coreos.com_prometheusrules.yaml
-	{ timeout 10 kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_probes.yaml  ; } \
-		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f ./yaml/monitoring.coreos.com_probes.yaml
-	{ timeout 10 kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/grafana-operator/grafana-operator/master/deploy/manifests/latest/crds.yaml  ; } \
-		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f ./yaml/grafanadashboards.yaml
+#	{ timeout 10 kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml ; } \
+#		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG)  -f ./yaml/monitoring.coreos.com_servicemonitors.yaml
+#	{ timeout 10 kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml ; } \
+#		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f ./yaml/monitoring.coreos.com_podmonitors.yaml
+#	{ timeout 10 kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml ; } \
+#		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f ./yaml/monitoring.coreos.com_prometheusrules.yaml
+#	{ timeout 10 kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_probes.yaml  ; } \
+#		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f ./yaml/monitoring.coreos.com_probes.yaml
+#	{ timeout 10 kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/grafana-operator/grafana-operator/master/deploy/manifests/latest/crds.yaml  ; } \
+#		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f ./yaml/grafanadashboards.yaml
 	echo "show kubernetes node image " && docker ps
 	@echo "========================================================"
 	@echo "   deploy kind cluster $(KIND_CLUSTER_NAME)             "
 	@echo "  kubectl get node --kubeconfig $(KIND_KUBECONFIG)      "
 	@echo "========================================================"
-
+	echo "install registry and chart museum"
+	helm repo add twuni https://helm.twun.io --force-update  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add registry repo"; exit 1 ; }
+	helm upgrade --debug --install --create-namespace --cleanup-on-fail --namespace registry-system --set service.type=NodePort  --set service.nodePort=30080  registry twuni/docker-registry --wait --version  2.2.2 --kubeconfig $(KIND_KUBECONFIG) || \
+	{ echo "error, failed to deploy registry"; exit 1 ; }
+	helm repo add chartmuseum https://chartmuseum.github.io/charts --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add chartmuseum repo"; exit 1 ; }
+	helm upgrade --debug --install --create-namespace --cleanup-on-fail --namespace chartmuseum-system  --set service.type=NodePort  --set service.nodePort=30081 chartmuseum chartmuseum/chartmuseum --wait --version 3.9.2 --kubeconfig $(KIND_KUBECONFIG) || \
+	{ echo "error, failed to deploy chartmuseum"; exit 1 ; }
+	helm repo add charts http://localhost:8081 --force-update --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add charts repo"; exit 1 ; }
 
 .PHONY: deploy
 deploy: INSTALL_PATH=
 deploy: PROJECT=
-deploy: TRY_LOAD_LOCAL_IMAGE ?= true
+deploy: TRY_LOAD_LOCAL_IMAGE ?= false
 deploy: checkBin
 	@ echo "helm install for $(PROJECT) with $(INSTALL_PATH)"
 	@ [ -f "$(INSTALL_PATH)" ] || { echo "error, failed to find INSTALL_PATH $(INSTALL_PATH)" ;  exit 1 ; }
@@ -126,8 +151,10 @@ deploy: checkBin
 checkBin:
 	which kind &>/dev/null || { echo "error, please install kind" ; exit 1 ; }
 	which kubectl &>/dev/null || { echo "error, please install kubectl" ; exit 1 ; }
+	which charts-syncer &>/dev/null || { echo "error, please install charts-syncer" ; exit 1 ; }
+	which relok8s &>/dev/null || { echo "error, please install relok8s" ; exit 1 ; }
 
 .PHONY: clean
 clean: checkBin
-	- kind delete cluster --name  $(KIND_CLUSTER_NAME)
+	#- kind delete cluster --name  $(KIND_CLUSTER_NAME)
 	- rm -f $(KIND_KUBECONFIG)

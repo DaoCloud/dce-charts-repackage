@@ -28,6 +28,22 @@ jobs:
       ref: ${{ steps.get_ref.outputs.tag }}
       release: ${{ steps.get_ref.outputs.release }}
     steps:
+      - name: Install tools
+        run: |
+          echo $OS
+          curl -Lo ./kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/$OS/amd64/kubectl
+          chmod +x kubectl
+          mv kubectl /usr/local/bin/kubectl
+          VERSION=0.5.1
+          curl -OL https://github.com/vmware-tanzu/asset-relocation-tool-for-kubernetes/releases/download/v${VERSION}/relok8s_${VERSION}_${OS}_x86_64.tar.gz
+          tar -zvxf relok8s_${VERSION}_${OS}_x86_64.tar.gz
+          mv relok8s /usr/local/bin/relok8s
+          rm -rf README.md relok8s_$_*.tar.gz         
+          VERSION=0.0.4
+          curl -OL https://github.com/DaoCloud/charts-syncer/releases/download/v${VERSION}/charts-syncer_${VERSION}_${OS}_x86_64.tar.gz
+          tar -zvxf charts-syncer_${VERSION}_${OS}_x86_64.tar.gz
+          mv charts-syncer /usr/local/bin/charts-syncer
+          rm -rf README.md charts-syncer_$_*.tar.gz
       - name: Get Ref
         id: get_ref
         run: |
@@ -80,11 +96,6 @@ jobs:
         with:
           install_only: true
 
-      - name: Install tools
-        run: |
-          curl -Lo ./kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/$OS/amd64/kubectl
-          chmod +x kubectl
-          mv kubectl /usr/local/bin/kubectl
 
       - name: Run E2E
         run: |
