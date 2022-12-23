@@ -12,6 +12,7 @@ KIND_KUBECONFIG=$2
 echo "CHART_DIR $CHART_DIR"
 echo "KIND_KUBECONFIG $KIND_KUBECONFIG"
 
+helm repo update chart-museum  --kubeconfig ${KIND_KUBECONFIG}
 HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG} "
 
 #==================== add your deploy code bellow =============
@@ -20,8 +21,7 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 set -x
 
 # deploy the node-problem-detector
-helm install node-problem-detector ${CHART_DIR}  ${HELM_MUST_OPTION} \
-  --namespace kube-system
+helm install node-problem-detector chart-museum/node-problem-detector  ${HELM_MUST_OPTION} --namespace kube-system
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"

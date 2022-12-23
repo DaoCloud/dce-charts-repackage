@@ -19,3 +19,15 @@ kubeadmConfigPatches:
 nodes:
   - role: control-plane
   - role: worker
+    extraPortMappings:
+      - containerPort: 30080 # Mini Registry NodePort in kind, expose to host 30080
+        hostPort: 30080
+        listenAddress: "0.0.0.0"
+      - containerPort: 30081 # ChartMuseum Node in kind, export to host 30081
+        hostPort: 30081
+        listenAddress: "0.0.0.0"
+
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."127.0.0.1:30080"]
+      endpoint = ["http://127.0.0.1:30080"]
