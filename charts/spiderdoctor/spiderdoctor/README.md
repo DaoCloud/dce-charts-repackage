@@ -1,6 +1,6 @@
 # spiderdoctor
 
-## Introductio
+## Introduction
 
 ## Features
 

@@ -4,7 +4,7 @@ spiderdoctor:
 
   spiderdoctorAgent:
     image:
-      repository: spidernet-io/spiderdoctor/agent
+      repository: spidernet-io/spiderdoctor-agent
 
     service:
       type: NodePort
@@ -13,7 +13,7 @@ spiderdoctor:
 
   spiderdoctorController:
     image:
-      repository: spidernet-io/spiderdoctor/controller
+      repository: spidernet-io/spiderdoctor-controller
 
   feature:
     enableIPv4: true
