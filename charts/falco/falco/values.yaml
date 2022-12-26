@@ -32,6 +32,14 @@ falco:
       bind_address: "unix:///var/run/falco/falco.sock"
     grpc_output:
       enabled: true
+  
+  resources:
+    requests:
+      cpu: 200m
+      memory: 100Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
 
   driver:
     loader:

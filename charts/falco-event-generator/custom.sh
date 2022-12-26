@@ -16,7 +16,16 @@ echo "keywords:" >> Chart.yaml
 echo "- monitoring" >> Chart.yaml
 echo "- security" >> Chart.yaml
 
+echo "insert custom resources"
+CUSTOM_CPU='180m'
+CUSTOM_MEMORY='60Mi'
+
+echo -e >> values.yaml
+echo "  resources: " >> values.yaml
+echo "    requests: " >> values.yaml
+echo "      cpu: $CUSTOM_CPU" >> values.yaml
+echo "      memory: $CUSTOM_MEMORY" >> values.yaml
+
 sed -i -E 's?^name: event-generator?name: falco-event-generator?' Chart.yaml
 
 sed -i 's?falcosecurity/event-generator?docker.m.daocloud.io/falcosecurity/event-generator?' values.yaml
-
