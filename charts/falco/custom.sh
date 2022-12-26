@@ -15,6 +15,6 @@ set -o nounset
 
 #========= set tag for relok8s-images
 APP_VERSION=` cat charts/falco/Chart.yaml | grep appVersion | awk '{print $2}'`
-sed -iE "s?tag:.*?tag: ${APP_VERSION}?" values.yaml
+sed -iE "s?tag:.*?tag: ${APP_VERSION}?g" values.yaml
 
 rm -f values.yamlE || true
