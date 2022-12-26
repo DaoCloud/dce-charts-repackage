@@ -1,0 +1,2 @@
+- "{{ .falco.image.registry }}/{{ .falco.image.repository }}:{{ .falco.image.tag }}"
+- "{{ .falco.driver.loader.initContainer.image.registry }}/{{ .falco.driver.loader.initContainer.image.repository }}:{{ .falco.driver.loader.initContainer.image.tag }}"
