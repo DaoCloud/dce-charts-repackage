@@ -7,10 +7,12 @@ cd $CHART_DIRECTORY
 echo "custom shell: CHART_DIRECTORY $CHART_DIRECTORY"
 echo "CHART_DIRECTORY $(ls)"
 
-#========================= add your customize bellow ====================
+set -x
 set -o errexit
 set -o pipefail
 set -o nounset
+
+#========================= add your customize bellow ====================
 
 echo "keywords:" >> Chart.yaml
 echo "- monitoring" >> Chart.yaml
