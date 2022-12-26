@@ -23,6 +23,8 @@
 
 开发该目录，主要是书写自动化生成chart的代码。 主要有3种做包方式：
 
+**无论哪种做包方式，最终执行`make build_chart -e PROJECT=${PROJECT}` ， 要求开源chart 最终生成到 /charts/${PROJECT}/${PROJECT}**
+
 ### case: 复用工程做包框架，基于开源 chart 作为子 chart，wrapper了一层父chart
 
 目前，基本所有项目 都遵循该制作方式，基于父子chart封装，保持开源子 chart 原汁原味，
@@ -117,8 +119,6 @@
 ### case：复用工程做包框架，chart 直接同步开源 chart
 
 如果直接使用开源chart，不需要父chart wrapper，那么 请编辑  /charts/${PROJECT}/config （可参考 spiderpool） ， 确保 USE_OPENSOURCE_CHART=true
-
-    最终，执行`make -e PROJECT=${PROJECT}` ， 开源chart 最终生成到 /charts/${PROJECT}/${PROJECT}
 
 ***
 
