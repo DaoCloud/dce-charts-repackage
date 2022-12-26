@@ -48,7 +48,7 @@ falco:
           pullPolicy: IfNotPresent
           registry: docker.m.daocloud.io
           repository: falcosecurity/falco-driver-loader
-          tag: ""
+          tag: 0.32.2
         # -- Security context for the Falco driver loader init container.
         # Overrides the default security context. If driver.mode == "module" you must at least set `privileged: true`
         securityContext:
