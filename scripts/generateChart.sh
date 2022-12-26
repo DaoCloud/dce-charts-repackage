@@ -49,6 +49,15 @@ if [ "$USE_OPENSOURCE_CHART" == true ] ; then
     exit 0
 fi
 
+if [ -n "$BUILD_SELF" ] ; then
+    echo "generate $PROJECT_NAME chart by project-self script"
+    [ -f "${PROJECT_SRC_DIR}/${BUILD_SELF}" ] || { echo "error, failed to find ${BUILD_SELF} under ${PROJECT_SRC_DIR}"; exit 1 ; }
+    cd ${PROJECT_SRC_DIR}
+    chmod +x ${BUILD_SELF}
+    ${BUILD_SELF}
+    exit $?
+fi
+
 #======
 
 echo "generate $PROJECT_NAME chart from custom chart "

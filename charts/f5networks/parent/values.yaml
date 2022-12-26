@@ -1,0 +1,79 @@
+f5-bigip-ctlr:
+  bigip_login_secret: f5-bigip-ctlr-login
+
+  ingressClass:
+    create: false
+    ingressClassName: f5
+    isDefaultIngressController: true
+
+  args:
+    bigip_url: "https://172.17.8.10:443"
+    bigip_partition: kubernetes
+
+    # OPTIONAL PARAMS -- uncomment and provide values for those you wish to use.
+    # verify_interval:
+    # node-poll_interval:
+
+    #log_level: DEBUG
+
+    # bug: pod health check fails if enabled
+    enable-ipv6: false
+
+    default_ingress_ip: ""
+
+    # nodeport or cluster
+    pool_member_type: nodeport
+
+    insecure: true
+    custom-resource-mode: true
+    log-as3-response: true
+    ipam : true
+
+    node_label_selector: "node-role=f5nodeport"
+
+  image:
+    user: docker.m.daocloud.io/f5networks
+    repo: k8s-bigip-ctlr
+    pullPolicy: IfNotPresent
+
+  # k8s-bigip-ctlr version
+  version: 2.10.0
+
+f5-ipam-controller:
+  install: true
+
+  rbac:
+    create: true
+
+  args:
+    orchestration: "kubernetes"
+    provider: "f5-ip-provider"
+
+    # REQUIRED Params if provider is f5-ip-provider
+    ip_range: '{"f5ippool":"172.16.1.1-172.16.1.5"}'
+
+    # OPTIONAL PARAMS -- uncomment and provide values for those you wish to use.
+    log_level: DEBUG
+
+  image:
+    # Use the tag to target a specific version of the Controller
+    user: 'docker.m.daocloud.io/f5networks'
+    repo: f5-ipam-controller
+    pullPolicy: IfNotPresent
+    version: 0.1.8
+
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 1000
+    fsGroup: 1000
+
+  pvc:
+    create: true
+    name: "f5"
+    storageClassName: ""
+    accessMode: ReadWriteOnce
+    storage: "100Mi"
+
+cis-secret:
+  username: "admin"
+  password: "admin"

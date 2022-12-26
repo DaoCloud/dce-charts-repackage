@@ -23,7 +23,7 @@
 
 开发该目录，主要是书写自动化生成chart的代码。 主要有3种做包方式：
 
-### case: 基于开源 chart 作为子 chart，wrapper了一层父chart
+### case: 复用工程做包框架，基于开源 chart 作为子 chart，wrapper了一层父chart
 
 目前，基本所有项目 都遵循该制作方式，基于父子chart封装，保持开源子 chart 原汁原味，
 而 父chart中可加入如下，使得产品安装更加简单：
@@ -49,19 +49,19 @@
 
     * （可选）/src/${PROJECT}/skip-check.yaml : PR CI 会检查父子chart间的 values 映射关系，如果父chart中定制了一个 子chart中不存在的values，CI就会报错。对于必要的例外情况，你可以加入这种value到本文件，让 CI 忽略
     
-2. 执行`make -e PROJECT=${PROJECT}`， 工程自动化 执行如下流程 来 生成 chart （具体参考脚本 scripts/generateChart.sh ）
+2. 执行`make -e PROJECT=${PROJECT}`， 工程自动化 执行如下流程 来 生成 chart （ **实现代码参考脚本 scripts/generateChart.sh** ）
 
     1. 脚本流程会准备好一个 '父chart临时目录' ，基于/charts/${PROJECT}/config 中的配置，把依赖的 dependency开源 chart 中的 README.md values.yaml Chart.yaml values.schema.json ，放置在 '父chart临时目录' 中
 
-    2. 对于'父chart临时目录' 中的chart.yaml ， 脚本流程会主动注入 /charts/${PROJECT}/config 中的依赖内容 ，且把 dependency chart 自动放置在 '父chart临时目录/charts' 目录下
+    2. 对于'父chart临时目录' 中的chart.yaml ， 脚本流程会主动注入 /charts/${PROJECT}/config 中的依赖的开源项目内容 ，且把 dependency chart 自动放置在 '父chart临时目录/charts' 目录下
 
-    3. 如果存在 /charts/${PROJECT}/appendValues.yaml  ， 脚本流程会把其中内容追加到 '父chart临时目录' 的 values.yaml 中
+    3. 如果存在**您书写的 /charts/${PROJECT}/appendValues.yaml**  ， 脚本流程会把其中内容追加到 '父chart临时目录' 的 values.yaml 中
 
-    4. 如果存在 /charts/${PROJECT}/parent 目录（在此目录中，你可以事先准备好 子定义的 README.md values.yaml Chart.yaml values.schema.json， 从而 覆盖以上3步的效果 ），脚本流程会则把其中的所有文件  覆盖拷贝到 '父chart临时目录' 中
+    4. 如果存在**您书写的 /charts/${PROJECT}/parent 目录**（在此目录中，你可以事先准备好 子定义的 README.md values.yaml Chart.yaml values.schema.json， 从而 覆盖以上3步的效果 ），脚本流程会则把其中的所有文件  覆盖拷贝到 '父chart临时目录' 中
 
     5. 如果 '父chart临时目录'  缺失 values.schema.json 文件，脚本流程会 则自动生成 values.schema.json
 
-    6. 如果存在 /src/${PROJECT}/custom.sh， 脚本流程会执行它， 脚本的第一个入参是 '父chart临时目录'的路径 。 在此脚本中，你可以自定义代码，实现 复杂的 自定义修改 。 （可参考 spiderpool）
+    6. 如果存在**您书写的 /src/${PROJECT}/custom.sh**， 脚本流程会执行它， 脚本的第一个入参是 '父chart临时目录'的路径 。 在此脚本中，你可以自定义代码，实现 复杂的 自定义修改 。 （可参考 spiderpool）
 
     7. 最终 ， '父chart临时目录'  拷贝于 /charts/${PROJECT}/${PROJECT}
 
@@ -75,6 +75,8 @@
     * 值为 true，代表 'case：chart 直接同步开源 chart'
 
     * 值为 false，代表 'case: 基于开源 chart 作为子 chart，wrapper了一层父chart'
+
+* BUILD_SELF：（可填）自己书写做chart包的脚本，不复用工程的做包框架
 
 * DAOCLOUD_REPO_PROJECT ：（必填）chart发布时，推送到daocloud chart仓库的哪个项目下
 
@@ -102,15 +104,21 @@
 
 * APPEND_VALUES_FILE ： （可选）指定 appendValues.yaml 路径 
 
-### case：chart 直接同步开源 chart
+### case: 自己写做包脚本
+
+准备好 /charts/${PROJECT}/config ：
+
+1. 设置其中 DAOCLOUD_REPO_PROJECT ， 推送到哪个 daocloud chart仓库项目中
+
+2. 设置好其中的 BUILD_SELF 字段，指向做包的脚本名，你自己 在项目目录下写好做包的脚本。 **注意，该脚本 会被工程CI 调用，实现在升级场景下做包，所以，请考虑周全**
+
+参考 f5networks 项目（其做包设计了好几个开源chart的整合，所以使用了自定义的做包脚本）
+
+### case：复用工程做包框架，chart 直接同步开源 chart
 
 如果直接使用开源chart，不需要父chart wrapper，那么 请编辑  /charts/${PROJECT}/config （可参考 spiderpool） ， 确保 USE_OPENSOURCE_CHART=true
 
     最终，执行`make -e PROJECT=${PROJECT}` ， 开源chart 最终生成到 /charts/${PROJECT}/${PROJECT}
-
-### case: 自己 准备好  chart (**没特殊情况，部门不允许使用这种，不能自动化升级**)
-
-如果你自己 已经编辑好 chart，不需要自动化帮助生成chart，那么可直接把 chart 放在 /charts/${PROJECT}/${PROJECT} 下 ，且准备好 /charts/${PROJECT}/config （设置其中 DAOCLOUD_REPO_PROJECT ， 推送到哪个 daocloud chart仓库项目中）
 
 ***
 
