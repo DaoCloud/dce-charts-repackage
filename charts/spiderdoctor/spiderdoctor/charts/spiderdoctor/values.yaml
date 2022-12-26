@@ -111,7 +111,7 @@ spiderdoctorAgent:
     registry: ghcr.io
 
     ## @param spiderdoctorAgent.image.repository the image repository of spiderdoctorAgent
-    repository: spidernet-io/spiderdoctor/agent
+    repository: spidernet-io/spiderdoctor-agent
 
     ## @param spiderdoctorAgent.image.pullPolicy the image pullPolicy of spiderdoctorAgent
     pullPolicy: IfNotPresent
@@ -334,7 +334,7 @@ spiderdoctorController:
     registry: ghcr.io
 
     ## @param spiderdoctorController.image.repository the image repository of spiderdoctorController
-    repository: spidernet-io/spiderdoctor/controller
+    repository: spidernet-io/spiderdoctor-controller
 
     ## @param spiderdoctorController.image.pullPolicy the image pullPolicy of spiderdoctorController
     pullPolicy: IfNotPresent

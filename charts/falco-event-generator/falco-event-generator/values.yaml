@@ -9,7 +9,8 @@ event-generator:
   
   image:
     # -- Repository from where the image is pulled.
-    repository: docker.m.daocloud.io/falcosecurity/event-generator
+    repository: falcosecurity/event-generator
+    registry: docker.m.daocloud.io
     # -- Pull policy for the event-generator image
     pullPolicy: IfNotPresent
     # -- Images' tag to select a development/custom version of event-generator instead of a release.
