@@ -144,6 +144,11 @@ jobs:
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
                make build_chart -e PROJECT=${PROJECT} \
                   || { echo "error, failed to call 'make build_chart' to update ${PROJECT} " ; exit 1 ; }
+              if ! git diff --exit-code --quiet ; then
+                  git status
+                  echo "error, after 'make build_chart', chart is not updated"
+                  exit 1
+              fi
           done
 
   call_e2e:

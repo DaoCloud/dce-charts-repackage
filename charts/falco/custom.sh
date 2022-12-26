@@ -17,3 +17,4 @@ set -o nounset
 APP_VERSION=` cat charts/falco/Chart.yaml | grep appVersion | awk '{print $2}'`
 sed -iE "s?tag:.*?tag: ${APP_VERSION}?" values.yaml
 
+rm -f values.yamlE || true
