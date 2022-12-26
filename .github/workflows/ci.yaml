@@ -139,6 +139,13 @@ jobs:
               echo "chart trivy check: pass charts/${PROJECT}/${PROJECT} "
           done
           
+      - name: check upgrade
+        run: |
+          for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
+               make build_chart -e PROJECT=${PROJECT} \
+                  || { echo "error, failed to call 'make build_chart' to update ${PROJECT} " ; exit 1 ; }
+          done
+
   call_e2e:
     uses: ./.github/workflows/call-e2e.yml
     needs: [check_change]
