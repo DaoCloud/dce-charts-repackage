@@ -36,7 +36,7 @@ sed -i 's?falcosecurity/event-generator?docker.m.daocloud.io/falcosecurity/event
 #========================= add image registry for relok8s
 
 sed -i '/repository:/ a\\    registry: docker.m.daocloud.io' values.yaml
-sed -i '/repository:/ a\\    registry: docker.m.daocloud.io' charts/event-generator/values.yaml
+sed -i '/repository:/ a\\  registry: docker.m.daocloud.io' charts/event-generator/values.yaml
 sed -iE 's?repository: .*?repository: falcosecurity/event-generator?' values.yaml
 sed -iE 's?repository: .*?repository: falcosecurity/event-generator?' charts/event-generator/values.yaml
 sed -iE 's?image:.*?image: image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"?'  charts/event-generator/templates/pod-template.tpl
