@@ -51,7 +51,7 @@
 
     * （可选）/src/${PROJECT}/skip-check.yaml : PR CI 会检查父子chart间的 values 映射关系，如果父chart中定制了一个 子chart中不存在的values，CI就会报错。对于必要的例外情况，你可以加入这种value到本文件，让 CI 忽略
     
-2. 执行`make -e PROJECT=${PROJECT}`， 工程自动化 执行如下流程 来 生成 chart （ **实现代码参考脚本 scripts/generateChart.sh** ）
+2. 执行`make build_chart -e PROJECT=${PROJECT}`， 工程自动化 执行如下流程 来 生成 chart （ **实现代码参考脚本 scripts/generateChart.sh** ）
 
     1. 脚本流程会准备好一个 '父chart临时目录' ，基于/charts/${PROJECT}/config 中的配置，把依赖的 dependency开源 chart 中的 README.md values.yaml Chart.yaml values.schema.json ，放置在 '父chart临时目录' 中
 
