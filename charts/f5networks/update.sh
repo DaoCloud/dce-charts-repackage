@@ -12,7 +12,7 @@ cd $CURRENT_DIR_PATH
 
 rm -rf f5networks
 mkdir -p f5networks/charts
-cp -rf parent/*  f5networks/
+cp -rf parent/.  f5networks/
 
 
 set -o errexit
