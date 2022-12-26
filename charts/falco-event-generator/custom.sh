@@ -40,3 +40,8 @@ sed -i '/repository:/ a\\  registry: docker.m.daocloud.io' charts/event-generato
 sed -iE 's?repository: .*?repository: falcosecurity/event-generator?' values.yaml
 sed -iE 's?repository: .*?repository: falcosecurity/event-generator?' charts/event-generator/values.yaml
 sed -iE 's?image:.*?image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"?'  charts/event-generator/templates/pod-template.tpl
+
+# remove temporary file
+rm -f values.yamlE || true
+rm -f charts/event-generator/values.yamlE || true
+rm -f charts/event-generator/templates/pod-template.tplE || true
