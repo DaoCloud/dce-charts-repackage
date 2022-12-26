@@ -124,7 +124,7 @@ jobs:
                   # maybe the TEST_ASSIGNER is wrong or not existed, failed to execute
                   gh issue create  \
                       --body "I am robot, Trigger by PR <${PR_URL}>, charts ${PROJECT} ${VERSION} has been released with new version to daocloud chart registery. Refer to Github Action <${ACTION_URL}>" \
-                      --title "robot: test new version ${PROJECT_INFO} by PR ${PR_NUMBER}" \
+                      --title "robot: test new version ${PROJECT} ${VERSION} by PR ${PR_NUMBER}" \
                       --label "${LABEL}" \
                       --assignee "${TEST_ASSIGNER}" || FAILED="true"
               done
