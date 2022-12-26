@@ -15,16 +15,19 @@ mkdir -p f5networks/charts
 cp -rf parent/*  f5networks/
 
 
+set -o errexit
+set -o nounset
+
 #================== set sub-charts
 
 cd f5networks/charts
 rm * -rf
 
-helm repo remove f5-ipam-stable
+helm repo remove f5-ipam-stable || true
 helm repo add f5-ipam-stable https://f5networks.github.io/f5-ipam-controller/helm-charts/stable
 helm pull f5-ipam-stable/f5-ipam-controller --untar
 
-helm repo remove f5-stable
+helm repo remove f5-stable || true
 helm repo add f5-stable https://f5networks.github.io/charts/stable
 helm pull f5-stable/f5-bigip-ctlr --untar
 

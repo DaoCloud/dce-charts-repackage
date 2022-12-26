@@ -8,7 +8,6 @@ echo "custom shell: CHART_DIRECTORY $CHART_DIRECTORY"
 echo "CHART_DIRECTORY $(ls)"
 
 set -o errexit
-set -o pipefail
 set -o nounset
 
 #========================= add your customize bellow ====================
