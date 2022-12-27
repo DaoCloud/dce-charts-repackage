@@ -3,6 +3,7 @@ name: PR E2E C
 env:
   SKIP_CHART_LIST: "nmstate"
   IMAGE_HINT_FILE_NAME: ".relok8s-images.yaml"
+  SCHEMA_FILE_NAME: "values.schema.json"
 
 on:
   pull_request_target:
@@ -123,6 +124,15 @@ jobs:
               CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
               [ -f "${CHART_PATH}/${{ env.IMAGE_HINT_FILE_NAME }}" ] \
                   || { echo "error, miss ${{ env.IMAGE_HINT_FILE_NAME }} file in chart ${PROJECT} " ; exit 1 ; }
+          done
+
+      - name: check schema file
+        run: |
+          BASE=$PWD
+          for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
+              CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
+              [ -f "${CHART_PATH}/${{ env.SCHEMA_FILE_NAME }}" ] \
+                  || { echo "error, miss ${{ env.SCHEMA_FILE_NAME }} file in chart ${PROJECT} " ; exit 1 ; }
           done
 
       - name: check chart trivy
