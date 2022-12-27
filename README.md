@@ -15,11 +15,11 @@
 
 * /charts/${PROJECT}
 
-* /test/${PROJECT}/install.sh
-
 * /charts/${PROJECT}/${PROJECT}/.relok8s-images.yaml
 
 * /charts/${PROJECT}/${PROJECT}/values.schema.json
+
+* /test/${PROJECT}/install.sh
 
 ***
 
