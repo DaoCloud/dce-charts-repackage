@@ -8,33 +8,156 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 
 | Repository | Name | Version |
 |------------|------|---------|
-| <https://metallb.github.io/metallb> | metallb | 0.13.7 |
+| https://metallb.github.io/metallb | metallb | 0.13.7 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| arp.ipAddressPools | list | `["default-address-pool"]` | list of ip-address pools via arp advertisement |
-| arp.name | string | `"default-l2advertisement"` | default arp advertisement name |
-| arp.nodeSelectors | object | `{}` |  |
-| ipAddressPools.addresses | list | `["192.168.10.0/24"]` | list of addresses pool, include ipv4/ipv6 |
-| ipAddressPools.name | string | `"default-address-pool"` | default ip-address pool name |
-| metallb.controller.image.pullPolicy | string | `"IfNotPresent"` |  |
-| metallb.controller.image.repository | string | `"quay.m.daocloud.io/metallb/controller"` |  |
-| metallb.controller.image.tag | string | `v0.13.7` |  |
+| global.imagePullSecrets | list | `[]` |  |
+| global.imageRegistry | string | `""` |  |
+| global.storageClass | string | `""` |  |
+| instances.arp.interfaces | list | `[]` |  |
+| instances.arp.ipAddressPools | list | `["default-pool"]` | list of ip-address pools via arp advertisement |
+| instances.arp.name | string | `"default-l2advertisement"` | default arp advertisement name |
+| instances.arp.nodeSelectors.key | string | `"kubernetes.io/os"` |  |
+| instances.arp.nodeSelectors.value | string | `"linux"` |  |
+| instances.enabled | bool | `false` | enable default ip-address pool |
+| instances.ipAddressPools.addresses | list | `[]` | list of addresses pool, include ipv4/ipv6 |
+| instances.ipAddressPools.autoAssign | bool | `true` |  |
+| instances.ipAddressPools.avoidBuggyIPs | bool | `true` |  |
+| instances.ipAddressPools.name | string | `"default-pool"` | default ip-address pool name |
+| metallb.controller.affinity | object | `{}` |  |
+| metallb.controller.enabled | bool | `true` |  |
+| metallb.controller.image.pullPolicy | string | `nil` |  |
+| metallb.controller.image.registry | string | `"quay.m.daocloud.io"` |  |
+| metallb.controller.image.repository | string | `"metallb/controller"` |  |
+| metallb.controller.image.tag | string | `"v0.13.7"` |  |
+| metallb.controller.livenessProbe.enabled | bool | `true` |  |
+| metallb.controller.livenessProbe.failureThreshold | int | `3` |  |
+| metallb.controller.livenessProbe.initialDelaySeconds | int | `10` |  |
+| metallb.controller.livenessProbe.periodSeconds | int | `10` |  |
+| metallb.controller.livenessProbe.successThreshold | int | `1` |  |
+| metallb.controller.livenessProbe.timeoutSeconds | int | `1` |  |
 | metallb.controller.logLevel | string | `"info"` | Controller log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none` |
 | metallb.controller.nodeSelector | object | `{}` |  |
-| metallb.controller.resources | object | `{}` |  |
-| metallb.prometheus.namespace | string | `"insight-system"` | the namespace where prometheus is deployed required when .Values.metallb.prometheus.podMonitor.enabled == true |
-| metallb.prometheus.podMonitor.enabled | bool | `false` | enable support for Prometheus Operator |
-| metallb.prometheus.prometheusRule.enabled | bool | `false` | enable alertmanager alerts |
-| metallb.prometheus.serviceAccount | string | `"insight-agentls-kube-prometh-operator"` | the service account used by prometheus required when .Values.metallb.prometheus.podMonitor.enabled == true |
-| metallb.speaker.image.pullPolicy | string | `"IfNotPresent"` |  |
-| metallb.speaker.image.repository | string | `"quay.m.daocloud.io/metallb/speaker"` |  |
-| metallb.speaker.image.tag | string | `v0.13.4` |  |
+| metallb.controller.podAnnotations | object | `{}` |  |
+| metallb.controller.priorityClassName | string | `""` |  |
+| metallb.controller.readinessProbe.enabled | bool | `true` |  |
+| metallb.controller.readinessProbe.failureThreshold | int | `3` |  |
+| metallb.controller.readinessProbe.initialDelaySeconds | int | `10` |  |
+| metallb.controller.readinessProbe.periodSeconds | int | `10` |  |
+| metallb.controller.readinessProbe.successThreshold | int | `1` |  |
+| metallb.controller.readinessProbe.timeoutSeconds | int | `1` |  |
+| metallb.controller.resources.requests.cpu | string | `"10m"` |  |
+| metallb.controller.resources.requests.memory | string | `"200Mi"` |  |
+| metallb.controller.runtimeClassName | string | `""` |  |
+| metallb.controller.securityContext.fsGroup | int | `65534` |  |
+| metallb.controller.securityContext.runAsNonRoot | bool | `true` |  |
+| metallb.controller.securityContext.runAsUser | int | `65534` |  |
+| metallb.controller.serviceAccount.annotations | object | `{}` |  |
+| metallb.controller.serviceAccount.create | bool | `true` |  |
+| metallb.controller.serviceAccount.name | string | `""` |  |
+| metallb.controller.strategy.type | string | `"RollingUpdate"` |  |
+| metallb.controller.tolerations | list | `[]` |  |
+| metallb.crds.enabled | bool | `true` |  |
+| metallb.crds.validationFailurePolicy | string | `"Fail"` |  |
+| metallb.fullnameOverride | string | `""` |  |
+| metallb.imagePullSecrets | list | `[]` |  |
+| metallb.loadBalancerClass | string | `""` |  |
+| metallb.nameOverride | string | `""` |  |
+| metallb.prometheus.controllerMetricsTLSSecret | string | `""` |  |
+| metallb.prometheus.metricsPort | int | `7472` |  |
+| metallb.prometheus.namespace | string | `""` |  |
+| metallb.prometheus.podMonitor.additionalLabels | object | `{}` |  |
+| metallb.prometheus.podMonitor.annotations | object | `{}` |  |
+| metallb.prometheus.podMonitor.enabled | bool | `false` |  |
+| metallb.prometheus.podMonitor.interval | string | `nil` |  |
+| metallb.prometheus.podMonitor.jobLabel | string | `"app.kubernetes.io/name"` |  |
+| metallb.prometheus.podMonitor.metricRelabelings | list | `[]` |  |
+| metallb.prometheus.podMonitor.relabelings | list | `[]` |  |
+| metallb.prometheus.prometheusRule.additionalLabels | object | `{}` |  |
+| metallb.prometheus.prometheusRule.addressPoolExhausted.enabled | bool | `true` |  |
+| metallb.prometheus.prometheusRule.addressPoolExhausted.labels.severity | string | `"alert"` |  |
+| metallb.prometheus.prometheusRule.addressPoolUsage.enabled | bool | `true` |  |
+| metallb.prometheus.prometheusRule.addressPoolUsage.thresholds[0].labels.severity | string | `"warning"` |  |
+| metallb.prometheus.prometheusRule.addressPoolUsage.thresholds[0].percent | int | `75` |  |
+| metallb.prometheus.prometheusRule.addressPoolUsage.thresholds[1].labels.severity | string | `"warning"` |  |
+| metallb.prometheus.prometheusRule.addressPoolUsage.thresholds[1].percent | int | `85` |  |
+| metallb.prometheus.prometheusRule.addressPoolUsage.thresholds[2].labels.severity | string | `"alert"` |  |
+| metallb.prometheus.prometheusRule.addressPoolUsage.thresholds[2].percent | int | `95` |  |
+| metallb.prometheus.prometheusRule.annotations | object | `{}` |  |
+| metallb.prometheus.prometheusRule.bgpSessionDown.enabled | bool | `true` |  |
+| metallb.prometheus.prometheusRule.bgpSessionDown.labels.severity | string | `"alert"` |  |
+| metallb.prometheus.prometheusRule.configNotLoaded.enabled | bool | `true` |  |
+| metallb.prometheus.prometheusRule.configNotLoaded.labels.severity | string | `"warning"` |  |
+| metallb.prometheus.prometheusRule.enabled | bool | `false` |  |
+| metallb.prometheus.prometheusRule.extraAlerts | list | `[]` |  |
+| metallb.prometheus.prometheusRule.staleConfig.enabled | bool | `true` |  |
+| metallb.prometheus.prometheusRule.staleConfig.labels.severity | string | `"warning"` |  |
+| metallb.prometheus.rbacPrometheus | bool | `true` |  |
+| metallb.prometheus.rbacProxy.registry | string | `"gcr.m.daocloud.io"` |  |
+| metallb.prometheus.rbacProxy.repository | string | `"kubebuilder/kube-rbac-proxy"` |  |
+| metallb.prometheus.rbacProxy.tag | string | `"v0.12.0"` |  |
+| metallb.prometheus.scrapeAnnotations | bool | `false` |  |
+| metallb.prometheus.serviceAccount | string | `""` |  |
+| metallb.prometheus.serviceMonitor.controller.additionalLabels | object | `{}` |  |
+| metallb.prometheus.serviceMonitor.controller.annotations | object | `{}` |  |
+| metallb.prometheus.serviceMonitor.controller.tlsConfig.insecureSkipVerify | bool | `true` |  |
+| metallb.prometheus.serviceMonitor.enabled | bool | `false` |  |
+| metallb.prometheus.serviceMonitor.interval | string | `nil` |  |
+| metallb.prometheus.serviceMonitor.jobLabel | string | `"app.kubernetes.io/name"` |  |
+| metallb.prometheus.serviceMonitor.metricRelabelings | list | `[]` |  |
+| metallb.prometheus.serviceMonitor.relabelings | list | `[]` |  |
+| metallb.prometheus.serviceMonitor.speaker.additionalLabels | object | `{}` |  |
+| metallb.prometheus.serviceMonitor.speaker.annotations | object | `{}` |  |
+| metallb.prometheus.serviceMonitor.speaker.tlsConfig.insecureSkipVerify | bool | `true` |  |
+| metallb.prometheus.speakerMetricsTLSSecret | string | `""` |  |
+| metallb.rbac.create | bool | `true` |  |
+| metallb.speaker.affinity | object | `{}` |  |
+| metallb.speaker.enabled | bool | `true` |  |
+| metallb.speaker.frr.enabled | bool | `false` |  |
+| metallb.speaker.frr.image.pullPolicy | string | `nil` |  |
+| metallb.speaker.frr.image.registry | string | `"docker.m.daocloud.io"` |  |
+| metallb.speaker.frr.image.repository | string | `"frrouting/frr"` |  |
+| metallb.speaker.frr.image.tag | string | `"v7.5.1"` |  |
+| metallb.speaker.frr.metricsPort | int | `7473` |  |
+| metallb.speaker.frr.resources | object | `{}` |  |
+| metallb.speaker.frrMetrics.resources | object | `{}` |  |
+| metallb.speaker.image.pullPolicy | string | `nil` |  |
+| metallb.speaker.image.registry | string | `"quay.m.daocloud.io"` |  |
+| metallb.speaker.image.repository | string | `"metallb/speaker"` |  |
+| metallb.speaker.image.tag | string | `"v0.13.7"` |  |
+| metallb.speaker.livenessProbe.enabled | bool | `true` |  |
+| metallb.speaker.livenessProbe.failureThreshold | int | `3` |  |
+| metallb.speaker.livenessProbe.initialDelaySeconds | int | `10` |  |
+| metallb.speaker.livenessProbe.periodSeconds | int | `10` |  |
+| metallb.speaker.livenessProbe.successThreshold | int | `1` |  |
+| metallb.speaker.livenessProbe.timeoutSeconds | int | `1` |  |
 | metallb.speaker.logLevel | string | `"info"` | Speaker log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none` |
+| metallb.speaker.memberlist.enabled | bool | `true` |  |
+| metallb.speaker.memberlist.mlBindPort | int | `7946` |  |
 | metallb.speaker.nodeSelector | object | `{}` |  |
-| metallb.speaker.resources | object | `{}` |  |
+| metallb.speaker.podAnnotations | object | `{}` |  |
+| metallb.speaker.priorityClassName | string | `""` |  |
+| metallb.speaker.readinessProbe.enabled | bool | `true` |  |
+| metallb.speaker.readinessProbe.failureThreshold | int | `3` |  |
+| metallb.speaker.readinessProbe.initialDelaySeconds | int | `10` |  |
+| metallb.speaker.readinessProbe.periodSeconds | int | `10` |  |
+| metallb.speaker.readinessProbe.successThreshold | int | `1` |  |
+| metallb.speaker.readinessProbe.timeoutSeconds | int | `1` |  |
+| metallb.speaker.reloader.resources | object | `{}` |  |
+| metallb.speaker.resources.requests.cpu | string | `"100m"` |  |
+| metallb.speaker.resources.requests.memory | string | `"80Mi"` |  |
+| metallb.speaker.runtimeClassName | string | `""` |  |
+| metallb.speaker.serviceAccount.annotations | object | `{}` |  |
+| metallb.speaker.serviceAccount.create | bool | `true` |  |
+| metallb.speaker.serviceAccount.name | string | `""` |  |
+| metallb.speaker.tolerateMaster | bool | `true` |  |
+| metallb.speaker.tolerations | list | `[]` |  |
+| metallb.speaker.updateStrategy.type | string | `"RollingUpdate"` |  |
+
+----------------------------------------------
 
 ## Configuration and installation details
 
@@ -49,9 +172,11 @@ helm install metallb daocloud-system/metallb  -n kube-system
 
 ARP Mode can be enabled when helm installing. Please refer to the following command:
 
+#### Init ARP Mode
+
 ```shell
 helm install metallb daocloud-system/metallb --set instances.enabled=true \
---set instances.ipAddressPools.addresses="{192.168.1.0/24,172.16.20.1-172.16.20.100}" \ 
+--set instances.ipAddressPools.addresses="{192.168.1.0/24,172.16.20.1-172.16.20.100}" \
 -n kube-system \
 --wait
 ```
@@ -61,39 +186,30 @@ helm install metallb daocloud-system/metallb --set instances.enabled=true \
 
 > **Note**: flag **--wait**  is required when the arp mode is enabled. Otherwise, It may fail to initialize arp mode.
 
+#### Specify interface for announce lb IPs
+
+```shell
+helm install metallb daocloud-system/metallb --set instances.enabled=true \
+--set instances.ipAddressPools.addresses="{192.168.1.0/24,172.16.20.1-172.16.20.100}" \
+--set instances.arp.interfaces="{ens192}"
+-n kube-system \
+--wait
+```
+
+`--set instances.arp.interfaces="{ens192}"`: The LB IP will be announced only from interface 'ens192'.
+
 ### BGP Mode
 
-BGP Mode requires with special hardware support, Such as BGP Router. If you want to enable bgp mode, In addition to having a BGP Router, You also need to configure  
+BGP Mode requires with special hardware support, Such as BGP Router. If you want to enable bgp mode, In addition to having a BGP Router, You also need to configure
 `BGPAdvertisement` and `BGPPeer`. For more details, Please refer to the doc: [advanced_bgp_configuration](https://metallb.universe.tf/configuration/_advanced_bgp_configuration/).
-
-### Prometheus Metrics
-
-Prometheus metrics can be enabled when helm installing, Please refer to the following command:
-
-````shell
-helm install metallb daocloud-system/metallb \
---set metallb.prometheus.podMonitor.enabled=true \
---set metallb.prometheus.prometheusRule.enabled=true \
---set metallb.prometheus.serviceAccount=insight-agent-kube-prometh-operator \
---set metallb.prometheus.namespace=insight-system \
--n kube-system
-````
-
-- `metallb.prometheus.podMonitor.enabled`: Enable prometheus metrics, Default to false.
-- `metallb.prometheus.prometheusRule.enabled`: Enable prometheus alert rules, Default to false.
-- `metallb.prometheus.namespace`: The namespace where prometheus is deployed, Default to "insight-system".
-- `metallb.prometheus.serviceAccount`: The service account used by prometheus, Default to "insight-agent-kube-prometh-operator".
-
-> **Note**: when metallb.prometheus.podMonitor.enabled=true, Metallb requires that `namespace` and `serviceAccount` must be specified.
 
 ### Upgrade
 
 If you want to upgrade **metallb**, Such as image version used. You should use the following command：
 
 ```shell
-helm upgrade metallb daocloud-system/metallb  --set metallb.controller.image.tag=v0.13.7
+helm upgrade metallb daocloud-system/metallb  --set metallb.controller.image.tag=0.13.7
 ```
 
 > **Note**: There is no support at this time for upgrading or deleting CRDs using Helm. So if you enabled arp mode when helm installing. And also you want to upgrade the CR resources(update address pool),
 Please update the CR resources directly instead of updating it via helm upgrade.
-----------------------------------------------

@@ -1,0 +1,32 @@
+
+# create default ipaddress-pool
+instances:
+  # -- enable default ip-address pool
+  enabled: false
+  ipAddressPools:
+    # -- default ip-address pool name
+    name: default-pool
+    # labels: {}
+    # -- list of addresses pool, include ipv4/ipv6
+    addresses: []
+    autoAssign: true
+    avoidBuggyIPs: true
+
+  # create default arp mode
+  arp:
+    # -- default arp advertisement name
+    name: default-l2advertisement
+    # labels: {}
+    # -- list of ip-address pools via arp advertisement
+    ipAddressPools:
+    - default-pool
+    # ipAddressPoolSelectors: {}
+    nodeSelectors:
+      key: "kubernetes.io/os"
+      value: "linux"
+    interfaces: []
+
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""

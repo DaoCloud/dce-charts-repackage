@@ -45,7 +45,7 @@ spec:
 {{- end }}
       containers:
       - name: controller
-        image: {{ .Values.controller.image.repository }}:{{ .Values.controller.image.tag | default .Chart.AppVersion }}
+        image: {{ .Values.controller.image.registry }}/{{ .Values.controller.image.repository }}:{{ .Values.controller.image.tag | default .Chart.AppVersion }}
         {{- if .Values.controller.image.pullPolicy }}
         imagePullPolicy: {{ .Values.controller.image.pullPolicy }}
         {{- end }}
@@ -110,7 +110,7 @@ spec:
         {{- end }}
         {{- with .Values.controller.resources }}
         resources:
-          {{- toYaml . | nindent 10 }}
+          {{- toYaml . | nindent 12 }}
         {{- end }}
         securityContext:
           allowPrivilegeEscalation: false
@@ -120,7 +120,7 @@ spec:
             - ALL
       {{- if .Values.prometheus.secureMetricsPort }}
       - name: kube-rbac-proxy
-        image: {{ .Values.prometheus.rbacProxy.repository }}:{{ .Values.prometheus.rbacProxy.tag }}
+        image: {{ .Values.prometheus.rbacProxy.registry }}/{{ .Values.prometheus.rbacProxy.repository }}:{{ .Values.prometheus.rbacProxy.tag }}
         imagePullPolicy: IfNotPresent
         args:
           - --logtostderr

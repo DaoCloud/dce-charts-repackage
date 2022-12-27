@@ -3,15 +3,19 @@ metallb:
   # Default values for metallb.
   # This is a YAML-formatted file.
   # Declare variables to be passed into your templates.
+
   imagePullSecrets: []
   nameOverride: ""
   fullnameOverride: ""
   loadBalancerClass: ""
+
   # To configure MetalLB, you must specify ONE of the following two
   # options.
+
   rbac:
     # create specifies whether to install and use RBAC rules.
     create: true
+
   prometheus:
     # scrape annotations specifies whether to add Prometheus metric
     # auto-collection annotations to pods. See
@@ -22,8 +26,10 @@ metallb:
     # monitoring configuration. If you use the Prometheus operator, this
     # can be left at false.
     scrapeAnnotations: false
+
     # port both controller and speaker will listen on for metrics
     metricsPort: 7472
+
     # if set, enables rbac proxy on the controller and speaker to expose
     # the metrics via tls.
     # secureMetricsPort: 9120
@@ -32,35 +38,46 @@ metallb:
     # to expose the metrics securely. If not present, a self signed
     # certificate to be used.
     speakerMetricsTLSSecret: ""
+
     # the name of the secret to be mounted in the controller pod
     # to expose the metrics securely. If not present, a self signed
     # certificate to be used.
     controllerMetricsTLSSecret: ""
+
     # prometheus doens't have the permission to scrape all namespaces so we give it permission to scrape metallb's one
     rbacPrometheus: true
+
     # the service account used by prometheus
     # required when " .Values.prometheus.rbacPrometheus == true " and " .Values.prometheus.podMonitor.enabled=true or prometheus.serviceMonitor.enabled=true "
     serviceAccount: ""
+
     # the namespace where prometheus is deployed
     # required when " .Values.prometheus.rbacPrometheus == true " and " .Values.prometheus.podMonitor.enabled=true or prometheus.serviceMonitor.enabled=true "
     namespace: ""
+
     # the image to be used for the kuberbacproxy container
     rbacProxy:
-      registry: gcr.m.daocloud.io
+      registry: gcr.io
       repository: kubebuilder/kube-rbac-proxy
       tag: v0.12.0
+
     # Prometheus Operator PodMonitors
     podMonitor:
       # enable support for Prometheus Operator
       enabled: false
+
       # optional additionnal labels for podMonitors
       additionalLabels: {}
+
       # optional annotations for podMonitors
       annotations: {}
+
       # Job label for scrape target
       jobLabel: "app.kubernetes.io/name"
+
       # Scrape interval. If not set, the Prometheus default scrape interval is used.
       interval:
+
       # 	metric relabel configs to apply to samples before ingestion.
       metricRelabelings: []
       # - action: keep
@@ -75,11 +92,13 @@ metallb:
       #   target_label: nodename
       #   replacement: $1
       #   action: replace
+
     # Prometheus Operator ServiceMonitors. To be used as an alternative
     # to podMonitor, supports secure metrics.
     serviceMonitor:
       # enable support for Prometheus Operator
       enabled: false
+
       speaker:
         # optional additional labels for the speaker serviceMonitor
         additionalLabels: {}
@@ -89,6 +108,7 @@ metallb:
         # secure metrics are enabled.
         tlsConfig:
           insecureSkipVerify: true
+
       controller:
         # optional additional labels for the controller serviceMonitor
         additionalLabels: {}
@@ -98,10 +118,13 @@ metallb:
         # secure metrics are enabled.
         tlsConfig:
           insecureSkipVerify: true
+
       # Job label for scrape target
       jobLabel: "app.kubernetes.io/name"
+
       # Scrape interval. If not set, the Prometheus default scrape interval is used.
       interval:
+
       # 	metric relabel configs to apply to samples before ingestion.
       metricRelabelings: []
       # - action: keep
@@ -116,29 +139,36 @@ metallb:
       #   target_label: nodename
       #   replacement: $1
       #   action: replace
+
     # Prometheus Operator alertmanager alerts
     prometheusRule:
       # enable alertmanager alerts
       enabled: false
+
       # optional additionnal labels for prometheusRules
       additionalLabels: {}
+
       # optional annotations for prometheusRules
       annotations: {}
+
       # MetalLBStaleConfig
       staleConfig:
         enabled: true
         labels:
           severity: warning
+
       # MetalLBConfigNotLoaded
       configNotLoaded:
         enabled: true
         labels:
           severity: warning
+
       # MetalLBAddressPoolExhausted
       addressPoolExhausted:
         enabled: true
         labels:
           severity: alert
+
       addressPoolUsage:
         enabled: true
         thresholds:
@@ -151,12 +181,15 @@ metallb:
           - percent: 95
             labels:
               severity: alert
+
       # MetalLBBGPSessionDown
       bgpSessionDown:
         enabled: true
         labels:
           severity: alert
+
       extraAlerts: []
+
   # controller contains configuration specific to the MetalLB cluster
   # controller.
   controller:
@@ -166,10 +199,9 @@ metallb:
     # command: /controller
     # webhookMode: enabled
     image:
-      repository: metallb/controller
-      tag: v0.13.7
+      repository: quay.io/metallb/controller
+      tag:
       pullPolicy:
-      registry: quay.m.daocloud.io
     ## @param controller.updateStrategy.type Metallb controller deployment strategy type.
     ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
     ## e.g:
@@ -193,13 +225,10 @@ metallb:
       # nobody
       runAsUser: 65534
       fsGroup: 65534
-    resources:
-      requests:
-        cpu: 10m
-        memory: 200Mi
-    # limits:
-    # cpu: 100m
-    # memory: 100Mi
+    resources: {}
+      # limits:
+        # cpu: 100m
+        # memory: 100Mi
     nodeSelector: {}
     tolerations: []
     priorityClassName: ""
@@ -220,6 +249,7 @@ metallb:
       periodSeconds: 10
       successThreshold: 1
       timeoutSeconds: 1
+
   # speaker contains configuration specific to the MetalLB speaker
   # daemonset.
   speaker:
@@ -232,10 +262,9 @@ metallb:
       enabled: true
       mlBindPort: 7946
     image:
-      repository: metallb/speaker
-      tag: v0.13.7
+      repository: quay.io/metallb/speaker
+      tag:
       pullPolicy:
-      registry: quay.m.daocloud.io
     ## @param speaker.updateStrategy.type Speaker daemonset strategy type
     ## ref: https://kubernetes.io/docs/tasks/manage-daemon/update-daemon-set/
     ##
@@ -255,13 +284,10 @@ metallb:
     ## By default secretName: {{ "metallb.fullname" }}-memberlist
     ##
     # secretName:
-    resources:
-      requests:
-        cpu: 100m
-        memory: 80Mi
-    # limits:
-    # cpu: 100m
-    # memory: 100Mi
+    resources: {}
+      # limits:
+        # cpu: 100m
+        # memory: 100Mi
     nodeSelector: {}
     tolerations: []
     priorityClassName: ""
@@ -291,19 +317,23 @@ metallb:
         repository: frrouting/frr
         tag: v7.5.1
         pullPolicy:
-        registry: docker.m.daocloud.io
       metricsPort: 7473
       resources: {}
+
       # if set, enables a rbac proxy sidecar container on the speaker to
       # expose the frr metrics via tls.
       # secureMetricsPort: 9121
+
     reloader:
       resources: {}
+
     frrMetrics:
       resources: {}
+
   crds:
     enabled: true
     validationFailurePolicy: Fail
+
 instances:
   # -- enable default ip-address pool
   enabled: false
