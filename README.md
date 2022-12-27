@@ -11,11 +11,15 @@
 
 本工程主要是提供了 制作 chart 的框架、 自动化测试 和 自动发版的能力。**您 书写的代码，关键在于如何自动化做 chart 包，这样工程才能 跟进开源版本自动化迭代升级**
 
-开发一个新的 chart，主要开发如下2个目录，细节请看后续说明
+开发一个新的 chart，主要开发如下，细节请看后续说明
 
 * /charts/${PROJECT}
 
 * /test/${PROJECT}/install.sh
+
+* /charts/${PROJECT}/${PROJECT}/.relok8s-images.yaml
+
+* /charts/${PROJECT}/${PROJECT}/values.schema.json
 
 ***
 
@@ -25,7 +29,7 @@
 
 **无论哪种做包方式，最终执行`make build_chart -e PROJECT=${PROJECT}` ， 要求开源chart 最终生成到 /charts/${PROJECT}/${PROJECT}**
 
-### case: 复用工程做包框架，基于开源 chart 作为子 chart，wrapper了一层父chart
+### 方案: 复用工程做包框架，基于开源 chart 作为子 chart，wrapper了一层父chart
 
 目前，基本所有项目 都遵循该制作方式，基于父子chart封装，保持开源子 chart 原汁原味，
 而 父chart中可加入如下，使得产品安装更加简单：
@@ -106,7 +110,7 @@
 
 * APPEND_VALUES_FILE ： （可选）指定 appendValues.yaml 路径 
 
-### case: 自己写做包脚本
+### 方案: 自己写做包脚本
 
 准备好 /charts/${PROJECT}/config ：
 
@@ -116,9 +120,28 @@
 
 参考 f5networks 项目（其做包设计了好几个开源chart的整合，所以使用了自定义的做包脚本）
 
-### case：复用工程做包框架，chart 直接同步开源 chart
+### 方案：复用工程做包框架，chart 直接同步开源 chart
 
 如果直接使用开源chart，不需要父chart wrapper，那么 请编辑  /charts/${PROJECT}/config ， 确保 USE_OPENSOURCE_CHART=true
+
+***
+
+## 制作 /charts/${PROJECT}/${PROJECT}/.relok8s-images.yaml
+
+该文件用于离线 chart 制作 和 image tag
+
+制作该文件，主要有2个要点：
+
+* 该文件中要出现 chart 包中所有涉及的 image
+
+* chart中必须是以 3 字段来 决定最终的 image 名，用于离线chart改造。如果不满足，请修改 chart
+
+        image:
+          registry: docker.io
+          repository: bitnami/ghost
+          tag: 3.22.2
+
+  具体参考 <https://dwiki.daocloud.io/pages/viewpage.action?pageId=145655064>
 
 ***
 
