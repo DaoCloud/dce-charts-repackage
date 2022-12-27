@@ -118,7 +118,7 @@
 
 ### case：复用工程做包框架，chart 直接同步开源 chart
 
-如果直接使用开源chart，不需要父chart wrapper，那么 请编辑  /charts/${PROJECT}/config （可参考 spiderpool） ， 确保 USE_OPENSOURCE_CHART=true
+如果直接使用开源chart，不需要父chart wrapper，那么 请编辑  /charts/${PROJECT}/config ， 确保 USE_OPENSOURCE_CHART=true
 
 ***
 
