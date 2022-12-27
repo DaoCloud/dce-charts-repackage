@@ -37,17 +37,36 @@ echo "CHART_VERSION: ${CHART_VERSION}"
 echo "IMAGE_VERSION: ${IMAGE_VERSION}"
 
 yq -i '
-   .metallb.prometheus.rbacProxy.repository="gcr.m.daocloud.io/kubebuilder/kube-rbac-proxy" |
+   .metallb.prometheus.rbacProxy.registry="gcr.m.daocloud.io" |
+   .metallb.prometheus.rbacProxy.repository="kubebuilder/kube-rbac-proxy" |
    .metallb.controller.image.tag=strenv(IMAGE_VERSION) |
-   .metallb.controller.image.repository="quay.m.daocloud.io/metallb/controller" |
-   .metallb.controller.resources.requests.cpu="5m" |
-   .metallb.controller.resources.requests.memory="50Mi" |
-   .metallb.speaker.image.repository="quay.m.daocloud.io/metallb/speaker" |
+   .metallb.controller.image.registry="quay.m.daocloud.io" |
+   .metallb.controller.image.repository="metallb/controller" |
+   .metallb.controller.resources.requests.cpu="10m" |
+   .metallb.controller.resources.requests.memory="200Mi" |
+   .metallb.speaker.image.registry="quay.m.daocloud.io" |
+   .metallb.speaker.image.repository="metallb/speaker" |
    .metallb.speaker.image.tag=strenv(IMAGE_VERSION) |
-   .metallb.speaker.resources.requests.cpu="40m" |
+   .metallb.speaker.resources.requests.cpu="100m" |
    .metallb.speaker.resources.requests.memory="80Mi" |
-   .metallb.speaker.frr.image.repository="docker.m.daocloud.io/frrouting/frr"
+   .metallb.speaker.frr.image.registry="docker.m.daocloud.io" |
+   .metallb.speaker.frr.image.repository="frrouting/frr"
 ' values.yaml
+
+echo 1234
+
+# change origin chart template:
+if [ "$(uname)" == "Darwin" ];then
+  sed  -i '' 's?{{ .Values.controller.image.repository }}?{{ .Values.controller.image.registry }}/{{ .Values.controller.image.repository }}?'   charts/metallb/templates/controller.yaml
+  sed  -i '' 's?{{ .Values.prometheus.rbacProxy.repository }}?{{ .Values.prometheus.rbacProxy.registry }}/{{ .Values.prometheus.rbacProxy.repository }}?'   charts/metallb/templates/controller.yaml
+  sed  -i '' 's?{{ .Values.speaker.image.repository }}?{{ .Values.speaker.image.registry }}/{{ .Values.speaker.image.repository }}?'   charts/metallb/templates/speaker.yaml
+  sed  -i '' 's?{{ .Values.speaker.frr.image.repository }}?{{ .Values.speaker.frr.image.registry }}/{{ .Values.speaker.frr.image.repository }}?'   charts/metallb/templates/speaker.yaml
+else
+  sed  -i  's?{{ .Values.controller.image.repository }}?{{ .Values.controller.image.registry }}/{{ .Values.controller.image.repository }}?'   charts/metallb/templates/controller.yaml
+  sed  -i  's?{{ .Values.prometheus.rbacProxy.repository }}?{{ .Values.prometheus.rbacProxy.registry }}/{{ .Values.prometheus.rbacProxy.repository }}?'   charts/metallb/templates/controller.yaml
+  sed  -i  's?{{ .Values.speaker.image.repository }}?{{ .Values.speaker.image.registry }}/{{ .Values.speaker.image.repository }}?'   charts/metallb/templates/speaker.yaml
+  sed  -i  's?{{ .Values.speaker.frr.image.repository }}?{{ .Values.speaker.frr.image.registry }}/{{ .Values.speaker.frr.image.repository }}?'   charts/metallb/templates/speaker.yaml
+fi
 
 yq -i '
    .version=strenv(CHART_VERSION) |

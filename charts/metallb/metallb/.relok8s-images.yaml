@@ -1,4 +1,4 @@
-- "{{ .metallb.prometheus.rbacProxy.repository }}:{{ .metallb.prometheus.rbacProxy.tag }}"
-- "{{ .metallb.controller.image.repository }}:{{ .metallb.controller.image.tag }}"
-- "{{ .metallb.speaker.image.repository }}:{{ .metallb.speaker.image.tag }}"
-- "{{ .metallb.speaker.frr.image.repository }}:{{ .metallb.speaker.frr.image.tag }}"
+- "{{ .metallb.prometheus.rbacProxy.registry }}/{{ .metallb.prometheus.rbacProxy.repository }}:{{ .metallb.prometheus.rbacProxy.tag }}"
+- "{{ .metallb.controller.image.registry }}/{{ .metallb.controller.image.repository }}:{{ .metallb.controller.image.tag }}"
+- "{{ .metallb.controller.image.registry }}/{{ .metallb.speaker.image.repository }}:{{ .metallb.speaker.image.tag }}"
+- "{{ .metallb.controller.image.registry }}/{{ .metallb.speaker.frr.image.repository }}:{{ .metallb.speaker.frr.image.tag }}"

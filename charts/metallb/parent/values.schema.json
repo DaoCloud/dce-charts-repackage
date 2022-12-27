@@ -16,10 +16,15 @@
                         "image": {
                             "type": "object",
                             "properties": {
+                                "registry": {
+                                    "type": "string",
+                                    "title": "Registry",
+                                    "default": "quay.m.daocloud.io"
+                                },
                                 "repository": {
                                     "type": "string",
                                     "title": "Repository",
-                                    "default": "quay.m.daocloud.io/metallb/controller"
+                                    "default": "metallb/controller"
                                 }
                             }
                         }
@@ -32,10 +37,15 @@
                         "image": {
                             "type": "object",
                             "properties": {
+                                "registry": {
+                                    "type": "string",
+                                    "title": "Registry",
+                                    "default": "quay.m.daocloud.io"
+                                },
                                 "repository": {
                                     "type": "string",
                                     "title": "Repository",
-                                    "default": "quay.m.daocloud.io/metallb/speaker"
+                                    "default": "metallb/speaker"
                                 }
                             }
                         }

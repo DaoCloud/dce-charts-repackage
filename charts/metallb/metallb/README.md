@@ -30,7 +30,8 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.affinity | object | `{}` |  |
 | metallb.controller.enabled | bool | `true` |  |
 | metallb.controller.image.pullPolicy | string | `nil` |  |
-| metallb.controller.image.repository | string | `"quay.m.daocloud.io/metallb/controller"` |  |
+| metallb.controller.image.registry | string | `"quay.m.daocloud.io"` |  |
+| metallb.controller.image.repository | string | `"metallb/controller"` |  |
 | metallb.controller.image.tag | string | `"v0.13.7"` |  |
 | metallb.controller.livenessProbe.enabled | bool | `true` |  |
 | metallb.controller.livenessProbe.failureThreshold | int | `3` |  |
@@ -48,8 +49,8 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.readinessProbe.periodSeconds | int | `10` |  |
 | metallb.controller.readinessProbe.successThreshold | int | `1` |  |
 | metallb.controller.readinessProbe.timeoutSeconds | int | `1` |  |
-| metallb.controller.resources.requests.cpu | string | `"5m"` |  |
-| metallb.controller.resources.requests.memory | string | `"50Mi"` |  |
+| metallb.controller.resources.requests.cpu | string | `"10m"` |  |
+| metallb.controller.resources.requests.memory | string | `"200Mi"` |  |
 | metallb.controller.runtimeClassName | string | `""` |  |
 | metallb.controller.securityContext.fsGroup | int | `65534` |  |
 | metallb.controller.securityContext.runAsNonRoot | bool | `true` |  |
@@ -95,7 +96,8 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.prometheus.prometheusRule.staleConfig.enabled | bool | `true` |  |
 | metallb.prometheus.prometheusRule.staleConfig.labels.severity | string | `"warning"` |  |
 | metallb.prometheus.rbacPrometheus | bool | `true` |  |
-| metallb.prometheus.rbacProxy.repository | string | `"gcr.m.daocloud.io/kubebuilder/kube-rbac-proxy"` |  |
+| metallb.prometheus.rbacProxy.registry | string | `"gcr.m.daocloud.io"` |  |
+| metallb.prometheus.rbacProxy.repository | string | `"kubebuilder/kube-rbac-proxy"` |  |
 | metallb.prometheus.rbacProxy.tag | string | `"v0.12.0"` |  |
 | metallb.prometheus.scrapeAnnotations | bool | `false` |  |
 | metallb.prometheus.serviceAccount | string | `""` |  |
@@ -116,13 +118,15 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.enabled | bool | `true` |  |
 | metallb.speaker.frr.enabled | bool | `false` |  |
 | metallb.speaker.frr.image.pullPolicy | string | `nil` |  |
-| metallb.speaker.frr.image.repository | string | `"docker.m.daocloud.io/frrouting/frr"` |  |
+| metallb.speaker.frr.image.registry | string | `"docker.m.daocloud.io"` |  |
+| metallb.speaker.frr.image.repository | string | `"frrouting/frr"` |  |
 | metallb.speaker.frr.image.tag | string | `"v7.5.1"` |  |
 | metallb.speaker.frr.metricsPort | int | `7473` |  |
 | metallb.speaker.frr.resources | object | `{}` |  |
 | metallb.speaker.frrMetrics.resources | object | `{}` |  |
 | metallb.speaker.image.pullPolicy | string | `nil` |  |
-| metallb.speaker.image.repository | string | `"quay.m.daocloud.io/metallb/speaker"` |  |
+| metallb.speaker.image.registry | string | `"quay.m.daocloud.io"` |  |
+| metallb.speaker.image.repository | string | `"metallb/speaker"` |  |
 | metallb.speaker.image.tag | string | `"v0.13.7"` |  |
 | metallb.speaker.livenessProbe.enabled | bool | `true` |  |
 | metallb.speaker.livenessProbe.failureThreshold | int | `3` |  |
@@ -143,7 +147,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.readinessProbe.successThreshold | int | `1` |  |
 | metallb.speaker.readinessProbe.timeoutSeconds | int | `1` |  |
 | metallb.speaker.reloader.resources | object | `{}` |  |
-| metallb.speaker.resources.requests.cpu | string | `"40m"` |  |
+| metallb.speaker.resources.requests.cpu | string | `"100m"` |  |
 | metallb.speaker.resources.requests.memory | string | `"80Mi"` |  |
 | metallb.speaker.runtimeClassName | string | `""` |  |
 | metallb.speaker.serviceAccount.annotations | object | `{}` |  |
