@@ -1,0 +1,4 @@
+- "{{ .multus.image.registry }}/{{ .multus.image.repository }}:{{ .multus.image.tag }}"
+- "{{ .sriov.images.sriovCni.registry }}/{{ .sriov.images.sriovCni.repository }}:{{ .sriov.images.sriovCni.tag }}"
+- "{{ .sriov.images.sriovDevicePlugin.registry }}/{{ .sriov.images.sriovDevicePlugin.repository }}:{{ .sriov.images.sriovDevicePlugin.tag }}"
+- "{{ .meta-plugins.image.registry }}/{{ .meta-plugins.image.repository }}:{{ .meta-plugins.image.tag }}"

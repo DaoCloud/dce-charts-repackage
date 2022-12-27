@@ -1,13 +1,13 @@
 export USE_OPENSOURCE_CHART=false
 
 # must
-export REPO_URL=https://daocloud.github.io/dce-charts-repackage/
-export REPO_NAME=multus-underlay
-export CHART_NAME=multus-underlay
-export VERSION=v3.9
+export REPO_URL=https://spidernet-io.github.io/cni-plugins
+export REPO_NAME=meta-plugins
+export CHART_NAME=meta-plugins
+export VERSION=0.2.1
 
 # pr, issue, none
-export UPGRADE_METHOD=pr
+export UPGRADE_METHOD=issue
 export UPGRADE_REVIWER=cyclinder
 export TEST_ASSIGNER=bzsuni
 

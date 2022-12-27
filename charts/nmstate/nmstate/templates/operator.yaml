@@ -48,7 +48,7 @@ spec:
           args:
           - --zap-time-encoding=iso8601
           # Replace this with the built image name
-          image: {{ .Values.image.operator.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          image: {{ .Values.image.operator.registry }}/{{ .Values.image.operator.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           command:
           - manager

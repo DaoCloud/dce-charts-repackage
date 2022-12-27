@@ -10,6 +10,9 @@
                     "type": "object",
                     "title": "Nmstate Handler",
                     "properties": {
+                        "registry": {
+                            "type": "string"
+                        },
                         "repository": {
                             "type": "string"
                         }
@@ -19,6 +22,9 @@
                     "type": "object",
                     "title": "Nmstate Operator",
                     "properties": {
+                        "registry": {
+                            "type": "string"
+                        },
                         "repository": {
                             "type": "string"
                         }

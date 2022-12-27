@@ -37,6 +37,11 @@ mkdir -p ${BUILD_DIR}
 echo "load config from $PROJECT_SRC_CONFIG_PATH "
 source $PROJECT_SRC_CONFIG_PATH
 
+if [ "${UPGRADE_METHOD}" == "none" ]; then
+  echo "UPGRADE_METHOD of $PROJECT_NAME is none, ignore auto update, exit 0..."
+  exit 0
+fi
+
 #=========
 if [ "$USE_OPENSOURCE_CHART" == true ] ; then
     echo "generate $PROJECT_NAME chart from opensource chart"
