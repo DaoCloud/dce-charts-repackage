@@ -1,0 +1,121 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "required": [
+        "metallb"
+    ],
+    "properties": {
+        "metallb": {
+            "type": "object",
+            "title": "MetalLB Settings",
+            "properties": {
+                "controller": {
+                    "type": "object",
+                    "title": "MetalLB Controller",
+                    "properties": {
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Repository",
+                                    "default": "quay.m.daocloud.io/metallb/controller"
+                                }
+                            }
+                        }
+                    }
+                },
+                "speaker": {
+                    "type": "object",
+                    "title": "MetalLB Speaker",
+                    "properties": {
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Repository",
+                                    "default": "quay.m.daocloud.io/metallb/speaker"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "instances": {
+            "type": "object",
+            "default": {},
+            "title": "MetalLB ARP Mode",
+            "description": "Metallb supports ARP and BGP modes to declare LoadBalancer IPs. the BGP mode is complex to configure and requires hardware support (such as BGP Router). If you want to configure BGP. Please refer to https://metallb.universe.tf/configuration/_advanced_bgp_configuration",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "title": "Install ARP Pool",
+                    "description": "install an instance of Loadbalancer IP Address Pool working with ARP mode. Note: \"--wait\" is required when helm installing."
+                },
+                "ipAddressPools": {
+                    "type": "object",
+                    "title": "Loadbalancer IP Address Pool Settings",
+                    "description": "MetalLB assigns ip addresses from the IPAddressPool to LoadBalancer Service",
+                    "properties": {
+                        "addresses": {
+                            "type": "array",
+                            "title": "Pool Address List",
+                            "description": "A list of IP address for loadbalancer IP address pool. It could be IPv4 or IPv6 address. Each item could be like '192.168.10.0/24', or like '172.168.1.1-172.168.1.10', or like 'fd00:81::172:81:0:110/64' ",
+                            "items": {
+                                "type": "string"
+                            },
+                            "default": [
+                                "192.168.10.100-192.168.10.200"
+                            ],
+                            "examples": [
+                                "192.168.10.0/24",
+                                "172.168.1.1-172.168.1.10",
+                                "fd00:81::172:81:0:110/64"
+                            ]
+                        },
+                        "avoidBuggyIPs": {
+                            "type": "boolean",
+                            "title": "avoidBuggyIPs",
+                            "description": "avoidBuggyIPs prevents addresses ending with .0 and .255 to be used by a pool."
+                        }
+                    }
+                },
+                "arp": {
+                    "type": "object",
+                    "title": "L2Advertisement Setting",
+                    "properties": {
+                        "nodeSelectors": {
+                            "type": "object",
+                            "title": "NodeSelectors",
+                            "description": "NodeSelectors allows to limit the nodes to announce as next hops for the LoadBalancer IP. When empty, all the nodes having are announced as next hops",
+                            "properties": {
+                                "key": {
+                                    "type": "string",
+                                    "title": "Key",
+                                    "description": "The key of the label, such as \"kubernetes.io\/os\""
+                                },
+                                "value": {
+                                    "type": "string",
+                                    "title": "Value",
+                                    "description": "The value of the label."
+                                }
+                            }
+                        },
+                        "interfaces": {
+                            "type": "array",
+                            "title": "Interfaces",
+                            "description": "A list of interfaces to announce from. The LB IP will be announced only from these interfaces. If the field is not set, we advertise from all the interfaces on the host",
+                            "items": {
+                                "type": "string",
+                                "description": "The name of Network-Interface,"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
