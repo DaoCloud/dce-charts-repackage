@@ -183,7 +183,7 @@ e2e 流程:
 
 * 值为 pr ：E2E 每晚会自动根据 config 中的配置，检查开源最新版本，基于 make build_chart 升级，并提交 PR 给 UPGRADE_REVIWER
 
-* 值为 issue ：E2E 每晚会自动根据 config 中的配置，检查开源最新版本，提交 issue 提醒给 UPGRADE_REVIWER。 **如没有官方chart等原因，才允许使用这种类型。否则要求 PR 升级**
+* 值为 issue ：E2E 每晚会自动根据 config 中的配置，检查开源最新版本，提交 issue 提醒给 UPGRADE_REVIWER。 **如‘没有官方chart’等特殊原因，才允许使用这种类型。否则要求 PR 升级**
 
 * 值为 none ：不会自动升级该组件
 
