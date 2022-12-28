@@ -6,9 +6,14 @@
             "type": "object",
             "title": "Image Configuration",
             "properties": {
+                "registry": {
+                    "type": "string",
+                    "default": "ghcr.io",
+                    "title": "Registry"
+                },
                 "repository": {
                     "type": "string",
-                    "default": "ghcr.io/spidernet-io/cni-plugins/meta-plugins",
+                    "default": "spidernet-io/cni-plugins/meta-plugins",
                     "title": "Repository"
                 },
                 "tag": {

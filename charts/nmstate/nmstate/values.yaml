@@ -8,12 +8,14 @@ runOperator: ""
 
 image:
   operator:
-    repository: quay.m.daocloud.io/nmstate/kubernetes-nmstate-operator
+    registry: quay.m.daocloud.io
+    repository: nmstate/kubernetes-nmstate-operator
     # Overrides the image tag whose default is the chart appVersion.
   handler:
-    repository: quay.m.daocloud.io/nmstate/kubernetes-nmstate-handler
+    registry: quay.m.daocloud.io
+    repository: nmstate/kubernetes-nmstate-handler
   pullPolicy: IfNotPresent
-  tag: ""
+  tag: "v0.74.0"
 
 imagePullSecrets: []
 nameOverride: ""

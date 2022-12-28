@@ -3,7 +3,8 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: ghcr.io/spidernet-io/cni-plugins/meta-plugins
+  registry: ghcr.io
+  repository: spidernet-io/cni-plugins/meta-plugins
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""

@@ -1,6 +1,6 @@
 # plugins
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-v0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.0](https://img.shields.io/badge/AppVersion-0.2.0-informational?style=flat-square)
+![Version: 0.1.8](https://img.shields.io/badge/Version-v0.1.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.8](https://img.shields.io/badge/AppVersion-0.1.8-informational?style=flat-square)
 
 Plugins works with macvlan cni to solve some communication problems when macvlan is used as CNI.
 
@@ -41,7 +41,7 @@ By default, the image's tag is consistent with the Chart version, if you want to
 
 ```shell
 helm install cni-meta-plugins/veth -n kube-system . \
---set image.tag=v0.2.0
+--set image.tag=v0.1.8
 ```
 
 -----------------------------
