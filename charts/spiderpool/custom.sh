@@ -18,6 +18,14 @@ set -o nounset
 echo "insert insight label"
 INSIGHT_LABEL="labels: { \"operator.insight.io/managed-by\": \"insight\" }"
 
+echo "insert custom resources"
+CUSTOM_SPIDERPOOL_AGENT_CPU='10m'
+CUSTOM_SPIDERPOOL_AGENT_MEMORY='32Mi'
+CUSTOM_SPIDERPOOL_CONTROLLER_CPU=${CUSTOM_SPIDERPOOL_AGENT_CPU}
+CUSTOM_SPIDERPOOL_CONTROLLER_MEMORY='64Mi'
+CUSTOM_SPIDERPOOL_INIT_CPU=${CUSTOM_SPIDERPOOL_AGENT_CPU}
+CUSTOM_SPIDERPOOL_INIT_MEMORY=${CUSTOM_SPIDERPOOL_AGENT_MEMORY}
+
 REPLACE_BY_COMMENT(){
   COMMENT="$1"
   OLD_DATA="$2"
@@ -61,10 +69,17 @@ REPLACE_BY_COMMENT  " clusterDefaultPool.ipv6IPRanges "  'ipv6IPRanges:.*'  "ipv
 REPLACE_BY_COMMENT  " spiderpoolAgent.debug.logLevel "  'logLevel:.*'  'logLevel: "debug"'
 REPLACE_BY_COMMENT  " spiderpoolController.debug.logLevel "  'logLevel:.*'  'logLevel: "debug"'
 
+REPLACE_BY_COMMENT  " spiderpoolAgent.resources.requests.cpu "  'cpu:.*'  "cpu: ${CUSTOM_SPIDERPOOL_AGENT_CPU}"
+REPLACE_BY_COMMENT  " spiderpoolAgent.resources.requests.memory "  'memory:.*'  "memory: ${CUSTOM_SPIDERPOOL_AGENT_MEMORY}"
+REPLACE_BY_COMMENT  " spiderpoolController.resources.requests.cpu "  'cpu:.*'  "cpu: ${CUSTOM_SPIDERPOOL_CONTROLLER_CPU}"
+REPLACE_BY_COMMENT  " spiderpoolController.resources.requests.memory "  'memory:.*'  "memory: ${CUSTOM_SPIDERPOOL_CONTROLLER_MEMORY}"
+REPLACE_BY_COMMENT  " spiderpoolInit.resources.requests.cpu "  'cpu:.*'  "cpu: ${CUSTOM_SPIDERPOOL_INIT_CPU}"
+REPLACE_BY_COMMENT  " spiderpoolInit.resources.requests.memory "  'memory:.*'  "memory: ${CUSTOM_SPIDERPOOL_INIT_MEMORY}"
+
 echo "keywords:" >> Chart.yaml
 echo "  - networking" >> Chart.yaml
 echo "  - ipam" >> Chart.yaml
 
+rm -f values.yaml-E || true
+
 exit 0
-
-
