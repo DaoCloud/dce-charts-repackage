@@ -363,38 +363,32 @@ entries:
     urls:
     - https://DaoCloud.github.io/dce-charts-repackage/metrics-server-3.8.3.tgz
     version: 3.8.3
-  multus:
-  - apiVersion: v2
-    appVersion: v3.9
-    created: "2022-12-28T06:03:35.486855517Z"
-    dependencies:
-    - name: plugins
-      repository: https://spidernet-io.github.io/cni-plugins
-      version: v0.1.1
-    description: Multi-cni enables attaching multiple network interfaces to pods in
-      Kubernetes. Including multus and veth-plugin.
-    digest: e11ebf1e268318cc52a844b4a80e02e69edde0b1f79857dded00d19d426a056a
-    name: multus
-    type: application
-    urls:
-    - https://DaoCloud.github.io/dce-charts-repackage/multus-v3.9.tgz
-    version: v3.9
   multus-underlay:
   - apiVersion: v2
-    appVersion: v3.9
-    created: "2022-12-28T06:03:35.485521311Z"
+    appVersion: 0.2.1
+    created: "2022-12-28T06:02:42.966734585Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
-      version: v0.1.4
+      version: 0.2.1
+    - name: multus
+      repository: file://charts/multus
+      version: v3.9
+    - name: sriov
+      repository: file://charts/sriov
+      version: 0.1.2
     description: Multi-cni enables attaching multiple network interfaces to pods in
       Kubernetes. Including multus and veth-plugin.
-    digest: 583fcd90426d28b29712e7457e06f21bc670c7255a2b07a0833d33f469a7b4b0
+    digest: 3ba091eef05c6630d5c3790d338f28c5515dc77149a347e6e116d554e37b68fe
+    keywords:
+    - networking
+    - underlay
+    - cni
     name: multus-underlay
     type: application
     urls:
-    - https://DaoCloud.github.io/dce-charts-repackage/multus-underlay-v3.9.tgz
-    version: v3.9
+    - https://DaoCloud.github.io/dce-charts-repackage/multus-underlay-0.2.1.tgz
+    version: 0.2.1
   - apiVersion: v2
     appVersion: 0.1.6
     created: "2022-12-28T06:03:35.470596045Z"
