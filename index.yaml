@@ -3,14 +3,14 @@ entries:
   cert-manager:
   - apiVersion: v2
     appVersion: v1.9.1
-    created: "2022-12-28T13:01:33.8499026Z"
+    created: "2022-12-28T16:18:41.101637199Z"
     dependencies:
     - name: cert-manager
       repository: https://charts.jetstack.io
       version: v1.9.1
     description: cert-manager is a Kubernetes addon to automate the management and
       issuance of TLS certificates from various issuing sources.
-    digest: 84ac57de9b4434031e76df55a91ff4a338e04f7691865d58b929ed9b3b5e90cf
+    digest: 8443367a6bcf0ac1e9d7edcb70ba24c2cc8994436b6eb6f4f5d6307fead0b808
     icon: https://raw.githubusercontent.com/cert-manager/cert-manager/master/logo/logo-small.png
     keywords:
     - security
@@ -22,14 +22,14 @@ entries:
   contour:
   - apiVersion: v2
     appVersion: 1.22.1
-    created: "2022-12-28T13:01:33.899196448Z"
+    created: "2022-12-28T16:18:41.130725373Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
       version: 9.1.6
     description: Contour is an open source Kubernetes ingress controller that works
       by deploying the Envoy proxy as a reverse proxy and load balancer.
-    digest: 09e761ac87909f795e1a4e417a1e2e55cf810435f5bb0814afa458ab140d7647
+    digest: 2f48ad9e45fa343f76741f160016b3342cbcb61efe9ec577df2095439614054c
     icon: https://bitnami.com/assets/stacks/contour/img/contour-stack-220x234.png
     keywords:
     - networking
@@ -41,7 +41,7 @@ entries:
     version: 9.1.6
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2022-12-28T13:01:33.891237808Z"
+    created: "2022-12-28T16:18:41.12399031Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -59,7 +59,7 @@ entries:
     version: 9.1.1
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2022-12-28T13:01:33.883918971Z"
+    created: "2022-12-28T16:18:41.115737332Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -74,7 +74,7 @@ entries:
     version: 9.0.3
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2022-12-28T13:01:33.859687349Z"
+    created: "2022-12-28T16:18:41.109896977Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -90,9 +90,9 @@ entries:
   coredns-metrics:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-12-28T13:01:33.899845451Z"
+    created: "2022-12-28T16:18:41.13138708Z"
     description: A Helm chart for Kubernetes
-    digest: 07575f9dc1e17e2a105e519b4abcde8045d0c346cff6cb6b9e7e8957a17ab9fa
+    digest: 88925c8eb51e4bba86e42b23b10047343ba6f829c367fc8e3d381006833c33a2
     icon: https://coredns.io/images/CoreDNS_Colour_Horizontal.png
     keywords:
     - networking
@@ -105,7 +105,7 @@ entries:
   f5networks:
   - apiVersion: v2
     appVersion: 0.2.0
-    created: "2022-12-28T13:01:33.902653165Z"
+    created: "2022-12-28T16:18:41.135876622Z"
     dependencies:
     - name: f5-bigip-ctlr
       repository: https://f5networks.github.io/charts/stable
@@ -115,7 +115,7 @@ entries:
       repository: https://f5networks.github.io/f5-ipam-controller/helm-charts/stable
       version: 0.0.2
     description: Deploy the F5 Networks BIG-IP Controller for Kubernetes and OpenShift
-    digest: 8a8cb66916179a2b684d36c79cf9d485d28e1fb86f8eca80967d248678066bff
+    digest: af387f406650ec6e007f5b6a8d00ec9a5dc21108967d32be14b865715d12fdc3
     icon: https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/F5_Networks_logo.svg/330px-F5_Networks_logo.svg.png
     keywords:
     - networking
@@ -128,7 +128,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2022-12-28T13:01:33.901113558Z"
+    created: "2022-12-28T16:18:41.133436499Z"
     dependencies:
     - name: f5-bigip-ctlr
       repository: https://f5networks.github.io/charts/stable
@@ -150,13 +150,13 @@ entries:
   falco:
   - apiVersion: v2
     appVersion: 0.32.2
-    created: "2022-12-28T13:01:33.911208109Z"
+    created: "2022-12-28T16:18:41.142773987Z"
     dependencies:
     - name: falco
       repository: https://falcosecurity.github.io/charts
       version: 2.0.17
     description: Falco
-    digest: bfc6a4c294fa2b51f36935cd390a5d41b5bd5fcee1adf711bbe8541d6589e40d
+    digest: 6a437f9596e7189dc02ead11fce720dd7e082d5dfd3ef4a80f2f6c0fb2800ed2
     home: https://falco.org
     icon: https://raw.githubusercontent.com/cncf/artwork/master/projects/falco/horizontal/color/falco-horizontal-color.svg
     keywords:
@@ -178,13 +178,13 @@ entries:
   falco-event-generator:
   - apiVersion: v2
     appVersion: 0.9.0
-    created: "2022-12-28T13:01:33.911929012Z"
+    created: "2022-12-28T16:18:41.143563495Z"
     dependencies:
     - name: event-generator
       repository: https://falcosecurity.github.io/charts
       version: 0.1.1
     description: A Helm chart used to deploy the event-generator in Kubernetes cluster.
-    digest: ea5c4fa841a94765d08e54d4b5dc313ca5734319356ad118101041e8a1e49c75
+    digest: de16f81793cd1093fd1bd639d1abc2a80535117fd8dd9be1702eedffd39d58e1
     keywords:
     - monitoring
     - security
@@ -196,13 +196,13 @@ entries:
   falco-exporter:
   - apiVersion: v2
     appVersion: 0.7.0
-    created: "2022-12-28T13:01:33.913293719Z"
+    created: "2022-12-28T16:18:41.152342477Z"
     dependencies:
     - name: falco-exporter
       repository: https://falcosecurity.github.io/charts
       version: 0.8.2
     description: Prometheus Metrics Exporter for Falco output events
-    digest: 213f26a03970f93ea8d5e57a86d6f057f8450cf5a4949e96b0f25e9364d31546
+    digest: 8c35067d8e874c4432fc164db41c1e1679a9e5d5404e238764225d092c35d27b
     keywords:
     - monitoring
     - security
@@ -223,14 +223,14 @@ entries:
   ingress-nginx:
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2022-12-28T13:01:33.924025273Z"
+    created: "2022-12-28T16:18:41.162673775Z"
     dependencies:
     - name: ingress-nginx
       repository: https://kubernetes.github.io/ingress-nginx
       version: 4.2.1
     description: Ingress controller for Kubernetes using NGINX as a reverse proxy
       and load balancer
-    digest: f8c03af0a7a307e272bf479553152083372a219fcc292f8def854ff67b703f7d
+    digest: b7b137bbfc453f6f7888f117d36b42584a8ff9cbc1fa601249ddcf3175ab8eb0
     icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
     keywords:
     - ingress
@@ -243,7 +243,7 @@ entries:
     version: 4.2.1
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2022-12-28T13:01:33.917645641Z"
+    created: "2022-12-28T16:18:41.156583217Z"
     dependencies:
     - name: ingress-nginx
       repository: https://kubernetes.github.io/ingress-nginx
@@ -264,14 +264,14 @@ entries:
   metallb:
   - apiVersion: v2
     appVersion: 0.13.7
-    created: "2022-12-28T13:01:33.932537016Z"
+    created: "2022-12-28T16:18:41.171997463Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
       version: 0.13.7
     description: A network load-balancer implementation for Kubernetes using standard
       routing protocols
-    digest: 9358c1fdb800eb3a4e556741a2aa6c7cc1aa81c4f3f8ec8f8f48c55d5149e39d
+    digest: 18ca20a71a3c5ee74bd28a32ab3acce4dc7a8e0820fdbbe17c124860b2668c07
     icon: https://raw.githubusercontent.com/DaoCloud/network-charts-repackage/main/charts/metallb/metallb/icon.svg
     keywords:
     - networking
@@ -283,7 +283,7 @@ entries:
     version: 0.13.7
   - apiVersion: v2
     appVersion: 0.13.5
-    created: "2022-12-28T13:01:33.929514001Z"
+    created: "2022-12-28T16:18:41.168831933Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
@@ -302,7 +302,7 @@ entries:
     version: 0.13.5
   - apiVersion: v2
     appVersion: 0.13.4
-    created: "2022-12-28T13:01:33.926679387Z"
+    created: "2022-12-28T16:18:41.165910005Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
@@ -335,14 +335,14 @@ entries:
           description: "Updated Metrics Server image to v0.6.2."
     apiVersion: v2
     appVersion: 0.6.2
-    created: "2022-12-28T13:01:33.93528533Z"
+    created: "2022-12-28T16:18:41.173735879Z"
     dependencies:
     - name: metrics-server
       repository: https://kubernetes-sigs.github.io/metrics-server
       version: 3.8.3
     description: Metrics Server is a scalable, efficient source of container resource
       metrics for Kubernetes built-in autoscaling pipelines.
-    digest: 39cc15ce8fef4857e46915678cb0fd73313573701e13934ffbaf5f963443b22d
+    digest: 6baed954e6f21056bb1b87f38d3a807d5f028499bca730948f3776fe1f63f095
     home: https://github.com/kubernetes-sigs/metrics-server
     icon: https://avatars.githubusercontent.com/u/36015203?s=400&v=4
     keywords:
@@ -366,7 +366,7 @@ entries:
   multus:
   - apiVersion: v2
     appVersion: v3.9
-    created: "2022-12-28T13:01:33.963158971Z"
+    created: "2022-12-28T16:18:41.200657733Z"
     dependencies:
     - name: plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -382,7 +382,7 @@ entries:
   multus-underlay:
   - apiVersion: v2
     appVersion: v3.9
-    created: "2022-12-28T13:01:33.961444662Z"
+    created: "2022-12-28T16:18:41.199189019Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -397,7 +397,7 @@ entries:
     version: v3.9
   - apiVersion: v2
     appVersion: 0.2.1
-    created: "2022-12-28T13:01:33.948431996Z"
+    created: "2022-12-28T16:18:41.187878313Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -410,7 +410,7 @@ entries:
       version: 0.1.2
     description: Multi-cni enables attaching multiple network interfaces to pods in
       Kubernetes. Including multus and veth-plugin.
-    digest: 3ba091eef05c6630d5c3790d338f28c5515dc77149a347e6e116d554e37b68fe
+    digest: 46aeeb14fa6fb805df95ba193465b25ad6f9afebb8f8b58f74946d67c4130a62
     keywords:
     - networking
     - underlay
@@ -422,7 +422,7 @@ entries:
     version: 0.2.1
   - apiVersion: v2
     appVersion: 0.1.6
-    created: "2022-12-28T13:01:33.944335876Z"
+    created: "2022-12-28T16:18:41.185288988Z"
     dependencies:
     - name: meta-plugins
       repository: file://charts/meta-plugins
@@ -447,7 +447,7 @@ entries:
     version: 0.1.6
   - apiVersion: v2
     appVersion: 0.1.5
-    created: "2022-12-28T13:01:33.942028164Z"
+    created: "2022-12-28T16:18:41.182756664Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -472,7 +472,7 @@ entries:
     version: 0.1.5
   - apiVersion: v2
     appVersion: 0.1.4
-    created: "2022-12-28T13:01:33.939833153Z"
+    created: "2022-12-28T16:18:41.18022504Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -495,7 +495,7 @@ entries:
     version: 0.1.4
   - apiVersion: v2
     appVersion: 0.1.3
-    created: "2022-12-28T13:01:33.937599942Z"
+    created: "2022-12-28T16:18:41.17702991Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -518,7 +518,7 @@ entries:
     version: 0.1.3
   - apiVersion: v2
     appVersion: v0.1.2
-    created: "2022-12-28T13:01:33.95718394Z"
+    created: "2022-12-28T16:18:41.196864397Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -541,7 +541,7 @@ entries:
     version: v0.1.2
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2022-12-28T13:01:33.954625028Z"
+    created: "2022-12-28T16:18:41.194283073Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -564,7 +564,7 @@ entries:
     version: v0.1.1
   - apiVersion: v2
     appVersion: v0.1.0
-    created: "2022-12-28T13:01:33.951793413Z"
+    created: "2022-12-28T16:18:41.190394736Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -580,9 +580,9 @@ entries:
   nmstate:
   - apiVersion: v2
     appVersion: v0.74.0
-    created: "2022-12-28T13:01:33.963989975Z"
+    created: "2022-12-28T16:18:41.201518941Z"
     description: A Helm chart for Kubernetes
-    digest: 25fce4e1aac14999497dfc18d79730072fe2772f0f92dcead7e33b3e9046d032
+    digest: 78973fc1a1f57b25a72492e321b67d357ca170d2bf8e0487c07fdebacf3db0f9
     keywords:
     - networking
     name: nmstate
@@ -595,12 +595,12 @@ entries:
   node-problem-detector:
   - apiVersion: v1
     appVersion: v0.8.12
-    created: "2022-12-28T13:01:33.965309081Z"
+    created: "2022-12-28T16:18:41.203660761Z"
     description: 'This chart installs a [node-problem-detector](https://github.com/kubernetes/node-problem-detector)
       daemonset. This tool aims to make various node problems visible to the upstream
       layers in cluster management stack. It is a daemon which runs on each node,
       detects node problems and reports them to apiserver. '
-    digest: f5f7a7ae73ec1c5baaf542a1e9e50b4159fc50a3ad815b970cb9180aa091ec28
+    digest: b2adc38191801a21cf337565011d42c80984e2ca14cab076b54c2426e40683a5
     home: https://github.com/kubernetes/node-problem-detector
     icon: https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png
     keywords:
@@ -620,8 +620,31 @@ entries:
     version: 2.3.1
   spiderdoctor:
   - apiVersion: v2
+    appVersion: 0.3.0
+    created: "2022-12-28T16:18:41.217706694Z"
+    dependencies:
+    - name: spiderdoctor
+      repository: https://spidernet-io.github.io/spiderdoctor
+      version: 0.3.0
+    description: spiderdoctor
+    digest: 65d52cb0779b6698944f67e9069f544513c80ab485494217d6bc6ab64c4db6a8
+    home: https://spidernet-io.github.io/agent
+    keywords:
+    - spiderdoctor
+    kubeVersion: '>= 1.16.0-0'
+    maintainers:
+    - name: spidernet-io
+      url: https://github.com/spidernet-io
+    name: spiderdoctor
+    sources:
+    - https://github.com/spidernet-io/spiderdoctor
+    type: application
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/spiderdoctor-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
     appVersion: 0.2.7
-    created: "2022-12-28T13:01:33.977203141Z"
+    created: "2022-12-28T16:18:41.213665456Z"
     dependencies:
     - name: spiderdoctor
       repository: https://spidernet-io.github.io/spiderdoctor
@@ -644,7 +667,7 @@ entries:
     version: 0.2.7
   - apiVersion: v2
     appVersion: 0.2.4
-    created: "2022-12-28T13:01:33.972272816Z"
+    created: "2022-12-28T16:18:41.211297133Z"
     dependencies:
     - name: spiderdoctor
       repository: https://spidernet-io.github.io/spiderdoctor
@@ -667,7 +690,7 @@ entries:
     version: 0.2.4
   - apiVersion: v2
     appVersion: 0.2.3
-    created: "2022-12-28T13:01:33.970157106Z"
+    created: "2022-12-28T16:18:41.208950111Z"
     dependencies:
     - name: spiderdoctor
       repository: https://spidernet-io.github.io/spiderdoctor
@@ -690,7 +713,7 @@ entries:
     version: 0.2.3
   - apiVersion: v2
     appVersion: 0.2.2
-    created: "2022-12-28T13:01:33.967915095Z"
+    created: "2022-12-28T16:18:41.20671979Z"
     dependencies:
     - name: spiderdoctor
       repository: https://spidernet-io.github.io/spiderdoctor
@@ -714,13 +737,13 @@ entries:
   spiderpool:
   - apiVersion: v2
     appVersion: 0.3.6
-    created: "2022-12-28T13:01:34.022825071Z"
+    created: "2022-12-28T16:18:41.265543345Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
       version: 0.3.6
     description: ipam for kubernetes cni
-    digest: a12ec4b175934bf7e487392a823c466a2b3868fe98b4e8d01b06caef89a5afbc
+    digest: ff8403600cd70da077a198ffec2dfbf82a185ca3c092d12cc2698848e2050152
     home: https://spidernet-io.github.io/spiderpool
     icon: https://raw.githubusercontent.com/spidernet-io/spiderpool/main/docs/images/spider.svg
     keywords:
@@ -739,7 +762,7 @@ entries:
     version: 0.3.6
   - apiVersion: v2
     appVersion: 0.3.5
-    created: "2022-12-28T13:01:34.017729546Z"
+    created: "2022-12-28T16:18:41.260549198Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -764,7 +787,7 @@ entries:
     version: 0.3.5
   - apiVersion: v2
     appVersion: 0.3.4
-    created: "2022-12-28T13:01:34.01263652Z"
+    created: "2022-12-28T16:18:41.25435054Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -789,7 +812,7 @@ entries:
     version: 0.3.4
   - apiVersion: v2
     appVersion: 0.3.3
-    created: "2022-12-28T13:01:34.00663879Z"
+    created: "2022-12-28T16:18:41.249453093Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -814,7 +837,7 @@ entries:
     version: 0.3.3
   - apiVersion: v2
     appVersion: 0.3.2
-    created: "2022-12-28T13:01:34.002229868Z"
+    created: "2022-12-28T16:18:41.244063343Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -839,7 +862,7 @@ entries:
     version: 0.3.2
   - apiVersion: v2
     appVersion: 0.3.1
-    created: "2022-12-28T13:01:33.996270837Z"
+    created: "2022-12-28T16:18:41.238127987Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -864,7 +887,7 @@ entries:
     version: 0.3.1
   - apiVersion: v2
     appVersion: 0.3.0
-    created: "2022-12-28T13:01:33.992126917Z"
+    created: "2022-12-28T16:18:41.233556243Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -889,7 +912,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 0.2.0
-    created: "2022-12-28T13:01:33.987970396Z"
+    created: "2022-12-28T16:18:41.2289471Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -914,7 +937,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: 0.1.4
-    created: "2022-12-28T13:01:33.981237362Z"
+    created: "2022-12-28T16:18:41.222652641Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -939,7 +962,7 @@ entries:
     version: 0.1.4
   - apiVersion: v2
     appVersion: v0.1.3
-    created: "2022-12-28T13:01:34.072412821Z"
+    created: "2022-12-28T16:18:41.308093847Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -964,7 +987,7 @@ entries:
     version: v0.1.3
   - apiVersion: v2
     appVersion: v0.1.2
-    created: "2022-12-28T13:01:34.065607187Z"
+    created: "2022-12-28T16:18:41.303071999Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -988,7 +1011,7 @@ entries:
     version: v0.1.2
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2022-12-28T13:01:34.059913158Z"
+    created: "2022-12-28T16:18:41.296939341Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1012,7 +1035,7 @@ entries:
     version: v0.1.1
   - apiVersion: v2
     appVersion: v0.1.0
-    created: "2022-12-28T13:01:34.05223602Z"
+    created: "2022-12-28T16:18:41.292729502Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1036,7 +1059,7 @@ entries:
     version: v0.1.0
   - apiVersion: v2
     appVersion: v0.0.11
-    created: "2022-12-28T13:01:34.034565331Z"
+    created: "2022-12-28T16:18:41.27665135Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1060,7 +1083,7 @@ entries:
     version: v0.0.11
   - apiVersion: v2
     appVersion: v0.0.10
-    created: "2022-12-28T13:01:34.029254504Z"
+    created: "2022-12-28T16:18:41.269824886Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1084,7 +1107,7 @@ entries:
     version: v0.0.10
   - apiVersion: v2
     appVersion: v0.0.9
-    created: "2022-12-28T13:01:34.047753997Z"
+    created: "2022-12-28T16:18:41.287914856Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1108,7 +1131,7 @@ entries:
     version: v0.0.9
   - apiVersion: v2
     appVersion: v0.0.8
-    created: "2022-12-28T13:01:34.043614476Z"
+    created: "2022-12-28T16:18:41.283645916Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1132,7 +1155,7 @@ entries:
     version: v0.0.8
   - apiVersion: v2
     appVersion: v0.0.6
-    created: "2022-12-28T13:01:34.038154449Z"
+    created: "2022-12-28T16:18:41.280131983Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1157,7 +1180,7 @@ entries:
   veth:
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2022-12-28T13:01:34.072830023Z"
+    created: "2022-12-28T16:18:41.30844845Z"
     description: Veth works with macvlan cni to solve some communication problems
       when macvlan is used as CNI.
     digest: e532a68813205bdf899ff60ce100b5c80b27b4dee2c5e05bd85c512c70735af4
@@ -1173,13 +1196,13 @@ entries:
   vpa:
   - apiVersion: v2
     appVersion: 0.11.0
-    created: "2022-12-28T13:01:34.075006834Z"
+    created: "2022-12-28T16:18:41.31057407Z"
     dependencies:
     - name: vpa
       repository: https://charts.fairwinds.com/stable
       version: 1.5.0
     description: A Helm chart for Kubernetes Vertical Pod Autoscaler
-    digest: 208e2a2c90bfef00a9c40d257466941f2acf6974bad146a02e50468dee14f377
+    digest: faf8589778002483cee69baec8df7cb267973e6bd54d84a5af93ceee1143b145
     maintainers:
     - name: sudermanjr
     name: vpa
@@ -1187,4 +1210,4 @@ entries:
     urls:
     - https://DaoCloud.github.io/dce-charts-repackage/vpa-1.5.0.tgz
     version: 1.5.0
-generated: "2022-12-28T13:01:33.843588668Z"
+generated: "2022-12-28T16:18:41.092431212Z"
