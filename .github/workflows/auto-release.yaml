@@ -89,8 +89,8 @@ jobs:
               VERSION=`source charts/${PROJECT}/config && echo ${VERSION} `
               PROJECT_INFO+=" ${PROJECT}<${VERSION}> "
           done
-          
-          if ${{ steps.release.outcome == 'failure' }} ; then
+          echo "privious result: ${{ steps.release.outcome }}"
+          if ${{ steps.release.outcome != 'success' }} ; then
               echo "failed to release chart ${PROJECT_INFO} "
               LABEL="robot/release-chart-fail"
               gh label create "${LABEL}" --force || true
