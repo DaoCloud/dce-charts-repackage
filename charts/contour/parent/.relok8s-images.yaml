@@ -1,0 +1,2 @@
+- {{ .contour.contour.image.registry }}/{{ .contour.contour.image.repository }}:{{ .contour.contour.image.tag }}
+- {{ .contour.envoy.image.registry }}/{{ .contour.envoy.image.repository }}:{{ .contour.envoy.image.tag }}

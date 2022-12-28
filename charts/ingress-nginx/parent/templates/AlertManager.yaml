@@ -1,0 +1,12 @@
+{{ if .Values.buildIn.alertManager.enable }}
+apiVersion: monitoring.coreos.com/v1
+kind: Alertmanager
+metadata:
+  name: ingress-nginx
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  alertmanagerConfigSelector:
+    matchLabels:
+      kind: wechat
+{{ end }}

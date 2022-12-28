@@ -1,0 +1,19 @@
+alert:
+  prometheusRule:
+    create: false
+    nginxHighHttp5xxErrorRate: 5
+    nginxHighHttp4xxErrorRate: 5
+    nginxLatencySecond: 3
+  alertManagerConfig:
+    create: false
+    wechat:
+      apiURL: 'https://qyapi.weixin.qq.com/cgi-bin/'
+      apiSecret: "change me"
+      corpID: "change me"
+      agentID: "change me"
+      toUser: "@all"
+buildIn:
+  prometheus:
+    enable: false
+  alertManager:
+    enable: false

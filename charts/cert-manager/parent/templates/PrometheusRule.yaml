@@ -1,0 +1,54 @@
+{{ if .Values.alert.prometheusRule.create }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: prometheus-cert-manager
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: cert-manager
+spec:
+  groups:
+    - name: cert-manager
+      rules:
+        - alert: CertManagerAbsent
+          expr: absent(up{job="cert-manager"})
+          for: 10m
+          annotations:
+            message: Cert Manager has disappeared from Prometheus service discovery. New certificates will not be able to be minted, and existing ones can't be renewed until cert-manager is back.
+            message_zh: "在 cert-manager 恢复之前，无法铸造新证书，也无法续订现有证书。"
+          labels:
+            severity: critical
+        - alert: CertManagerCertExpirySoon
+          annotations:
+            message: "The cert {{ "{{ $labels.namespace }}" }}/{{ "{{ $labels.name }}" }} will expire soon."
+            message_zh: "证书 cert {{ "{{ $labels.namespace }}" }}/{{ "{{ $labels.name }}" }} 即将过期。"
+          expr: |
+            avg by (exported_namespace, namespace, name) (
+              certmanager_certificate_expiration_timestamp_seconds - time()
+            ) < (21 * 24 * 3600) # 21 days in seconds
+          for: 2s
+          labels:
+            severity: critical
+        - alert: CertManagerCertNotReady
+          annotations:
+            message: "The cert {{ "{{ $labels.namespace }}" }}/{{ "{{ $labels.name }}" }} is not ready to serve traffic."
+            message_zh: "证书 cert {{ "{{ $labels.namespace }}" }}/{{ "{{ $labels.name }}" }} 未就绪。"
+          expr: |
+            max by (name, exported_namespace, namespace, condition) (
+              certmanager_certificate_ready_status{condition!="True"} == 1
+            )
+          for: 10m
+          labels:
+            severity: critical
+        - alert: CertManagerHittingRateLimits
+          annotations:
+            message: Cert manager hitting LetsEncrypt rate limits.
+            message_zh: Cert manager 遇到了 LetsEncrypt 的速率限制。
+          expr: |
+            sum by (host) (
+              rate(certmanager_http_acme_client_request_count{status="429"}[5m])
+            ) > 0
+          for: 5m
+          labels:
+            severity: critical
+{{ end }}

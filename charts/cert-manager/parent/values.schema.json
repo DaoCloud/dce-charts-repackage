@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/schema#",
+  "type": "object",
+  "default": {},
+  "properties": {
+    "cert-manager": {
+      "type": "object",
+      "default": {},
+      "title": "Cert-Manager configuration",
+      "properties": {
+        "replicaCount": {
+          "type": "integer",
+          "title": "Replica Count"
+        },
+        "webhook": {
+          "type": "object",
+          "title": "Webhook",
+          "description": "cert-manager-webhook is a deployment",
+          "properties": {
+            "replicaCount": {
+              "type": "integer",
+              "title": "Replica Count"
+            },
+            "image": {
+              "type": "object",
+              "title": "Cert-manager-webhook Image",
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "title": "Repository",
+                  "description": "Repository of cert-manager-webhook."
+                }
+              }
+            }
+          }
+        },
+        "cainjector": {
+          "type": "object",
+          "title": "Cert-manager-cainjector",
+          "description": "cert-manager-cainjector is a deployment",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled"
+            },
+            "image": {
+              "type": "object",
+              "title": "Cert-manager-cainjector Image",
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "title": "Repository",
+                  "description": "Repository of cert-manager-cainjector."
+                }
+              },
+              "required": []
+            },
+            "replicaCount": {
+              "type": "integer",
+              "title": "Replica Count"
+            }
+          }
+        },
+        "prometheus": {
+          "type": "object",
+          "title": "Prometheus Settings",
+          "properties": {
+            "servicemonitor": {
+              "type": "object",
+              "title": "serviceMonitor",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "title": "Install",
+                  "description": "install serviceMonitor CR for cert-manager. Notice: It is required to install Prometheus CRDs firstly"
+                }
+              },
+              "required": []
+            }
+          }
+        }
+      },
+      "required": []
+    },
+    "alert": {
+      "type": "object",
+      "title": "Alert Configurations",
+      "properties": {
+        "prometheusRule": {
+          "type": "object",
+          "title": "prometheusRule",
+          "properties": {
+            "create": {
+              "title": "Install",
+              "description": "install prometheusRule CR for cert-manager. Notice: It is required to install Prometheus CRDs firstly",
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": []
+}
