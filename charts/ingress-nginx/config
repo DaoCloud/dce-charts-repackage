@@ -1,6 +1,13 @@
 export DAOCLOUD_REPO_PROJECT=addon
 
-# pr, issue, none
-export UPGRADE_METHOD=none
+export REPO_URL=https://kubernetes.github.io/ingress-nginx
+export REPO_NAME=ingress-nginx
+export CHART_NAME=ingress-nginx
+export VERSION=4.2.1
+
+export UPGRADE_METHOD=issue
 export UPGRADE_REVIWER=lou-lan
 export TEST_ASSIGNER=yulng
+
+export CUSTOM_SHELL=custom.sh
+export APPEND_VALUES_FILE=appendValues.yaml

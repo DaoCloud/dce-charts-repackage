@@ -1,0 +1,30 @@
+{{ if .Values.buildIn.prometheus.enable }}
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus-ingress-nginx
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceAccountName: prometheus-ingress-nginx
+  resources:
+    requests:
+      memory: 400Mi
+  enableAdminAPI: true
+  serviceMonitorNamespaceSelector:
+    matchLabels:
+      name: ingress-nginx
+  serviceMonitorSelector:
+    matchLabels:
+      app.kubernetes.io/name: ingress-nginx
+  ruleSelector:
+    matchLabels:
+      app: ingress-nginx
+  ruleNamespaceSelector:
+    matchLabels:
+      name: {{ .Release.Namespace }}
+  alerting:
+    alertmanagers:
+      - namespace: ingress-nginx
+        name: alertmanager-ingress-nginx
+        port: web
+{{ end }}

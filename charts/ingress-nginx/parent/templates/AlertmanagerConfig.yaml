@@ -1,0 +1,41 @@
+{{ if .Values.alert.alertManagerConfig.create }}
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: ingress-nginx
+  namespace: {{ .Release.Namespace }}
+  labels:
+    kind: wechat
+spec:
+  route:
+    groupBy: ['job']
+    groupWait: 5s
+    groupInterval: 30s
+    repeatInterval: 30s
+    receiver: 'wechat'
+  receivers:
+    - name: 'wechat'
+      wechatConfigs:
+        - apiURL: {{ .Values.alert.alertManagerConfig.wechat.apiURL }}
+          corpID: {{ .Values.alert.alertManagerConfig.wechat.corpID }}
+          toUser: "{{ .Values.alert.alertManagerConfig.wechat.toUser }}"
+          agentID: {{ .Values.alert.alertManagerConfig.wechat.agentID }}
+          messageType: 'markdown'
+          message: |
+            {{`{{ range .Alerts }}`}}
+            {{`## {{ .Labels.alertname }}`}}
+            {{`> {{ .Annotations.message_zh }}`}}
+            {{`{{ end }}`}}
+          apiSecret:
+            name: 'wechat-config'
+            key: 'apiSecret'
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: wechat-config
+  namespace: {{ .Release.Namespace }}
+data:
+  apiSecret: {{ .Values.alert.alertManagerConfig.wechat.apiSecret }}
+{{ end }}
