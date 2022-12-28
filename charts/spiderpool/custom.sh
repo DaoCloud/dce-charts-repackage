@@ -80,6 +80,6 @@ echo "keywords:" >> Chart.yaml
 echo "  - networking" >> Chart.yaml
 echo "  - ipam" >> Chart.yaml
 
+rm -f values.yaml-E || true
+
 exit 0
-
-
