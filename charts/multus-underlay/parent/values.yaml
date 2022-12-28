@@ -82,10 +82,9 @@ macvlan:
 
 sriov:
   images:
-    registry: docker.io
     sriovCni:
       registry: ghcr.m.daocloud.io
-      repository: ghcr.m.daocloud.io/k8snetworkplumbingwg/sriov-cni
+      repository: k8snetworkplumbingwg/sriov-cni
       tag: v2.7.0
     sriovDevicePlugin:
       registry: ghcr.m.daocloud.io

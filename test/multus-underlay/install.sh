@@ -28,7 +28,6 @@ helm install multus ${CHART_DIR}  ${HELM_MUST_OPTION} \
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
-
 else
   echo "error, faild to deploy $CHART_DIR"
   exit 1
