@@ -25,7 +25,7 @@ ingress-nginx:
       ## for backwards compatibility consider setting the full image url via the repository value below
       ## use *either* current default registry/image or repository format or installing chart by providing the values.yaml will fail
       ## repository:
-      tag: "v1.3.0"
+      tag: "v1.5.1"
       digest: ""
       digestChroot: ""
       pullPolicy: IfNotPresent
@@ -84,8 +84,8 @@ ingress-nginx:
         http: 80
         # -- 'hostPort' https port
         https: 443
-    # -- Election ID to use for status update
-    electionID: ingress-controller-leader
+    # -- Election ID to use for status update, by default it uses the controller name combined with a suffix of 'leader'
+    electionID: "ingress-controller-leader"
     ## This section refers to the creation of the IngressClass resource
     ## IngressClass resources are supported since k8s >= 1.18 and required since k8s >= 1.19
     ingressClassResource:
@@ -530,7 +530,7 @@ ingress-nginx:
     extraModules: []
     ## Modules, which are mounted into the core nginx image
     # - name: opentelemetry
-    #   image: registry.k8s.io/ingress-nginx/opentelemetry:v20220801-g00ee51f09@sha256:482562feba02ad178411efc284f8eb803a185e3ea5588b6111ccbc20b816b427
+    #   image: registry.k8s.io/ingress-nginx/opentelemetry:v20220906-g981ce38a7@sha256:aa079daa7efd93aa830e26483a49a6343354518360929494bad1d0ad3303142e
     #
     # The image must contain a `/usr/local/bin/init_module.sh` executable, which
     # will be executed as initContainers, to move its config files within the
@@ -564,6 +564,7 @@ ingress-nginx:
       labels: {}
       # -- Use an existing PSP instead of creating one
       existingPsp: ""
+      networkPolicyEnabled: false
       service:
         annotations: {}
         # clusterIP: ""
@@ -573,6 +574,8 @@ ingress-nginx:
         servicePort: 443
         type: ClusterIP
       createSecretJob:
+        securityContext:
+          allowPrivilegeEscalation: false
         resources: {}
         # limits:
         #   cpu: 10m
@@ -581,6 +584,8 @@ ingress-nginx:
         #   cpu: 10m
         #   memory: 20Mi
       patchWebhookJob:
+        securityContext:
+          allowPrivilegeEscalation: false
         resources: {}
       patch:
         enabled: true
@@ -590,7 +595,7 @@ ingress-nginx:
           ## for backwards compatibility consider setting the full image url via the repository value below
           ## use *either* current default registry/image or repository format or installing chart by providing the values.yaml will fail
           ## repository:
-          tag: v1.3.0
+          tag: v20220916-gd32f8c343
           digest: ""
           pullPolicy: IfNotPresent
         # -- Provide a priority class name to the webhook patching job
@@ -602,10 +607,13 @@ ingress-nginx:
         tolerations: []
         # -- Labels to be added to patch job resources
         labels: {}
-        runAsUser: 2000
-        fsGroup: 2000
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 2000
+          fsGroup: 2000
     metrics:
       port: 10254
+      portName: metrics
       # if this port is changed, change healthz-port: in extraArgs: accordingly
       enabled: true
       service:
