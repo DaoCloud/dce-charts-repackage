@@ -80,7 +80,7 @@ jobs:
 
   create_issue:
     needs: [get_chart,call_release]
-    if: ${{ needs.get_chart.outputs.ENV_charts_changed != '' }}
+    if: ${{ needs.get_chart.outputs.ENV_charts_changed != '' && always() }}
     runs-on: ubuntu-latest
     steps:
       - name: create issue
