@@ -71,7 +71,6 @@ jobs:
 
   call_release:
     needs: [get_chart]
-    continue-on-error: true
     if: ${{ needs.get_chart.outputs.ENV_charts_changed != '' }}
     uses: ./.github/workflows/release-chart.yml
     with:
