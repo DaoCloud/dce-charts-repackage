@@ -12,13 +12,17 @@ on:
 jobs:
   get_chart:
     runs-on: ubuntu-latest
+    outputs:
+      ENV_charts_changed: ${{ steps.chart.outputs.ENV_charts_changed }}
+      ENV_PR_NUMBER: ${{ steps.chart.outputs.ENV_PR_NUMBER }}
+      ENV_PR_AUTHOR: ${{ steps.chart.outputs.ENV_PR_AUTHOR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: get chart
+      - name: chart
         env:
           GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
         run: |
@@ -65,23 +69,29 @@ jobs:
           echo "ENV_PR_AUTHOR=${PR_AUTHOR}" >> $GITHUB_ENV
           echo "ENV_PR_NUMBER=${PR_NUMBER}" >> $GITHUB_ENV
 
-      - name: release
-        if: ${{ env.ENV_charts_changed != '' }}
-        continue-on-error: true
-        uses: ./.github/workflows/release-chart.yml
-        with:
-          project: "${{ env.ENV_charts_changed }}"
-          ref: "main"
+  call_release:
+    needs: [get_chart]
+    continue-on-error: true
+    if: ${{ needs.get_chart.outputs.ENV_charts_changed != '' }}
+    uses: ./.github/workflows/release-chart.yml
+    with:
+      project: "${{ needs.get_chart.outputs.ENV_charts_changed }}"
+      ref: "main"
+    secrets: inherit
 
+  create_issue:
+    needs: [get_chart,call_release]
+    if: ${{ needs.get_chart.outputs.ENV_charts_changed != '' }}
+    runs-on: ubuntu-latest
+    steps:
       - name: create issue
         env:
           GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
-        if: ${{ env.ENV_charts_changed != '' }}
         run : |
           set -x
-          PROJECT_LIST="${{ env.ENV_charts_changed }}"
+          PROJECT_LIST="${{ needs.get_chart.outputs.ENV_charts_changed }}"
           ACTION_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          PR_NUMBER="${{ env.ENV_PR_NUMBER }}"
+          PR_NUMBER="${{ needs.get_chart.outputs.ENV_PR_NUMBER }}"
           PR_URL="https://github.com/${{ github.repository }}/pull/${PR_NUMBER}"
           
           PROJECT_INFO=""
@@ -89,13 +99,13 @@ jobs:
               VERSION=`source charts/${PROJECT}/config && echo ${VERSION} `
               PROJECT_INFO+=" ${PROJECT}<${VERSION}> "
           done
-          echo "privious result: ${{ steps.release.outcome }}"
-          if ${{ steps.release.outcome != 'success' }} ; then
+          echo "privious result: ${{ needs.call_release.result }}"
+          if ${{ needs.call_release.result != 'success' }} ; then
               echo "failed to release chart ${PROJECT_INFO} "
               LABEL="robot/release-chart-fail"
               gh label create "${LABEL}" --force || true
               #
-              REVIWER=${{ ENV.ENV_PR_AUTHOR }}
+              REVIWER=${{ needs.get_chart.outputs.ENV_PR_AUTHOR }}
               [ -n "${REVIWER}" ] || REVIWER=${{ env.DEFAULT_FAIL_REVIEWER }}
               #
               gh issue create  \
