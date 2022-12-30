@@ -51,10 +51,6 @@ jobs:
               echo ::set-output name=release::true
               echo ::set-output name=ref::${{ inputs.ref }}
               echo ::set-output name=publishversion::true
-              if ${{ inputs.project == '' }} ; then
-                echo "error, empty project"
-                exit 1
-              fi
           elif ${{ github.event_name == 'workflow_dispatch' }} ; then
               echo "call by self workflow_dispatch"
               if ${{ github.event.inputs.project == '' }} ; then
