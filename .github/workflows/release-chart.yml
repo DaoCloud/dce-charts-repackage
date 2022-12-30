@@ -152,19 +152,19 @@ jobs:
           done
           exit 0
 
-      - name: Create Release
-        id: create_release
-        if: ${{ steps.get_ref.outputs.publishversion == 'true' }}
-        uses: ncipollo/release-action@v1.12.0
-        with:
-          artifacts: "_upload/*"
-          allowUpdates: true
-          removeArtifacts: true
-          replacesArtifacts: true
-          artifactErrorsFailBuild: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.get_ref.outputs.ref }}
-          name: "Release ${{ steps.get_ref.outputs.ref }}"
+      #- name: Create Release
+      #  id: create_release
+      #  if: ${{ steps.get_ref.outputs.publishversion == 'true' }}
+      #  uses: ncipollo/release-action@v1.12.0
+      #  with:
+      #    artifacts: "_upload/*"
+      #    allowUpdates: true
+      #    removeArtifacts: true
+      #    replacesArtifacts: true
+      #    artifactErrorsFailBuild: true
+      #    token: ${{ secrets.GITHUB_TOKEN }}
+      #    tag: ${{ steps.get_ref.outputs.ref }}
+      #    name: "Release ${{ steps.get_ref.outputs.ref }}"
 
   # update /index.yaml in the target branch
   update_githubpage:
