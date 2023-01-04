@@ -13,9 +13,9 @@ jobs:
   get_chart:
     runs-on: ubuntu-latest
     outputs:
-      ENV_charts_changed: ${{ steps.chart.outputs.ENV_charts_changed }}
-      ENV_PR_NUMBER: ${{ steps.chart.outputs.ENV_PR_NUMBER }}
-      ENV_PR_AUTHOR: ${{ steps.chart.outputs.ENV_PR_AUTHOR }}
+      ENV_charts_changed: ${{ env.ENV_charts_changed }}
+      ENV_PR_NUMBER: ${{ env.ENV_PR_NUMBER }}
+      ENV_PR_AUTHOR: ${{ env.ENV_PR_AUTHOR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
