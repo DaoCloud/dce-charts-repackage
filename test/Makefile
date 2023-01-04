@@ -114,7 +114,7 @@ deploy: checkBin
             fi ; \
 		fi  ;\
 		chmod +x $(INSTALL_PATH) ; \
-		if $(INSTALL_PATH) "$${CHART_DIR}"  "$(KIND_KUBECONFIG)" "$(KIND_CLUSTER_NAME)"; then \
+		if $(INSTALL_PATH) "$${CHART_DIR}"  "$(KIND_KUBECONFIG)" "$(KIND_CLUSTER_NAME)" ; then \
 			echo "succeeded to deploy $(PROJECT)" ; \
 			exit 0 ; \
 		else  \

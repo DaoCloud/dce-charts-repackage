@@ -5,15 +5,15 @@ CURRENT_DIR_PATH=$(cd $(dirname $0); pwd)
 
 CHART_DIR=$1
 KIND_KUBECONFIG=$2
-KINA_NAME=$3
+KIND_NAME=$3
 
 [ -d "$CHART_DIR" ] || { echo "error, failed to find chart $CHART_DIR " ; exit 1 ; }
 [ -f "$KIND_KUBECONFIG" ] || { echo "error, failed to find kubeconfig $KIND_KUBECONFIG " ; exit 1 ; }
-[ -z "KINA_NAME" ] || { echo "error, failed to find kind_name $KINA_NAME " ; exit 1 ; }
+[ -z "KIND_NAME" ] || { echo "error, failed to find kind_name $KIND_NAME " ; exit 1 ; }
 
 echo "CHART_DIR $CHART_DIR"
 echo "KIND_KUBECONFIG $KIND_KUBECONFIG"
-echo "KINA_NAME: ${KINA_NAME}"
+echo "KIND_NAME: ${KIND_NAME}"
 
 HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG} \
 --namespace kube-system \
@@ -33,17 +33,18 @@ LOCAL_IMAGE_LIST=`docker images | awk '{printf("%s:%s\n",$1,$2)}'`
 
 for IMAGE in ${HELM_IMAGES_LIST}; do
   found=false
-for LOCAL_IMAGE in ${LOCAL_IMAGE_LIST}; do
-  if [ "${IMAGE}" == "${LOCAL_IMAGE}" ]; then
-    found=true
+  for LOCAL_IMAGE in ${LOCAL_IMAGE_LIST}; do
+    if [ "${IMAGE}" == "${LOCAL_IMAGE}" ]; then
+      found=true
+      break
+    fi
+  done
+  if [ "${found}" == "false" ] ; then
+    echo "===> docker pull ${IMAGE}..."
+    docker pull ${IMAGE}
   fi
-done
-if [ "${found}" == "false" ] ; then
-  echo "===> docker pull ${IMAGE}..."
-  docker pull ${IMAGE}
-fi
-echo "===> load image ${IMAGE} to kind..."
-kind load docker-image ${IMAGE} --name ${KIND_NODE}
+  echo "===> load image ${IMAGE} to kind..."
+  kind load docker-image ${IMAGE} --name ${KIND_NAME}
 done
 
 # deploy the multus
