@@ -17,7 +17,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ .Chart.Name }}-device-plugin-ds
-  namespace: kube-system
   labels:
 {{- include "sriov-dp.labels" . | indent 4 }}
 spec:
@@ -71,7 +70,7 @@ spec:
             path: {{ .Values.config.sdpMountPaths.log }}
         - name: config-volume
           configMap:
-            name: {{ .Chart.Name }}-{{ .Chart.Version }}-config
+            name: {{ .Chart.Name }}-config
             items:
             - key: config.json
               path: config.json

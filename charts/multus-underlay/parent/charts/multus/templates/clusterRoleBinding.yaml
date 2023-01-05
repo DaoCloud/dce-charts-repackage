@@ -24,6 +24,6 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: {{ .Values.serviceAccount.name }}
-  namespace: kube-system
+  namespace: {{ .Release.Namespace }}
 {{- end }}
 {{- end }}
