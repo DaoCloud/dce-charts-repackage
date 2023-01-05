@@ -83,6 +83,11 @@ jobs:
     if: ${{ needs.get_chart.outputs.ENV_charts_changed != '' && always() }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
       - name: create issue
         env:
           GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
