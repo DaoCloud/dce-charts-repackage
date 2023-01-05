@@ -78,7 +78,7 @@ spec:
             set -o errexit
             set -o nounset
             set -o pipefail
-            apk --update add openssl
+            
             CN_BASE="vpa_webhook"
             TMP_DIR="/tmp/vpa-certs"
 

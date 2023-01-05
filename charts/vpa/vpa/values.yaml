@@ -3,7 +3,7 @@ vpa:
   # Default values for vertical-pod-autoscaler.
   # This is a YAML-formatted file.
   # Declare variables to be passed into your templates.
-  
+
   # imagePullSecrets -- A list of image pull secrets to be used for all pods
   imagePullSecrets: []
   # priorityClassName -- To set the priorityclass for all pods
@@ -17,7 +17,6 @@ vpa:
   rbac:
     # rbac.create -- If true, then rbac resources (clusterroles and clusterrolebindings) will be created for the selected components.
     create: true
-  
   serviceAccount:
     # serviceAccount.create -- Specifies whether a service account should be created for each component
     create: true
@@ -27,7 +26,6 @@ vpa:
     name: ""
     # serviceAccount.automountServiceAccountToken -- Automount API credentials for the Service Account
     automountServiceAccountToken: true
-  
   recommender:
     # recommender.enabled -- If true, the vpa recommender component will be installed.
     enabled: true
@@ -39,16 +37,15 @@ vpa:
     replicaCount: 1
     # recommender.podDisruptionBudget -- This is the setting for the pod disruption budget
     podDisruptionBudget: {}
-      # maxUnavailable: 1
+    # maxUnavailable: 1
     image:
-      # recommender.image.registry
-      registry: k8s.gcr.io
       # recommender.image.repository -- The location of the recommender image
       repository: autoscaling/vpa-recommender
       # recommender.image.pullPolicy -- The pull policy for the recommender image. Recommend not changing this
       pullPolicy: Always
       # recommender.image.tag -- Overrides the image tag whose default is the chart appVersion
       tag: "0.12.0"
+      registry: k8s.gcr.io
     # recommender.podAnnotations -- Annotations to add to the recommender pod
     podAnnotations: {}
     # recommender.podLabels -- Labels to add to the recommender pod
@@ -70,7 +67,6 @@ vpa:
     nodeSelector: {}
     tolerations: []
     affinity: {}
-  
   updater:
     # updater.enabled -- If true, the updater component will be deployed
     enabled: true
@@ -79,16 +75,15 @@ vpa:
     replicaCount: 1
     # updater.podDisruptionBudget -- This is the setting for the pod disruption budget
     podDisruptionBudget: {}
-      # maxUnavailable: 1
+    # maxUnavailable: 1
     image:
-      # updater.image.registry
-      registry: k8s.gcr.io
       # updater.image.repository -- The location of the updater image
       repository: autoscaling/vpa-updater
       # updater.image.pullPolicy -- The pull policy for the updater image. Recommend not changing this
       pullPolicy: Always
       # updater.image.tag -- Overrides the image tag whose default is the chart appVersion
       tag: "0.12.0"
+      registry: k8s.gcr.io
     # updater.podAnnotations -- Annotations to add to the updater pod
     podAnnotations: {}
     # updater.podLabels -- Labels to add to the updater pod
@@ -110,24 +105,22 @@ vpa:
     nodeSelector: {}
     tolerations: []
     affinity: {}
-  
   admissionController:
     # admissionController.enabled -- If true, will install the admission-controller component of vpa
-    enabled: false
+    enabled: true
     # admissionController.extraArgs -- A key-value map of flags to pass to the admissionController
     extraArgs: {}
     # admissionController.generateCertificate -- If true and admissionController is enabled, a pre-install hook will run to create the certificate for the webhook
     generateCertificate: true
     certGen:
       image:
-        # admissionController.certGen.image.registry
-        registry: quay.io
         # admissionController.certGen.image.repository -- An image that contains certgen for creating certificates. Only used if admissionController.generateCertificate is true
-        repository: reactiveops/ci-images
+        repository: common-ci/common-ci-deployer
         # admissionController.certGen.image.tag -- An image tag for the admissionController.certGen.image.repository image. Only used if admissionController.generateCertificate is true
-        tag: v11-alpine
+        tag: v0.1.52
         # admissionController.certGen.image.pullPolicy -- The pull policy for the certgen image. Recommend not changing this
         pullPolicy: Always
+        registry: release.daocloud.io
       # admissionController.certGen.env -- Additional environment variables to be added to the certgen container. Format is KEY: Value format
       env: {}
       # admissionController.certGen.resources -- The resources block for the certgen pod
@@ -139,12 +132,11 @@ vpa:
     cleanupOnDelete:
       enabled: true
       image:
-        # admissionController.admissionController.image.registry
-        registry: quay.io
-        # admissionController.admissionController.image.repository -- The repository of the post-delete image
-        repository: reactiveops/ci-images
+        # admissionController.cleanupOnDelete.image.repository -- The repository of the post-delete image
+        repository: common-ci/common-ci-deployer
         # admissionController.cleanupOnDelete.image.tag -- The image tag to use for the admission controller cleanup image
-        tag: v11-alpine
+        tag: v0.1.52
+        registry: release.daocloud.io
       resources: {}
       nodeSelector: {}
       tolerations: []
@@ -152,16 +144,15 @@ vpa:
     replicaCount: 1
     # admissionController.podDisruptionBudget -- This is the setting for the pod disruption budget
     podDisruptionBudget: {}
-      # maxUnavailable: 1
+    # maxUnavailable: 1
     image:
-      # admissionController.image.registry
-      registry: k8s.gcr.io
       # admissionController.image.repository -- The location of the vpa admission controller image
       repository: autoscaling/vpa-admission-controller
       # admissionController.image.pullPolicy -- The pull policy for the admission controller image. Recommend not changing this
       pullPolicy: Always
       # admissionController.image.tag -- Overrides the image tag whose default is the chart appVersion
       tag: "0.12.0"
+      registry: k8s.gcr.io
     # admissionController.podAnnotations -- Annotations to add to the admission controller pod
     podAnnotations: {}
     # admissionController.podLabels -- Labels to add to the admission controller pod
@@ -182,12 +173,12 @@ vpa:
         memory: 200Mi
     # admissionController.tlsSecretKeys -- The keys in the vpa-tls-certs secret to map in to the admission controller
     tlsSecretKeys: []
-      # - key: ca.crt
-      #   path: caCert.pem
-      # - key: tls.crt
-      #   path: serverCert.pem
-      # - key: tls.key
-      #   path: serverKey.pem
+    # - key: ca.crt
+    #   path: caCert.pem
+    # - key: tls.crt
+    #   path: serverCert.pem
+    # - key: tls.key
+    #   path: serverKey.pem
     nodeSelector: {}
     tolerations: []
     affinity: {}
