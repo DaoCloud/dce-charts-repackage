@@ -17,7 +17,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ .Chart.Name }}-cni-ds
-  namespace: kube-system
   labels:
 {{- include "sriov-cni.labels" . | indent 4 }}
 spec:

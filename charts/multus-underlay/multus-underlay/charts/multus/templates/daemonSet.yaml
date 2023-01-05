@@ -17,7 +17,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: kube-{{ .Release.Name }}-ds
-  namespace: kube-system
   labels:
 {{ include "multus-underlay.labels" . | indent 4 }}
 spec:

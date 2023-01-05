@@ -6,7 +6,6 @@ apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
   name: {{ $conf.name }}
-  namespace: kube-system
   labels:
 {{- if eq $conf.name $.Values.multus.config.cni_conf.clusterNetwork }}
     v1.multus-underlay-cni.io/instance-status: "enable"
@@ -30,7 +29,6 @@ metadata:
 {{- else }}
   name: macvlan-standalone-vlan{{ .Values.macvlan.vlanID }}
 {{- end }}
-  namespace: kube-system
 {{- if eq .Values.macvlan.type "macvlan-standalone" }}
   labels:
     v1.multus-underlay-cni.io/instance-status: "enable"
@@ -84,7 +82,6 @@ metadata:
 {{- else }}
   name: macvlan-overlay-vlan{{ .Values.macvlan.vlanID }}
 {{- end }}
-  namespace: kube-system
 {{- if eq .Values.macvlan.type "macvlan-overlay" }}
   labels:
     v1.multus-underlay-cni.io/instance-status: "enable"
@@ -141,7 +138,6 @@ metadata:
 {{- else }}
   name: sriov-standalone-vlan0
 {{- end }}
-  namespace: kube-system
 {{- if eq .Values.sriov.sriov_crd.type "sriov-standalone" }}
   labels:
     v1.multus-underlay-cni.io/instance-status: "enable"
@@ -194,7 +190,6 @@ metadata:
 {{- else }}
   name: sriov-overlay-vlan{{ .Values.sriov.sriov_crd.vlanId }}
 {{- end }}
-  namespace: kube-system
 {{- if eq .Values.sriov.sriov_crd.type "sriov-overlay" }}
   labels:
     v1.multus-underlay-cni.io/instance-status: "enable"

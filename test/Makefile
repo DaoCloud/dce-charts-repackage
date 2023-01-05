@@ -65,7 +65,7 @@ init-kind: checkBin clean
 	- sysctl -w net.ipv6.conf.all.disable_ipv6=0 || true
 	- sysctl -w fs.inotify.max_user_watches=524288 || true
 	- sysctl -w fs.inotify.max_user_instances=8192  || true
-	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH)  --kubeconfig $(KIND_KUBECONFIG)
+	kind create cluster --name  $(KIND_CLUSTER_NAME) --config $(KIND_CONFIG_PATH)  --kubeconfig $(KIND_KUBECONFIG) --image kindest/node:v1.25.0
 	- kubectl --kubeconfig $(KIND_KUBECONFIG) taint nodes --all node-role.kubernetes.io/master- || true
 	- kubectl --kubeconfig $(KIND_KUBECONFIG) taint nodes --all node-role.kubernetes.io/control-plane- || true
 	@echo "===================== deploy prometheus CRD ========== "

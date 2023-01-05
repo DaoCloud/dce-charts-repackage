@@ -102,30 +102,6 @@ config:
     devices: []
     drivers: []
     pfNames: []
-  netAttachDef:
-    dpdkName: 30-intel-sriov-dpdk
-    dpdkResourceName: intel.com/intel_sriov_dpdk
-    dpdk:
-      type: sriov
-      cniVersion: 0.3.1
-      name: sriov-dpdk-network
-      vlan: 1000
-      spoofchk: "off"
-      trust: "on"
-    netdeviceName: 20-intel-sriov-netdevice
-    netdeviceResourceName: intel.com/intel_sriov_netdevice
-    netdevice:
-      type: sriov
-      cniVersion: 0.3.1
-      name: sriov-network
-      ipam:
-        type: host-local
-        subnet: 10.10.10.0/24
-        rangeStart: 10.10.10.51
-        rangeEnd: 10.10.10.100
-        routes:
-          - dst: 0.0.0.0/0
-      gateway: 10.10.10.1
 
 manifests:
   enable: false
@@ -133,8 +109,6 @@ manifests:
   configMap_sriov_device_plugin: true
   daemonSet_sriov_device_plugin: true
   daemonSet_sriov_cni: true
-  net_attach_def_netdev: false
-  net_attach_def_dpdk: false
 
 #tolerations: []
 

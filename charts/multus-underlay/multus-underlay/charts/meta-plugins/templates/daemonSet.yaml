@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: kube-{{ .Chart.Name }}-ds
-  namespace: kube-system
   labels:
     {{- include "meta-plugins.labels" . | nindent 4 }}
 {{- if .Values.annotations }}
