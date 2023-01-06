@@ -1,0 +1,18 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+export REPO_URL=https://vmware-tanzu.github.io/helm-charts
+export REPO_NAME=vmware-tanzu
+export CHART_NAME=velero
+export VERSION=3.0.0
+
+# pr, issue, none
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=niulechuan
+export TEST_ASSIGNER=liyuerich
+
+# optional, for wrapper chart
+export CUSTOM_SHELL=custom.sh
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon

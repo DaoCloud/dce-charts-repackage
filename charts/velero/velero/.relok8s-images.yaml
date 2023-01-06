@@ -1,0 +1,5 @@
+- "{{ .velero.image.registry }}/{{ .velero.image.repository }}:{{ .velero.image.tag }}"
+- "{{ .velero.image.registry }}/{{ .velero.image.pluginCSIRepository }}:{{ .velero.image.pluginCSITag }}"
+- "{{ .velero.image.registry }}/{{ .velero.image.pluginAWSRepository }}:{{ .velero.image.pluginAWSTag }}"
+- "{{ .velero.image.registry }}/{{ .velero.image.restoreHelperRepository }}:{{ .velero.image.restoreHelperTag }}"
+- "{{ .velero.kubectl.image.registry }}/{{ .velero.kubectl.image.repository }}:{{ .velero.kubectl.image.tag }}"
