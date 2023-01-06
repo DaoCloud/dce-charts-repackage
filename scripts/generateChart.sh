@@ -59,7 +59,7 @@ if [ -n "$BUILD_SELF" ] ; then
     [ -f "${PROJECT_SRC_DIR}/${BUILD_SELF}" ] || { echo "error, failed to find ${BUILD_SELF} under ${PROJECT_SRC_DIR}"; exit 1 ; }
     cd ${PROJECT_SRC_DIR}
     chmod +x ${BUILD_SELF}
-    ${BUILD_SELF}
+    ./${BUILD_SELF}
     exit $?
 fi
 

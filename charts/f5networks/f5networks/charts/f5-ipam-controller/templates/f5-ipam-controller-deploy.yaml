@@ -57,6 +57,12 @@ spec:
         - name: {{ .Values.volume.mountName }}
           mountPath: {{ .Values.volume.mountPath }}
       {{- end }}
+      {{- if and (eq .Values.args.provider "infoblox") (.Values.args.infoblox_login_secret) }}
+        volumeMounts:
+        - name: infoblox-creds
+          mountPath: "/tmp/creds"
+          readOnly: true
+      {{- end }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
         - /app/bin/f5-ipam-controller
@@ -67,13 +73,19 @@ spec:
         - --ip-range={{ .Values.args.ip_range | replace "_" "-" }}
         {{- end }}
         {{- if eq .Values.args.provider "infoblox" }}
-        - --infoblox-grid-host={{ .Values.args.infoblox_grid_host }}
         - --infoblox-wapi-version={{ .Values.args.infoblox_wapi_version }}
-        - --infoblox-username={{ .Values.args.infoblox_username }}
-        - --infoblox-password={{ .Values.args.infoblox_password }}
         - --infoblox-labels
         - {{ .Values.args.infoblox_labels | squote }}
         - --infoblox-netview={{ .Values.args.infoblox_netview }}
+        {{- end }}
+        {{- if and (eq .Values.args.provider "infoblox") (not .Values.args.infoblox_login_secret) }}
+        - --infoblox-grid-host={{ .Values.args.infoblox_grid_host }}
+        - --infoblox-username={{ .Values.args.infoblox_username }}
+        - --infoblox-password={{ .Values.args.infoblox_password }}
+        {{- end }}
+        {{- if and (eq .Values.args.provider "infoblox") (.Values.args.infoblox_login_secret) }}
+        - --credentials-directory
+        - /tmp/creds
         {{- end }}
         {{- if .Values.args.infoblox_wapi_port }}
         - --infoblox-wapi-port={{ .Values.args.infoblox_wapi_port }}
@@ -110,5 +122,11 @@ spec:
       - name: {{ .Values.volume.mountName }}
         persistentVolumeClaim:
           claimName: {{ template "f5-ipam-controller.persistentVolumeClaimName" . }}
+  {{- end }}
+  {{- if and (eq .Values.args.provider "infoblox") (.Values.args.infoblox_login_secret) }}
+      volumes:
+      - name: infoblox-creds
+        secret:
+          secretName: {{ .Values.args.infoblox_login_secret }}
   {{- end }}
 {{- end }}

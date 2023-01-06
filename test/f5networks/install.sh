@@ -20,7 +20,7 @@ HELM_MUST_OPTION=" --timeout 10m0s  --debug --kubeconfig ${KIND_KUBECONFIG} "
 set -x
 
 helm install f5networks ${CHART_DIR}  ${HELM_MUST_OPTION} \
-  --namespace kube-system \
+  --namespace kube-public \
   --set f5-bigip-ctlr.args.bigip_url=https://172.17.8.10:10443 \
   --set f5-bigip-ctlr.args.bigip_partition="kubernetes" \
   --set f5-bigip-ctlr.args.pool_member_type=nodeport \

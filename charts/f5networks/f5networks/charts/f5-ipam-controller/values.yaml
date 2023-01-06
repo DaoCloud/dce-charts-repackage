@@ -17,10 +17,12 @@ args:
   # provider: "infoblox"
 
   # REQUIRED Params if provider is infoblox
-  infoblox_grid_host: 10.145.67.27
+  infoblox_grid_host: 10.x.x.x
   infoblox_wapi_version: 2.11.2
-  infoblox_username: admin
-  infoblox_password: infoblox
+  infoblox_username: username
+  infoblox_password: passsword
+  #if you want to set infoblox access credentials through secret uncomment below line.
+  #infoblox_login_secret: infoblox-credentials
   infoblox_labels: '{"Dev":{"cidr":"10.8.128.0/17"}}'
   infoblox_netview: netview_10_145_77_87
 
@@ -34,7 +36,6 @@ args:
 
   # OPTIONAL PARAMS if provider is infoblox
   # infoblox_wapi_port: "443"
-  # credentials-directory
   # insecure
 
 image:
