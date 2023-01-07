@@ -13,7 +13,7 @@ spec:
   serviceAccountName:  {{ include "vpa.fullname" . }}-test
   containers:
     - name: test
-      image: quay.io/reactiveops/ci-images:v11-alpine
+      image: release.daocloud.io/common-ci/common-ci-deployer:v0.1.52
       command: ['kubectl']
       args:
         - get
@@ -35,7 +35,7 @@ spec:
   serviceAccountName: {{ include "vpa.fullname" . }}-test
   containers:
     - name: test
-      image: quay.io/reactiveops/ci-images:v11-alpine
+      image: release.daocloud.io/common-ci/common-ci-deployer:v0.1.52
       command: ['kubectl']
       args:
         - get
