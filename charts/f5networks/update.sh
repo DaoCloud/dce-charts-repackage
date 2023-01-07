@@ -68,4 +68,3 @@ grep "requests_cpu:" ./f5-ipam-controller/values.yaml -Rl   | xargs -n 1 -i sed 
 grep "requests_memory:" ./f5-ipam-controller/values.yaml -Rl   | xargs -n 1 -i sed -i "s?# requests_memory:.*?requests_memory: $CUSTOM_F5_IPAM_MEMORY?" {}
 
 
-
