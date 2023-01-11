@@ -25,7 +25,7 @@ ingress-nginx:
       ## for backwards compatibility consider setting the full image url via the repository value below
       ## use *either* current default registry/image or repository format or installing chart by providing the values.yaml will fail
       ## repository:
-      tag: "v1.3.0"
+      tag: "v1.5.1"
       digest: ""
       digestChroot: ""
       pullPolicy: IfNotPresent
@@ -84,8 +84,8 @@ ingress-nginx:
         http: 80
         # -- 'hostPort' https port
         https: 443
-    # -- Election ID to use for status update
-    electionID: ingress-controller-leader
+    # -- Election ID to use for status update, by default it uses the controller name combined with a suffix of 'leader'
+    electionID: "ingress-controller-leader"
     ## This section refers to the creation of the IngressClass resource
     ## IngressClass resources are supported since k8s >= 1.18 and required since k8s >= 1.19
     ingressClassResource:
@@ -314,7 +314,11 @@ ingress-nginx:
     ##
     podAnnotations: {}
     replicaCount: 2
+    # -- Define either 'minAvailable' or 'maxUnavailable', never both.
     minAvailable: 1
+    # -- Define either 'minAvailable' or 'maxUnavailable', never both.
+    # maxUnavailable: 1
+
     ## Define requests resources to avoid probe issues due to CPU utilization in busy nodes
     ## ref: https://github.com/kubernetes/ingress-nginx/issues/4735#issuecomment-551204903
     ## Ideally, there should be no limits.
@@ -328,7 +332,9 @@ ingress-nginx:
         memory: 150Mi
     # Mutually exclusive with keda autoscaling
     autoscaling:
+      apiVersion: autoscaling/v2
       enabled: false
+      annotations: {}
       minReplicas: 1
       maxReplicas: 11
       targetCPUUtilizationPercentage: 50
@@ -336,7 +342,7 @@ ingress-nginx:
       behavior: {}
       # scaleDown:
       #   stabilizationWindowSeconds: 300
-      #  policies:
+      #   policies:
       #   - type: Pods
       #     value: 1
       #     periodSeconds: 180
@@ -527,15 +533,20 @@ ingress-nginx:
     #   image: busybox
     #   command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
 
+    # -- Modules, which are mounted into the core nginx image. See values.yaml for a sample to add opentelemetry module
     extraModules: []
-    ## Modules, which are mounted into the core nginx image
-    # - name: opentelemetry
-    #   image: registry.k8s.io/ingress-nginx/opentelemetry:v20220801-g00ee51f09@sha256:482562feba02ad178411efc284f8eb803a185e3ea5588b6111ccbc20b816b427
+    #   containerSecurityContext:
+    #     allowPrivilegeEscalation: false
     #
     # The image must contain a `/usr/local/bin/init_module.sh` executable, which
     # will be executed as initContainers, to move its config files within the
     # mounted volume.
 
+    opentelemetry:
+      enabled: false
+      image: registry.k8s.io/ingress-nginx/opentelemetry:v20221114-controller-v1.5.1-6-ga66ee73c5@sha256:41076fd9fb4255677c1a3da1ac3fc41477f06eba3c7ebf37ffc8f734dad51d7c
+      containerSecurityContext:
+        allowPrivilegeEscalation: false
     admissionWebhooks:
       annotations: {}
       # ignore-check.kube-linter.io/no-read-only-rootfs: "This deployment needs write access to root filesystem".
@@ -564,6 +575,7 @@ ingress-nginx:
       labels: {}
       # -- Use an existing PSP instead of creating one
       existingPsp: ""
+      networkPolicyEnabled: false
       service:
         annotations: {}
         # clusterIP: ""
@@ -573,6 +585,8 @@ ingress-nginx:
         servicePort: 443
         type: ClusterIP
       createSecretJob:
+        securityContext:
+          allowPrivilegeEscalation: false
         resources: {}
         # limits:
         #   cpu: 10m
@@ -581,6 +595,8 @@ ingress-nginx:
         #   cpu: 10m
         #   memory: 20Mi
       patchWebhookJob:
+        securityContext:
+          allowPrivilegeEscalation: false
         resources: {}
       patch:
         enabled: true
@@ -590,7 +606,7 @@ ingress-nginx:
           ## for backwards compatibility consider setting the full image url via the repository value below
           ## use *either* current default registry/image or repository format or installing chart by providing the values.yaml will fail
           ## repository:
-          tag: v1.3.0
+          tag: v20220916-gd32f8c343
           digest: ""
           pullPolicy: IfNotPresent
         # -- Provide a priority class name to the webhook patching job
@@ -602,10 +618,24 @@ ingress-nginx:
         tolerations: []
         # -- Labels to be added to patch job resources
         labels: {}
-        runAsUser: 2000
-        fsGroup: 2000
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 2000
+          fsGroup: 2000
+      # Use certmanager to generate webhook certs
+      certManager:
+        enabled: false
+        # self-signed root certificate
+        rootCert:
+          duration: "" # default to be 5y
+        admissionCert:
+          duration: "" # default to be 1y
+        # issuerRef:
+        #   name: "issuer"
+        #   kind: "ClusterIssuer"
     metrics:
       port: 10254
+      portName: metrics
       # if this port is changed, change healthz-port: in extraArgs: accordingly
       enabled: true
       service:
