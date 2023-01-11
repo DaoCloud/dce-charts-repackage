@@ -1,0 +1,115 @@
+apiVersion: "kubean.io/v1alpha1"
+kind: "Manifest"
+metadata:
+  name: "kubeaninfomanifest-v0-4-2-rc5"
+spec:
+  kubesprayVersion: "843e908"
+  kubeanVersion: "v0.4.2-rc5"
+  docker:
+    - os: "redhat-7"
+      defaultVersion: "20.10"
+      versionRange:
+        - latest
+        - "18.09"
+        - "19.03"
+        - "20.10"
+        - stable
+        - edge
+    - os: "debian"
+      defaultVersion: "20.10"
+      versionRange:
+        - latest
+        - "18.09"
+        - "19.03"
+        - "20.10"
+        - stable
+        - edge
+    - os: "ubuntu"
+      defaultVersion: "20.10"
+      versionRange:
+        - latest
+        - "18.09"
+        - "19.03"
+        - "20.10"
+        - stable
+        - edge
+  components:
+    - name: "cni"
+      defaultVersion: "v1.1.1"
+      versionRange:
+        - "v1.0.1"
+        - "v1.1.1"
+    - name: "containerd"
+      defaultVersion: "1.6.14"
+      versionRange:
+        - "1.5.5"
+        - "1.5.7"
+        - "1.5.8"
+        - "1.5.9"
+        - "1.5.10"
+        - "1.5.11"
+        - "1.5.12"
+        - "1.5.13"
+        - "1.6.0"
+        - "1.6.1"
+        - "1.6.2"
+        - "1.6.3"
+        - "1.6.4"
+        - "1.6.5"
+        - "1.6.6"
+        - "1.6.7"
+        - "1.6.8"
+        - "1.6.9"
+        - "1.6.10"
+        - "1.6.11"
+        - "1.6.12"
+        - "1.6.13"
+        - "1.6.14"
+    - name: "kube"
+      defaultVersion: "v1.24.7"
+      versionRange:
+        - "v1.25.5"
+        - "v1.25.4"
+        - "v1.25.3"
+        - "v1.25.2"
+        - "v1.25.1"
+        - "v1.25.0"
+        - "v1.24.9"
+        - "v1.24.8"
+        - "v1.24.7"
+        - "v1.24.6"
+        - "v1.24.5"
+        - "v1.24.4"
+        - "v1.24.3"
+        - "v1.24.2"
+        - "v1.24.1"
+        - "v1.24.0"
+        - "v1.23.15"
+        - "v1.23.14"
+        - "v1.23.13"
+        - "v1.23.12"
+        - "v1.23.11"
+        - "v1.23.10"
+        - "v1.23.9"
+        - "v1.23.8"
+        - "v1.23.7"
+        - "v1.23.6"
+        - "v1.23.5"
+        - "v1.23.4"
+        - "v1.23.3"
+        - "v1.23.2"
+        - "v1.23.1"
+        - "v1.23.0"
+    - name: "calico"
+      defaultVersion: "v3.24.5"
+      versionRange:
+        - "v3.24.5"
+        - "v3.23.3"
+        - "v3.22.4"
+    - name: "cilium"
+      defaultVersion: "v1.12.1"
+      versionRange: []
+    - name: "etcd"
+      defaultVersion: "v3.5.6"
+      versionRange:
+        - "v3.5.6"

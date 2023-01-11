@@ -1,0 +1,18 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+export REPO_URL=https://kubean-io.github.io/kubean-helm-chart
+export REPO_NAME=kubean-io
+export CHART_NAME=kubean
+export VERSION=v0.4.2-rc5
+
+# pr issue
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=hangscer8
+export TEST_ASSIGNER=wenting-guo
+
+# optional, for wrapper chart
+export CUSTOM_SHELL=custom.sh
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon
