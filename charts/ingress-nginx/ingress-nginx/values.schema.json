@@ -196,6 +196,18 @@
                   }
                 }
               }
+            },
+            "scope": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "If you want to restrict the usage of the current ingress instance to specific namespace, turn on this switch and set the corresponding namespace."
+                },
+                "namespace": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
