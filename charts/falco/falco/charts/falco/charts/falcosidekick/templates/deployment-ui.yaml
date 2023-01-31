@@ -1,4 +1,9 @@
 {{- if .Values.webui.enabled }}
+{{- if and .Values.webui.redis.enabled .Values.webui.externalRedis.enabled }}
+  {{ fail "Both webui.redis and webui.externalRedis modules are enabled. Please disable one of them." }}
+{{- else if and (not .Values.webui.redis.enabled) (not .Values.webui.externalRedis.enabled) }}
+  {{ fail "Neither the included Redis nor the external Redis is enabled. Please enable one of them." }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -49,7 +54,23 @@ spec:
           imagePullPolicy: {{ .Values.webui.image.pullPolicy }}
           args:
             - "-r"
+            {{- if .Values.webui.redis.enabled }}
             - {{ include "falcosidekick.fullname" . }}-ui-redis{{ if .Values.webui.redis.fullfqdn }}.{{ .Release.Namespace }}.svc.cluster.local{{ end }}:{{ .Values.webui.redis.service.port | default "6379" }}
+            {{- else if .Values.webui.externalRedis.enabled }}
+            - "{{ required "External Redis is enabled. Please set the URL to the database." .Values.webui.externalRedis.url }}:{{ .Values.webui.externalRedis.port | default "6379" }}"
+            {{- end}}
+            {{- if .Values.webui.ttl }}
+            - "-t"
+            - {{ .Values.webui.ttl | quote }}
+            {{- end}}
+            {{- if .Values.webui.loglevel }}
+            - "-l"
+            - {{ .Values.webui.loglevel }}
+            {{- end}}
+            {{- if .Values.webui.user }}
+            - "-u"
+            - {{ .Values.webui.user }}
+            {{- end}}
           ports:
             - name: http
               containerPort: 2802
@@ -84,6 +105,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- if .Values.webui.redis.enabled }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -138,29 +160,31 @@ spec:
             - name: redis
               containerPort: 6379
               protocol: TCP
-          livenessProbe: 
+          livenessProbe:
             tcpSocket:
               port: 6379
-            initialDelaySeconds: 5 
-            periodSeconds: 5 
-            timeoutSeconds: 2 
-            successThreshold: 1 
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
             failureThreshold: 3
           readinessProbe:
             tcpSocket:
               port: 6379
-            initialDelaySeconds: 5 
-            periodSeconds: 5 
-            timeoutSeconds: 2 
-            successThreshold: 1 
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
             failureThreshold: 3
           {{- if .Values.webui.redis.securityContext }}
           securityContext:
           {{- toYaml .Values.webui.redis.securityContext | nindent 12 }}
           {{- end }}
+          {{- if .Values.webui.redis.storageEnabled }}
           volumeMounts:
           - name: {{ include "falcosidekick.fullname" . }}-ui-redis-data
             mountPath: /data
+          {{- end }}
           resources:
             {{- toYaml .Values.webui.redis.resources | nindent 12 }}
       {{- with .Values.webui.redis.nodeSelector }}
@@ -175,6 +199,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  {{- if .Values.webui.redis.storageEnabled }}
   volumeClaimTemplates:
     - metadata:
         name: {{ include "falcosidekick.fullname" . }}-ui-redis-data
@@ -186,4 +211,6 @@ spec:
         {{- if .Values.webui.redis.storageClass }}
         storageClassName: {{ .Values.webui.redis.storageClass }}
         {{- end }}
+  {{- end }}
+{{- end }}
 {{- end }}
