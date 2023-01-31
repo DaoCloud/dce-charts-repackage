@@ -1,0 +1,18 @@
+---
+source:
+  intermediateBundlesPath: addon # chart tar 包所在的目录，需把 relok8s 生成的 tar 包放到此目录下
+target:
+  containerRegistry: test.lrf02.kangaroo.com  # 目标镜像仓库地址
+#  containerPrefixRegistry: kangaroo # 目标镜像仓库地址，并且在原来镜像地址前加上该地址（原来registry变成了project）
+  containerRepository: kangaroo/goharbor # laod 镜像时 project 如果不需要修改可不填写
+  repo:
+    kind: HARBOR # or as any other supported Helm Chart repository kinds
+    url: http://test.lrf02.kangaroo.com/chartrepo/kangaroo  #load charts 的目标地址，改为需要的地址即可
+    auth:   ## charts仓库用户名密码
+      username: admin
+      password: Kangaroo12345
+  ## Container registry authentication
+  containers:  ## 镜像仓库用户名密码
+    auth:
+      username: admin
+      password: Kangaroo12345

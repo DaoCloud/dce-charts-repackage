@@ -1,7 +1,7 @@
 name: PR E2E C
 
 env:
-  TRIVY_SCAN_SKIP_CHART_LIST: "nmstate cert-manager contour ingress-nginx "
+  TRIVY_SCAN_SKIP_CHART_LIST: "nmstate cert-manager contour ingress-nginx"
   IMAGE_HINT_FILE_NAME: ".relok8s-images.yaml"
   SCHEMA_FILE_NAME: "values.schema.json"
 

@@ -138,6 +138,7 @@ checkImages: checkBin
 	else \
 		echo "found image from $(PROJECT) chart template: $${IMAGE_LIST} " ; \
 		for IMAGE in $${IMAGE_LIST} ; do \
+		    echo image: $${IMAGE} ; \
 		    if [[ $${IMAGE} != 127.0.0.1:30080* ]] ; then \
 			    echo "error, failed to check image $${IMAGE} from chart template for $(PROJECT)" ; exit 1 ; \
 		    fi ; \
