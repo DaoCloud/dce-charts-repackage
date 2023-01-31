@@ -32,7 +32,9 @@ e2e:
             	echo "the project $${ITEM}  needs a standby kind cluster" ; \
 				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
             fi ; \
-            echo "deploy project $${ITEM}"; \
+			echo "sync project $${ITEM}"; \
+			make sync -e PROJECT=$${ITEM} || { echo "error, failed to sync $${ITEM}" ; exit 1 ; } ; \
+			echo "deploy project $${ITEM}"; \
 			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
 	  	done ; \
 	  	if [ "$${RUN_DANGEROUS_ITEM}" == "true" ] ; then \
@@ -51,6 +53,8 @@ e2e:
 						echo "the project $${ITEM}  needs a standby kind cluster" ; \
 						make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
 					fi ; \
+					echo "sync project $${ITEM}"; \
+					make sync -e PROJECT=$${ITEM} || { echo "error, failed to sync $${ITEM}" ; exit 1 ; } ; \
 					echo "deploy project $${ITEM}"; \
 					make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
 				done ; \
@@ -84,7 +88,34 @@ init-kind: checkBin clean
 	@echo "   deploy kind cluster $(KIND_CLUSTER_NAME)             "
 	@echo "  kubectl get node --kubeconfig $(KIND_KUBECONFIG)      "
 	@echo "========================================================"
+	echo "install registry and chart museum"
+	helm repo add twuni https://helm.twun.io --force-update  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add registry repo"; exit 1 ; }
+	helm upgrade --debug --install --create-namespace --cleanup-on-fail --namespace registry-system  --set nodeSelector."kubernetes\\.io/hostname=network-chart-worker" --set service.type=NodePort  --set service.nodePort=30080  registry twuni/docker-registry --wait --version  2.2.2 --kubeconfig $(KIND_KUBECONFIG) || \
+	{ echo "error, failed to deploy registry"; exit 1 ; }
+	helm repo add chartmuseum https://chartmuseum.github.io/charts --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add chartmuseum repo"; exit 1 ; }
+	helm upgrade --debug --install --create-namespace --cleanup-on-fail --namespace chartmuseum-system --set nodeSelector."kubernetes\\.io/hostname=network-chart-worker" --set service.type=NodePort  --set service.nodePort=30081 --set env.open.DISABLE_API=false  chartmuseum chartmuseum/chartmuseum --wait --version 3.9.2 --kubeconfig $(KIND_KUBECONFIG) || \
+	{ echo "error, failed to deploy chartmuseum"; exit 1 ; }
+	helm repo add chart-museum  http://127.0.0.1:30081 --force-update --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add charts repo"; exit 1 ; }
 
+.PHONY: sync
+sync: PROJECT=
+sync: checkBin
+	@ echo "sync $(PROJECT) charts and images to local registry"
+	CHART_PATH=$(ROOT_DIR)/charts/$(PROJECT) ; \
+	VERSION=`sed -n  '/VERSION/p' $${CHART_PATH}/config|awk -F = '{print $$2}'` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
+	mkdir -p _tmp && DIR=_tmp ;\
+    relok8s chart move $${CHART_PATH}/$(PROJECT) --to-intermediate-bundle $${DIR}/$(PROJECT)_$${VERSION}.bundle.tar -y || { echo "error, failed to save charts and images to local" ; exit 1 ; } ; \
+    CONFIG=" \
+source:  \n \
+     intermediateBundlesPath: ${ROOT_DIR}/test/$${DIR} \n \
+target:  \n \
+     containerRegistry: 127.0.0.1:30080 \n \
+     repo:  \n \
+         kind: CHARTMUSEUM \n \
+         url: http://127.0.0.1:30081"; \
+     echo -e "$${CONFIG}" > $${DIR}/config.yaml ; \
+     charts-syncer sync --config $${DIR}/config.yaml --insecure true || { echo "error, failed to sync charts and images to local registry" ; exit 1 ; } ; \
+     rm -rf $${DIR} ;
 
 .PHONY: deploy
 deploy: INSTALL_PATH=
@@ -126,6 +157,20 @@ deploy: checkBin
 checkBin:
 	which kind &>/dev/null || { echo "error, please install kind" ; exit 1 ; }
 	which kubectl &>/dev/null || { echo "error, please install kubectl" ; exit 1 ; }
+	which relok8s &>/dev/null || { make install-relok8s; }
+	which charts-syncer &>/dev/null || { make install-charts-syncer; }
+
+.PHONY: install-relok8s
+install-relok8s:
+	VERSION=0.5.1 ;\
+	curl -OL https://github.com/vmware-tanzu/asset-relocation-tool-for-kubernetes/releases/download/v$${VERSION}/relok8s_$${VERSION}_linux_x86_64.tar.gz  ;\
+	tar -zvxf relok8s_$${VERSION}_linux_x86_64.tar.gz && mv relok8s /usr/local/bin/relok8s && rm -rf README.md relok8s*.tar.gz
+
+.PHONY: install-charts-syncer
+ install-charts-syncer:
+	VERSION=0.0.5 ; \
+	curl -OL https://github.com/DaoCloud/charts-syncer/releases/download/v$${VERSION}/charts-syncer_$${VERSION}_linux_x86_64.tar.gz ; \
+	tar -zvxf charts-syncer_$${VERSION}_linux_x86_64.tar.gz && mv charts-syncer /usr/local/bin/charts-syncer && rm -rf README.md charts-syncer*.tar.gz
 
 .PHONY: clean
 clean: checkBin
