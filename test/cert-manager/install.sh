@@ -3,15 +3,13 @@
 CURRENT_FILENAME=$( basename "$0" )
 CURRENT_DIR_PATH=$(cd "$CURRENT_FILENAME" || exit; pwd)
 
-CHART_DIR=$1
-KIND_KUBECONFIG=$2
+KIND_KUBECONFIG=$1
 
-[ -d "$CHART_DIR" ] || { echo "error, failed to find chart $CHART_DIR " ; exit 1 ; }
 [ -f "$KIND_KUBECONFIG" ] || { echo "error, failed to find kubeconfig $KIND_KUBECONFIG " ; exit 1 ; }
 
-echo "CHART_DIR: $CHART_DIR"
 echo "KIND_KUBECONFIG: $KIND_KUBECONFIG"
 
+helm repo update chart-museum  --kubeconfig ${KIND_KUBECONFIG}
 HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG} "
 
 #==================== add your deploy code bellow =============
@@ -21,7 +19,7 @@ set -x
 
 # deploy cert-manager
 # shellcheck disable=SC2086
-helm install cert-manager "${CHART_DIR}" ${HELM_MUST_OPTION} --namespace kube-system
+helm install cert-manager chart-museum/cert-manager ${HELM_MUST_OPTION} --namespace kube-system
 
 
 if (($?==0)) ; then
