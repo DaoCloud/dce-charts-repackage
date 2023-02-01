@@ -98,12 +98,20 @@ sed -E 's/(.*)/  \1/g' ${DOWNLOAD_CHART_DIR}/values.yaml >> ${CHART_BUILD_DIR}/v
 
 
 echo "auto inject dependencies to original Chart.yaml"
-cat <<EOF >> ${CHART_BUILD_DIR}/Chart.yaml
+if grep "dependencies:" ${CHART_BUILD_DIR}/Chart.yaml &>/dev/null ; then
+    LINE=` cat ${CHART_BUILD_DIR}/Chart.yaml | grep  -n "dependencies:"  | awk -F: '{print $1}' `
+    sed  -i  ${LINE}' a\    repository: '"${REPO_URL}"''  ${CHART_BUILD_DIR}/Chart.yaml
+    sed  -i  ${LINE}' a\    version: '"${VERSION}"''  ${CHART_BUILD_DIR}/Chart.yaml
+    sed  -i  ${LINE}' a\  - name: '"${CHART_NAME}"''  ${CHART_BUILD_DIR}/Chart.yaml
+else
+    cat <<EOF >> ${CHART_BUILD_DIR}/Chart.yaml
 dependencies:
   - name: $CHART_NAME
     version: "${VERSION}"
     repository: "${REPO_URL}"
 EOF
+fi
+
 
 if [ -n "${APPEND_VALUES_FILE}" ] && [ -s ${PROJECT_SRC_DIR}/${APPEND_VALUES_FILE} ] ; then
     echo "append ${APPEND_VALUES_FILE} to opensource values.yaml"
