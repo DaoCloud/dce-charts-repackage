@@ -120,7 +120,7 @@ target:  \n \
 .PHONY: deploy
 deploy: INSTALL_PATH=
 deploy: PROJECT=
-deploy: TRY_LOAD_LOCAL_IMAGE ?= true
+deploy: TRY_LOAD_LOCAL_IMAGE ?= false
 deploy: checkBin
 	@ echo "helm install for $(PROJECT) with $(INSTALL_PATH)"
 	@ [ -f "$(INSTALL_PATH)" ] || { echo "error, failed to find INSTALL_PATH $(INSTALL_PATH)" ;  exit 1 ; }
@@ -145,7 +145,7 @@ deploy: checkBin
             fi ; \
 		fi  ;\
 		chmod +x $(INSTALL_PATH) ; \
-		if $(INSTALL_PATH) "$${CHART_DIR}"  "$(KIND_KUBECONFIG)" "$(KIND_CLUSTER_NAME)" ; then \
+		if $(INSTALL_PATH) "$(KIND_KUBECONFIG)" "$(KIND_CLUSTER_NAME)" ; then \
 			echo "succeeded to deploy $(PROJECT)" ; \
 			exit 0 ; \
 		else  \

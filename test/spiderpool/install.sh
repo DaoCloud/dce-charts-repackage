@@ -1,17 +1,15 @@
 #!/bin/bash
 
-CURRENT_FILENAME=$( basename $0 )
-CURRENT_DIR_PATH=$(cd $(dirname $0); pwd)
+CURRENT_FILENAME=$( basename "$0" )
+CURRENT_DIR_PATH=$(cd "$CURRENT_FILENAME" || exit; pwd)
 
-CHART_DIR=$1
-KIND_KUBECONFIG=$2
+KIND_KUBECONFIG=$1
 
-[ -d "$CHART_DIR" ] || { echo "error, failed to find chart $CHART_DIR " ; exit 1 ; }
 [ -f "$KIND_KUBECONFIG" ] || { echo "error, failed to find kubeconfig $KIND_KUBECONFIG " ; exit 1 ; }
 
-echo "CHART_DIR $CHART_DIR"
-echo "KIND_KUBECONFIG $KIND_KUBECONFIG"
+echo "KIND_KUBECONFIG: $KIND_KUBECONFIG"
 
+helm repo update chart-museum  --kubeconfig ${KIND_KUBECONFIG}
 HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG} "
 
 #==================== add your deploy code bellow =============
@@ -31,7 +29,7 @@ Ipv6Range="fd05::10-fd05::200"
 set -x
 
 # deploy the spiderpool
-helm install spiderpool ${CHART_DIR}  ${HELM_MUST_OPTION} \
+helm install spiderpool chart-museum/spiderpool  ${HELM_MUST_OPTION} \
   --namespace kube-system \
   --set spiderpool.spiderpoolController.tls.method=auto \
   --set spiderpool.feature.enableSpiderSubnet=true \

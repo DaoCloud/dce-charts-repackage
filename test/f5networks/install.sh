@@ -1,25 +1,23 @@
 #!/bin/bash
 
-CURRENT_FILENAME=$( basename $0 )
-CURRENT_DIR_PATH=$(cd $(dirname $0); pwd)
+CURRENT_FILENAME=$( basename "$0" )
+CURRENT_DIR_PATH=$(cd "$CURRENT_FILENAME" || exit; pwd)
 
-CHART_DIR=$1
-KIND_KUBECONFIG=$2
+KIND_KUBECONFIG=$1
 
-[ -d "$CHART_DIR" ] || { echo "error, failed to find chart $CHART_DIR " ; exit 1 ; }
 [ -f "$KIND_KUBECONFIG" ] || { echo "error, failed to find kubeconfig $KIND_KUBECONFIG " ; exit 1 ; }
 
-echo "CHART_DIR $CHART_DIR"
-echo "KIND_KUBECONFIG $KIND_KUBECONFIG"
+echo "KIND_KUBECONFIG: $KIND_KUBECONFIG"
 
-HELM_MUST_OPTION=" --timeout 10m0s  --debug --kubeconfig ${KIND_KUBECONFIG} "
+helm repo update chart-museum  --kubeconfig ${KIND_KUBECONFIG}
+HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG} "
 
 #==================== add your deploy code bellow =============
 #==================== notice , prometheus CRD has been deployed , so you no need to =============
 
 set -x
 
-helm install f5networks ${CHART_DIR}  ${HELM_MUST_OPTION} \
+helm install f5networks chart-museum/f5networks  ${HELM_MUST_OPTION} \
   --namespace kube-public \
   --set f5-bigip-ctlr.args.bigip_url=https://172.17.8.10:10443 \
   --set f5-bigip-ctlr.args.bigip_partition="kubernetes" \
