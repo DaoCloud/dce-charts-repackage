@@ -39,7 +39,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.recommender.securityContext | nindent 12 }}
-          image: "{{ .Values.recommender.image.registry }}/{{ .Values.recommender.image.repository }}:{{ .Values.recommender.image.tag | default .Chart.AppVersion }}"
+          image: {{ template "recommender.image" . }}
           imagePullPolicy: {{ .Values.recommender.image.pullPolicy }}
           {{- if .Values.recommender.extraArgs }}
           args:
