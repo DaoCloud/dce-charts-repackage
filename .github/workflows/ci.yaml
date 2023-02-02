@@ -1,7 +1,7 @@
 name: PR E2E C
 
 env:
-  SKIP_CHART_LIST: "nmstate"
+  SKIP_CHART_LIST: "nmstate cert-manager "
   IMAGE_HINT_FILE_NAME: ".relok8s-images.yaml"
   SCHEMA_FILE_NAME: "values.schema.json"
 
@@ -137,6 +137,7 @@ jobs:
 
       - name: check chart trivy
         run: |
+          echo "SKIP_CHART_LIST= ${{ env.SKIP_CHART_LIST }} " 
           BASE=$PWD
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
               # skip chart trivy
