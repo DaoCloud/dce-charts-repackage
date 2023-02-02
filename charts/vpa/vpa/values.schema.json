@@ -5,6 +5,9 @@
         "vpa": {
             "type": "object",
             "properties": {
+                "kubeVersion": {
+                    "type": "string"
+                },
                 "admissionController": {
                     "type": "object",
                     "properties": {

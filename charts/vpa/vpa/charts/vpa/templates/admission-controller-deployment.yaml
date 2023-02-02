@@ -39,7 +39,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.admissionController.securityContext | nindent 12 }}
-          image: "{{ .Values.admissionController.image.registry }}/{{ .Values.admissionController.image.repository }}:{{ .Values.admissionController.image.tag | default .Chart.AppVersion }}"
+          image: {{ template "admissionController.image" . }}
           imagePullPolicy: {{ .Values.admissionController.image.pullPolicy }}
           {{- if .Values.admissionController.extraArgs }}
           args:
