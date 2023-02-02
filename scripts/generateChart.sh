@@ -5,6 +5,17 @@ if ! which helm &>/dev/null ; then
     exit 1
 fi
 
+if ! which jq &>/dev/null ; then
+    YQ_VERSION=v4.30.6
+    YQ_BINARY="yq_$(uname | tr 'A-Z' 'a-z')_amd64"
+    wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}.tar.gz -O /tmp/yq.tar.gz
+     tar -xzf /tmp/yq.tar.gz -C /tmp
+     mv /tmp/${YQ_BINARY} /usr/bin/yq
+     chmod +x yq
+     yq &>/dev/null || exit 1
+fi
+
+
 PROJECT_NAME=$1
 [ -n "$PROJECT_NAME" ] || { echo "error, empty PROJECT_NAME" ; exit 1 ; }
 
@@ -98,6 +109,8 @@ sed -E 's/(.*)/  \1/g' ${DOWNLOAD_CHART_DIR}/values.yaml >> ${CHART_BUILD_DIR}/v
 
 
 echo "auto inject dependencies to original Chart.yaml"
+# format the yaml
+yq -i ${CHART_BUILD_DIR}/Chart.yaml
 if grep "dependencies:" ${CHART_BUILD_DIR}/Chart.yaml &>/dev/null ; then
     LINE=` cat ${CHART_BUILD_DIR}/Chart.yaml | grep  -n "dependencies:"  | awk -F: '{print $1}' `
     sed  -i  ${LINE}' a\    repository: '"${REPO_URL}"''  ${CHART_BUILD_DIR}/Chart.yaml
