@@ -25,7 +25,7 @@ ingress-nginx:
       ## for backwards compatibility consider setting the full image url via the repository value below
       ## use *either* current default registry/image or repository format or installing chart by providing the values.yaml will fail
       ## repository:
-      tag: "v1.5.1"
+      tag: "v1.6.1"
       digest: ""
       digestChroot: ""
       pullPolicy: IfNotPresent
@@ -65,11 +65,18 @@ ingress-nginx:
     watchIngressWithoutClass: false
     # -- Process IngressClass per name (additionally as per spec.controller).
     ingressClassByName: false
+    # -- This configuration enables Topology Aware Routing feature, used together with service annotation service.kubernetes.io/topology-aware-hints="auto"
+    # Defaults to false
+    enableTopologyAwareRouting: false
     # -- This configuration defines if Ingress Controller should allow users to set
     # their own *-snippet annotations, otherwise this is forbidden / dropped
     # when users add those annotations.
     # Global snippets in ConfigMap are still respected
     allowSnippetAnnotations: true
+    # -- This configuration defines if Ingress Controller should validate pathType.
+    # If false, special characters will be allowed on paths of any pathType.
+    # If true, special characters are only allowed on paths with pathType = ImplementationSpecific
+    EnablePathTypeValidation: false
     # -- Required for use with CNI based kubernetes installations (such as ones set up by kubeadm),
     # since CNI and hostport don't mix yet. Can be deprecated once https://github.com/kubernetes/kubernetes/issues/23920
     # is merged
@@ -544,7 +551,7 @@ ingress-nginx:
 
     opentelemetry:
       enabled: false
-      image: registry.k8s.io/ingress-nginx/opentelemetry:v20221114-controller-v1.5.1-6-ga66ee73c5@sha256:41076fd9fb4255677c1a3da1ac3fc41477f06eba3c7ebf37ffc8f734dad51d7c
+      image: registry.k8s.io/ingress-nginx/opentelemetry:v20230107-helm-chart-4.4.2-2-g96b3d2165@sha256:331b9bebd6acfcd2d3048abbdd86555f5be76b7e3d0b5af4300b04235c6056c9
       containerSecurityContext:
         allowPrivilegeEscalation: false
     admissionWebhooks:
@@ -630,9 +637,9 @@ ingress-nginx:
           duration: "" # default to be 5y
         admissionCert:
           duration: "" # default to be 1y
-        # issuerRef:
-        #   name: "issuer"
-        #   kind: "ClusterIssuer"
+          # issuerRef:
+          #   name: "issuer"
+          #   kind: "ClusterIssuer"
     metrics:
       port: 10254
       portName: metrics
@@ -642,7 +649,8 @@ ingress-nginx:
         annotations: {}
         # prometheus.io/scrape: "true"
         # prometheus.io/port: "10254"
-
+        # -- Labels to be added to the metrics service resource
+        labels: {}
         # clusterIP: ""
 
         # -- List of IP addresses at which the stats-exporter service is available
@@ -770,6 +778,16 @@ ingress-nginx:
       periodSeconds: 5
       successThreshold: 1
       timeoutSeconds: 5
+    # -- The update strategy to apply to the Deployment or DaemonSet
+    ##
+    updateStrategy: {}
+    #  rollingUpdate:
+    #    maxUnavailable: 1
+    #  type: RollingUpdate
+
+    # -- `minReadySeconds` to avoid killing pods before we are ready
+    ##
+    minReadySeconds: 0
     # -- Node tolerations for server scheduling to nodes with taints
     ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
     ##
