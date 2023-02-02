@@ -109,7 +109,7 @@ sed -E 's/(.*)/  \1/g' ${DOWNLOAD_CHART_DIR}/values.yaml >> ${CHART_BUILD_DIR}/v
 
 
 echo "auto inject dependencies to original Chart.yaml"
-#adjust the format
+# format the yaml
 yq -i ${CHART_BUILD_DIR}/Chart.yaml
 if grep "dependencies:" ${CHART_BUILD_DIR}/Chart.yaml &>/dev/null ; then
     LINE=` cat ${CHART_BUILD_DIR}/Chart.yaml | grep  -n "dependencies:"  | awk -F: '{print $1}' `
