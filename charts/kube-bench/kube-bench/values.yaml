@@ -1,0 +1,21 @@
+# child values
+kube-bench:
+  provider: eks
+  cronjob:
+    schedule: "0 0 1 * *"
+    command: []
+  image:
+    repository: aquasec/kube-bench
+    tag: 0.4.0
+    pullPolicy: IfNotPresent
+    registry: docker.io
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: false
+    # Annotations to add to the service account
+    annotations: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  concurrencyPolicy: Forbid
