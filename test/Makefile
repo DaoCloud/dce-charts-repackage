@@ -115,7 +115,25 @@ target:  \n \
          url: http://127.0.0.1:30081"; \
      echo -e "$${CONFIG}" > $${DIR}/config.yaml ; \
      charts-syncer sync --config $${DIR}/config.yaml --insecure true || { echo "error, failed to sync charts and images to local registry" ; exit 1 ; } ; \
+	 make checkImages -e PROJECT=$${ITEM} || { echo "error, failed to check $${ITEM} images registry" ; exit 1 ; } ; \
      rm -rf $${DIR} ;
+
+.PHONY: checkImages
+checkImages: PROJECT=
+checkImages: checkBin
+	@ echo "check $(PROJECT) images registry"
+	helm repo update chart-museum  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to update helm chart-museum repo " ; exit 1 ; } ; \
+    IMAGE_LIST=` helm template test chart-museum/$${PROJECT}  | grep " image: " | tr -d '"'| awk '{print $$2}' ` ;\
+	if [ -z "$${IMAGE_LIST}" ] ; then \
+		echo "error, failed to find image from chart template for $(PROJECT)" ; exit 1 ; \
+	else \
+		echo "found image from $(PROJECT) chart template: $${IMAGE_LIST} " ; \
+		for IMAGE in $${IMAGE_LIST} ; do \
+		    if [[ $${IMAGE} != 127.0.0.1:30080* ]] ; then \
+			    echo "error, failed to check image $${IMAGE} from chart template for $(PROJECT)" ; exit 1 ; \
+		    fi ; \
+		done ; \
+	fi ; \
 
 .PHONY: deploy
 deploy: INSTALL_PATH=
