@@ -115,7 +115,7 @@ target:  \n \
          url: http://127.0.0.1:30081"; \
      echo -e "$${CONFIG}" > $${DIR}/config.yaml ; \
      charts-syncer sync --config $${DIR}/config.yaml --insecure true || { echo "error, failed to sync charts and images to local registry" ; exit 1 ; } ; \
-	 make checkImages -e PROJECT=$${ITEM} || { echo "error, failed to check $${ITEM} images registry" ; exit 1 ; } ; \
+	 make checkImages -e PROJECT=$${PROJECT} || { echo "error, failed to check $${PROJECT} images registry" ; exit 1 ; } ; \
      rm -rf $${DIR} ;
 
 .PHONY: checkImages
