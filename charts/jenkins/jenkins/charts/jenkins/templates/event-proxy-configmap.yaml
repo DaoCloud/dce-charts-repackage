@@ -1,0 +1,10 @@
+{{ if .Values.eventProxy.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: amamba-event-proxy-config
+  namespace: {{ include "amamba.namespace" . }}
+data:
+  event-proxy.yaml: |
+  {{ toYaml .Values.eventProxy.configMap | nindent 4 }}
+{{ end }}
