@@ -1,2 +1,2 @@
-- {{ .ingress-nginx.controller.image.registry }}/{{ .ingress-nginx.controller.image.image }}:{{ .ingress-nginx.controller.image.tag }}
-- {{ .ingress-nginx.controller.admissionWebhooks.patch.image.registry }}/{{ .ingress-nginx.controller.admissionWebhooks.patch.image.image }}:{{ .ingress-nginx.controller.admissionWebhooks.patch.image.tag }}
+- "{{ .ingress-nginx.controller.image.registry }}/{{ .ingress-nginx.controller.image.image }}:{{ .ingress-nginx.controller.image.tag }}"
+- "{{ .ingress-nginx.controller.admissionWebhooks.patch.image.registry }}/{{ .ingress-nginx.controller.admissionWebhooks.patch.image.image }}:{{ .ingress-nginx.controller.admissionWebhooks.patch.image.tag }}"
