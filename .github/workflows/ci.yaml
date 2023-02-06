@@ -1,7 +1,7 @@
 name: PR E2E C
 
 env:
-  SKIP_CHART_LIST: "nmstate cert-manager "
+  TRIVY_SCAN_SKIP_CHART_LIST: "nmstate cert-manager contour "
   IMAGE_HINT_FILE_NAME: ".relok8s-images.yaml"
   SCHEMA_FILE_NAME: "values.schema.json"
 
@@ -137,11 +137,11 @@ jobs:
 
       - name: check chart trivy
         run: |
-          echo "SKIP_CHART_LIST= ${{ env.SKIP_CHART_LIST }} " 
+          echo "TRIVY_SCAN_SKIP_CHART_LIST= ${{ env.TRIVY_SCAN_SKIP_CHART_LIST }} " 
           BASE=$PWD
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
               # skip chart trivy
-              grep " ${PROJECT} " <<< " ${{ env.SKIP_CHART_LIST }} " && continue
+              grep " ${PROJECT} " <<< " ${{ env.TRIVY_SCAN_SKIP_CHART_LIST }} " && continue
               docker run --rm \
                   -v /tmp/trivy:/root/trivy.cache/  \
                     -v ${BASE}:/tmp/src  \
