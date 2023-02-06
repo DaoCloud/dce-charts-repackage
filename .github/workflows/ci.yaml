@@ -124,7 +124,7 @@ jobs:
               CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
               [ -f "${CHART_PATH}/${{ env.IMAGE_HINT_FILE_NAME }}" ] \
                   || { echo "error, miss ${{ env.IMAGE_HINT_FILE_NAME }} file in chart ${PROJECT} " ; exit 1 ; }
-              ! grep -E '\-[[:space:]]+[^"].*[^"]' ./charts/ingress-nginx/ingress-nginx/.relok8s-images.yaml \
+              ! grep -E '\-[[:space:]]+[^"].*[^"]' ${CHART_PATH}/${{ env.IMAGE_HINT_FILE_NAME }} \
                   || { echo "error, must use Double quotation in ${PROJECT}/.relok8s-images.yaml " ; exit 1 ; }
           done
 
