@@ -1,0 +1,55 @@
+name: Auto Yaml Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.yml'
+      - '**.yaml'
+
+jobs:
+  linkyaml:
+    runs-on: ubuntu-latest
+    name: Yaml Lint
+    steps:
+      - name: Checkout
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
+      - name: Checkout
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: actions/checkout@v3
+
+      - name: yaml format yq
+        run: |
+          echo "=================== install yq"
+          wget https://github.com/mikefarah/yq/releases/download/v4.30.7/yq_linux_amd64
+          chmod +x yq_linux_amd64
+          echo "=================== get pr number"
+          PR_NUMBER=""
+          if ${{ github.event_name == 'pull_request' }}; then
+              echo "trigger by pull_request"
+              PR_NUMBER=${{ github.event.number }}
+              [ -n "${PR_NUMBER}" ] || { echo "no PR number, ignore" ; exit 0 ; }     
+          fi
+          echo "============= get changed chart========"
+          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}/files"
+          files_changed_data=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -X GET -G "$URL")
+          echo "files_changed_data: $files_changed_data"
+          files_changed="$(echo $files_changed_data | jq -r '.[] | .filename')"
+          echo "files_changed: $files_changed"
+          echo "============= checking yaml file========"
+          for FILEPATH in $files_changed ; do
+              if grep -E "*\.yaml" <<< "$FILEPATH" &>/dev/null || grep -E "*\.yml" <<< "$FILEPATH" &>/dev/null ; then
+                  echo "------------ checking ${FILEPATH} "
+                  if ! ./yq_linux_amd64 ${FILEPATH} &>/dev/null ; then
+                    ./yq_linux_amd64 ${FILEPATH} || true
+                    echo "!!! error, $FILEPATH is not yaml format"
+                    exit 1
+                  fi
+              fi
+          done
+          echo "--- all done"
