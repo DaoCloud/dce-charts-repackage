@@ -128,6 +128,18 @@ jobs:
                   || { echo "error, must use Double quotation in ${PROJECT}/.relok8s-images.yaml " ; exit 1 ; }
           done
 
+      - name: check image repo
+        run: |
+          BASE=$PWD
+          for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
+              CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
+              if helm template test ${CHART_PATH} | grep ' image: ' | tr -d '"' | awk '{print $2}' | grep -v "daocloud" &>/dev/null ; then
+                  echo "error, image is not in daocloud repo"
+                  helm template test ${CHART_PATH} | grep ' image: ' | tr -d '"' | awk '{print $2}'
+                  exit 1
+              fi
+          done
+          
       - name: check schema file
         run: |
           BASE=$PWD
