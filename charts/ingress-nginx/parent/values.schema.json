@@ -38,7 +38,8 @@
                       "type": "boolean",
                       "description": "install serviceMonitor CR for ingress controller. Notice: It is required to install Prometheus CRDs firstly"
                     }
-                  }
+                  },
+                  "title": "ServiceMonitor"
                 }
               }
             },
@@ -202,12 +203,21 @@
               "properties": {
                 "enabled": {
                   "type": "boolean",
-                  "description": "If you want to restrict the usage of the current ingress instance to specific namespace, turn on this switch and set the corresponding namespace."
+                  "description": "If you want to restrict the usage of the current ingress instance to specific namespace, turn on this switch and set the corresponding namespace.",
+                  "title": "Enabled"
                 },
                 "namespace": {
-                  "type": "string"
+                  "type": "string",
+                  "title": "Namespace"
+                },
+                "namespaceSelector": {
+                  "type": "string",
+                  "title": "Namespace Selector",
+                  "description": "When enabled == false, instead of watching all namespaces, we watching namespaces whose labels only match with namespaceSelector. Format like foo=bar. Defaults to empty, means watching all namespaces."
                 }
-              }
+              },
+              "required": [],
+              "title": "Scope"
             }
           }
         }

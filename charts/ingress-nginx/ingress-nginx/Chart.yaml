@@ -5,12 +5,11 @@ keywords:
   - ingress
   - nginx
 kubeVersion: ">=1.20.0-0"
-dependencies:
-- name: ingress-nginx
-  repository: https://kubernetes.github.io/ingress-nginx
-  version: 4.4.2
-description: Ingress controller for Kubernetes using NGINX as a reverse proxy and
-  load balancer
+description: Ingress controller for Kubernetes using NGINX as a reverse proxy and load balancer
 name: ingress-nginx
 type: application
 version: 4.4.2
+dependencies:
+  - name: ingress-nginx
+    version: "4.4.2"
+    repository: "https://kubernetes.github.io/ingress-nginx"
