@@ -130,6 +130,7 @@ jobs:
 
       - name: check image repo
         run: |
+          BASE=$PWD
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
               CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
               if helm template test ${CHART_PATH} | grep ' image: ' | tr -d '"' | awk '{print $2}' | grep -v "daocloud" &>/dev/null ; then
