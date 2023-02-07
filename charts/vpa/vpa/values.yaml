@@ -45,7 +45,8 @@ vpa:
       pullPolicy: Always
       # recommender.image.tag -- Overrides the image tag whose default is the chart appVersion
       tag: "0.12.0"
-      registry: k8s.gcr.io
+      registry: release.daocloud.io
+      oldTag: 0.9.0
     # recommender.podAnnotations -- Annotations to add to the recommender pod
     podAnnotations: {}
     # recommender.podLabels -- Labels to add to the recommender pod
@@ -83,7 +84,8 @@ vpa:
       pullPolicy: Always
       # updater.image.tag -- Overrides the image tag whose default is the chart appVersion
       tag: "0.12.0"
-      registry: k8s.gcr.io
+      registry: release.daocloud.io
+      oldTag: 0.9.0
     # updater.podAnnotations -- Annotations to add to the updater pod
     podAnnotations: {}
     # updater.podLabels -- Labels to add to the updater pod
@@ -152,7 +154,8 @@ vpa:
       pullPolicy: Always
       # admissionController.image.tag -- Overrides the image tag whose default is the chart appVersion
       tag: "0.12.0"
-      registry: k8s.gcr.io
+      registry: release.daocloud.io
+      oldTag: 0.9.0
     # admissionController.podAnnotations -- Annotations to add to the admission controller pod
     podAnnotations: {}
     # admissionController.podLabels -- Labels to add to the admission controller pod
@@ -182,3 +185,25 @@ vpa:
     nodeSelector: {}
     tolerations: []
     affinity: {}
+  kubeVersion: ""
+  global:
+    imageRegistry: ""
+    vpa:
+      imageTag: 0.12.0
+  crds:
+    needcreate: true
+  createVpa:
+    image:
+      registry: release.daocloud.io
+      repository: common-ci/common-ci-deployer
+      tag: v0.1.52
+  metrics:
+    image:
+      registry: release.daocloud.io
+      repository: common-ci/common-ci-deployer
+      tag: v0.1.52
+  crdAvailable:
+    image:
+      registry: release.daocloud.io
+      repository: common-ci/common-ci-deployer
+      tag: v0.1.52
