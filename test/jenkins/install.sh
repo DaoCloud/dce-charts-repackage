@@ -18,7 +18,7 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 set -x
 
 # deploy vpa
-helm install vpa chart-museum/jenkins  ${HELM_MUST_OPTION}  --create-namespace --namespace jenkins
+helm install jenkins chart-museum/jenkins  ${HELM_MUST_OPTION}  --create-namespace --namespace jenkins
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
