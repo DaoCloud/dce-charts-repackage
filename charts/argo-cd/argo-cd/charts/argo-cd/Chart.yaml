@@ -1,8 +1,11 @@
 annotations:
   artifacthub.io/changes: |
-    - "[Removed]: Legacy API versions for Ingresses"
+    - kind: changed
+      description: Upgrade Argo CD to 2.6.0
+    - kind: deprecated
+      description: ApplicationSet args, logFormat and logLevel superseded by configs.params
 apiVersion: v2
-appVersion: v2.5.5
+appVersion: v2.6.0
 dependencies:
 - condition: redis-ha.enabled
   name: redis-ha
@@ -24,4 +27,4 @@ name: argo-cd
 sources:
 - https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd
 - https://github.com/argoproj/argo-cd
-version: 5.16.13
+version: 5.20.0
