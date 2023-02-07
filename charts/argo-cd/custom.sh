@@ -35,36 +35,40 @@ sed -i "\?repository: https://dandydeveloper.github.io/charts/?d" Chart.yaml
 sed -i "\?version: 4.22.4?d" Chart.yaml
 
 #==============================
+sysctlImageTag=$(yq .sysctlImage.tag charts/argo-cd/charts/redis-ha/values.yaml)
+configmapImageTag=$(yq .configmapTest.image.tag charts/argo-cd/charts/redis-ha/values.yaml)
+haproxyImageTag=$(yq .haproxy.image.tag charts/argo-cd/charts/redis-ha/values.yaml)
+exporterImageTag=$(yq .exporter.tag charts/argo-cd/charts/redis-ha/values.yaml)
+globalImageTag=$(yq .appVersion Chart.yaml)
 
 yq -i '
-  .argo-cd.global.image.registry = "quay.io" |
+  .argo-cd.global.image.registry = "quay.m.daocloud.io" |
   .argo-cd.global.image.repository = "argoproj/argocd" |
-  .argo-cd.global.image.tag = "v2.5.5" |
-  .argo-cd.dex.image.registry = "ghcr.io" |
+  .argo-cd.dex.image.registry = "ghcr.m.daocloud.io" |
   .argo-cd.dex.image.repository = "dexidp/dex" |
-  .argo-cd.dex.image.tag = "v2.35.3" |
-  .argo-cd.redis.image.registry = "public.ecr.aws" |
-  .argo-cd.redis.image.repository = "docker/library/redis" |
-  .argo-cd.redis.image.tag = "7.0.5-alpine" |
-  .argo-cd.redis.metrics.image.registry = "public.ecr.aws" |
+  .argo-cd.redis.image.registry = "docker.m.daocloud.io" |
+  .argo-cd.redis.image.repository = "redis" |
+  .argo-cd.redis.metrics.image.registry = "docker.m.daocloud.io" |
   .argo-cd.redis.metrics.image.repository = "bitnami/redis-exporter" |
-  .argo-cd.redis.metrics.image.tag = "1.26.0-debian-10-r2" |
-  .argo-cd.redis-ha.image.registry = "docker.io" |
+  .argo-cd.redis-ha.image.registry = "docker.m.daocloud.io" |
   .argo-cd.redis-ha.image.repository = "redis" |
-  .argo-cd.redis-ha.image.tag = "7.0.5-alpine3.16" |
-  .argo-cd.redis-ha.configmapTest.image.registry = "koalaman" |
-  .argo-cd.redis-ha.configmapTest.image.repository = "shellcheck" |
-  .argo-cd.redis-ha.configmapTest.image.tag = "v0.5.0" |
-  .argo-cd.redis-ha.haproxy.image.registry = "docker.io" |
+  .argo-cd.redis-ha.configmapTest.image.registry = "docker.m.daocloud.io" |
+  .argo-cd.redis-ha.configmapTest.image.repository = "koalaman/shellcheck" |
+  .argo-cd.redis-ha.haproxy.image.registry = "docker.m.daocloud.io" |
   .argo-cd.redis-ha.haproxy.image.repository = "haproxy" |
-  .argo-cd.redis-ha.haproxy.image.tag = "2.6.4" |
-  .argo-cd.redis-ha.sysctlImage.image.registry = "docker.io" |
+  .argo-cd.redis-ha.sysctlImage.image.registry = "docker.m.daocloud.io" |
   .argo-cd.redis-ha.sysctlImage.image.repository = "busybox" |
-  .argo-cd.redis-ha.sysctlImage.image.tag = "1.34.1" |
-  .argo-cd.redis-ha.exporter.image.registry = "oliver006" |
-  .argo-cd.redis-ha.exporter.image.repository = "redis_exporter" |
-  .argo-cd.redis-ha.exporter.image.tag = "v1.43.0"
+  .argo-cd.redis-ha.exporter.image.registry = "docker.m.daocloud.io" |
+  .argo-cd.redis-ha.exporter.image.repository = "oliver006/redis_exporter"
 ' values.yaml
+
+yq -i "
+  .argo-cd.global.image.tag = \"${globalImageTag}\" |
+  .argo-cd.redis-ha.configmapTest.image.tag = \"${configmapImageTag}\" |
+  .argo-cd.redis-ha.haproxy.image.tag = \"${haproxyImageTag}\" |
+  .argo-cd.redis-ha.sysctlImage.image.tag = \"${sysctlImageTag}\" |
+  .argo-cd.redis-ha.exporter.image.tag = \"${exporterImageTag}\"
+" values.yaml
 
 echo '
 {{- define "global.image.repository" -}}
@@ -96,4 +100,3 @@ sed  -i  's?{{ .Values.configmapTest.image.repository }}:{{ .Values.configmapTes
 
 sed  -i  's?.Values.sysctlImage.registry?.Values.sysctlImage.image.registry?g' charts/argo-cd/charts/redis-ha/templates/_helpers.tpl
 sed  -i  's?.Values.sysctlImage.repository?.Values.sysctlImage.image.repository?g' charts/argo-cd/charts/redis-ha/templates/_helpers.tpl
-sed  -i  's?.Values.sysctlImage.tag?.Values.sysctlImage.image.tag?g' charts/argo-cd/charts/redis-ha/templates/_helpers.tpl
