@@ -23,7 +23,7 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' }}
         uses: actions/checkout@v3
 
-      - name: yaml format yq
+      - name: github yaml format yq
         run: |
           echo "=================== install yq"
           wget https://github.com/mikefarah/yq/releases/download/v4.30.7/yq_linux_amd64
@@ -43,7 +43,7 @@ jobs:
           echo "files_changed: $files_changed"
           echo "============= checking yaml file========"
           for FILEPATH in $files_changed ; do
-              if grep -E "*\.yaml" <<< "$FILEPATH" &>/dev/null || grep -E "*\.yml" <<< "$FILEPATH" &>/dev/null ; then
+              if grep -E "\.github/.*\.yaml" <<< "$FILEPATH" &>/dev/null || grep -E "\.github/.*\.yaml" <<< "$FILEPATH" &>/dev/null ; then
                   echo "------------ checking ${FILEPATH} "
                   if ! ./yq_linux_amd64 ${FILEPATH} &>/dev/null ; then
                     ./yq_linux_amd64 ${FILEPATH} || true
