@@ -7,7 +7,7 @@ replicaCount: 2
 
 image:
   # -- The image registry to pull from
-  registry: docker.io
+  registry: docker.m.daocloud.io
   # -- The image repository to pull from
   repository: falcosecurity/falcosidekick
   # -- The image tag to pull
@@ -822,7 +822,7 @@ webui:
   user: "admin:admin"
   image:
     # -- The web UI image registry to pull from
-    registry: docker.io
+    registry: docker.m.daocloud.io
     # -- The web UI image repository to pull from
     repository: falcosecurity/falcosidekick-ui
     # -- The web UI image tag to pull
@@ -906,7 +906,7 @@ webui:
     enabled: true
     image:
       # -- The web UI Redis image registry to pull from
-      registry: docker.io
+      registry: docker.m.daocloud.io
       # -- The web UI Redis image repository to pull from
       repository: redislabs/redisearch
       # -- The web UI Redis image tag to pull from

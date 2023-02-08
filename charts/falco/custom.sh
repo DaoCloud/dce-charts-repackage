@@ -18,3 +18,5 @@ APP_VERSION=` cat charts/falco/Chart.yaml | grep appVersion | awk '{print $2}'`
 sed -iE "s?tag:.*?tag: ${APP_VERSION}?g" values.yaml
 
 rm -f values.yamlE || true
+
+grep "  registry:" ./charts/falco/charts/falcosidekick  -Rl   |xargs -n 1 -i sed -i 's?  registry: docker.io.*?  registry: docker.m.daocloud.io?' {}
