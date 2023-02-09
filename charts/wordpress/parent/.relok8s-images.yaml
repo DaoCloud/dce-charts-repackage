@@ -1,0 +1,10 @@
+- "{{ .wordpress.image.registry }}/{{ .wordpress.image.repository }}:{{ .wordpress.image.tag }}"
+- "{{ .wordpress.metrics.image.registry }}/{{ .wordpress.metrics.image.repository }}:{{ .wordpress.metrics.image.tag }}"
+- "{{ .wordpress.volumePermissions.image.registry }}/{{ .wordpress.volumePermissions.image.repository }}:{{ .wordpress.volumePermissions.image.tag }}"
+- "{{ .wordpress.mariadb.image.registry }}/{{ .wordpress.mariadb.image.repository }}:{{ .wordpress.mariadb.image.tag }}"
+- "{{ .wordpress.mariadb.metrics.image.registry }}/{{ .wordpress.mariadb.metrics.image.repository }}:{{ .wordpress.mariadb.metrics.image.tag }}"
+- "{{ .wordpress.mariadb.volumePermissions.image.registry }}/{{ .wordpress.mariadb.volumePermissions.image.repository }}:{{ .wordpress.mariadb.volumePermissions.image.tag }}"
+- "{{ .wordpress.memcached.image.registry }}/{{ .wordpress.memcached.image.repository }}:{{ .wordpress.memcached.image.tag }}"
+- "{{ .wordpress.memcached.metrics.image.registry }}/{{ .wordpress.memcached.metrics.image.repository }}:{{ .wordpress.memcached.metrics.image.tag }}"
+- "{{ .wordpress.memcached.volumePermissions.image.registry }}/{{ .wordpress.memcached.volumePermissions.image.repository }}:{{ .wordpress.memcached.volumePermissions.image.tag }}"
+

@@ -5,7 +5,7 @@ if ! which helm &>/dev/null ; then
     exit 1
 fi
 
-if ! which jq &>/dev/null ; then
+if ! which yq &>/dev/null ; then
     YQ_VERSION=v4.30.6
     YQ_BINARY="yq_$(uname | tr 'A-Z' 'a-z')_amd64"
     wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}.tar.gz -O /tmp/yq.tar.gz
@@ -125,7 +125,7 @@ if [ ! -f ${CHART_BUILD_DIR}/values.schema.json ] ; then
         echo "install helm-schema-gen "
         helm plugin install https://github.com/karuppiah7890/helm-schema-gen.git
     fi
-    cd  ${CHART_BUILD_DIR}
+    sudo cd  ${CHART_BUILD_DIR}
     helm schema-gen values.yaml > values.schema.json
     (($?!=0)) && echo "error, failed to call schema-gen" && exit 9
 fi
