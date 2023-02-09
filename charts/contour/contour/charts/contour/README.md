@@ -27,7 +27,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.dev/) for deployment
 
 - Kubernetes 1.19+
 - Helm 3.2.0+
-- An Operator for `ServiceType: LoadBalancer` like [MetalLB](https://github.com/bitnami/charts/tree/master/bitnami/metallb)
+- An Operator for `ServiceType: LoadBalancer` like [MetalLB](https://github.com/bitnami/charts/tree/main/bitnami/metallb)
 
 ## Installing the Chart
 
@@ -92,7 +92,7 @@ $ helm uninstall my-release
 | `contour.enabled`                                             | Contour Deployment creation.                                                                                                       | `true`                |
 | `contour.image.registry`                                      | Contour image registry                                                                                                             | `docker.io`           |
 | `contour.image.repository`                                    | Contour image name                                                                                                                 | `bitnami/contour`     |
-| `contour.image.tag`                                           | Contour image tag                                                                                                                  | `1.22.0-debian-11-r4` |
+| `contour.image.tag`                                           | Contour image tag                                                                                                                  | `1.23.3-debian-11-r0` |
 | `contour.image.digest`                                        | Contour image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                            | `""`                  |
 | `contour.image.pullPolicy`                                    | Contour Image pull policy                                                                                                          | `IfNotPresent`        |
 | `contour.image.pullSecrets`                                   | Contour Image pull secrets                                                                                                         | `[]`                  |
@@ -110,6 +110,9 @@ $ helm uninstall my-release
 | `contour.resources.limits`                                    | Specify resource limits which the container is not allowed to succeed.                                                             | `{}`                  |
 | `contour.resources.requests`                                  | Specify resource requests which the container needs to spawn.                                                                      | `{}`                  |
 | `contour.manageCRDs`                                          | Manage the creation, upgrade and deletion of Contour CRDs.                                                                         | `true`                |
+| `contour.envoyServiceNamespace`                               | Namespace of the envoy service to inspect for Ingress status details.                                                              | `""`                  |
+| `contour.envoyServiceName`                                    | Name of the envoy service to inspect for Ingress status details.                                                                   | `""`                  |
+| `contour.ingressStatusAddress`                                | Address to set in Ingress object status. It is exclusive with `envoyServiceName` and `envoyServiceNamespace`.                      | `""`                  |
 | `contour.podAffinityPreset`                                   | Contour Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                        | `""`                  |
 | `contour.podAntiAffinityPreset`                               | Contour Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                   | `soft`                |
 | `contour.podLabels`                                           | Extra labels for Contour pods                                                                                                      | `{}`                  |
@@ -166,6 +169,7 @@ $ helm uninstall my-release
 | `contour.service.clusterIP`                                   | Contour service Cluster IP                                                                                                         | `""`                  |
 | `contour.service.loadBalancerIP`                              | Contour service Load Balancer IP                                                                                                   | `""`                  |
 | `contour.service.loadBalancerSourceRanges`                    | Contour service Load Balancer sources                                                                                              | `[]`                  |
+| `contour.service.loadBalancerClass`                           | Contour service Load Balancer Class                                                                                                | `""`                  |
 | `contour.service.externalTrafficPolicy`                       | Contour service external traffic policy                                                                                            | `Cluster`             |
 | `contour.service.annotations`                                 | Additional custom annotations for Contour service                                                                                  | `{}`                  |
 | `contour.service.extraPorts`                                  | Extra port to expose on Contour service                                                                                            | `[]`                  |
@@ -193,7 +197,7 @@ $ helm uninstall my-release
 | `envoy.enabled`                                     | Envoy Proxy creation                                                                                                  | `true`                |
 | `envoy.image.registry`                              | Envoy Proxy image registry                                                                                            | `docker.io`           |
 | `envoy.image.repository`                            | Envoy Proxy image repository                                                                                          | `bitnami/envoy`       |
-| `envoy.image.tag`                                   | Envoy Proxy image tag (immutable tags are recommended)                                                                | `1.23.0-debian-11-r8` |
+| `envoy.image.tag`                                   | Envoy Proxy image tag (immutable tags are recommended)                                                                | `1.24.2-debian-11-r0` |
 | `envoy.image.digest`                                | Envoy Proxy image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag           | `""`                  |
 | `envoy.image.pullPolicy`                            | Envoy image pull policy                                                                                               | `IfNotPresent`        |
 | `envoy.image.pullSecrets`                           | Envoy image pull secrets                                                                                              | `[]`                  |
@@ -266,6 +270,7 @@ $ helm uninstall my-release
 | `envoy.customStartupProbe`                          | Override default startup probe                                                                                        | `{}`                  |
 | `envoy.terminationGracePeriodSeconds`               | Envoy termination grace period in seconds                                                                             | `300`                 |
 | `envoy.logLevel`                                    | Envoy log level                                                                                                       | `info`                |
+| `envoy.service.name`                                | envoy service name                                                                                                    | `""`                  |
 | `envoy.service.targetPorts`                         | Map the controller service HTTP/HTTPS port                                                                            | `{}`                  |
 | `envoy.service.type`                                | Type of Envoy service to create                                                                                       | `LoadBalancer`        |
 | `envoy.service.externalTrafficPolicy`               | Envoy Service external cluster policy. If `envoy.service.type` is NodePort or LoadBalancer                            | `Local`               |
@@ -274,6 +279,7 @@ $ helm uninstall my-release
 | `envoy.service.externalIPs`                         | Envoy service external IP addresses                                                                                   | `[]`                  |
 | `envoy.service.loadBalancerIP`                      | IP address to assign to load balancer (if supported)                                                                  | `""`                  |
 | `envoy.service.loadBalancerSourceRanges`            | List of IP CIDRs allowed access to load balancer (if supported)                                                       | `[]`                  |
+| `envoy.service.loadBalancerClass`                   | Envoy service Load Balancer Class                                                                                     | `""`                  |
 | `envoy.service.ipFamilyPolicy`                      | , support SingleStack, PreferDualStack and RequireDualStack                                                           | `""`                  |
 | `envoy.service.annotations`                         | Annotations for Envoy service                                                                                         | `{}`                  |
 | `envoy.service.ports.http`                          | Sets service http port                                                                                                | `80`                  |
@@ -307,7 +313,7 @@ $ helm uninstall my-release
 | `defaultBackend.enabled`                               | Enable a default backend based on NGINX                                                                         | `false`                  |
 | `defaultBackend.image.registry`                        | Default backend image registry                                                                                  | `docker.io`              |
 | `defaultBackend.image.repository`                      | Default backend image name                                                                                      | `bitnami/nginx`          |
-| `defaultBackend.image.tag`                             | Default backend image tag                                                                                       | `1.23.1-debian-11-r7`    |
+| `defaultBackend.image.tag`                             | Default backend image tag                                                                                       | `1.23.3-debian-11-r22`   |
 | `defaultBackend.image.digest`                          | Default backend image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `""`                     |
 | `defaultBackend.image.pullPolicy`                      | Image pull policy                                                                                               | `IfNotPresent`           |
 | `defaultBackend.image.pullSecrets`                     | Specify docker-registry secret names as an array                                                                | `[]`                     |
@@ -537,7 +543,7 @@ envoy:
 
 This chart allows you to set your custom affinity using the `XXX.affinity` parameter(s). Find more information about Pod's affinity in the [kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity).
 
-As an alternative, you can use of the preset configurations for pod affinity, pod anti-affinity, and node affinity available at the [bitnami/common](https://github.com/bitnami/charts/tree/master/bitnami/common#affinities) chart. To do so, set the `XXX.podAffinityPreset`, `XXX.podAntiAffinityPreset`, or `XXX.nodeAffinityPreset` parameters.
+As an alternative, you can use of the preset configurations for pod affinity, pod anti-affinity, and node affinity available at the [bitnami/common](https://github.com/bitnami/charts/tree/main/bitnami/common#affinities) chart. To do so, set the `XXX.podAffinityPreset`, `XXX.podAntiAffinityPreset`, or `XXX.nodeAffinityPreset` parameters.
 
 ## Troubleshooting
 
@@ -661,11 +667,11 @@ Most important changes are:
 $ kubectl apply -f https://raw.githubusercontent.com/projectcontour/contour/release-{{version}}/examples/contour/01-crds.yaml
 ```
 
-This version also introduces `bitnami/common`, a [library chart](https://helm.sh/docs/topics/library_charts/#helm) as a dependency. More documentation about this new utility could be found [here](https://github.com/bitnami/charts/tree/master/bitnami/common#bitnami-common-library-chart). Please, make sure that you have updated the chart dependencies before executing any upgrade.
+This version also introduces `bitnami/common`, a [library chart](https://helm.sh/docs/topics/library_charts/#helm) as a dependency. More documentation about this new utility could be found [here](https://github.com/bitnami/charts/tree/main/bitnami/common#bitnami-common-library-chart). Please, make sure that you have updated the chart dependencies before executing any upgrade.
 
 ## License
 
-Copyright &copy; 2022 Bitnami
+Copyright &copy; 2023 Bitnami
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
