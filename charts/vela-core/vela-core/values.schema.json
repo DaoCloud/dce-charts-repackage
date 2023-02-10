@@ -1,0 +1,451 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "vela-core": {
+            "type": "object",
+            "properties": {
+                "OAMSpecVer": {
+                    "type": "string"
+                },
+                "admissionWebhooks": {
+                    "type": "object",
+                    "properties": {
+                        "appConversion": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "certManager": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "revisionHistoryLimit": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "certificate": {
+                            "type": "object",
+                            "properties": {
+                                "mountPath": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "failurePolicy": {
+                            "type": "string"
+                        },
+                        "patch": {
+                            "type": "object",
+                            "properties": {
+                                "affinity": {
+                                    "type": "object"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "pullPolicy": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "nodeSelector": {
+                                    "type": "object"
+                                },
+                                "tolerations": {
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    }
+                },
+                "affinity": {
+                    "type": "object"
+                },
+                "applicationRevisionLimit": {
+                    "type": "integer"
+                },
+                "authentication": {
+                    "type": "object",
+                    "properties": {
+                        "defaultUser": {
+                            "type": "string"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "groupPattern": {
+                            "type": "string"
+                        },
+                        "withUser": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "concurrentReconciles": {
+                    "type": "integer"
+                },
+                "controllerArgs": {
+                    "type": "object",
+                    "properties": {
+                        "reSyncPeriod": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "definitionRevisionLimit": {
+                    "type": "integer"
+                },
+                "dependCheckWait": {
+                    "type": "string"
+                },
+                "disableCaps": {
+                    "type": "string"
+                },
+                "enableFluxcdAddon": {
+                    "type": "boolean"
+                },
+                "featureGates": {
+                    "type": "object",
+                    "properties": {
+                        "applyOnce": {
+                            "type": "boolean"
+                        },
+                        "enableLegacyComponentRevision": {
+                            "type": "boolean"
+                        },
+                        "gzipResourceTracker": {
+                            "type": "boolean"
+                        },
+                        "multiStageComponentApply": {
+                            "type": "boolean"
+                        },
+                        "zstdResourceTracker": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "fullnameOverride": {
+                    "type": "string"
+                },
+                "healthCheck": {
+                    "type": "object",
+                    "properties": {
+                        "port": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "image": {
+                    "type": "object",
+                    "properties": {
+                        "pullPolicy": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "imagePullSecrets": {
+                    "type": "array"
+                },
+                "imageRegistry": {
+                    "type": "string"
+                },
+                "kubeClient": {
+                    "type": "object",
+                    "properties": {
+                        "burst": {
+                            "type": "integer"
+                        },
+                        "qps": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "logDebug": {
+                    "type": "boolean"
+                },
+                "logFileMaxSize": {
+                    "type": "integer"
+                },
+                "logFilePath": {
+                    "type": "string"
+                },
+                "multicluster": {
+                    "type": "object",
+                    "properties": {
+                        "clusterGateway": {
+                            "type": "object",
+                            "properties": {
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "pullPolicy": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "port": {
+                                    "type": "integer"
+                                },
+                                "replicaCount": {
+                                    "type": "integer"
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "properties": {
+                                        "limits": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "secureTLS": {
+                                    "type": "object",
+                                    "properties": {
+                                        "certManager": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "certPath": {
+                                            "type": "string"
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "metrics": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                },
+                "nameOverride": {
+                    "type": "string"
+                },
+                "nodeSelector": {
+                    "type": "object"
+                },
+                "optimize": {
+                    "type": "object",
+                    "properties": {
+                        "cachedGvks": {
+                            "type": "string"
+                        },
+                        "controllerReconcileLoopReduction": {
+                            "type": "boolean"
+                        },
+                        "disableApplicationRevision": {
+                            "type": "boolean"
+                        },
+                        "disableComponentRevision": {
+                            "type": "boolean"
+                        },
+                        "disableResourceApplyDoubleCheck": {
+                            "type": "boolean"
+                        },
+                        "disableWorkflowRecorder": {
+                            "type": "boolean"
+                        },
+                        "enableInMemoryWorkflowContext": {
+                            "type": "boolean"
+                        },
+                        "enableResourceTrackerDeleteOnlyTrigger": {
+                            "type": "boolean"
+                        },
+                        "markWithProb": {
+                            "type": "number"
+                        },
+                        "resourceTrackerListOp": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "podSecurityContext": {
+                    "type": "object"
+                },
+                "rbac": {
+                    "type": "object",
+                    "properties": {
+                        "create": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "replicaCount": {
+                    "type": "integer"
+                },
+                "resources": {
+                    "type": "object",
+                    "properties": {
+                        "limits": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "requests": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "securityContext": {
+                    "type": "object"
+                },
+                "serviceAccount": {
+                    "type": "object",
+                    "properties": {
+                        "annotations": {
+                            "type": "object"
+                        },
+                        "create": {
+                            "type": "boolean"
+                        },
+                        "name": {
+                            "type": "null"
+                        }
+                    }
+                },
+                "systemDefinitionNamespace": {
+                    "type": "null"
+                },
+                "test": {
+                    "type": "object",
+                    "properties": {
+                        "app": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "k8s": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tolerations": {
+                    "type": "array"
+                },
+                "webhookService": {
+                    "type": "object",
+                    "properties": {
+                        "port": {
+                            "type": "integer"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "workflow": {
+                    "type": "object",
+                    "properties": {
+                        "backoff": {
+                            "type": "object",
+                            "properties": {
+                                "maxTime": {
+                                    "type": "object",
+                                    "properties": {
+                                        "failedState": {
+                                            "type": "integer"
+                                        },
+                                        "waitState": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "enableSuspendOnFailure": {
+                            "type": "boolean"
+                        },
+                        "step": {
+                            "type": "object",
+                            "properties": {
+                                "errorRetryTimes": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
