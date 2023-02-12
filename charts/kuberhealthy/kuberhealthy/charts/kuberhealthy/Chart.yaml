@@ -1,0 +1,28 @@
+apiVersion: v2
+appVersion: v2.7.1
+description: An operator for synthetic test and monitoring. Works great with Prometheus.
+home: https://kuberhealthy.github.io/kuberhealthy/
+icon: https://raw.githubusercontent.com/kuberhealthy/kuberhealthy/master/images/logo-square.png
+keywords:
+- kuberhealthy
+- kubernetes
+- operator
+- monitoring
+- synthetic
+- testing
+- comcast
+- health
+- prometheus
+maintainers:
+- email: ericgreer@gmail.com
+  name: integrii
+- email: jonathan_phan@comcast.com
+  name: jonnydawg
+- email: joshulyne_park@comcast.com
+  name: joshulyne
+name: kuberhealthy
+sources:
+- https://github.com/kuberhealthy/kuberhealthy
+- https://github.com/kuberhealthy/kuberhealthy/tree/master/deploy/helm/kuberhealthy
+type: application
+version: "90"
