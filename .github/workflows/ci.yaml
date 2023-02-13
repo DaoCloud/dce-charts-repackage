@@ -133,9 +133,9 @@ jobs:
           BASE=$PWD
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
               CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
-              if helm template test ${CHART_PATH} | grep ' image: ' | tr -d '"' | awk '{print $2}' | grep -v "daocloud" &>/dev/null ; then
+              if helm template test ${CHART_PATH} | grep image: | cut -d ":" -f2,3 | grep -v "daocloud" &>/dev/null ; then
                   echo "error, image is not in daocloud repo"
-                  helm template test ${CHART_PATH} | grep ' image: ' | tr -d '"' | awk '{print $2}'
+                  helm template test ${CHART_PATH} | grep image: | cut -d ":" -f2,3
                   exit 1
               fi
           done
