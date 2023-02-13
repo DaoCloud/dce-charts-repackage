@@ -50,7 +50,7 @@ argo-cd:
       tag: "v2.5.5"
       # -- If defined, a imagePullPolicy applied to all Argo CD deployments
       imagePullPolicy: IfNotPresent
-      registry: quay.io
+      registry: quay.m.daocloud.io
     # -- Secrets with credentials to pull images from a private registry
     imagePullSecrets: []
     # Default logging options used by all components
@@ -124,24 +124,24 @@ argo-cd:
       #         clientSecret: $dex.github.clientSecret # Alternatively $<some_K8S_secret>:dex.github.clientSecret
       #         orgs:
       #         - name: your-github-org
+    # OIDC configuration as an alternative to dex (optional).
+    # oidc.config: |
+    #   name: AzureAD
+    #   issuer: https://login.microsoftonline.com/TENANT_ID/v2.0
+    #   clientID: CLIENT_ID
+    #   clientSecret: $oidc.azuread.clientSecret
+    #   rootCA: |
+    #     -----BEGIN CERTIFICATE-----
+    #     ... encoded certificate data here ...
+    #     -----END CERTIFICATE-----
+    #   requestedIDTokenClaims:
+    #     groups:
+    #       essential: true
+    #   requestedScopes:
+    #     - openid
+    #     - profile
+    #     - email
 
-      # OIDC configuration as an alternative to dex (optional).
-      # oidc.config: |
-      #   name: AzureAD
-      #   issuer: https://login.microsoftonline.com/TENANT_ID/v2.0
-      #   clientID: CLIENT_ID
-      #   clientSecret: $oidc.azuread.clientSecret
-      #   rootCA: |
-      #     -----BEGIN CERTIFICATE-----
-      #     ... encoded certificate data here ...
-      #     -----END CERTIFICATE-----
-      #   requestedIDTokenClaims:
-      #     groups:
-      #       essential: true
-      #   requestedScopes:
-      #     - openid
-      #     - profile
-      #     - email
     # Argo CD configuration parameters
     ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cmd-params-cm.yaml
     params:
@@ -738,7 +738,7 @@ argo-cd:
       # -- Dex imagePullPolicy
       # @default -- `""` (defaults to global.image.imagePullPolicy)
       imagePullPolicy: ""
-      registry: ghcr.io
+      registry: ghcr.m.daocloud.io
     # -- Secrets with credentials to pull images from a private registry
     # @default -- `[]` (defaults to global.imagePullSecrets)
     imagePullSecrets: []
@@ -919,12 +919,12 @@ argo-cd:
     ## Redis image
     image:
       # -- Redis repository
-      repository: docker/library/redis
+      repository: redis
       # -- Redis tag
       tag: 7.0.5-alpine
       # -- Redis imagePullPolicy
       imagePullPolicy: IfNotPresent
-      registry: public.ecr.aws
+      registry: docker.m.daocloud.io
     # -- Secrets with credentials to pull images from a private registry
     # @default -- `[]` (defaults to global.imagePullSecrets)
     imagePullSecrets: []
@@ -1038,7 +1038,7 @@ argo-cd:
         tag: 1.26.0-debian-10-r2
         # -- redis-exporter image PullPolicy
         imagePullPolicy: IfNotPresent
-        registry: public.ecr.aws
+        registry: docker.m.daocloud.io
       # -- Port to use for redis-exporter sidecar
       containerPort: 9121
       # -- Redis exporter security context
@@ -1106,8 +1106,8 @@ argo-cd:
       # -- If `true`, the prometheus exporter sidecar is enabled
       enabled: true
       image:
-        registry: oliver006
-        repository: redis_exporter
+        registry: docker.m.daocloud.io
+        repository: oliver006/redis_exporter
         tag: v1.43.0
     persistentVolume:
       # -- Configures persistency on Redis nodes
@@ -1128,13 +1128,13 @@ argo-cd:
         # -- HAProxy enable prometheus metric scraping
         enabled: true
       image:
-        registry: docker.io
+        registry: docker.m.daocloud.io
         repository: haproxy
         tag: 2.6.4
     image:
       # -- Redis tag
-      tag: 7.0.5-alpine3.16
-      registry: docker.io
+      tag: 7.0.5-alpine
+      registry: docker.m.daocloud.io
       repository: redis
     ## https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     topologySpreadConstraints:
@@ -1151,12 +1151,12 @@ argo-cd:
       whenUnsatisfiable: ""
     configmapTest:
       image:
-        registry: koalaman
-        repository: shellcheck
+        registry: docker.m.daocloud.io
+        repository: koalaman/shellcheck
         tag: v0.5.0
     sysctlImage:
       image:
-        registry: docker.io
+        registry: docker.m.daocloud.io
         repository: busybox
         tag: 1.34.1
   # External Redis parameters

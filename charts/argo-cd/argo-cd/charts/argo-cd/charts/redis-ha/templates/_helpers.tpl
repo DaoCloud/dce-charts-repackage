@@ -31,7 +31,7 @@ Return sysctl image
 */}}
 {{- define "redis.sysctl.image" -}}
 {{- $registryName :=  default "docker.io" .Values.sysctlImage.image.registry -}}
-{{- $tag := default "latest" .Values.sysctlImage.image.tag | toString -}}
+{{- $tag := default "latest" .Values.sysctlImage.tag | toString -}}
 {{- printf "%s/%s:%s" $registryName .Values.sysctlImage.image.repository $tag -}}
 {{- end -}}
 
