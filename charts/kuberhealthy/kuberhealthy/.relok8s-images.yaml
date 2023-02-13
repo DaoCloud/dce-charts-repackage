@@ -1,0 +1,11 @@
+- "{{ .kuberhealthy.image.registry }}/{{ .kuberhealthy.image.repository }}"
+- "{{ .kuberhealthy.check.daemonset.image.registry }}/{{ .kuberhealthy.check.daemonset.image.repository }}:{{ .kuberhealthy.check.daemonset.image.tag }}"
+- "{{ .kuberhealthy.check.deployment.image.registry }}/{{ .kuberhealthy.check.deployment.image.repository }}:{{ .kuberhealthy.check.deployment.image.tag }}"
+- "{{ .kuberhealthy.check.dnsInternal.image.registry }}/{{ .kuberhealthy.check.dnsInternal.image.repository }}:{{ .kuberhealthy.check.dnsInternal.image.tag }}"
+- "{{ .kuberhealthy.check.dnsExternal.image.registry }}/{{ .kuberhealthy.check.dnsExternal.image.repository }}:{{ .kuberhealthy.check.dnsExternal.image.tag }}"
+- "{{ .kuberhealthy.check.podRestarts.image.registry }}/{{ .kuberhealthy.check.podRestarts.image.repository }}:{{ .kuberhealthy.check.podRestarts.image.tag }}"
+- "{{ .kuberhealthy.check.podStatus.image.registry }}/{{ .kuberhealthy.check.podStatus.image.repository }}:{{ .kuberhealthy.check.podStatus.image.tag }}"
+- "{{ .kuberhealthy.check.storage.image.registry }}/{{ .kuberhealthy.check.storage.image.repository }}:{{ .kuberhealthy.check.storage.image.tag }}"
+- "{{ .kuberhealthy.check.networkConnection.image.registry }}/{{ .kuberhealthy.check.networkConnection.image.repository }}:{{ .kuberhealthy.check.networkConnection.image.tag }}"
+
+

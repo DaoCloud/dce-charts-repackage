@@ -1,0 +1,746 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "kuberhealthy": {
+            "type": "object",
+            "properties": {
+                "check": {
+                    "type": "object",
+                    "properties": {
+                        "daemonset": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "extraEnvs": {
+                                    "type": "object"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "nodeSelector": {
+                                    "type": "object"
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "properties": {
+                                        "requests": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "runInterval": {
+                                    "type": "string"
+                                },
+                                "serviceAccountName": {
+                                    "type": "null"
+                                },
+                                "timeout": {
+                                    "type": "string"
+                                },
+                                "tolerations": {
+                                    "type": "null"
+                                }
+                            }
+                        },
+                        "deployment": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "extraEnvs": {
+                                    "type": "object",
+                                    "properties": {
+                                        "CHECK_DEPLOYMENT_REPLICAS": {
+                                            "type": "string"
+                                        },
+                                        "CHECK_DEPLOYMENT_ROLLING_UPDATE": {
+                                            "type": "string"
+                                        },
+                                        "CHECK_SERVICE_ACCOUNT": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "nodeSelector": {
+                                    "type": "object"
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "properties": {
+                                        "limits": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "requests": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "runInterval": {
+                                    "type": "string"
+                                },
+                                "timeout": {
+                                    "type": "string"
+                                },
+                                "tolerations": {
+                                    "type": "null"
+                                }
+                            }
+                        },
+                        "dnsExternal": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "extraEnvs": {
+                                    "type": "object",
+                                    "properties": {
+                                        "HOSTNAME": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "nodeSelector": {
+                                    "type": "object"
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "properties": {
+                                        "requests": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "runInterval": {
+                                    "type": "string"
+                                },
+                                "timeout": {
+                                    "type": "string"
+                                },
+                                "tolerations": {
+                                    "type": "null"
+                                }
+                            }
+                        },
+                        "dnsInternal": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "extraEnvs": {
+                                    "type": "object",
+                                    "properties": {
+                                        "HOSTNAME": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "nodeSelector": {
+                                    "type": "object"
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "properties": {
+                                        "requests": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "runInterval": {
+                                    "type": "string"
+                                },
+                                "timeout": {
+                                    "type": "string"
+                                },
+                                "tolerations": {
+                                    "type": "null"
+                                }
+                            }
+                        },
+                        "networkConnection": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "extraEnvs": {
+                                    "type": "object",
+                                    "properties": {
+                                        "CONNECTION_TARGET": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "nodeSelector": {
+                                    "type": "object"
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "properties": {
+                                        "requests": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "runInterval": {
+                                    "type": "string"
+                                },
+                                "timeout": {
+                                    "type": "string"
+                                },
+                                "tolerations": {
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "podRestarts": {
+                            "type": "object",
+                            "properties": {
+                                "allNamespaces": {
+                                    "type": "boolean"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "extraEnvs": {
+                                    "type": "object",
+                                    "properties": {
+                                        "MAX_FAILURES_ALLOWED": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "nodeSelector": {
+                                    "type": "object"
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "properties": {
+                                        "requests": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "runInterval": {
+                                    "type": "string"
+                                },
+                                "timeout": {
+                                    "type": "string"
+                                },
+                                "tolerations": {
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "podStatus": {
+                            "type": "object",
+                            "properties": {
+                                "allNamespaces": {
+                                    "type": "boolean"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "extraEnvs": {
+                                    "type": "object"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "nodeSelector": {
+                                    "type": "object"
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "properties": {
+                                        "requests": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "runInterval": {
+                                    "type": "string"
+                                },
+                                "timeout": {
+                                    "type": "string"
+                                },
+                                "tolerations": {
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "storage": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "extraEnvs": {
+                                    "type": "object",
+                                    "properties": {
+                                        "CHECK_STORAGE_IMAGE": {
+                                            "type": "string"
+                                        },
+                                        "CHECK_STORAGE_INIT_IMAGE": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "nodeSelector": {
+                                    "type": "object"
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "properties": {
+                                        "requests": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "runInterval": {
+                                    "type": "string"
+                                },
+                                "storageClass": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "timeout": {
+                                    "type": "string"
+                                },
+                                "tolerations": {
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    }
+                },
+                "checkReaper": {
+                    "type": "object",
+                    "properties": {
+                        "logLevel": {
+                            "type": "string"
+                        },
+                        "maxCheckPodAge": {
+                            "type": "string"
+                        },
+                        "maxCompletedPodCount": {
+                            "type": "integer"
+                        },
+                        "maxErrorPodCount": {
+                            "type": "integer"
+                        },
+                        "maxKHJobAge": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "deployment": {
+                    "type": "object",
+                    "properties": {
+                        "affinity": {
+                            "type": "object"
+                        },
+                        "command": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "env": {
+                            "type": "object",
+                            "properties": {
+                                "CHECK_REAPER_RUN_INTERVAL": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "imagePullPolicy": {
+                            "type": "string"
+                        },
+                        "maxSurge": {
+                            "type": "integer"
+                        },
+                        "maxUnavailable": {
+                            "type": "integer"
+                        },
+                        "nodeSelector": {
+                            "type": "object"
+                        },
+                        "podAnnotations": {
+                            "type": "object"
+                        },
+                        "podAntiAffinity": {
+                            "type": "string"
+                        },
+                        "replicas": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "image": {
+                    "type": "object",
+                    "properties": {
+                        "registry": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "null"
+                        }
+                    }
+                },
+                "imageRegistry": {
+                    "type": "string"
+                },
+                "podDisruptionBudget": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "maxUnavailable": {
+                            "type": "null"
+                        },
+                        "minAvailable": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "podSecurityPolicy": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "prometheus": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "grafanaDashboard": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "label": {
+                                    "type": "string"
+                                },
+                                "labelValue": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "prometheusRule": {
+                            "type": "object",
+                            "properties": {
+                                "additionalLabels": {
+                                    "type": "object"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "namespace": {
+                                    "type": "string"
+                                },
+                                "release": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "serviceMonitor": {
+                            "type": "object",
+                            "properties": {
+                                "additionalLabels": {
+                                    "type": "object"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "endpoints": {
+                                    "type": "object",
+                                    "properties": {
+                                        "bearerTokenFile": {
+                                            "type": "string"
+                                        },
+                                        "interval": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "namespace": {
+                                    "type": "string"
+                                },
+                                "release": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "resources": {
+                    "type": "object",
+                    "properties": {
+                        "limits": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "integer"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "requests": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "securityContext": {
+                    "type": "object",
+                    "properties": {
+                        "allowPrivilegeEscalation": {
+                            "type": "boolean"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "fsGroup": {
+                            "type": "integer"
+                        },
+                        "readOnlyRootFilesystem": {
+                            "type": "boolean"
+                        },
+                        "runAsNonRoot": {
+                            "type": "boolean"
+                        },
+                        "runAsUser": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "service": {
+                    "type": "object",
+                    "properties": {
+                        "annotations": {
+                            "type": "object"
+                        },
+                        "externalPort": {
+                            "type": "integer"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "tolerations": {
+                    "type": "object",
+                    "properties": {
+                        "master": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
