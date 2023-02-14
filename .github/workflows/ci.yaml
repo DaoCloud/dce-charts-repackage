@@ -77,7 +77,7 @@ jobs:
           echo "files_changed: $files_changed"
           #--------------------
           # Adding || true to avoid "Process exited with code 1" errors
-          charts_changed="$(echo "$files_changed" | xargs dirname | grep -E -o "charts/([^/]*)/\1" | grep -o "charts/[^/]*" | sort | uniq | awk -F'/' '{print $2}' | tr '\n' ' ' || true)"
+          charts_changed="$(echo "$files_changed" | xargs dirname | grep -o "charts/[^/]*" | sort | uniq | awk -F'/' '{print $2}' | tr '\n' ' ' || true)"
           echo "charts_changed: $charts_changed"
           #--------------------
           # issue: just release one project
