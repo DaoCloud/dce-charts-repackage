@@ -4,10 +4,10 @@ description: cert-manager is a Kubernetes addon to automate the management and i
 type: application
 version: 1.11.0
 appVersion: "v1.11.0"
-dependencies:
-  - name: cert-manager
-    repository: https://charts.jetstack.io
-    version: v1.11.0
 keywords:
   - security
-icon: https://raw.githubusercontent.com/cert-manager/cert-manager/master/logo/logo-small.png  
+icon: https://raw.githubusercontent.com/cert-manager/cert-manager/master/logo/logo-small.png
+dependencies:
+  - name: cert-manager
+    version: "v1.11.0"
+    repository: "https://charts.jetstack.io"
