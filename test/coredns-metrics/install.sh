@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CURRENT_FILENAME=$( basename "$0" )
-CURRENT_DIR_PATH=$(cd "$CURRENT_FILENAME" || exit; pwd)
+CURRENT_DIR_PATH=$(cd `dirname $0` ; pwd )
 
 CHART_DIR=$1
 KIND_KUBECONFIG=$2
