@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "default": {},
+  "title": " ",
+  "properties": {
+    "core": {
+      "type": "object",
+      "default": {},
+      "title": " ",
+      "properties": {
+        "registry": {
+          "type": "string",
+          "default": "",
+          "title": "global registry",
+          "examples": [
+            "docker.m.daocloud.io"
+          ]
+        },
+        "controller": {
+          "type": "object",
+          "default": {},
+          "title": "controller settings",
+          "properties": {
+            "replicas": {
+              "type": "integer",
+              "default": 1,
+              "title": "controller replicas"
+            },
+            "pvc": {
+              "type": "object",
+              "default": {},
+              "title": "controller pvc settings",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false,
+                  "title": "pvc enabled",
+                  "description": "If a persistent volume is not mounted, NeuVector does NOT store the configuration or policy as persistent data",
+                  "examples": [
+                    true
+                  ]
+                },
+                "storageClass": {
+                  "type": "string",
+                  "title": "pvc storageClass",
+                  "description": "it requires storageClass to support ReadWriteMany(RWX) accessMode"
+                },
+                "capacity": {
+                  "type": "string",
+                  "title": "pvc capacity"
+                }
+              }
+            }
+          }
+        },
+        "cve": {
+          "type": "object",
+          "default": {},
+          "title": "neuvector cve settings",
+          "properties": {
+            "updater": {
+              "type": "object",
+              "default": {},
+              "title": " ",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "cve updater will update CVE database from internet",
+                  "title": "cve updater enabled",
+                  "examples": [
+                    true
+                  ]
+                }
+              }
+            },
+            "scanner": {
+              "type": "object",
+              "default": {},
+              "title": " ",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false,
+                  "title": "cve scanner enabled",
+                  "description": "enable scanner to scan CVE for the cluster",
+                  "examples": [
+                    true
+                  ]
+                },
+                "replicas": {
+                  "type": "integer",
+                  "default": 1,
+                  "title": "cve scanner replicas",
+                  "examples": [
+                    1
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
