@@ -110,6 +110,8 @@
 
 * APPEND_VALUES_FILE ： （可选）指定 appendValues.yaml 路径 
 
+* NO_IMAGE: （可选）true 表示本chart中没镜像，让 CI 忽略 镜像相关的检查
+
 ### 方案: 自己写做包脚本
 
 准备好 /charts/${PROJECT}/config ：

@@ -2,7 +2,6 @@ name: PR E2E C
 
 env:
   TRIVY_SCAN_SKIP_CHART_LIST: "nmstate cert-manager contour ingress-nginx "
-  NO_IMAGE_PROJECT: " coredns-metrics "
   IMAGE_HINT_FILE_NAME: ".relok8s-images.yaml"
   SCHEMA_FILE_NAME: "values.schema.json"
 
@@ -121,9 +120,8 @@ jobs:
       - name: check image hint file
         run: |
           BASE=$PWD
-          echo "NO_IMAGE_PROJECT: ${{ env.NO_IMAGE_PROJECT }} "
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
-              grep " ${PROJECT} " <<< " ${{ env.NO_IMAGE_PROJECT }} " && continue
+              source ${BASE}/charts/${PROJECT}/config && [ "${NO_IMAGE}" == "true" ] && continue
               CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
               [ -f "${CHART_PATH}/${{ env.IMAGE_HINT_FILE_NAME }}" ] \
                   || { echo "error, miss ${{ env.IMAGE_HINT_FILE_NAME }} file in chart ${PROJECT} " ; exit 1 ; }
@@ -134,9 +132,8 @@ jobs:
       - name: check image repo
         run: |
           BASE=$PWD
-          echo "NO_IMAGE_PROJECT: ${{ env.NO_IMAGE_PROJECT }} "
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
-              grep " ${PROJECT} " <<< " ${{ env.NO_IMAGE_PROJECT }} " && continue
+              source ${BASE}/charts/${PROJECT}/config && [ "${NO_IMAGE}" == "true" ] && continue
               CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
               if helm template test ${CHART_PATH} | grep ' image: ' | tr -d '"' | awk '{print $2}' | grep -v "daocloud" &>/dev/null ; then
                   echo "error, image is not in daocloud repo"
