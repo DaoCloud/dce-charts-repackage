@@ -100,7 +100,7 @@ init-kind: checkBin clean
 .PHONY: sync
 sync: PROJECT=
 sync: checkBin
-	set -x ; source $(ROOT_DIR)/charts/$(PROJECT)/config ; [ "${NO_IMAGE}" != "true" ] || { echo "ingore sync $(PROJECT) charts and images to local registry" ; exit 0 ; }
+	set -x ; source $(ROOT_DIR)/charts/$(PROJECT)/config ; [ "$${NO_IMAGE}" != "true" ] || { echo "ingore sync $(PROJECT) charts and images to local registry" ; exit 0 ; }
 	@ echo "sync $(PROJECT) charts and images to local registry"
 	CHART_PATH=$(ROOT_DIR)/charts/$(PROJECT) ; \
 	VERSION=`sed -n  '/VERSION/p' $${CHART_PATH}/config|awk -F = '{print $$2}'` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
