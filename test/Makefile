@@ -109,8 +109,8 @@ init-kind: checkBin clean
 sync: PROJECT=
 sync: checkBin
 	@ echo "sync $(PROJECT) charts and images to local registry"
-	CHART_PATH=$(ROOT_DIR)/charts/$(PROJECT) ; \
-	VERSION=`sed -n  '/VERSION/p' $${CHART_PATH}/config|awk -F = '{print $$2}'` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
+	set -x ; CHART_PATH=$(ROOT_DIR)/charts/$(PROJECT) ; \
+	VERSION=`sed -n  '/VERSION/p' $${CHART_PATH}/config | awk -F = '{print $$2}'` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
 	mkdir -p _tmp && DIR=_tmp ;\
     relok8s chart move $${CHART_PATH}/$(PROJECT) --to-intermediate-bundle $${DIR}/$(PROJECT)_$${VERSION}.bundle.tar -y || { echo "error, failed to save charts and images to local" ; exit 1 ; } ; \
     CONFIG=" \
@@ -193,7 +193,7 @@ install-relok8s:
 	tar -zvxf relok8s_$${VERSION}_linux_x86_64.tar.gz && mv relok8s /usr/local/bin/relok8s && rm -rf README.md relok8s*.tar.gz
 
 .PHONY: install-charts-syncer
- install-charts-syncer:
+install-charts-syncer:
 	VERSION=0.0.5 ; \
 	curl -OL https://github.com/DaoCloud/charts-syncer/releases/download/v$${VERSION}/charts-syncer_$${VERSION}_linux_x86_64.tar.gz ; \
 	tar -zvxf charts-syncer_$${VERSION}_linux_x86_64.tar.gz && mv charts-syncer /usr/local/bin/charts-syncer && rm -rf README.md charts-syncer*.tar.gz

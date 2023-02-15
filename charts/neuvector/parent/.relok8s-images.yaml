@@ -1,0 +1,5 @@
+- "{{ .core.registry }}/{{ .core.controller.image.repository }}:{{ .core.tag }}"
+- "{{ .core.registry }}/{{ .core.enforcer.image.repository }}:{{ .core.tag }}"
+- "{{ .core.registry }}/{{ .core.manager.image.repository }}:{{ .core.tag }}"
+- "{{ .core.registry }}/{{ .core.cve.scanner.image.repository }}:{{ .core.cve.scanner.image.tag }}"
+- "{{ .core.registry }}/{{ .core.cve.updater.image.repository }}:{{ .core.cve.updater.image.tag }}"
