@@ -65,18 +65,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: downland yq
-        run: |
-          if ! which jq &>/dev/null ; then
-            YQ_VERSION=v4.30.6
-            YQ_BINARY="yq_$(uname | tr 'A-Z' 'a-z')_amd64"
-            wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}.tar.gz -O /tmp/yq.tar.gz
-            tar -xzf /tmp/yq.tar.gz -C /tmp
-            mv /tmp/${YQ_BINARY}  /tmp/yq
-            chmod +x /tmp/yq
-            /tmp/yq &>/dev/null || exit 1
-          fi
-
       - name: check change
         id: check_change
         run: |
@@ -150,7 +138,7 @@ jobs:
                   echo "error, please input 'keywords' into the Chart.yaml of ${PROJECT} "
                   exit 1
               fi
-              NAME=` /tmp/yq '.name' ${CHART_PATH}/Chart.yaml | awk '{print $2}' `
+              NAME=` yq '.name' ${CHART_PATH}/Chart.yaml | awk '{print $2}' `
               echo "chart NAME '${NAME}' in project  '${PROJECT}' "
               [ "${NAME}" != "${PROJECT}" ] && echo "error, chart name is not ${PROJECT}" && exit 1
           done
