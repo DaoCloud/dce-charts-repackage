@@ -1,0 +1,256 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "kuberhealthy": {
+            "type": "object",
+            "properties": {
+                "check": {
+                    "type": "object",
+                    "title": " ",
+                    "properties": {
+                        "daemonset": {
+                            "type": "object",
+                            "title": " ",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "title": "check daemonset"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "deployment": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "dnsExternal": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "dnsInternal": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "networkConnection": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "podRestarts": {
+                            "type": "object",
+                            "properties": {
+                                "allNamespaces": {
+                                    "type": "boolean"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "podStatus": {
+                            "type": "object",
+                            "properties": {
+                                "allNamespaces": {
+                                    "type": "boolean"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "storage": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "deployment": {
+                    "type": "object",
+                    "properties": {
+                        "affinity": {
+                            "type": "object"
+                        },
+                        "maxSurge": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "image": {
+                    "type": "object",
+                    "properties": {
+                        "registry": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "imageRegistry": {
+                    "type": "string"
+                },
+                "podDisruptionBudget": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "minAvailable": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "prometheus": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "grafanaDashboard": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "prometheusRule": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "serviceMonitor": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                },
+                "service": {
+                    "type": "object",
+                    "properties": {
+                        "externalPort": {
+                            "type": "integer"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
