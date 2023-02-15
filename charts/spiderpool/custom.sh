@@ -76,9 +76,11 @@ REPLACE_BY_COMMENT  " spiderpoolController.resources.requests.memory "  'memory:
 REPLACE_BY_COMMENT  " spiderpoolInit.resources.requests.cpu "  'cpu:.*'  "cpu: ${CUSTOM_SPIDERPOOL_INIT_CPU}"
 REPLACE_BY_COMMENT  " spiderpoolInit.resources.requests.memory "  'memory:.*'  "memory: ${CUSTOM_SPIDERPOOL_INIT_MEMORY}"
 
-echo "keywords:" >> Chart.yaml
-echo "  - networking" >> Chart.yaml
-echo "  - ipam" >> Chart.yaml
+if ! grep "keywords:" Chart.yaml &>/dev/null ; then
+    echo "keywords:" >> Chart.yaml
+    echo "  - networking" >> Chart.yaml
+    echo "  - ipam" >> Chart.yaml
+fi
 
 rm -f values.yaml-E || true
 

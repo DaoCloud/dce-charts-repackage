@@ -32,7 +32,7 @@ e2e:
             	echo "the project $${ITEM}  needs a standby kind cluster" ; \
 				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
             fi ; \
-            if source $(ROOT_DIR)/charts/$${ITEM}/config && [ "$${NO_IMAGE}" == "true" ] ; then \
+            if ( unset NO_IMAGE ;  source $(ROOT_DIR)/charts/$${ITEM}/config && [ "$${NO_IMAGE}" == "true" ] ) ; then \
               	echo "ignore sync project $${ITEM}"; \
             else \
 				echo "sync project $${ITEM}"; \
@@ -57,7 +57,7 @@ e2e:
 						echo "the project $${ITEM}  needs a standby kind cluster" ; \
 						make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
 					fi ; \
-					if source $(ROOT_DIR)/charts/$${ITEM}/config && [ "$${NO_IMAGE}" == "true" ] ; then \
+					if ( unset NO_IMAGE ;  source $(ROOT_DIR)/charts/$${ITEM}/config && [ "$${NO_IMAGE}" == "true" ] ) ; then \
 						echo "ignore sync project $${ITEM}"; \
 					else \
 						echo "sync project $${ITEM}"; \
