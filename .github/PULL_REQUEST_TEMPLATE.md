@@ -1,11 +1,4 @@
----
-name: Pull request
-about: Tell us about your contribution
-labels: ["pr/release/none-required"]
----
-
----
-**chart 适配注意**
+* chart 适配注意
 
 1. 修改 values.yaml 文件，其中的仓库指向 m.daocloud 仓库的镜像。
 
