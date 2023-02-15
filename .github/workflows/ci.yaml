@@ -129,6 +129,20 @@ jobs:
                   || { echo "error, must use Double quotation in ${PROJECT}/.relok8s-images.yaml " ; exit 1 ; }
           done
 
+      - name: check Chart yaml
+        run: |
+          BASE=$PWD
+          for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
+              CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
+              if ! grep "keywords:" ${CHART_PATH}/Chart.yaml &>/dev/null ;then
+                  echo "error, please input 'keywords' into the Chart.yaml of ${PROJECT} "
+                  exit 1
+              fi
+              NAME=` grep -E "^[[:space:]]*name:" ${CHART_PATH}/Chart.yaml | awk '{print $2}' `
+              echo "chart NAME '${NAME}' in project  '${PROJECT}' "
+              [ "${NAME}" != "${PROJECT}" ] && echo "error, chart name is not ${PROJECT}" && exit 1
+          done
+
       - name: check image repo
         run: |
           BASE=$PWD
