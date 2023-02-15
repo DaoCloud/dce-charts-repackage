@@ -26,6 +26,8 @@ if ! which yq &>/dev/null ; then
      mv /tmp/${YQ_BINARY} /usr/bin/yq
 fi
 
+export CHART_VERSION=$(helm show chart charts/ingress-nginx | grep '^version' |grep -E '[0-9].*.[0-9]' | awk -F ':' '{print $2}' | tr -d ' ')
+
 yq -i '
    .ingress-nginx.controller.replicaCount=2 |
    .ingress-nginx.controller.metrics.enabled=true |
@@ -52,3 +54,5 @@ yq -i '
    .ingress-nginx.controller.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key="node-role.kubernetes.io/ingress" |
    .ingress-nginx.controller.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator="Exists"
 ' values.yaml
+
+yq -i '.version=strenv(CHART_VERSION)' Chart.yaml
