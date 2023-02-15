@@ -1,13 +1,28 @@
-apiVersion: v2
+annotations:
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/signKey: |
+    fingerprint: 1020CF3C033D4F35BAE1C19E1226061C665DF13E
+    url: https://cert-manager.io/public-keys/cert-manager-keyring-2021-09-20-1020CF3C033D4F35BAE1C19E1226061C665DF13E.gpg
+apiVersion: v1
+appVersion: v1.11.0
+description: A Helm chart for cert-manager
+home: https://github.com/cert-manager/cert-manager
+icon: https://raw.githubusercontent.com/cert-manager/cert-manager/d53c0b9270f8cd90d908460d69502694e1838f5f/logo/logo-small.png
+keywords:
+  - cert-manager
+  - kube-lego
+  - letsencrypt
+  - tls
+kubeVersion: '>= 1.21.0-0'
+maintainers:
+  - email: cert-manager-maintainers@googlegroups.com
+    name: cert-manager-maintainers
+    url: https://cert-manager.io
 name: cert-manager
-description: cert-manager is a Kubernetes addon to automate the management and issuance of TLS certificates from various issuing sources.
-type: application
+sources:
+  - https://github.com/cert-manager/cert-manager
 version: 1.11.0
-appVersion: "v1.11.0"
 dependencies:
   - name: cert-manager
-    repository: https://charts.jetstack.io
-    version: v1.11.0
-keywords:
-  - security
-icon: https://raw.githubusercontent.com/cert-manager/cert-manager/master/logo/logo-small.png  
+    version: "v1.11.0"
+    repository: "https://charts.jetstack.io"

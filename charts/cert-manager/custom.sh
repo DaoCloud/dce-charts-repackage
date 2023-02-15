@@ -54,3 +54,7 @@ yq -i '
    .cert-manager.prometheus.enabled=true |
    .cert-manager.prometheus.servicemonitor.enabled=true
 ' values.yaml
+
+yq -i '.appVersion=strenv(CHART_VERSION)' Chart.yaml
+export CHART_VERSION="${CHART_VERSION#v}"
+yq -i '.version=strenv(CHART_VERSION)' Chart.yaml

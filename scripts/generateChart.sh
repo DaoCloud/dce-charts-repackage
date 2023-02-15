@@ -138,8 +138,9 @@ if grep -E "^${PROJECT_NAME}:[[:space:]]*$" ${CHART_BUILD_DIR}/values.yaml ; the
     echo "remove dependencies for parent-child chart mode"
     yq  -i 'del(.dependencies)' ${CHART_BUILD_DIR}/Chart.yaml
 fi
+
 if grep "dependencies:" ${CHART_BUILD_DIR}/Chart.yaml &>/dev/null ; then
-  set -x
+    set -x
     LINE=` cat ${CHART_BUILD_DIR}/Chart.yaml | grep  -n "dependencies:"  | awk -F: '{print $1}' `
     sed  -i  ${LINE}' a\    repository: '"${REPO_URL}"''  ${CHART_BUILD_DIR}/Chart.yaml
     sed  -i  ${LINE}' a\    version: '"${VERSION}"''  ${CHART_BUILD_DIR}/Chart.yaml
