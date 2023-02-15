@@ -153,11 +153,10 @@ jobs:
 
       - name: check chart trivy
         run: |
-          echo "TRIVY_SCAN_SKIP_CHART_LIST= ${{ env.TRIVY_SCAN_SKIP_CHART_LIST }} " 
           BASE=$PWD
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
               # skip chart trivy
-              grep " ${PROJECT} " <<< " ${{ env.TRIVY_SCAN_SKIP_CHART_LIST }} " && continue
+              source ${BASE}/charts/${PROJECT}/config && [ "${NO_TRIVY}" == "true" ] && echo "ignore trivy" && continue
               docker run --rm \
                   -v /tmp/trivy:/root/trivy.cache/  \
                     -v ${BASE}:/tmp/src  \

@@ -112,6 +112,8 @@
 
 * NO_IMAGE: （可选）true 表示本chart中没镜像，让 CI 忽略 镜像相关的检查
 
+* NO_TRIVY: （可选）true 表示让 CI 不要扫描本 chart 的漏洞
+
 ### 方案: 自己写做包脚本
 
 准备好 /charts/${PROJECT}/config ：
