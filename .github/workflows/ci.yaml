@@ -140,7 +140,10 @@ jobs:
               fi
               NAME=` grep -E "^[[:space:]]*name:" ${CHART_PATH}/Chart.yaml | awk '{print $2}' `
               echo "chart NAME '${NAME}' in project  '${PROJECT}' "
-              [ "${NAME}" != "${PROJECT}" ] && echo "error, chart name is not ${PROJECT}" && exit 1
+              if [ "${NAME}" != "${PROJECT}" ]; then
+                echo "error, chart name is not ${PROJECT}"
+                exit 1
+              fi
           done
 
       - name: check image repo
