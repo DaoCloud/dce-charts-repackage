@@ -53,8 +53,6 @@ yq -i '
    .metallb.speaker.frr.image.repository="frrouting/frr"
 ' values.yaml
 
-echo 1234
-
 # change origin chart template:
 if [ "$(uname)" == "Darwin" ];then
   sed  -i '' 's?{{ .Values.controller.image.repository }}?{{ .Values.controller.image.registry }}/{{ .Values.controller.image.repository }}?'   charts/metallb/templates/controller.yaml

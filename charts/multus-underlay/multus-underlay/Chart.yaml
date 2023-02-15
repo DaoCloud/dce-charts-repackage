@@ -1,8 +1,6 @@
 apiVersion: v2
 name: multus-underlay
-
 description: Multi-cni enables attaching multiple network interfaces to pods in Kubernetes. Including multus and veth-plugin.
-
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
@@ -12,28 +10,25 @@ description: Multi-cni enables attaching multiple network interfaces to pods in 
 # a dependency of application charts to inject those utilities and functions into the rendering
 # pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
-
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 version: 0.2.1
-
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: "0.2.1"
 dependencies:
-- name: meta-plugins
-  repository: https://spidernet-io.github.io/cni-plugins
-  version: 0.2.1
-- name: multus
-  repository: file://charts/multus
-  version: v3.9
-- name: sriov
-  repository: file://charts/sriov
-  version: 0.1.2
-
+  - name: meta-plugins
+    version: 0.2.1
+    repository: https://spidernet-io.github.io/cni-plugins
+  - name: multus
+    repository: file://charts/multus
+    version: v3.9
+  - name: sriov
+    repository: file://charts/sriov
+    version: 0.1.2
 keywords:
   - networking
   - underlay

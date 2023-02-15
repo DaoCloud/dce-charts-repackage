@@ -20,10 +20,10 @@ version: 0.13.7
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: "0.13.7"
-dependencies:
-  - name: metallb
-    repository: https://metallb.github.io/metallb
-    version: 0.13.7
 keywords:
   - networking
   - loadbalancer
+dependencies:
+  - name: metallb
+    version: "0.13.7"
+    repository: "https://metallb.github.io/metallb"
