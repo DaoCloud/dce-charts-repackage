@@ -140,7 +140,7 @@ jobs:
               fi
               NAME=` yq '.name' ${CHART_PATH}/Chart.yaml `
               echo "chart NAME '${NAME}' in project  '${PROJECT}' "
-              [ "${NAME}" != "${PROJECT}" ] && echo "error, chart name is not ${PROJECT}" && exit 1
+              [ "${NAME}" == "${PROJECT}" ] || { echo "error, chart name is not ${PROJECT}" ; exit 1 ; }
           done
 
       - name: check image repo
