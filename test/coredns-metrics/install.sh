@@ -4,7 +4,7 @@ CURRENT_FILENAME=$( basename "$0" )
 CURRENT_DIR_PATH=$(cd `dirname $0` ; pwd )
 
 KIND_KUBECONFIG=$1
-CHART_DIR=$( cd ${CURRENT_DIR_PATH}/../charts/coredns-metrics ; pwd )
+CHART_DIR=$( cd ${CURRENT_DIR_PATH}/../../charts/coredns-metrics ; pwd )
 
 [ -d "$CHART_DIR" ] || { echo "error, failed to find chart $CHART_DIR " ; exit 1 ; }
 [ -f "$KIND_KUBECONFIG" ] || { echo "error, failed to find kubeconfig $KIND_KUBECONFIG " ; exit 1 ; }
