@@ -110,7 +110,8 @@ sync: PROJECT=
 sync: checkBin
 	@ echo "sync $(PROJECT) charts and images to local registry"
 	set -x ; CHART_PATH=$(ROOT_DIR)/charts/$(PROJECT) ; \
-	VERSION=`sed -n  '/VERSION/p' $${CHART_PATH}/config | awk -F = '{print $$2}'` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
+	VERSION=` grep -E "^version:" $(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT)/Chart.yaml  | awk '{print $$2}' ` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
+	echo "chart move $(PROJECT) $${VERSION}" ; \
 	mkdir -p _tmp && DIR=_tmp ;\
     relok8s chart move $${CHART_PATH}/$(PROJECT) --to-intermediate-bundle $${DIR}/$(PROJECT)_$${VERSION}.bundle.tar -y || { echo "error, failed to save charts and images to local" ; exit 1 ; } ; \
     CONFIG=" \
