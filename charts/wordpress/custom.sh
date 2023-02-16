@@ -29,20 +29,19 @@ if ! which yq &>/dev/null ; then
 fi
 
 if [ "$(uname)" == "Darwin" ];then
-   sed  -i  's?docker.io?m.daocloud.io/docker.io?' values.yaml
-   sed  -i  's?docker.io?m.daocloud.io/docker.io?' charts/wordpress/charts/memcached/values.yaml
-   sed  -i  's?docker.io?m.daocloud.io/docker.io?' charts/wordpress/charts/mariadb/values.yaml
+   sed  -i '' 's?docker.io?docker.m.daocloud.io?' values.yaml
+   sed  -i '' 's?docker.io?docker.m.daocloud.io?' charts/wordpress/charts/memcached/values.yaml
+   sed  -i '' 's?docker.io?docker.m.daocloud.io?' charts/wordpress/charts/mariadb/values.yaml
 else
-   sed  -i  's?docke.io?m.daocloud.io/docker.io?' values.yaml
-   sed  -i  's?docker.io?m.daocloud.io/docker.io?' charts/wordpress/charts/memcached/values.yaml
-   sed  -i  's?docker.io?m.daocloud.io/docker.io?' charts/wordpress/charts/mariadb/values.yaml
+   sed  -i  's?docker.io?docker.m.daocloud.io?' values.yaml
+   sed  -i  's?docker.io?docker.m.daocloud.io?' charts/wordpress/charts/memcached/values.yaml
+   sed  -i  's?docker.io?docker.m.daocloud.io?' charts/wordpress/charts/mariadb/values.yaml
 fi
 
 yq -i '
-  .wordpress.mariadb.image.registry = "m.daocloud.io/docker.io" |
-  .wordpress.mariadb.image.repository = "bitnami/mariadb" |
-  .wordpress.mariadb.image.tag = "10.6.12-debian-11-r0" |
-  .wordpress.memcached.image.registry = "m.daocloud.io/docker.io" |
-  .wordpress.memcached.image.repository = "bitnami/memcached" |
-  .wordpress.memcached.image.tag = "1.6.18-debian-11-r0" 
+  .wordpress.image.registry = "docker.m.daocloud.io" |
+  .wordpress.mariadb.image.registry = "docker.m.daocloud.io" |
+  .wordpress.memcached.image.registry = "docker.m.daocloud.io" |
+  .wordpress.metrics.image.registry = "docker.m.daocloud.io" |
+  .wordpress.volumePermissions.image.registry = "docker.m.daocloud.io"
 ' values.yaml
