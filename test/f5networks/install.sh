@@ -17,13 +17,17 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 
 set -x
 
+
+KIND_STROAGECLASS=` kubectl get storageclass | grep -v "NAME" | awk '{print $1}' `
+[ -n "${KIND_STROAGECLASS}" ] || { echo "error, failed to find any storageclass "  ; kubectl get storageclass ; exit 1 ; }
+
 helm install f5networks chart-museum/f5networks  ${HELM_MUST_OPTION} \
   --namespace kube-public \
   --set f5-bigip-ctlr.args.bigip_url=https://172.17.8.10:10443 \
   --set f5-bigip-ctlr.args.bigip_partition="kubernetes" \
   --set f5-bigip-ctlr.args.pool_member_type=nodeport \
   --set f5-ipam-controller.args.ip_range='"{\"welanipam\":\"10.0.2.100-10.0.2.200\"}"' \
-  --set f5-ipam-controller.pvc.create=false \
+  --set f5-ipam-controller.pvc.storageClassName="${KIND_STROAGECLASS}" \
   --set cis-secret.username="admin" \
   --set cis-secret.password="admin"
 
