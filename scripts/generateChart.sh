@@ -107,8 +107,6 @@ echo "${CHART_NAME}:" >> ${CHART_BUILD_DIR}/values.yaml
 # add 2 blank for each line
 sed -E 's/(.*)/  \1/g' ${DOWNLOAD_CHART_DIR}/values.yaml >> ${CHART_BUILD_DIR}/values.yaml
 
-
-
 if [ -n "${APPEND_VALUES_FILE}" ] && [ -s ${PROJECT_SRC_DIR}/${APPEND_VALUES_FILE} ] ; then
     echo "append ${APPEND_VALUES_FILE} to opensource values.yaml"
     cat ${PROJECT_SRC_DIR}/${APPEND_VALUES_FILE} >> ${CHART_BUILD_DIR}/values.yaml

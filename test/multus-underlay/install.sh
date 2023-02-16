@@ -6,11 +6,9 @@ CURRENT_DIR_PATH=$(cd $(dirname $0); pwd)
 KIND_KUBECONFIG=$1
 KIND_NAME=$2
 
-[ -d "$CHART_DIR" ] || { echo "error, failed to find chart $CHART_DIR " ; exit 1 ; }
 [ -f "$KIND_KUBECONFIG" ] || { echo "error, failed to find kubeconfig $KIND_KUBECONFIG " ; exit 1 ; }
 [ -n "${KIND_NAME}" ] || { echo "error, failed to find kind_name $KIND_NAME " ; exit 1 ; }
 
-echo "CHART_DIR $CHART_DIR"
 echo "KIND_KUBECONFIG $KIND_KUBECONFIG"
 echo "KIND_NAME: ${KIND_NAME}"
 
@@ -26,7 +24,7 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 
 set -x
 
-HELM_IMAGES_LIST=` helm template test ${CHART_DIR}  ${HELM_MUST_OPTION} | grep " image: " | tr -d '"'| awk '{print $2}' `
+HELM_IMAGES_LIST=` helm template test chart-museum/multus-underlay  ${HELM_MUST_OPTION} | grep " image: " | tr -d '"'| awk '{print $2}' `
 
 [ -z "${HELM_IMAGES_LIST}" ] && echo "can't found image of multus-underlay" && exit 1
 LOCAL_IMAGE_LIST=`docker images | awk '{printf("%s:%s\n",$1,$2)}'`
@@ -48,7 +46,7 @@ for IMAGE in ${HELM_IMAGES_LIST}; do
 done
 
 # deploy the multus
-helm install multus chart-museum/multus  ${HELM_MUST_OPTION}
+helm install multus chart-museum/multus-underlay  ${HELM_MUST_OPTION}
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
