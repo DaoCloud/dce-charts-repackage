@@ -27,7 +27,7 @@ for PRO in ${CHART_LIST} ; do
 
     grep " ${PRO} " <<< "$IGNORE_IMAGE_PRO" &>/dev/null && continue
 
-    IMAGE_LIST=$( helm template ${CHART_DIR} | grep " image: " | awk '{print $2}' | sort  | uniq | tr -d '"' )
+    IMAGE_LIST=$( helm template ${CHART_DIR} | grep " image: " | cut -d ":" -f2,3 | sort  | uniq | tr -d '"' )
     if [ -z "$IMAGE_LIST" ] ; then
         echo "failed to get image from ${CHART_DIR}"
         exit 1

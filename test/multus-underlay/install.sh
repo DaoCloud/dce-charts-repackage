@@ -24,7 +24,7 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 
 set -x
 
-HELM_IMAGES_LIST=` helm template test chart-museum/multus-underlay  ${HELM_MUST_OPTION} | grep " image: " | tr -d '"'| awk '{print $2}' `
+HELM_IMAGES_LIST=` helm template test chart-museum/multus-underlay  ${HELM_MUST_OPTION} | grep " image: " | cut -d ":" -f2,3 `
 
 [ -z "${HELM_IMAGES_LIST}" ] && echo "can't found image of multus-underlay" && exit 1
 LOCAL_IMAGE_LIST=`docker images | awk '{printf("%s:%s\n",$1,$2)}'`
