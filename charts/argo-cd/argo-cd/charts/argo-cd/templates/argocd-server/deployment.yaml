@@ -47,6 +47,8 @@ spec:
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.server.image.imagePullPolicy }}
         command:
         - argocd-server
+        - --port={{ .Values.server.containerPorts.server }}
+        - --metrics-port={{ .Values.server.containerPorts.metrics }}
         {{- with .Values.server.logFormat }}
         - --logformat
         - {{ . | quote }}
@@ -260,6 +262,12 @@ spec:
                 name: argocd-cmd-params-cm
                 key: application.namespaces
                 optional: true
+          - name: ARGOCD_SERVER_ENABLE_PROXY_EXTENSION
+            valueFrom:
+              configMapKeyRef:
+                name: argocd-cmd-params-cm
+                key: server.enable.proxy.extension
+                optional: true
         {{- with .Values.server.envFrom }}
         envFrom:
           {{- toYaml . | nindent 10 }}
@@ -287,16 +295,16 @@ spec:
           name: extensions
         {{- end }}
         ports:
-        - name: {{ .Values.server.name }}
-          containerPort: {{ .Values.server.containerPort }}
+        - name: server
+          containerPort: {{ .Values.server.containerPorts.server }}
           protocol: TCP
         - name: metrics
-          containerPort: 8083
+          containerPort: {{ .Values.server.containerPorts.metrics }}
           protocol: TCP
         livenessProbe:
           httpGet:
             path: /healthz?full=true
-            port: {{ .Values.server.containerPort }}
+            port: server
           initialDelaySeconds: {{ .Values.server.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.server.livenessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.server.livenessProbe.timeoutSeconds }}
@@ -305,7 +313,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /healthz
-            port: {{ .Values.server.containerPort }}
+            port: server
           initialDelaySeconds: {{ .Values.server.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.server.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.server.readinessProbe.timeoutSeconds }}
@@ -319,9 +327,6 @@ spec:
         lifecycle:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- with .Values.server.extraContainers }}
-        {{- toYaml . | nindent 6 }}
-      {{- end }}
       {{- if .Values.server.extensions.enabled }}
       - name: argocd-extensions
         image: {{ .Values.server.extensions.image.repository }}:{{ .Values.server.extensions.image.tag }}
@@ -335,6 +340,13 @@ spec:
             mountPath: /tmp/extensions/
           - name: tmp
             mountPath: /tmp
+      {{- end }}
+      {{- with .Values.server.extraContainers }}
+        {{- tpl (toYaml .) $ | nindent 6 }}
+      {{- end }}
+      {{- with .Values.server.initContainers }}
+      initContainers:
+        {{- tpl (toYaml .) $ | nindent 6 }}
       {{- end }}
       {{- with .Values.server.nodeSelector }}
       nodeSelector:
@@ -406,10 +418,12 @@ spec:
             path: tls.crt
           - key: ca.crt
             path: ca.crt
-      {{- with .Values.server.initContainers }}
-      initContainers:
-        {{- toYaml . | nindent 6 }}
-      {{- end }}
       {{- with .Values.server.priorityClassName }}
       priorityClassName: {{ . }}
       {{- end }}
+      hostNetwork: {{ .Values.server.hostNetwork }}
+      {{- with .Values.server.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      dnsPolicy: {{ .Values.server.dnsPolicy }}
