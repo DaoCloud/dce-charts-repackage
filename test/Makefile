@@ -67,6 +67,8 @@ e2e:
 					make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
 				done ; \
   	    fi ;\
+  	    echo "============== show final result ====================" ; \
+  	    kubectl --kubeconfig $(KIND_KUBECONFIG) get pod -A -o wide || true ; \
 	  	exit 0
 
 
