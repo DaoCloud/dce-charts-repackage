@@ -17,10 +17,11 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 
 set -x
 
+
 kubectl get storageclass  --kubeconfig ${KIND_KUBECONFIG}
 kubectl get POD -A -o wide   --kubeconfig ${KIND_KUBECONFIG}
 
-KIND_STROAGECLASS=` kubectl get storageclass | grep -v "NAME" | awk '{print $1}' `
+KIND_STROAGECLASS=` kubectl get storageclass --kubeconfig ${KIND_KUBECONFIG} | grep -v "NAME" | awk '{print $1}' `
 [ -n "${KIND_STROAGECLASS}" ] || { echo "error, failed to find any storageclass " ; exit 1 ; }
 
 

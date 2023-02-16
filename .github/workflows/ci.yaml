@@ -106,7 +106,7 @@ jobs:
           #--------------------
           # when other files changed
           test_dir_changed="$(echo "$files_changed" |  grep -o "test/[^/]*" | sort | uniq  || true)"
-          if [ -n "$test_dir_changed" ] && [ -z "$charts_changed" ] ; then
+          if [ -n "$test_dir_changed" ] && [ -z "${additionall_test_project}" ] && [ -z "$charts_changed" ] ; then
               # add spiderppool for testing test changes
               charts_changed=` echo "$charts_changed spiderpool" | tr -s ' ' | tr ' ' '\n' | sort | uniq | tr '\n' ' ' || true`
               echo "detect test changes, add spiderpool, charts_changed: $charts_changed"
