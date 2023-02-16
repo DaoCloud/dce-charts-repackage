@@ -52,7 +52,7 @@ jobs:
   check_change:
     runs-on: ubuntu-latest
     outputs:
-      project: ${{ steps.check_change.outputs.changed_project }}
+      project: ${{ steps.check_change.outputs.test_project }}
       pro_version_changed: ${{ env.PRO_CHANGED_VERSION }}
     steps:
       - name: "Setup go"
@@ -68,6 +68,7 @@ jobs:
       - name: check change
         id: check_change
         run: |
+          set -x
           # Using the Github API to detect the files changed as git merge-base stops working when the branch is behind
           # and jitterbit/get-changed-files does not support pull_request_target
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
@@ -92,8 +93,19 @@ jobs:
           done
           echo "PRO_CHANGED_VERSION=${PRO_CHANGED_VERSION}"
           echo "PRO_CHANGED_VERSION=${PRO_CHANGED_VERSION}" >> $GITHUB_ENV
+          #-------------------
+          # for project test script
+          additionall_test_project=""
+          project_test_dir_changed="$(echo "$files_changed" | xargs dirname |  grep -o "test/[^/]*" | sort | uniq  | awk -F'/' '{print $2}'  || true)"
+          for PRO in ${project_test_dir_changed} ; do
+              if ! grep " ${PRO} " <<< " ${charts_changed} " &>/dev/null ; then
+                  additionall_test_project+=" $PRO "
+                  echo "test script changes for ${PRO} "
+              fi
+          done
           #--------------------
-          test_dir_changed="$(echo "$files_changed" | xargs dirname |  grep -o "test/[^/]*" | sort | uniq  || true)"
+          # when other files changed
+          test_dir_changed="$(echo "$files_changed" |  grep -o "test/[^/]*" | sort | uniq  || true)"
           if [ -n "$test_dir_changed" ] && [ -z "$charts_changed" ] ; then
               # add spiderppool for testing test changes
               charts_changed=` echo "$charts_changed spiderpool" | tr -s ' ' | tr ' ' '\n' | sort | uniq | tr '\n' ' ' || true`
@@ -107,6 +119,8 @@ jobs:
             fi
           done
           echo ::set-output name=changed_project::${RES}
+          ALL_PRO=" ${RES} ${additionall_test_project} "
+          echo ::set-output name=test_project::${ALL_PRO}
 
       - name: check chart override
         run: |
