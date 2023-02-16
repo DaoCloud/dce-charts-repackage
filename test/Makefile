@@ -133,7 +133,9 @@ target:  \n \
 checkImages: PROJECT=
 checkImages: checkBin
 	@ echo "check $(PROJECT) images registry"
-	helm repo update chart-museum  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to update helm chart-museum repo " ; exit 1 ; } ; \
+	set -x ; helm repo update chart-museum  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to update helm chart-museum repo " ; exit 1 ; } ; \
+	helm search repo chart-museum  --kubeconfig $(KIND_KUBECONFIG) ; \
+	helm template test chart-museum/$${PROJECT} ; \
     IMAGE_LIST=` helm template test chart-museum/$${PROJECT}  | grep " image: " | tr -d '"'| awk '{print $$2}' ` ;\
 	if [ -z "$${IMAGE_LIST}" ] ; then \
 		echo "error, failed to find image from chart template for $(PROJECT)" ; exit 1 ; \
@@ -144,7 +146,7 @@ checkImages: checkBin
 			    echo "error, failed to check image $${IMAGE} from chart template for $(PROJECT)" ; exit 1 ; \
 		    fi ; \
 		done ; \
-	fi ; \
+	fi
 
 .PHONY: deploy
 deploy: INSTALL_PATH=
