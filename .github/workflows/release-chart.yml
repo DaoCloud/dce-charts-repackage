@@ -94,7 +94,7 @@ jobs:
         id: package
         run: |
           ROOT_DIR=`pwd`
-          project_list=${{ steps.get_ref.outputs.project }}
+          project_list="${{ steps.get_ref.outputs.project }}"
           if [ "$project_list" == "all" ] || [ -z "$project_list" ] ; then
               project_list=""
               TMP=`ls charts`
