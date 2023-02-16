@@ -135,7 +135,7 @@ checkImages: checkBin
 	@ echo "check $(PROJECT) images registry"
 	set -x ; helm repo update chart-museum  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to update helm chart-museum repo " ; exit 1 ; } ; \
 	helm search repo chart-museum  --kubeconfig $(KIND_KUBECONFIG) ; \
-	helm template test chart-museum/$${PROJECT} ; \
+	helm template test chart-museum/$${PROJECT} | grep " image: " ; \
     IMAGE_LIST=` helm template test chart-museum/$${PROJECT}  | grep " image: " | tr -d '"'| awk '{print $$2}' ` ;\
 	if [ -z "$${IMAGE_LIST}" ] ; then \
 		echo "error, failed to find image from chart template for $(PROJECT)" ; exit 1 ; \
