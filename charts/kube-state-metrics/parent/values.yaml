@@ -1,0 +1,24 @@
+kube-state-metrics:
+  image:
+    registry: k8s-gcr.m.daocloud.io
+    repository: kube-state-metrics/kube-state-metrics
+    tag: "v2.3.0"
+    pullPolicy: IfNotPresent
+
+  # resource for ksm
+  resources:
+    limits:
+      cpu: 500m
+      memory: 500Mi
+    requests:
+      cpu: 50m
+      memory: 50Mi
+
+  extraArgs:
+    - --metric-labels-allowlist=nodes=[feature.node.kubernetes.io/cpu-cpuid.HYPERVISOR]
+
+  prometheus:
+    monitor:
+      enabled: true
+      additionalLabels:
+        operator.insight.io/managed-by: insight
