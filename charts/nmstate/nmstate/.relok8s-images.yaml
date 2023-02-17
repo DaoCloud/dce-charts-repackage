@@ -1,2 +1,2 @@
-- "{{ .image.operator.registry }}/{{ .image.operator.registry }}:{{ .image.tag }}"
-- "{{ .image.handler.registry }}/{{ .image.handler.registry }}:{{ .image.tag }}"
+- "{{ .image.operator.registry }}/{{ .image.operator.repository }}:{{ .image.tag }}"
+- "{{ .image.handler.registry }}/{{ .image.handler.repository }}:{{ .image.tag }}"
