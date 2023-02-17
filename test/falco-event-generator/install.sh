@@ -18,7 +18,7 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 
 set -x
 
-helm install falco-event chart-museum/falco-event  ${HELM_MUST_OPTION} --namespace kube-system
+helm install falco-event-generator chart-museum/falco-event-generator  ${HELM_MUST_OPTION} --namespace kube-system
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"

@@ -17,4 +17,10 @@ set -o nounset
 APP_VERSION=` cat charts/falco/Chart.yaml | grep appVersion | awk '{print $2}'`
 sed -iE "s?tag:.*?tag: ${APP_VERSION}?g" values.yaml
 
+yq -i ' .falco.falcosidekick.image.registry = "docker.m.daocloud.io" ' values.yaml
+yq -i ' .falco.image.registry = "docker.m.daocloud.io" ' values.yaml
+yq -i ' .falco.falco.json_output = true ' values.yaml
+yq -i ' .falco.driver.loader.initContainer.image.registry = "docker.m.daocloud.io" ' values.yaml
+
 rm -f values.yamlE || true
+rm -rf charts/falco/charts/falcosidekick/templates/tests
