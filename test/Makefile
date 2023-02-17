@@ -14,6 +14,8 @@ e2e:
 	make init-kind -e KIND_CONFIG_PATH=./yaml/kind.yaml || { echo "error, failed to setup kind " ; exit 1 ; }
 	PROJECT_LIST="$(PROJECT)" ; [ -n "$${PROJECT_LIST}" ] || PROJECT_LIST=` ls ` ; \
 		RUN_DANGEROUS_ITEM=false ; \
+		FAILED_PROJECT="" ; \
+		SUCCEED_PROJECT="" ; \
 		for ITEM in $$PROJECT_LIST ; do \
 		    [ -d "$${ITEM}" ] || continue ; \
 			if [ "$${ITEM}" == "$(DANGEROUS_MULTUS)" ] ; then  \
@@ -36,10 +38,11 @@ e2e:
               	echo "ignore sync project $${ITEM}"; \
             else \
 				echo "sync project $${ITEM}"; \
-				make sync -e PROJECT=$${ITEM} || { echo "error, failed to sync $${ITEM}" ; exit 1 ; } ; \
+				make sync -e PROJECT=$${ITEM} || { echo "error, failed to sync $${ITEM}" ; FAILED_PROJECT+=" $${ITEM} " ; continue ; } ; \
             fi ; \
 			echo "deploy project $${ITEM}"; \
-			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
+			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ;FAILED_PROJECT+=" $${ITEM} " ; continue ; } ; \
+			SUCCEED_PROJECT+=" $${ITEM} " ; \
 	  	done ; \
 	  	if [ "$${RUN_DANGEROUS_ITEM}" == "true" ] ; then \
 	  			PROJECT_LIST=" $(DANGEROUS_MULTUS) "  ; \
@@ -61,14 +64,23 @@ e2e:
 						echo "ignore sync project $${ITEM}"; \
 					else \
 						echo "sync project $${ITEM}"; \
-						make sync -e PROJECT=$${ITEM} || { echo "error, failed to sync $${ITEM}" ; exit 1 ; } ; \
+						make sync -e PROJECT=$${ITEM} || { echo "error, failed to sync $${ITEM}" ; FAILED_PROJECT+=" $${ITEM} " ; continue ; } ; \
 					fi ; \
 					echo "deploy project $${ITEM}"; \
-					make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; exit 1 ; } ; \
+					make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; FAILED_PROJECT+=" $${ITEM} " ; continue ; } ; \
+					SUCCEED_PROJECT+=" $${ITEM} " ; \
 				done ; \
   	    fi ;\
   	    echo "============== show final result ====================" ; \
   	    kubectl --kubeconfig $(KIND_KUBECONFIG) get pod -A -o wide || true ; \
+  	    echo "============== show projects result  ====================" ; \
+  	    echo "succceded prjects: $${SUCCEED_PROJECT} " ; \
+  	    if [ -n "$${FAILED_PROJECT}" ] ; then \
+  	    		echo "failed project: $${FAILED_PROJECT} " ; \
+  	    		exit 1 ; \
+  	    else \
+  	    		echo "all projects succeed" ; \
+  	    fi ; \
 	  	exit 0
 
 
