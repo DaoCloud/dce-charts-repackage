@@ -1,0 +1,21 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+export REPO_URL=https://prometheus-community.github.io/helm-charts
+export REPO_NAME=prometheus-node-exporter
+export CHART_NAME=prometheus-node-exporter
+export VERSION=4.6.0
+
+# pr, issue, none
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=z-anshun,hermaproditus,Haleygo
+export TEST_ASSIGNER=z-anshun,hermaproditus,Haleygo
+
+# optional, for wrapper chart
+export CUSTOM_SHELL=custom.sh
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=community
+
+# NO_TRIVY
+export NO_TRIVY=true
