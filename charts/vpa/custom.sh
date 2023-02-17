@@ -11,6 +11,7 @@ echo "CHART_DIRECTORY $(ls)"
 #========================= add your customize bellow ====================
 #===============================
 
+
 set -o errexit
 set -o pipefail
 set -o nounset
@@ -86,6 +87,13 @@ yq -i '
   .vpa.admissionController.cleanupOnDelete.image.repository = "common-ci/common-ci-deployer" |
   .vpa.admissionController.cleanupOnDelete.image.tag = "v0.1.52"
 ' values.yaml
+
+if ! grep "keywords:" Chart.yaml &>/dev/null ; then
+    echo "keywords:" >> Chart.yaml
+    echo "  - vpa" >> Chart.yaml
+    echo "  - autoscale" >> Chart.yaml
+fi
+
 
 mv ./_commans.tpl ./charts/vpa/templates
 mv ./_helpers.tpl ./charts/vpa/templates
