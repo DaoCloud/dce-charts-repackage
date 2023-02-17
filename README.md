@@ -157,6 +157,8 @@
 
 3. **Chart.yaml 文件中如果缺失 keywords，可进行添加分类**
 
+4. 如果 chart 中 有 serviceMonitor、prometheusRules 等对象，请设置上 label “operator.insight.io/managed-by: insight”
+
 ## e2e测试代码
 
 开发如下2个文件：
