@@ -13,13 +13,15 @@ falco:
     # -- The image repository to pull from
     repository: falcosecurity/falco-no-driver
     # -- The image tag to pull. Overrides the image tag whose default is the chart appVersion.
-    tag: 0.32.2
+    tag: 0.34.0
   # -- Secrets containing credentials when pulling from private/secure registries.
   imagePullSecrets: []
   # -- Put here the new name if you want to override the release name used for Falco components.
   nameOverride: ""
   # -- Same as nameOverride but for the fullname.
   fullnameOverride: ""
+  # -- Override the deployment namespace
+  namespaceOverride: ""
   rbac:
     # Create and use rbac resources when set to true. Needed to fetch k8s metadata from the api-server.
     create: true
@@ -49,7 +51,7 @@ falco:
   # 1) driver.enabled = false:
   #    securityContext: {}
   #
-  # 2) driver.enabled = true and driver.kind = module:
+  # 2) driver.enabled = true and (driver.kind = module || driver.kind = modern-bpf):
   #    securityContext:
   #     privileged: true
   #
@@ -79,6 +81,8 @@ falco:
       cpu: 100m
       memory: 512Mi
     # -- Maximum amount of resources that Falco container could get.
+    # If you are enabling more than one source in falco, than consider to increase
+    # the cpu limits.
     limits:
       cpu: 1000m
       memory: 1024Mi
@@ -86,10 +90,12 @@ falco:
   nodeSelector: {}
   # -- Affinity constraint for pods' scheduling.
   affinity: {}
-  # -- Tolerations to allow Falco to run on Kubernetes 1.6 masters.
+  # -- Tolerations to allow Falco to run on Kubernetes masters.
   tolerations:
     - effect: NoSchedule
       key: node-role.kubernetes.io/master
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
   # -- Parameters used
   healthChecks:
     livenessProbe:
@@ -117,6 +123,8 @@ falco:
   controller:
     # Available options: deployment, daemonset.
     kind: daemonset
+    # Annotations to add to the daemonset or deployment
+    annotations: {}
     daemonset:
       updateStrategy:
         # You can also customize maxUnavailable or minReadySeconds if you
@@ -152,7 +160,7 @@ falco:
     # -- Set it to false if you want to deploy Falco without the drivers.
     # Always set it to false when using Falco with plugins.
     enabled: true
-    # -- Tell Falco which driver to use. Available options: module (kernel driver) and ebpf (eBPF probe).
+    # -- Tell Falco which driver to use. Available options: module (kernel driver), ebpf (eBPF probe), modern-bpf (modern eBPF probe).
     kind: module
     # -- Configuration section for ebpf driver.
     ebpf:
@@ -171,8 +179,6 @@ falco:
       # -- Enable/disable the init container.
       enabled: true
       initContainer:
-        # -- Enable/disable the init container.
-        enabled: true
         image:
           # -- The image pull policy.
           pullPolicy: IfNotPresent
@@ -181,15 +187,28 @@ falco:
           # -- The image repository to pull from.
           repository: falcosecurity/falco-driver-loader
           #  -- Overrides the image tag whose default is the chart appVersion.
-          tag: 0.32.2
+          tag: 0.34.0
         # -- Extra environment variables that will be pass onto Falco driver loader init container.
-        env: {}
+        env: []
         # -- Arguments to pass to the Falco driver loader init container.
         args: []
         # -- Resources requests and limits for the Falco driver loader init container.
         resources: {}
-        # -- Security context for the Falco driver loader init container. Overrides the default security context. If driver.mode == "module" you must at least set `privileged: true`.
+        # -- Security context for the Falco driver loader init container. Overrides the default security context. If driver.kind == "module" you must at least set `privileged: true`.
         securityContext: {}
+  # -- Gvisor configuration. Based on your system you need to set the appropriate values.
+  # Please, rembember to add pod tolerations and affinities in order to schedule the Falco pods in the gVisor enabled nodes.
+  gvisor:
+    # -- Set it to true if you want to deploy Falco with gVisor support.
+    enabled: false
+    # -- Runsc container runtime configuration. Falco needs to interact with it in order to intercept the activity of the sandboxed pods.
+    runsc:
+      # -- Absolute path of the `runsc` binary in the k8s nodes.
+      path: /home/containerd/usr/local/sbin
+      # -- Absolute path of the root directory of the `runsc` container runtime. It is of vital importance for Falco since `runsc` stores there the information of the workloads handled by it;
+      root: /run/containerd/runsc
+      # -- Absolute path of the `runsc` configuration file, used by Falco to set its configuration and make aware `gVisor` of its presence.
+      config: /run/containerd/runsc/config.toml
   # Collectors for data enrichment (scenario requirement)
   collectors:
     # -- Enable/disable all the metadata collectors.
@@ -238,7 +257,7 @@ falco:
   ############################
   extra:
     # -- Extra environment variables that will be pass onto Falco containers.
-    env: {}
+    env: []
     # -- Extra command-line arguments.
     args: []
     # -- Additional initContainers for Falco pods.
@@ -284,7 +303,83 @@ falco:
     image:
       registry: docker.m.daocloud.io
       repository: falcosecurity/falcosidekick
-      tag: 2.26.0
+      tag: 2.27.0
+  ####################
+  # falcoctl config  #
+  ####################
+  falcoctl:
+    image:
+      # -- The image pull policy.
+      pullPolicy: IfNotPresent
+      # -- The image registry to pull from.
+      registry: docker.io
+      # -- The image repository to pull from.
+      repository: falcosecurity/falcoctl
+      #  -- Overrides the image tag whose default is the chart appVersion.
+      tag: 0.34.0
+    artifact:
+      # -- Runs "falcoctl artifact install" command as an init container. It is used to install artfacts before
+      # Falco starts. It provides them to Falco by using an emptyDir volume.
+      install:
+        enabled: true
+        # -- Extra environment variables that will be pass onto falcoctl-artifact-install init container.
+        env: {}
+        # -- Arguments to pass to the falcoctl-artifact-install init container.
+        args: ["--verbose"]
+        # -- Resources requests and limits for the falcoctl-artifact-install init container.
+        resources: {}
+        # -- Security context for the falcoctl init container.
+        securityContext: {}
+      # -- Runs "falcoctl artifact follow" command as a sidecar container. It is used to automatically check for
+      # updates given a list of artifacts. If an update is found it downloads and installs it in a shared folder (emptyDir)
+      # that is accessible by Falco. Rulesfiles are automatically detected and loaded by Falco once they are installed in the
+      # correct folder by falcoctl. To prevent new versions of artifacts from breaking Falco, the tool checks if it is compatible
+      # with the running version of Falco before installing it.
+      follow:
+        enabled: true
+        # -- Extra environment variables that will be pass onto falcoctl-artifact-follow sidecar container.
+        env: {}
+        # -- Arguments to pass to the falcoctl-artifact-follow sidecar container.
+        args: ["--verbose"]
+        # -- Resources requests and limits for the falcoctl-artifact-follow sidecar container.
+        resources: {}
+        # -- Security context for the falcoctl-artifact-follow sidecar container.
+        securityContext: {}
+    # -- Configuration file of the falcoctl tool. It is saved in a configmap and mounted on the falcotl containers.
+    config:
+      # -- List of indexes that falcoctl downloads and uses to locate and download artiafcts. For more info see:
+      # https://github.com/falcosecurity/falcoctl/blob/main/proposals/20220916-rules-and-plugin-distribution.md#index-file-overview
+      indexes:
+        - name: falcosecurity
+          url: https://falcosecurity.github.io/falcoctl/index.yaml
+      # -- Configuration used by the artifact commands.
+      artifact:
+        # -- List of artifact types that falcoctl will handle. If the configured refs resolves to an artifact whose type is not contained
+        # in the list it will refuse to downloade and install that artifact.
+        allowedTypes:
+          - rulesfile
+        install:
+          # -- Do not resolve the depenencies for artifacts. By default is true, but for our use case we disable it.
+          resolveDeps: false
+          # -- List of artifacts to be installed by the falcoctl init container.
+          refs: ['falco-rules:0']
+          # -- Directory where the rulesfiles are saved. The path is relative to the container, which in this case is an emptyDir
+          # mounted also by the Falco pod.
+          rulesfilesDir: /rulesfiles
+          # -- Same as the one above but for the artifacts.
+          pluginsDir: /plugins
+        follow:
+          # -- List of artifacts to be followed by the falcoctl sidecar container.
+          refs: ['falco-rules:0']
+          # -- How often the tool checks for new versions of the followed artifacts.
+          every: 6h
+          # -- HTTP endpoint that serves the api versions of the Falco instance. It is used to check if the new versions are compatible
+          # with the running Falco instance.
+          falcoversions: http://localhost:8765/versions
+          # -- See the fields of the artifact.install section.
+          rulesfilesDir: /rulesfiles
+          # -- See the fields of the artifact.install section.
+          pluginsDir: /plugins
   ######################
   # falco.yaml config  #
   ######################
@@ -339,7 +434,10 @@ falco:
     # and then change this to:
     # load_plugins: [cloudtrail, json]
     # -- Add here the names of the plugins that you want to be loaded by Falco. Please make sure that
-    # plugins have ben configured under the "plugins" section before adding them here.
+    # plugins have been configured under the "plugins" section before adding them here.
+    # Please make sure to configure the falcoctl tool to download and install the very same plugins
+    # you are loading here. You should add the references in the falcoctl.config.artifact.install.refs array
+    # for each plugin you are loading.
     load_plugins: []
     # -- Watch config file and rules files for modification.
     # When a file is modified, Falco will propagate new config,
@@ -349,7 +447,9 @@ falco:
     # will be in ISO 8601. By default, times are displayed in the local
     # time zone, as governed by /etc/localtime.
     time_format_iso_8601: false
-    # -- Whether to output events in json or text.
+    # -- If "true", print falco alert messages and rules file
+    # loading/validation results as json, which allows for easier
+    # consumption by downstream programs. Default is "false".
     json_output: true
     # -- When using json output, whether or not to include the "output" property
     # itself (e.g. "File below a known binary directory opened for writing
@@ -360,10 +460,10 @@ falco:
     # with no tags will have a "tags" field set to an empty array. If set to
     # false, the "tags" field will not be included in the json output at all.
     json_include_tags_property: true
-    # -- Send information logs to syslog. Note these are *not* security
+    # -- Send information logs to stderr. Note these are *not* security
     # notification logs! These are just Falco lifecycle (and possibly error) logs.
     log_stderr: true
-    # -- Send information logs to stderr. Note these are *not* security
+    # -- Send information logs to syslog. Note these are *not* security
     # notification logs! These are just Falco lifecycle (and possibly error) logs.
     log_syslog: true
     # -- Minimum log level to include in logs. Note: these levels are
@@ -424,6 +524,8 @@ falco:
       rate: .03333
       # -- Max burst of messages emitted.
       max_burst: 1
+      # -- Flag to enable drops for debug purposes.
+      simulate_drops: false
     # Falco uses a shared buffer between the kernel and userspace to receive
     # the events (eg., system call information) in userspace.
     #
@@ -442,6 +544,127 @@ falco:
       # -- Maximum number of consecutive timeouts without an event
       # after which you want Falco to alert.
       max_consecutives: 1000
+    # --- [Description]
+    #
+    # This is an index that controls the dimension of the syscall buffers.
+    # The syscall buffer is the shared space between Falco and its drivers where all the syscall events
+    # are stored.
+    # Falco uses a syscall buffer for every online CPU, and all these buffers share the same dimension.
+    # So this parameter allows you to control the size of all the buffers!
+    #
+    # --- [Usage]
+    #
+    # You can choose between different indexes: from `1` to `10` (`0` is reserved for future uses).
+    # Every index corresponds to a dimension in bytes:
+    #
+    # [(*), 1 MB, 2 MB, 4 MB, 8 MB, 16 MB, 32 MB, 64 MB, 128 MB, 256 MB, 512 MB]
+    #   ^    ^     ^     ^     ^     ^      ^      ^       ^       ^       ^
+    #   |    |     |     |     |     |      |      |       |       |       |
+    #   0    1     2     3     4     5      6      7       8       9       10
+    #
+    # As you can see the `0` index is reserved, while the index `1` corresponds to
+    # `1 MB` and so on.
+    #
+    # These dimensions in bytes derive from the fact that the buffer size must be:
+    # (1) a power of 2.
+    # (2) a multiple of your system_page_dimension.
+    # (3) greater than `2 * (system_page_dimension)`.
+    #
+    # According to these constraints is possible that sometimes you cannot use all the indexes, let's consider an
+    # example to better understand it:
+    # If you have a `page_size` of 1 MB the first available buffer size is 4 MB because 2 MB is exactly
+    # `2 * (system_page_size)` -> `2 * 1 MB`, but this is not enough we need more than `2 * (system_page_size)`!
+    # So from this example is clear that if you have a page size of 1 MB the first index that you can use is `3`.
+    #
+    # Please note: this is a very extreme case just to let you understand the mechanism, usually the page size is something
+    # like 4 KB so you have no problem at all and you can use all the indexes (from `1` to `10`).
+    #
+    # To check your system page size use the Falco `--page-size` command line option. The output on a system with a page
+    # size of 4096 Bytes (4 KB) should be the following:
+    #
+    # "Your system page size is: 4096 bytes."
+    #
+    # --- [Suggestions]
+    #
+    # Before the introduction of this param the buffer size was fixed to 8 MB (so index `4`, as you can see
+    # in the default value below).
+    # You can increase the buffer size when you face syscall drops. A size of 16 MB (so index `5`) can reduce
+    # syscall drops in production-heavy systems without noticeable impact. Very large buffers however could
+    # slow down the entire machine.
+    # On the other side you can try to reduce the buffer size to speed up the system, but this could
+    # increase the number of syscall drops!
+    # As a final remark consider that the buffer size is mapped twice in the process' virtual memory so a buffer of 8 MB
+    # will result in a 16 MB area in the process virtual memory.
+    # Please pay attention when you use this parameter and change it only if the default size doesn't fit your use case.
+    # -- This is an index that controls the dimension of the syscall buffers.
+    syscall_buf_size_preset: 4
+    ############## [EXPERIMENTAL] Modern BPF probe specific ##############
+    # Please note: these configs regard only the modern BPF probe. They
+    # are experimental so they could change over releases.
+    #
+    # `cpus_for_each_syscall_buffer`
+    #
+    # --- [Description]
+    #
+    # This is an index that controls how many CPUs you want to assign to a single
+    # syscall buffer (ring buffer). By default, every syscall buffer is associated to
+    # 2 CPUs, so the mapping is 1:2. The modern BPF probe allows you to choose different
+    # mappings, for example, 1:1 would mean a syscall buffer for each CPU.
+    #
+    # --- [Usage]
+    #
+    # You can choose between different indexes: from `0` to `MAX_NUMBER_ONLINE_CPUs`.
+    # `0` is a special value and it means a single syscall buffer shared between all
+    # your online CPUs. `0` has the same effect as `MAX_NUMBER_ONLINE_CPUs`, the rationale
+    # is that `0` allows you to create a single buffer without knowing the number of online
+    # CPUs on your system.
+    # Let's consider an example to better understand it:
+    #
+    # Consider a system with 7 online CPUs:
+    #
+    #          CPUs     0  X  2  3  X  X  6  7  8  9   (X means offline CPU)
+    #
+    # - `1` means a syscall buffer for each CPU so 7 buffers
+    #
+    #          CPUs     0  X  2  3  X  X  6  7  8  9   (X means offline CPU)
+    #                   |     |  |        |  |  |  |
+    #       BUFFERs     0     1  2        3  4  5  6
+    #
+    # - `2` (Default value) means a syscall buffer for each CPU pair, so 4 buffers
+    #
+    #          CPUs     0  X  2  3  X  X  6  7  8  9   (X means offline CPU)
+    #                   |     |  |        |  |  |  |
+    #       BUFFERs     0     0  1        1  2  2  3
+    #
+    # Please note that we need 4 buffers, 3 buffers are associated with CPU pairs, the last
+    # one is mapped with just 1 CPU since we have an odd number of CPUs.
+    #
+    # - `0` or `MAX_NUMBER_ONLINE_CPUs` mean a syscall buffer shared between all CPUs, so 1 buffer
+    #
+    #          CPUs     0  X  2  3  X  X  6  7  8  9   (X means offline CPU)
+    #                   |     |  |        |  |  |  |
+    #       BUFFERs     0     0  0        0  0  0  0
+    #
+    # Moreover you can combine this param with `syscall_buf_size_preset`
+    # index, for example, you could create a huge single syscall buffer
+    # shared between all your online CPUs of 512 MB (so `syscall_buf_size_preset=10`).
+    #
+    # --- [Suggestions]
+    #
+    # We chose index `2` (so one syscall buffer for each CPU pair) as default because the modern bpf probe
+    # follows a different memory allocation strategy with respect to the other 2 drivers (bpf and kernel module).
+    # By the way, you are free to find the preferred configuration for your system.
+    # Considering a fixed `syscall_buf_size_preset` and so a fixed buffer dimension:
+    # - a lower number of buffers can speed up your system (lower memory footprint)
+    # - a too lower number of buffers could increase contention in the kernel causing an
+    #   overall slowdown of the system.
+    # If you don't have huge events throughputs and you are not experimenting with tons of drops
+    # you can try to reduce the number of buffers to have a lower memory footprint
+    modern_bpf:
+      # -- [MODERN PROBE ONLY] This is an index that controls how many CPUs you want to assign to a single syscall buffer.
+      cpus_for_each_syscall_buffer: 2
+    ############## [EXPERIMENTAL] Modern BPF probe specific ##############
+
     # Falco continuously monitors outputs performance. When an output channel does not allow
     # to deliver an alert within a given deadline, an error is reported indicating
     # which output is blocking notifications.
@@ -459,14 +682,17 @@ falco:
     # -- Duration in milliseconds to wait before considering the output timeout deadline exceed.
     output_timeout: 2000
     # A throttling mechanism implemented as a token bucket limits the
-    # rate of falco notifications. This throttling is controlled by the following configuration
-    # options:
+    # rate of Falco notifications. One rate limiter is assigned to each event
+    # source, so that alerts coming from one can't influence the throttling
+    # mechanism of the others. This is controlled by the following options:
     #  - rate: the number of tokens (i.e. right to send a notification)
-    #    gained per second. Defaults to 1.
+    #    gained per second. When 0, the throttling mechanism is disabled.
+    #    Defaults to 0.
     #  - max_burst: the maximum number of tokens outstanding. Defaults to 1000.
     #
-    # With these defaults, falco could send up to 1000 notifications after
-    # an initial quiet period, and then up to 1 notification per second
+    # With these defaults, the throttling mechanism is disabled.
+    # For example, by setting rate to 1 Falco could send up to 1000 notifications
+    # after an initial quiet period, and then up to 1 notification per second
     # afterward. It would gain the full burst back after 1000 seconds of
     # no activity.
     outputs:
@@ -508,6 +734,8 @@ falco:
     webserver:
       # -- Enable Falco embedded webserver.
       enabled: true
+      # -- Number of threads depending on the number of online cores.
+      threadiness: 0
       # -- Port where Falco embedded webserver listen to connections.
       listen_port: 8765
       # -- Endpoint where Falco exposes the health status.
@@ -571,7 +799,7 @@ falco:
       # -- Enable the Falco gRPC server.
       enabled: false
       # -- Bind address for the grpc server.
-      bind_address: "unix:///var/run/falco/falco.sock"
+      bind_address: "unix:///run/falco/falco.sock"
       # -- Number of threads (and context) the gRPC server will use, 0 by default, which means "auto".
       threadiness: 0
     # gRPC output service.
