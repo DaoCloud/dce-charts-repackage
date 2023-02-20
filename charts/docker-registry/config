@@ -1,0 +1,18 @@
+export USE_OPENSOURCE_CHART=false
+
+export REPO_URL=https://helm.twun.io
+export REPO_NAME=twuni
+export CHART_NAME=docker-registry
+export VERSION=2.2.2
+
+# pr, issue, none
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=lengrongfu
+export TEST_ASSIGNER=lengrongfu
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=community
+
+# optional, for wrapper chart
+export CUSTOM_SHELL=custom.sh
+export APPEND_VALUES_FILE=appendValues.yaml
