@@ -1,0 +1,10 @@
+---
+- "{{ .image.registry }}/{{ .image.repository }}:{{ .image.tag }}"
+- "{{ .image.registry }}/{{ .harbor.core.repository }}:{{ .harbor.tag }}"
+- "{{ .image.registry }}/{{ .harbor.nginx.repository }}:{{ .harbor.tag }}"
+- "{{ .image.registry }}/{{ .harbor.chartmuseum.repository }}:{{ .harbor.tag }}"
+- "{{ .image.registry }}/{{ .harbor.jobservice.repository }}:{{ .harbor.tag }}"
+- "{{ .image.registry }}/{{ .harbor.registryctl.repository }}:{{ .harbor.tag }}"
+- "{{ .image.registry }}/{{ .harbor.distribution.repository }}:{{ .harbor.tag }}"
+- "{{ .image.registry }}/{{ .harbor.portal.repository }}:{{ .harbor.tag }}"
+- "{{ .image.registry }}/{{ .harbor.trivy.repository }}:{{ .harbor.tag }}"
