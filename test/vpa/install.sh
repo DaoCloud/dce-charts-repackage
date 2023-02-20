@@ -10,7 +10,7 @@ KIND_KUBECONFIG=$1
 echo "KIND_KUBECONFIG: $KIND_KUBECONFIG"
 
 helm repo update chart-museum  --kubeconfig ${KIND_KUBECONFIG}
-HELM_MUST_OPTION=" --timeout 5m0s --debug --kubeconfig ${KIND_KUBECONFIG} "
+HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG} "
 
 #==================== add your deploy code bellow =============
 #==================== notice , prometheus CRD has been deployed , so you no need to =============

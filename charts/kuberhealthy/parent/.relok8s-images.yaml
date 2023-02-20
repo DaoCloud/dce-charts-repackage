@@ -1,4 +1,4 @@
-- "{{ .kuberhealthy.image.registry }}/{{ .kuberhealthy.image.repository }}"
+- "{{ .kuberhealthy.image.registry }}/{{ .kuberhealthy.image.repository }}:{{ .kuberhealthy.image.tag }}"
 - "{{ .kuberhealthy.check.daemonset.image.registry }}/{{ .kuberhealthy.check.daemonset.image.repository }}:{{ .kuberhealthy.check.daemonset.image.tag }}"
 - "{{ .kuberhealthy.check.deployment.image.registry }}/{{ .kuberhealthy.check.deployment.image.repository }}:{{ .kuberhealthy.check.deployment.image.tag }}"
 - "{{ .kuberhealthy.check.dnsInternal.image.registry }}/{{ .kuberhealthy.check.dnsInternal.image.repository }}:{{ .kuberhealthy.check.dnsInternal.image.tag }}"
