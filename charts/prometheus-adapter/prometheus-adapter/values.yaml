@@ -1,0 +1,11 @@
+prometheus-adapter:
+  image:
+    registry: k8s-gcr.m.daocloud.io
+    repository: prometheus-adapter/prometheus-adapter
+  resources:
+    limits:
+      cpu: 250m
+      memory: 150Mi
+    requests:
+      cpu: 25m
+      memory: 15Mi
