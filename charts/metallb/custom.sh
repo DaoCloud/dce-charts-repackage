@@ -43,13 +43,17 @@ yq -i '
    .metallb.controller.image.registry="quay.m.daocloud.io" |
    .metallb.controller.image.repository="metallb/controller" |
    .metallb.controller.resources.requests.cpu="10m" |
-   .metallb.controller.resources.requests.memory="200Mi" |
+   .metallb.controller.resources.requests.memory="50m" |
+   .metallb.controller.resources.limits.cpu="100m" |
+   .metallb.controller.resources.limits.memory="200Mi" |
    .metallb.speaker.image.registry="quay.m.daocloud.io" |
    .metallb.speaker.image.repository="metallb/speaker" |
    .metallb.speaker.image.tag=strenv(IMAGE_VERSION) |
-   .metallb.speaker.resources.requests.cpu="100m" |
+   .metallb.speaker.resources.requests.cpu="60m" |
    .metallb.speaker.resources.requests.memory="80Mi" |
-   .metallb.speaker.frr.image.registry="docker.m.daocloud.io" |
+   .metallb.speaker.resources.limits.cpu="200m" |
+   .metallb.speaker.resources.limits.memory="300Mi" |
+   .metallb.speaker.frr.image.registry="quay.m.daocloud.io" |
    .metallb.speaker.frr.image.repository="frrouting/frr"
 ' values.yaml
 
