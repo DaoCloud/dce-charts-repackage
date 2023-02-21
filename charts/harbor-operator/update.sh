@@ -76,11 +76,12 @@ if [ ! -f ./harbor-operator/values.schema.json ] ; then
 fi
 
 # echo $VERSION
-# if [ $os == "Linux" ];then
-#     sed -i "s/version: 0.1.0/version: ${VERSION}/g" harbor-operator/Chart.yaml
-# elif [ $os == "Darwin" ];then
-#     sed -i "" "s/version: 0.1.0/version: ${VERSION}/g" harbor-operator/Chart.yaml
-# fi
+ChartVersion=`echo ${VERSION}|sed 's/v//' | sed 's/-rc1//'`
+if [ $os == "Linux" ];then
+    sed -i "s/version: 0.1.0/version: ${ChartVersion}/g" harbor-operator/Chart.yaml
+elif [ $os == "Darwin" ];then
+    sed -i "" "s/version: 0.1.0/version: ${ChartVersion}/g" harbor-operator/Chart.yaml
+fi
 
 startLine=`sed -n -e '/dependencies:/=' harbor-operator/Chart.yaml`
 if [ ! $startLine ];then
