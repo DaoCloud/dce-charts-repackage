@@ -1,0 +1,127 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "submariner-operator": {
+            "type": "object",
+            "title": "Submariner-operator",
+            "properties": {
+                "broker": {
+                    "type": "object",
+                    "title": "Broker",
+                    "properties": {
+                        "server": {
+                            "type": "string",
+                            "title": "brokerK8sApiServer",
+                            "description": "the url of access submariner-k8s-broker cluster's api-server."
+                        },
+                        "ca": {
+                            "type": "string",
+                            "title": "brokerK8sCA",
+                            "description": "the ca of access submariner-k8s-broker cluster's api-server."
+                        },
+                        "token": {
+                            "type": "string",
+                            "title": "brokerK8sApiServerToken",
+                            "description": "the token of access submariner-k8s-broker cluster's api-server."
+                        },
+                        "namespace": {
+                            "type": "string",
+                            "title": "brokerK8sRemoteNamespace",
+                            "description": "the namespace of submariner-k8s-broker component deployed in."
+                        },
+                        "globalnet": {
+                            "type": "boolean",
+                            "title": "enableGloablnet",
+                            "description": "allow clusters with overlapping CIDRs to connect together. default is false. NOTE: this feature is in experimental state."
+                        }
+                    }
+                },
+                "ipsec": {
+                    "type": "object",
+                    "title": "IPsec Configuration",
+                    "properties": {
+                        "psk": {
+                            "type": "string",
+                            "title": "ceIPSecPSK",
+                            "description": "pre-shared key, psk is used for authentication before establishing an ipsec tunnel."
+                        }
+                    }
+                },
+                "operator": {
+                    "type": "object",
+                    "title": "Operator",
+                    "properties": {
+                        "image": {
+                            "type": "object",
+                            "title": "Image Configuration",
+                            "properties": {
+                                "registry": {
+                                    "type": "string",
+                                    "title": "Registry",
+                                    "default": "quay.m.daocloud.io"
+                                },
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Repository",
+                                    "default": "submariner"
+                                }
+                            }
+                        }
+                    }
+                },
+                "submariner": {
+                    "type": "object",
+                    "title": "Submariner",
+                    "properties": {
+                        "clusterId": {
+                            "type": "string",
+                            "description": "each cluster must have a unique cluster ID, The cluster ID must be a valid DNS-1123 Label."
+                        },
+                        "clusterCidr": {
+                            "type": "string",
+                            "description": "the cluster's Pod IP CIDR. Note: only for IPv4."
+                        },
+                        "serviceCidr": {
+                            "type": "string",
+                            "description": "the cluster's Service IP CIDR, Note: only for IPv4."
+                        },
+                        "globalCidr": {
+                            "type": "string",
+                            "description": "globalCidr is a virtual network specifically to support Submariner’s multi-cluster solution with a global CIDR"
+                        },
+                        "images": {
+                            "type": "object",
+                            "title": "Image Configuration",
+                            "properties": {
+                                "registry": {
+                                    "type": "string",
+                                    "title": "Registry",
+                                    "default": "quay.m.daocloud.io"
+                                },
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Repository",
+                                    "default": "submariner"
+                                }
+                            }
+                        },
+                        "cableDriver": {
+                            "type": "string",
+                            "description": "cableDriver is the cable engine component that maintains the tunnels. Default is libreswan",
+                            "enum": [
+                                "libreswan",
+                                "wireguard",
+                                "vxlan"
+                            ]
+                        },
+                        "natEnabled": {
+                            "type": "boolean",
+                            "description": "enable this if communication between gateway nodes relies on NAT. default is false."
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

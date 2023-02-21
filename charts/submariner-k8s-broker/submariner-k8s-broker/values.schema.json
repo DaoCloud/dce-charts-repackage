@@ -1,0 +1,43 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "submariner-k8s-broker": {
+            "type": "object",
+            "properties": {
+                "crd": {
+                    "type": "object",
+                    "properties": {
+                        "create": {
+                            "type": "boolean",
+                            "description": "enable create submariner CRDs, default is true."
+                        }
+                    }
+                },
+                "rbac": {
+                    "type": "object",
+                    "properties": {
+                        "create": {
+                            "type": "boolean",
+                            "description": "enable create RBAC resources, default is true."
+                        }
+                    }
+                },
+                "serviceAccounts": {
+                    "type": "object",
+                    "properties": {
+                        "client": {
+                            "type": "object",
+                            "properties": {
+                                "create": {
+                                    "type": "boolean",
+                                    "description": "enable create SA, default is true."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

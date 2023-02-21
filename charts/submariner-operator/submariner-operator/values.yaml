@@ -1,0 +1,74 @@
+# child values
+submariner-operator:
+  submariner:
+    clusterId: ""
+    token: ""
+    clusterCidr: ""
+    serviceCidr: ""
+    globalCidr: ""
+    loadBalancerEnabled: false
+    natEnabled: false
+    colorCodes: blue
+    debug: false
+    serviceDiscovery: true
+    cableDriver: "libreswan"
+    healthcheckEnabled: true
+    coreDNSCustomConfig: {}
+    images:
+      repository: submariner
+      tag: "0.14.0"
+      registry: quay.m.daocloud.io
+  broker:
+    server: example.k8s.apiserver
+    token: test
+    namespace: xyz
+    insecure: false
+    ca: ""
+    globalnet: false
+  rbac:
+    create: true
+  images: {}
+  ipsec:
+    psk: ""
+    debug: false
+    forceUDPEncaps: false
+    ikePort: 500
+    natPort: 4500
+  leadership:
+    leaseDuration: 10
+    renewDeadline: 5
+    retryPeriod: 2
+  operator:
+    image:
+      repository: submariner/submariner-operator
+      tag: "0.14.0"
+      pullPolicy: IfNotPresent
+      registry: quay.m.daocloud.io
+    resources:
+      requests:
+        cpu: 30m
+        memory: 50M
+      limits:
+        cpu: 250m
+        memory: 300M
+    tolerations: []
+    affinity: {}
+  serviceAccounts:
+    operator:
+      create: true
+      name: ""
+    gateway:
+      create: true
+      name: ""
+    routeAgent:
+      create: true
+      name: ""
+    globalnet:
+      create: true
+      name: ""
+    lighthouseAgent:
+      create: true
+      name: ""
+    lighthouseCoreDns:
+      create: true
+      name: ""
