@@ -1,0 +1,3 @@
+- "{{ .nginx.image.registry }}/{{ .nginx.image.repository }}:{{ .nginx.image.tag }}"
+- "{{ .nginx.cloneStaticSiteFromGit.image.registry }}/{{ .nginx.cloneStaticSiteFromGit.image.repository }}:{{ .nginx.cloneStaticSiteFromGit.image.tag }}"
+- "{{ .nginx.metrics.image.registry }}/{{ .nginx.metrics.image.repository }}:{{ .nginx.metrics.image.tag }}"
