@@ -1,6 +1,6 @@
 # metallb
 
-![Version: 0.13.7](https://img.shields.io/badge/Version-0.13.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.13.7](https://img.shields.io/badge/AppVersion-v0.13.7-informational?style=flat-square)
+![Version: 0.13.9](https://img.shields.io/badge/Version-0.13.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.13.9](https://img.shields.io/badge/AppVersion-v0.13.9-informational?style=flat-square)
 
 A network load-balancer implementation for Kubernetes using standard routing protocols
 
@@ -12,9 +12,11 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 
 ## Requirements
 
+Kubernetes: `>= 1.19.0-0`
+
 | Repository | Name | Version |
 |------------|------|---------|
-|  | crds | 0.13.7 |
+|  | crds | 0.13.9 |
 
 ## Values
 
@@ -87,6 +89,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | prometheus.prometheusRule.staleConfig.enabled | bool | `true` |  |
 | prometheus.prometheusRule.staleConfig.labels.severity | string | `"warning"` |  |
 | prometheus.rbacPrometheus | bool | `true` |  |
+| prometheus.rbacProxy.pullPolicy | string | `nil` |  |
 | prometheus.rbacProxy.repository | string | `"gcr.io/kubebuilder/kube-rbac-proxy"` |  |
 | prometheus.rbacProxy.tag | string | `"v0.12.0"` |  |
 | prometheus.scrapeAnnotations | bool | `false` |  |
@@ -108,8 +111,8 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | speaker.enabled | bool | `true` |  |
 | speaker.frr.enabled | bool | `false` |  |
 | speaker.frr.image.pullPolicy | string | `nil` |  |
-| speaker.frr.image.repository | string | `"frrouting/frr"` |  |
-| speaker.frr.image.tag | string | `"v7.5.1"` |  |
+| speaker.frr.image.repository | string | `"quay.io/frrouting/frr"` |  |
+| speaker.frr.image.tag | string | `"7.5.1"` |  |
 | speaker.frr.metricsPort | int | `7473` |  |
 | speaker.frr.resources | object | `{}` |  |
 | speaker.frrMetrics.resources | object | `{}` |  |
@@ -125,6 +128,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | speaker.logLevel | string | `"info"` | Speaker log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none` |
 | speaker.memberlist.enabled | bool | `true` |  |
 | speaker.memberlist.mlBindPort | int | `7946` |  |
+| speaker.memberlist.mlSecretKeyPath | string | `"/etc/ml_secret_key"` |  |
 | speaker.nodeSelector | object | `{}` |  |
 | speaker.podAnnotations | object | `{}` |  |
 | speaker.priorityClassName | string | `""` |  |
@@ -140,6 +144,9 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | speaker.serviceAccount.annotations | object | `{}` |  |
 | speaker.serviceAccount.create | bool | `true` |  |
 | speaker.serviceAccount.name | string | `""` |  |
+| speaker.startupProbe.enabled | bool | `true` |  |
+| speaker.startupProbe.failureThreshold | int | `30` |  |
+| speaker.startupProbe.periodSeconds | int | `5` |  |
 | speaker.tolerateMaster | bool | `true` |  |
 | speaker.tolerations | list | `[]` |  |
 | speaker.updateStrategy.type | string | `"RollingUpdate"` |  |
