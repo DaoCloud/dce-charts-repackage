@@ -169,7 +169,25 @@ jobs:
                   exit 1
               fi
           done
-          
+
+      - name: check resource limit
+        run: |
+          BASE=$PWD
+          for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
+              CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
+              if helm template test ${CHART_PATH}  | grep -E "kind: DaemonSet|kind: Deployment|kind: Job|kind: CronJob" &>/dev/null ; then
+                  echo "check resource limit and request"
+                  if ! ( helm template test ${CHART_PATH} | grep ' limits:' &>/dev/null ) ; then
+                      echo "error, did not find resource limits settings in ${PROJECT}"
+                      exit 1
+                  fi
+                  if ! ( helm template test ${CHART_PATH} | grep ' requests:' &>/dev/null ) ; then
+                      echo "error, did not find resource requests settings in ${PROJECT}"
+                      exit 1
+                  fi
+              fi
+          done
+
       - name: check schema file
         run: |
           BASE=$PWD
