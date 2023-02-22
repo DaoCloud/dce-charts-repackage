@@ -43,27 +43,6 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      initContainers:
-      - name: copyutil
-        image: {{ default (include "global.image.repository" .) .Values.dex.initImage.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.dex.initImage.tag }}
-        imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.dex.initImage.imagePullPolicy }}
-        command:
-        - cp
-        - -n
-        - /usr/local/bin/argocd
-        - /shared/argocd-dex
-        volumeMounts:
-        - mountPath: /shared
-          name: static-files
-        - mountPath: /tmp
-          name: dexconfig
-        resources:
-          {{- toYaml .Values.dex.resources | nindent 10 }}
-        securityContext:
-          {{- toYaml .Values.dex.containerSecurityContext | nindent 10 }}
-      {{- with .Values.dex.initContainers }}
-        {{- toYaml . | nindent 6 }}
-      {{- end }}
       containers:
       - name: {{ .Values.dex.name }}
         image: {{ .Values.dex.image.registry }}/{{ .Values.dex.image.repository }}:{{ .Values.dex.image.tag }}
@@ -91,13 +70,13 @@ spec:
         {{- end }}
         ports:
         - name: http
-          containerPort: {{ .Values.dex.containerPortHttp }}
+          containerPort: {{ .Values.dex.containerPorts.http }}
           protocol: TCP
         - name: grpc
-          containerPort: {{ .Values.dex.containerPortGrpc }}
+          containerPort: {{ .Values.dex.containerPorts.grpc }}
           protocol: TCP
         - name: metrics
-          containerPort: {{ .Values.dex.containerPortMetrics }}
+          containerPort: {{ .Values.dex.containerPorts.metrics }}
           protocol: TCP
         {{- if .Values.dex.livenessProbe.enabled }}
         livenessProbe:
@@ -136,7 +115,28 @@ spec:
         - name: argocd-dex-server-tls
           mountPath: /tls
       {{- with .Values.dex.extraContainers }}
-        {{- toYaml . | nindent 6 }}
+        {{- tpl (toYaml .) $ | nindent 6 }}
+      {{- end }}
+      initContainers:
+      - name: copyutil
+        image: {{ default (include "global.image.repository" .) .Values.dex.initImage.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.dex.initImage.tag }}
+        imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.dex.initImage.imagePullPolicy }}
+        command:
+        - cp
+        - -n
+        - /usr/local/bin/argocd
+        - /shared/argocd-dex
+        volumeMounts:
+        - mountPath: /shared
+          name: static-files
+        - mountPath: /tmp
+          name: dexconfig
+        resources:
+          {{- toYaml .Values.dex.resources | nindent 10 }}
+        securityContext:
+          {{- toYaml .Values.dex.containerSecurityContext | nindent 10 }}
+      {{- with .Values.dex.initContainers }}
+        {{- tpl (toYaml .) $ | nindent 6 }}
       {{- end }}
       {{- with .Values.dex.nodeSelector }}
       nodeSelector:
@@ -146,10 +146,8 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.dex.affinity }}
       affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- include "argo-cd.affinity" (dict "context" . "component" .Values.dex) | nindent 8 }}
       {{- with .Values.dex.topologySpreadConstraints }}
       topologySpreadConstraints:
         {{- range $constraint := . }}
@@ -188,4 +186,9 @@ spec:
       {{- with .Values.dex.priorityClassName }}
       priorityClassName: {{ . }}
       {{- end }}
+      {{- with .Values.dex.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      dnsPolicy: {{ .Values.dex.dnsPolicy }}
 {{- end }}
