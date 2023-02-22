@@ -1,6 +1,6 @@
 # metallb
 
-![Version: 0.13.7](https://img.shields.io/badge/Version-0.13.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.13.7](https://img.shields.io/badge/AppVersion-0.13.7-informational?style=flat-square)
+![Version: 0.13.9](https://img.shields.io/badge/Version-0.13.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.13.9](https://img.shields.io/badge/AppVersion-0.13.9-informational?style=flat-square)
 
 A network load-balancer implementation for Kubernetes using standard routing protocols
 
@@ -8,7 +8,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://metallb.github.io/metallb | metallb | 0.13.7 |
+| https://metallb.github.io/metallb | metallb | 0.13.9 |
 
 ## Values
 
@@ -32,7 +32,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.image.pullPolicy | string | `nil` |  |
 | metallb.controller.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.controller.image.repository | string | `"metallb/controller"` |  |
-| metallb.controller.image.tag | string | `"v0.13.7"` |  |
+| metallb.controller.image.tag | string | `"v0.13.9"` |  |
 | metallb.controller.livenessProbe.enabled | bool | `true` |  |
 | metallb.controller.livenessProbe.failureThreshold | int | `3` |  |
 | metallb.controller.livenessProbe.initialDelaySeconds | int | `10` |  |
@@ -49,8 +49,10 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.readinessProbe.periodSeconds | int | `10` |  |
 | metallb.controller.readinessProbe.successThreshold | int | `1` |  |
 | metallb.controller.readinessProbe.timeoutSeconds | int | `1` |  |
+| metallb.controller.resources.limits.cpu | string | `"100m"` |  |
+| metallb.controller.resources.limits.memory | string | `"200Mi"` |  |
 | metallb.controller.resources.requests.cpu | string | `"10m"` |  |
-| metallb.controller.resources.requests.memory | string | `"200Mi"` |  |
+| metallb.controller.resources.requests.memory | string | `"50m"` |  |
 | metallb.controller.runtimeClassName | string | `""` |  |
 | metallb.controller.securityContext.fsGroup | int | `65534` |  |
 | metallb.controller.securityContext.runAsNonRoot | bool | `true` |  |
@@ -96,6 +98,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.prometheus.prometheusRule.staleConfig.enabled | bool | `true` |  |
 | metallb.prometheus.prometheusRule.staleConfig.labels.severity | string | `"warning"` |  |
 | metallb.prometheus.rbacPrometheus | bool | `true` |  |
+| metallb.prometheus.rbacProxy.pullPolicy | string | `nil` |  |
 | metallb.prometheus.rbacProxy.registry | string | `"gcr.m.daocloud.io"` |  |
 | metallb.prometheus.rbacProxy.repository | string | `"kubebuilder/kube-rbac-proxy"` |  |
 | metallb.prometheus.rbacProxy.tag | string | `"v0.12.0"` |  |
@@ -118,16 +121,16 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.enabled | bool | `true` |  |
 | metallb.speaker.frr.enabled | bool | `false` |  |
 | metallb.speaker.frr.image.pullPolicy | string | `nil` |  |
-| metallb.speaker.frr.image.registry | string | `"docker.m.daocloud.io"` |  |
+| metallb.speaker.frr.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.speaker.frr.image.repository | string | `"frrouting/frr"` |  |
-| metallb.speaker.frr.image.tag | string | `"v7.5.1"` |  |
+| metallb.speaker.frr.image.tag | string | `"7.5.1"` |  |
 | metallb.speaker.frr.metricsPort | int | `7473` |  |
 | metallb.speaker.frr.resources | object | `{}` |  |
 | metallb.speaker.frrMetrics.resources | object | `{}` |  |
 | metallb.speaker.image.pullPolicy | string | `nil` |  |
 | metallb.speaker.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.speaker.image.repository | string | `"metallb/speaker"` |  |
-| metallb.speaker.image.tag | string | `"v0.13.7"` |  |
+| metallb.speaker.image.tag | string | `"v0.13.9"` |  |
 | metallb.speaker.livenessProbe.enabled | bool | `true` |  |
 | metallb.speaker.livenessProbe.failureThreshold | int | `3` |  |
 | metallb.speaker.livenessProbe.initialDelaySeconds | int | `10` |  |
@@ -137,6 +140,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.logLevel | string | `"info"` | Speaker log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none` |
 | metallb.speaker.memberlist.enabled | bool | `true` |  |
 | metallb.speaker.memberlist.mlBindPort | int | `7946` |  |
+| metallb.speaker.memberlist.mlSecretKeyPath | string | `"/etc/ml_secret_key"` |  |
 | metallb.speaker.nodeSelector | object | `{}` |  |
 | metallb.speaker.podAnnotations | object | `{}` |  |
 | metallb.speaker.priorityClassName | string | `""` |  |
@@ -147,12 +151,17 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.readinessProbe.successThreshold | int | `1` |  |
 | metallb.speaker.readinessProbe.timeoutSeconds | int | `1` |  |
 | metallb.speaker.reloader.resources | object | `{}` |  |
-| metallb.speaker.resources.requests.cpu | string | `"100m"` |  |
+| metallb.speaker.resources.limits.cpu | string | `"200m"` |  |
+| metallb.speaker.resources.limits.memory | string | `"300Mi"` |  |
+| metallb.speaker.resources.requests.cpu | string | `"60m"` |  |
 | metallb.speaker.resources.requests.memory | string | `"80Mi"` |  |
 | metallb.speaker.runtimeClassName | string | `""` |  |
 | metallb.speaker.serviceAccount.annotations | object | `{}` |  |
 | metallb.speaker.serviceAccount.create | bool | `true` |  |
 | metallb.speaker.serviceAccount.name | string | `""` |  |
+| metallb.speaker.startupProbe.enabled | bool | `true` |  |
+| metallb.speaker.startupProbe.failureThreshold | int | `30` |  |
+| metallb.speaker.startupProbe.periodSeconds | int | `5` |  |
 | metallb.speaker.tolerateMaster | bool | `true` |  |
 | metallb.speaker.tolerations | list | `[]` |  |
 | metallb.speaker.updateStrategy.type | string | `"RollingUpdate"` |  |
