@@ -4,7 +4,7 @@ PROJECT ?=
 KIND_CLUSTER_NAME ?= network-chart
 KIND_KUBECONFIG := $(ROOT_DIR)/test/.config
 
-DANGEROUS_MULTUS := multus-underlay
+DANGEROUS_MULTUS := multus-underlay # sad :>
 .PHONY: all
 all: e2e
 
