@@ -1,0 +1,26 @@
+kubeview:
+  image:
+    registry: ghcr.m.daocloud.io
+    repository: benc-uk/kubeview
+    tag: 0.1.31
+  resources:
+    limits:
+      cpu: 250m
+      memory: 150Mi
+    requests:
+      cpu: 25m
+      memory: 15Mi
+
+  tests:
+    image:
+      # Image name
+      registry: ghcr.m.daocloud.io
+      repository: cowboysysop/pytest
+      tag: 1.0.35
+    resources:
+      limits:
+        cpu: 250m
+        memory: 150Mi
+      requests:
+        cpu: 25m
+        memory: 15Mi
