@@ -78,5 +78,6 @@ if ((res==0)) ; then
   exit 0
 else
   echo "error, failed to deploy submariner"
+  kubectl describe po -n ${SUBMARINER_NS} --kubeconfig ${KIND_KUBECONFIG}
   exit ${res}
 fi
