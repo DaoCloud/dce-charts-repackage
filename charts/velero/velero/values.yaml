@@ -17,7 +17,7 @@ velero:
     imagePullSecrets: []
     # - registrySecretName
 
-    registry: docker.io
+    registry: docker.m.daocloud.io
     pluginCSIRepository: velero/velero-plugin-for-csi
     pluginCSITag: v0.4.0
     pluginAWSRepository: velero/velero-plugin-for-aws
@@ -185,7 +185,7 @@ velero:
       # kubectl image tag. If used, it will take precedence over the cluster Kubernetes version.
       # tag: 1.16.15
 
-      registry: docker.io
+      registry: docker.m.daocloud.io
       tag: 1.21.0
     # Container Level Security Context for the 'kubectl' container of the crd jobs. Optional.
     # See: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
