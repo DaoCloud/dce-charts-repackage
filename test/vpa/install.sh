@@ -27,3 +27,4 @@ else
   echo "error, faild to deploy $CHART_DIR"
   exit 1
 fi
+
