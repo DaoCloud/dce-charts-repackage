@@ -1,0 +1,23 @@
+prometheus-node-exporter:
+  image:
+    registry: quay.m.daocloud.io
+    repository: prometheus/node-exporter
+    tag: "v1.3.1"
+  # resource for node-exporter
+  resources:
+    limits:
+      cpu: 200m
+      memory: 100Mi
+    requests:
+      cpu: 10m
+      memory: 20Mi
+  prometheus:
+    monitor:
+      enabled: true
+      additionalLabels:
+        operator.insight.io/managed-by: insight
+  extraArgs:
+    - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+    - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$
+    - --collector.cpu.info
+    - --collector.cpu.info.flags-include=^(aes|constant_tsc|hypervisor)$
