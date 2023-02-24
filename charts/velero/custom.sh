@@ -38,3 +38,16 @@ fi
 
 yq  -i '."velero"."image"+={"registry":"docker.io","repository":"velero/velero","pluginCSIRepository":"velero/velero-plugin-for-csi","pluginCSITag":"v0.4.0","pluginAWSRepository":"velero/velero-plugin-for-aws","pluginAWSTag":"v1.6.0","restoreHelperRepository":"velero/velero-restore-helper","restoreHelperTag":"v1.10.0"}' values.yaml
 yq  -i '."velero"."kubectl"."image"+={"registry":"docker.io","repository":"bitnami/kubectl","tag":"1.21.0"}' values.yaml
+
+
+yq -i '
+  .velero.image.registry = "docker.m.daocloud.io" |
+  .velero.kubectl.image.registry = "docker.m.daocloud.io" 
+' values.yaml
+
+
+if ! grep "keywords:" Chart.yaml &>/dev/null ; then
+    echo "keywords:" >> Chart.yaml
+    echo "  - velero" >> Chart.yaml
+    echo "  - backup" >> Chart.yaml
+fi
