@@ -21,6 +21,7 @@ Multus CNI enables attaching multiple network interfaces to pods in Kubernetes.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | config.cni_conf.binDir | string | `"/opt/cni/bin"` |  |
+| config.cni_conf.capabilities.bandwidth | bool | `true` |  |
 | config.cni_conf.capabilities.portMappings | bool | `true` |  |
 | config.cni_conf.clusterNetwork | string | `"calico"` |  |
 | config.cni_conf.cniDir | string | `"/var/lib/cni/multus"` |  |
@@ -37,9 +38,10 @@ Multus CNI enables attaching multiple network interfaces to pods in Kubernetes.
 | config.cni_conf.systemNamespaces[0] | string | `"kube-system"` |  |
 | config.cni_conf.type | string | `"multus"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"ghcr.io/k8snetworkplumbingwg/multus-cni"` |  |
+| image.registry | string | `"ghcr.io"` |  |
+| image.repository | string | `"k8snetworkplumbingwg/multus-cni"` |  |
 | image.tag | string | `"v3.9"` |  |
-| labels.nodeSelector."kubernetes.io/arch" | string | `"amd64"` |  |
+| labels.nodeSelector."kubernetes.io/os" | string | `"linux"` |  |
 | manifests.clusterRole | bool | `true` |  |
 | manifests.clusterRoleBinding | bool | `true` |  |
 | manifests.configMap | bool | `true` |  |
