@@ -8,6 +8,10 @@ on:
   push:
     branches:
       - 'main'
+  # auto trigger, in case push failure sometimes
+  schedule:
+    # each day
+    - cron: "0 20 * * *"
 
 jobs:
   get_chart:
@@ -16,17 +20,29 @@ jobs:
       ENV_charts_changed: ${{ env.ENV_charts_changed }}
       ENV_PR_NUMBER: ${{ env.ENV_PR_NUMBER }}
       ENV_PR_AUTHOR: ${{ env.ENV_PR_AUTHOR }}
+      ENV_JUST_PUSH: ${{ env.ENV_JUST_PUSH }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: chart
+      - name: get chart when schedule
+        run : |
+          if ${{ github.event_name == 'push' }} ; then
+              exit 0
+          fi
+          echo "ENV_charts_changed=all" >> $GITHUB_ENV
+          echo "ENV_JUST_PUSH=true" >> $GITHUB_ENV
+
+      - name: get chart when push
         env:
           GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
         run: |
           set -x
+          if ${{ github.event_name != 'push' }} ; then
+              exit 0
+          fi
           DATA_FILE="/tmp/`date +%Y%m%d%H%M%S%N`"
           echo '${{ toJSON(github) }}' > ${DATA_FILE}
           echo "============ print var ======== "
@@ -76,11 +92,12 @@ jobs:
     with:
       project: "${{ needs.get_chart.outputs.ENV_charts_changed }}"
       ref: "main"
+      justpush: "${{ needs.get_chart.outputs.ENV_JUST_PUSH }}"
     secrets: inherit
 
   create_issue:
     needs: [get_chart,call_release]
-    if: ${{ needs.get_chart.outputs.ENV_charts_changed != '' && always() }}
+    if: ${{ needs.get_chart.outputs.ENV_JUST_PUSH != 'true' && needs.get_chart.outputs.ENV_charts_changed != '' && always() }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
