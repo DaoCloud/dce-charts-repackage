@@ -17,7 +17,7 @@ HELM_MUST_OPTION=" --timeout 5m0s --debug --kubeconfig ${KIND_KUBECONFIG} "
 
 set -x
 
-helm install vpa chart-museum/neuvector  ${HELM_MUST_OPTION}  --namespace kube-system
+helm install neuvector chart-museum/neuvector  ${HELM_MUST_OPTION}  --namespace kube-system
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
