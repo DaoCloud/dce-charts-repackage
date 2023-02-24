@@ -38,7 +38,7 @@ Multi-underlay enables attaching multiple network interfaces to pods in Kubernet
 | macvlan.vlanID | int | `0` |  |
 | meta-plugins.image.registry | string | `"ghcr.m.daocloud.io"` |  |
 | meta-plugins.image.repository | string | `"spidernet-io/cni-plugins/meta-plugins"` |  |
-| meta-plugins.image.tag | string | `"v0.2.1"` |  |
+| meta-plugins.image.tag | string | `"v0.2.2"` |  |
 | multus.config.cni_conf.binDir | string | `"/opt/cni/bin"` |  |
 | multus.config.cni_conf.capabilities.bandwidth | bool | `true` |  |
 | multus.config.cni_conf.capabilities.portMappings | bool | `true` |  |
