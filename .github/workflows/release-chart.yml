@@ -33,6 +33,10 @@ on:
       ref:
         required: true
         type: string
+      justpush:
+        required: true
+        type: string
+
 
 permissions: write-all
 
@@ -130,6 +134,9 @@ jobs:
           ROOT_DIR=`pwd`
           cd _upload
           set -x
+          RETRY_NUMBER=100
+          FAILED_CHART=""
+          SUCCEED_CHART=""
           for ITEM in ${{ steps.package.outputs.project_list }} ; do
               DAO_PROJECT=` grep "DAOCLOUD_REPO_PROJECT" ${ROOT_DIR}/charts/${ITEM}/config | awk -F= '{print $2}' | tr -d ' ' `
               [ -z "$DAO_PROJECT" ] && echo "error, failed to find DAOCLOUD_REPO_PROJECT config in charts/${ITEM}/config " && exit 1
@@ -138,18 +145,32 @@ jobs:
               DAO_ADDRESS=${{ env.DAOCLOUD_HARBOR_URL }}/chartrepo/${DAO_PROJECT}
               echo "push $CHART_FILE to $DAO_ADDRESS "
               BAD=true
-              for ((N=0;N<10;N++)); do
-                  helm repo add daocloud-${DAO_PROJECT}  ${DAO_ADDRESS} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}  || continue 
-                  BAD="" && break          
-              done
-              [ "$BAD" == "true" ] && echo "erro, failed to helm repo add " && exit 1
-              BAD=true
-              for ((N=0;N<10;N++)); do
-                  helm cm-push ${CHART_FILE}  daocloud-${DAO_PROJECT} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} || continue
+              for ((N=0;N<RETRY_NUMBER;N++)); do
+                  helm repo add daocloud-${DAO_PROJECT}  ${DAO_ADDRESS} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }}  || { sleep 2 ; continue  ; }
                   BAD="" && break
               done
-              [ "$BAD" == "true" ] && echo "erro, failed to helm push " && exit 1
+              if [ "$BAD" != "true" ] ; then
+                  BAD=true
+                  for ((N=0;N<RETRY_NUMBER;N++)); do
+                      helm cm-push ${CHART_FILE}  daocloud-${DAO_PROJECT} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} || { sleep 2 ; continue  ; }
+                      BAD="" && break
+                  done
+              fi
+              if [ "$BAD" == "true" ] ; then 
+                  echo "error, failed to helm push ${CHART_FILE} "
+                  FAILED_CHART+=" ${CHART_FILE} "
+              else
+                  echo "succeeded to helm push ${CHART_FILE} "
+                  SUCCEED_CHART+=" ${CHART_FILE} "
+              fi
           done
+          echo "============== result =========="
+          echo "SUCCEED_CHART: ${SUCCEED_CHART}"
+          echo ""
+          echo "FAILED_CHART: ${FAILED_CHART}"
+          if [ -n "$FAILED_CHART" ]; then
+              exit 1
+          fi
           exit 0
 
       #- name: Create Release
@@ -170,6 +191,7 @@ jobs:
   update_githubpage:
     runs-on: ubuntu-latest
     needs: [package]
+    if: ${{ inputs.justpush != 'true' }}
     steps:
       - name: Get Base Chart URL
         id: get_base_url
