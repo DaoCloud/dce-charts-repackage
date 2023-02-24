@@ -31,12 +31,15 @@ if ! which helm-docs &>/dev/null ; then
 fi
 
 export CHART_VERSION=$(helm show chart charts/meta-plugins | grep '^version' |grep -E '[0-9].*.[0-9]' | awk -F ':' '{print $2}' | tr -d ' ')
+export IMAGE_VERSION=v${CHART_VERSION}
 echo "CHART_VERSION: ${CHART_VERSION}"
 
 yq -i '
     .appVersion=strenv(CHART_VERSION) |
     .version=strenv(CHART_VERSION)
 ' Chart.yaml
+
+yq -i '.meta-plugins.image.tag=strenv(IMAGE_VERSION)' values.yaml
 
 # keyWords to chart.yaml
 cat <<EOF >> Chart.yaml

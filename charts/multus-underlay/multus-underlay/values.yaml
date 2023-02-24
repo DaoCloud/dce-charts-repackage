@@ -5,7 +5,6 @@
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
 multus:
   pod:
     resources:
@@ -20,12 +19,10 @@ multus:
   labels:
     nodeSelector:
       kubernetes.io/os: linux
-
   image:
     registry: ghcr.m.daocloud.io
     repository: k8snetworkplumbingwg/multus-cni
     tag: v3.9
-
   config:
     cni_conf:
       name: multus-cni-network
@@ -48,7 +45,6 @@ multus:
       defaultNetwork: []
       delegates: []
       systemNamespaces: ["kube-system"]
-
 overlay_crds:
   calico:
     name: calico
@@ -59,7 +55,6 @@ overlay_crds:
   k8s-pod-network:
     name: k8s-pod-network
     enable: true
-
 cluster_subnet:
   service_subnet:
     ipv4: "10.233.0.0/18"
@@ -68,7 +63,6 @@ cluster_subnet:
   rp_filter:
     set_host: true
     value: 0
-
 macvlan:
   enable: true
   type: macvlan-overlay
@@ -79,7 +73,6 @@ macvlan:
   overlayInterface: eth0
   custom_route: []
   skip_call: false
-
 sriov:
   images:
     sriovCni:
@@ -91,7 +84,6 @@ sriov:
       repository: k8snetworkplumbingwg/sriov-network-device-plugin
       tag: v3.5.1
     pullPolicy: IfNotPresent
-
   serviceAccount:
     # Specifies whether a service account should be created
     #create: true
@@ -100,7 +92,6 @@ sriov:
     # The name of the service account to use.
     # If not set and create is true, a name is generated using the fullname template
     name: sriov-device-plugin-test
-
   pod:
     resources:
       enabled: true
@@ -111,11 +102,9 @@ sriov:
         limits:
           memory: "50Mi"
           cpu: "100m"
-
   labels:
     nodeSelector:
       kubernetes.io/os: linux
-
   config:
     scMountPaths:
       cnibin: "/host/opt/cni/bin"
@@ -131,7 +120,6 @@ sriov:
       devices: ["154c"]
       drivers: []
       pfNames: []
-
   sriov_crd:
     type: sriov-overlay
     name: sriov-overlay-vlan0
@@ -140,16 +128,14 @@ sriov:
     custom_route: []
     skip_call: false
     migrate_route: -1
-
   manifests:
     enable: false
     serviceAccount: true
     configMap_sriov_device_plugin: true
     daemonSet_sriov_device_plugin: true
     daemonSet_sriov_cni: true
-
 meta-plugins:
   image:
     registry: ghcr.m.daocloud.io
     repository: spidernet-io/cni-plugins/meta-plugins
-    tag: v0.2.1
+    tag: v0.2.2
