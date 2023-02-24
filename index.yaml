@@ -1,27 +1,68 @@
 apiVersion: v1
 entries:
-  cert-manager:
-  - apiVersion: v2
-    appVersion: v1.11.0
-    created: "2023-02-22T03:28:08.366482834Z"
+  argo-cd:
+  - annotations:
+      artifacthub.io/changes: |
+        - "[Removed]: Legacy API versions for Ingresses"
+    apiVersion: v2
+    appVersion: v2.5.5
+    created: "2023-02-24T03:42:29.943999788Z"
     dependencies:
-    - name: cert-manager
-      repository: https://charts.jetstack.io
-      version: v1.11.0
-    description: cert-manager is a Kubernetes addon to automate the management and
-      issuance of TLS certificates from various issuing sources.
-    digest: 640dfafd21c4daa38b46955d278ab5fc2f050dd860569da4baa4fa9a4bdcdc6e
-    icon: https://raw.githubusercontent.com/cert-manager/cert-manager/master/logo/logo-small.png
+    - name: argo-cd
+      repository: https://argoproj.github.io/argo-helm
+      version: 5.16.13
+    description: A Helm chart for Argo CD, a declarative, GitOps continuous delivery
+      tool for Kubernetes.
+    digest: 7e56f659432af771b7ffed6759ad5f2ee2a1d7256f3ecc9ce5de6d9716ee455d
+    home: https://github.com/argoproj/argo-helm
+    icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
     keywords:
-    - security
+    - argoproj
+    - argocd
+    - gitops
+    kubeVersion: '>=1.22.0-0'
+    maintainers:
+    - name: argoproj
+      url: https://argoproj.github.io/
+    name: argo-cd
+    sources:
+    - https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd
+    - https://github.com/argoproj/argo-cd
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/argo-cd-5.16.13.tgz
+    version: 5.16.13
+  cert-manager:
+  - annotations:
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/signKey: |
+        fingerprint: 1020CF3C033D4F35BAE1C19E1226061C665DF13E
+        url: https://cert-manager.io/public-keys/cert-manager-keyring-2021-09-20-1020CF3C033D4F35BAE1C19E1226061C665DF13E.gpg
+    apiVersion: v1
+    appVersion: v1.11.0
+    created: "2023-02-24T03:42:29.948649369Z"
+    description: A Helm chart for cert-manager
+    digest: 233db5701e725ade1c8ca19cd61be4d3bfd69ee4694870208908ba8b8bc62bcc
+    home: https://github.com/cert-manager/cert-manager
+    icon: https://raw.githubusercontent.com/cert-manager/cert-manager/d53c0b9270f8cd90d908460d69502694e1838f5f/logo/logo-small.png
+    keywords:
+    - cert-manager
+    - kube-lego
+    - letsencrypt
+    - tls
+    kubeVersion: '>= 1.21.0-0'
+    maintainers:
+    - email: cert-manager-maintainers@googlegroups.com
+      name: cert-manager-maintainers
+      url: https://cert-manager.io
     name: cert-manager
-    type: application
+    sources:
+    - https://github.com/cert-manager/cert-manager
     urls:
     - https://DaoCloud.github.io/dce-charts-repackage/cert-manager-1.11.0.tgz
     version: 1.11.0
   - apiVersion: v2
     appVersion: v1.9.1
-    created: "2023-02-22T03:28:08.372523571Z"
+    created: "2023-02-24T03:42:29.954734305Z"
     dependencies:
     - name: cert-manager
       repository: https://charts.jetstack.io
@@ -39,8 +80,27 @@ entries:
     version: 1.9.1
   contour:
   - apiVersion: v2
+    appVersion: 1.23.3
+    created: "2023-02-24T03:42:29.970003599Z"
+    dependencies:
+    - name: contour
+      repository: https://charts.bitnami.com/bitnami
+      version: 10.2.2
+    description: Contour is an open source Kubernetes ingress controller that works
+      by deploying the Envoy proxy as a reverse proxy and load balancer.
+    digest: 3b83001e262d78793f91fff54530416e04b3b9ca6ff7e2050dd9fe47c890ab35
+    icon: https://bitnami.com/assets/stacks/contour/img/contour-stack-220x234.png
+    keywords:
+    - networking
+    - ingress
+    name: contour
+    type: application
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/contour-10.2.2.tgz
+    version: 10.2.2
+  - apiVersion: v2
     appVersion: 1.22.1
-    created: "2023-02-22T03:28:08.398305555Z"
+    created: "2023-02-24T03:42:29.989142143Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -59,7 +119,7 @@ entries:
     version: 9.1.6
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2023-02-22T03:28:08.392577525Z"
+    created: "2023-02-24T03:42:29.982097669Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -77,7 +137,7 @@ entries:
     version: 9.1.1
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2023-02-22T03:28:08.385712569Z"
+    created: "2023-02-24T03:42:29.975613917Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -92,7 +152,7 @@ entries:
     version: 9.0.3
   - apiVersion: v2
     appVersion: 1.22.0
-    created: "2023-02-22T03:28:08.3782254Z"
+    created: "2023-02-24T03:42:29.960333323Z"
     dependencies:
     - name: contour
       repository: https://charts.bitnami.com/bitnami
@@ -108,9 +168,9 @@ entries:
   coredns-metrics:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2023-02-22T03:28:08.398958769Z"
+    created: "2023-02-24T03:42:29.989712465Z"
     description: A Helm chart for Kubernetes
-    digest: e403b77451763e4a34716a70fa014d3206e7f7056c3adc69ec1e6345228765a0
+    digest: 48e8b5758f21bc3e6ebc44269e7fd0c5139fd1ba1ec9e88d597a20e283325d15
     icon: https://coredns.io/images/CoreDNS_Colour_Horizontal.png
     keywords:
     - networking
@@ -120,10 +180,30 @@ entries:
     urls:
     - https://DaoCloud.github.io/dce-charts-repackage/coredns-metrics-0.1.0.tgz
     version: 0.1.0
+  docker-registry:
+  - apiVersion: v1
+    appVersion: 2.8.1
+    created: "2023-02-24T03:42:29.99139033Z"
+    description: A Helm chart for Docker Registry
+    digest: 8367281ed61b92aadaeb862ea0bc0a7a6abe502d20465372d09907531bbf455d
+    home: https://hub.docker.com/_/registry/
+    icon: https://helm.twun.io/docker-registry.png
+    keywords:
+    - docker-registry
+    maintainers:
+    - email: devin@canterberry.cc
+      name: Devin Canterberry
+      url: https://canterberry.cc/
+    name: docker-registry
+    sources:
+    - https://github.com/docker/distribution-library-image
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/docker-registry-2.2.2.tgz
+    version: 2.2.2
   f5networks:
   - apiVersion: v2
     appVersion: 0.2.0
-    created: "2023-02-22T03:28:08.402701254Z"
+    created: "2023-02-24T03:42:29.993775523Z"
     dependencies:
     - name: f5-bigip-ctlr
       repository: https://f5networks.github.io/charts/stable
@@ -133,7 +213,7 @@ entries:
       repository: https://f5networks.github.io/f5-ipam-controller/helm-charts/stable
       version: 0.0.2
     description: Deploy the F5 Networks BIG-IP Controller for Kubernetes and OpenShift
-    digest: fe0a5b4d47346d6d54fbf444486141f14d5dd9baaafa672302e24d8a8f861982
+    digest: e98fdbe9523c9c0e1d608b3b31b1e735ddc3b9426e4fae65a339918a8db0c109
     icon: https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/F5_Networks_logo.svg/330px-F5_Networks_logo.svg.png
     keywords:
     - networking
@@ -146,7 +226,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2023-02-22T03:28:08.40073781Z"
+    created: "2023-02-24T03:42:29.992499173Z"
     dependencies:
     - name: f5-bigip-ctlr
       repository: https://f5networks.github.io/charts/stable
@@ -168,13 +248,13 @@ entries:
   falco:
   - apiVersion: v2
     appVersion: 0.32.2
-    created: "2023-02-22T03:28:08.408774192Z"
+    created: "2023-02-24T03:42:30.001908439Z"
     dependencies:
     - name: falco
       repository: https://falcosecurity.github.io/charts
       version: 2.0.17
     description: Falco
-    digest: 3f0ab708448ad6215dc446549989d7a89d1a875c3da0847d6d188542d51975e3
+    digest: 09d2da8533e77c70f826f684aa721d9ce1c5248ef78d9d974786fa58323bd0a0
     home: https://falco.org
     icon: https://raw.githubusercontent.com/cncf/artwork/master/projects/falco/horizontal/color/falco-horizontal-color.svg
     keywords:
@@ -196,13 +276,13 @@ entries:
   falco-event-generator:
   - apiVersion: v2
     appVersion: 0.9.0
-    created: "2023-02-22T03:28:08.409492308Z"
+    created: "2023-02-24T03:42:30.002596766Z"
     dependencies:
     - name: event-generator
       repository: https://falcosecurity.github.io/charts
       version: 0.1.1
     description: A Helm chart used to deploy the event-generator in Kubernetes cluster.
-    digest: 559315305252d4580681bfae3cdfd2d760f9e7b579e369d100a2109103d677cd
+    digest: 2f7b788f1fed74475f33bb4afbb1e1a52090035b2d38f43d1513ee4d5f3e812e
     keywords:
     - monitoring
     - security
@@ -214,13 +294,13 @@ entries:
   falco-exporter:
   - apiVersion: v2
     appVersion: 0.7.0
-    created: "2023-02-22T03:28:08.410787537Z"
+    created: "2023-02-24T03:42:30.003967419Z"
     dependencies:
     - name: falco-exporter
       repository: https://falcosecurity.github.io/charts
       version: 0.8.2
     description: Prometheus Metrics Exporter for Falco output events
-    digest: 980c1b5f74dcd2f5e8b3a54371db729954b86a07bb15b13e1ae59589efcf93ca
+    digest: 32dc18e80762d2383b55d75776ee2bd252f35dc312cbf7d4d29ce6fc3990bead
     keywords:
     - monitoring
     - security
@@ -238,6 +318,22 @@ entries:
     urls:
     - https://DaoCloud.github.io/dce-charts-repackage/falco-exporter-0.8.2.tgz
     version: 0.8.2
+  harbor-operator:
+  - apiVersion: v2
+    appVersion: 0.0.0-dev
+    created: "2023-02-24T03:42:30.01659801Z"
+    description: Deploy Harbor Operator
+    digest: b8ad577254d3fecc157c45d056cd05d73ef8b94b26ea702e35c2d83301251427
+    home: https://github.com/goharbor/harbor-operator
+    icon: https://branding.cncf.io/img/projects/harbor/icon/color/harbor-icon-color.svg
+    keywords:
+    - harbor-operator
+    kubeVersion: '>= 1.16.0-0'
+    name: harbor-operator
+    type: application
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/harbor-operator-1.4.0.tgz
+    version: 1.4.0
   ingress-nginx:
   - annotations:
       artifacthub.io/changes: |
@@ -249,14 +345,14 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 1.6.4
-    created: "2023-02-22T03:28:08.444699605Z"
+    created: "2023-02-24T03:42:30.038289553Z"
     dependencies:
     - name: ingress-nginx
       repository: https://kubernetes.github.io/ingress-nginx
       version: 4.5.2
     description: Ingress controller for Kubernetes using NGINX as a reverse proxy
       and load balancer
-    digest: bc051a60a1c9e1a0e9565c73ce94da062525d7d3a09e54f614a0081eecc334ad
+    digest: cfabe0c6c19b9a31478389ac5eb8e55a784d7b90c3c3263b7f08a7a29c25479c
     home: https://github.com/kubernetes/ingress-nginx
     icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
     keywords:
@@ -275,7 +371,7 @@ entries:
     version: 4.5.2
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2023-02-22T03:28:08.438690669Z"
+    created: "2023-02-24T03:42:30.032896944Z"
     dependencies:
     - name: ingress-nginx
       repository: https://kubernetes.github.io/ingress-nginx
@@ -295,7 +391,7 @@ entries:
     version: 4.4.2
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2023-02-22T03:28:08.432932439Z"
+    created: "2023-02-24T03:42:30.026256586Z"
     dependencies:
     - name: ingress-nginx
       repository: https://kubernetes.github.io/ingress-nginx
@@ -315,7 +411,7 @@ entries:
     version: 4.2.1
   - apiVersion: v2
     appVersion: 1.3.0
-    created: "2023-02-22T03:28:08.428027928Z"
+    created: "2023-02-24T03:42:30.0214822Z"
     dependencies:
     - name: ingress-nginx
       repository: https://kubernetes.github.io/ingress-nginx
@@ -333,10 +429,163 @@ entries:
     urls:
     - https://DaoCloud.github.io/dce-charts-repackage/ingress-nginx-0.0.1.tgz
     version: 0.0.1
+  kube-bench:
+  - apiVersion: v1
+    created: "2023-02-24T03:42:30.038783073Z"
+    description: Helm chart to deploy run kube-bench as a cronjob on gke or eks.
+    digest: 1833bfa04f50870d711719698c35327ce7ec6073a75f3fa415e7830e6ef02e0a
+    home: https://github.com/aquasecurity/kube-bench
+    icon: https://raw.githubusercontent.com/aquasecurity/kube-bench/0d1bd2bbd95608957be024c12d03a0510325e5e2/docs/images/kube-bench.png
+    maintainers:
+    - email: no-reply@deliveryhero.com
+      name: goelankitt
+    name: kube-bench
+    sources:
+    - https://github.com/aquasecurity/kube-bench
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/kube-bench-0.1.5.tgz
+    version: 0.1.5
+  kube-state-metrics:
+  - apiVersion: v2
+    appVersion: 2.6.0
+    created: "2023-02-24T03:42:30.04001622Z"
+    dependencies:
+    - name: kube-state-metrics
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 4.22.*
+    description: Install kube-state-metrics to generate and expose cluster-level metrics
+    digest: 4edc34f4cc90d2480f65dcdbd974400bca5c31f3e4a33e7154a77d408b88d90a
+    home: https://github.com/kubernetes/kube-state-metrics/
+    keywords:
+    - metric
+    - monitoring
+    - prometheus
+    - kubernetes
+    maintainers:
+    - email: tariq.ibrahim@mulesoft.com
+      name: tariq1890
+    - email: manuel@rueg.eu
+      name: mrueg
+    - email: david@0xdc.me
+      name: dotdc
+    name: kube-state-metrics
+    sources:
+    - https://github.com/kubernetes/kube-state-metrics/
+    type: application
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/kube-state-metrics-4.22.3.tgz
+    version: 4.22.3
+  kubean:
+  - annotations:
+      addon.kpanda.io/namespace: kubean-system
+      addon.kpanda.io/release-name: kubean
+    apiVersion: v2
+    appVersion: v0.4.3
+    created: "2023-02-24T03:42:30.040792651Z"
+    dependencies:
+    - name: kubean
+      repository: https://kubean-io.github.io/kubean-helm-chart
+      version: v0.4.3
+    description: A Helm chart for kubean
+    digest: d5147f4d07eb3ab5d34f06c71d7d5ae2a56aec083d8d90bdc65d2aa1fa919ee4
+    icon: https://avatars.githubusercontent.com/u/108458246
+    keywords:
+    - kubean
+    - kubespray
+    name: kubean
+    type: application
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/kubean-v0.4.3.tgz
+    version: v0.4.3
+  kuberhealthy:
+  - apiVersion: v2
+    appVersion: v2.7.1
+    created: "2023-02-24T03:42:30.047549013Z"
+    dependencies:
+    - name: kuberhealthy
+      repository: https://kuberhealthy.github.io/kuberhealthy/helm-repos
+      version: "90"
+    description: An operator for synthetic test and monitoring. Works great with Prometheus.
+    digest: 660a2a741dc277af02276fb1e2ac5c50482ac04dea9aed7d3223c85b2d5d6d52
+    home: https://kuberhealthy.github.io/kuberhealthy/
+    icon: https://raw.githubusercontent.com/kuberhealthy/kuberhealthy/master/images/logo-square.png
+    keywords:
+    - kuberhealthy
+    - kubernetes
+    - operator
+    - monitoring
+    - synthetic
+    - testing
+    - comcast
+    - health
+    - prometheus
+    maintainers:
+    - email: ericgreer@gmail.com
+      name: integrii
+    - email: jonathan_phan@comcast.com
+      name: jonnydawg
+    - email: joshulyne_park@comcast.com
+      name: joshulyne
+    name: kuberhealthy
+    sources:
+    - https://github.com/kuberhealthy/kuberhealthy
+    - https://github.com/kuberhealthy/kuberhealthy/tree/master/deploy/helm/kuberhealthy
+    type: application
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/kuberhealthy-90.tgz
+    version: "90"
+  kubeview:
+  - annotations:
+      artifacthub.io/signKey: |
+        fingerprint: 9E57D2479D48B84463EF491F66D280CE667AD6C8
+        url: https://cowboysysop.github.io/charts/pgp-public-key-2022-02-19.asc
+      kubeVersion: '>=1.19'
+    apiVersion: v2
+    appVersion: 0.1.31
+    created: "2023-02-24T03:42:30.049387585Z"
+    dependencies:
+    - name: kubeview
+      repository: https://cowboysysop.github.io/charts/
+      version: 2.7.1
+    description: Kubernetes cluster visualiser and graphical explorer
+    digest: d7893892886c4ab662c0ccff52d69f8ad84a1a7c49ea9e433f5e502d79e4b4e8
+    home: https://github.com/benc-uk/kubeview
+    icon: https://raw.githubusercontent.com/benc-uk/kubeview/master/web/client/public/favicon.png
+    keywords:
+    - hpa
+    maintainers:
+    - email: sebastien.prudhomme@gmail.com
+      name: sebastien-prudhomme
+    name: kubeview
+    sources:
+    - https://github.com/benc-uk/kubeview
+    - https://github.com/cowboysysop/charts/tree/master/charts/kubeview
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/kubeview-2.7.1.tgz
+    version: 2.7.1
   metallb:
   - apiVersion: v2
+    appVersion: 0.13.9
+    created: "2023-02-24T03:42:30.060975135Z"
+    dependencies:
+    - name: metallb
+      repository: https://metallb.github.io/metallb
+      version: 0.13.9
+    description: A network load-balancer implementation for Kubernetes using standard
+      routing protocols
+    digest: 31caba8fa7370f0deb6138dca4267fa7a85886c4a0c6e4f34c1fd3254e065081
+    icon: https://raw.githubusercontent.com/DaoCloud/network-charts-repackage/main/charts/metallb/metallb/icon.svg
+    keywords:
+    - networking
+    - loadbalancer
+    name: metallb
+    type: application
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/metallb-0.13.9.tgz
+    version: 0.13.9
+  - apiVersion: v2
     appVersion: 0.13.7
-    created: "2023-02-22T03:28:08.453237198Z"
+    created: "2023-02-24T03:42:30.058236029Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
@@ -355,7 +604,7 @@ entries:
     version: 0.13.7
   - apiVersion: v2
     appVersion: 0.13.5
-    created: "2023-02-22T03:28:08.450017625Z"
+    created: "2023-02-24T03:42:30.05544252Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
@@ -374,7 +623,7 @@ entries:
     version: 0.13.5
   - apiVersion: v2
     appVersion: 0.13.4
-    created: "2023-02-22T03:28:08.446934956Z"
+    created: "2023-02-24T03:42:30.051601171Z"
     dependencies:
     - name: metallb
       repository: https://metallb.github.io/metallb
@@ -407,14 +656,14 @@ entries:
           description: "Updated Metrics Server image to v0.6.2."
     apiVersion: v2
     appVersion: 0.6.2
-    created: "2023-02-22T03:28:08.454667231Z"
+    created: "2023-02-24T03:42:30.062407391Z"
     dependencies:
     - name: metrics-server
       repository: https://kubernetes-sigs.github.io/metrics-server
       version: 3.8.3
     description: Metrics Server is a scalable, efficient source of container resource
       metrics for Kubernetes built-in autoscaling pipelines.
-    digest: d6923ac08a5b8678e1568629f50e2ac2a940a53be8da25efc056c0f0d923917e
+    digest: 369ac6f833927bd3baf8bc68cc9079da62d090c34d169da160dcb4cdd3ed47cc
     home: https://github.com/kubernetes-sigs/metrics-server
     icon: https://avatars.githubusercontent.com/u/36015203?s=400&v=4
     keywords:
@@ -438,7 +687,7 @@ entries:
   multus:
   - apiVersion: v2
     appVersion: v3.9
-    created: "2023-02-22T03:28:08.477318044Z"
+    created: "2023-02-24T03:42:30.084978568Z"
     dependencies:
     - name: plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -454,7 +703,7 @@ entries:
   multus-underlay:
   - apiVersion: v2
     appVersion: v3.9
-    created: "2023-02-22T03:28:08.476069815Z"
+    created: "2023-02-24T03:42:30.08373602Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -469,7 +718,7 @@ entries:
     version: v3.9
   - apiVersion: v2
     appVersion: 0.2.1
-    created: "2023-02-22T03:28:08.466225692Z"
+    created: "2023-02-24T03:42:30.073800434Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -482,7 +731,7 @@ entries:
       version: 0.1.2
     description: Multi-cni enables attaching multiple network interfaces to pods in
       Kubernetes. Including multus and veth-plugin.
-    digest: a6092235a6c97191ecab003e05eed73c684f93b6154600205524143ca10d8d10
+    digest: 419cb29f1f63a7bdfbbbce51e1f349b00bac4b0fa33a9eeaf40a858a7cc61243
     keywords:
     - networking
     - underlay
@@ -494,7 +743,7 @@ entries:
     version: 0.2.1
   - apiVersion: v2
     appVersion: 0.1.6
-    created: "2023-02-22T03:28:08.464263848Z"
+    created: "2023-02-24T03:42:30.071848358Z"
     dependencies:
     - name: meta-plugins
       repository: file://charts/meta-plugins
@@ -519,7 +768,7 @@ entries:
     version: 0.1.6
   - apiVersion: v2
     appVersion: 0.1.5
-    created: "2023-02-22T03:28:08.460719568Z"
+    created: "2023-02-24T03:42:30.069815379Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -544,7 +793,7 @@ entries:
     version: 0.1.5
   - apiVersion: v2
     appVersion: 0.1.4
-    created: "2023-02-22T03:28:08.458636521Z"
+    created: "2023-02-24T03:42:30.067703397Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -567,7 +816,7 @@ entries:
     version: 0.1.4
   - apiVersion: v2
     appVersion: 0.1.3
-    created: "2023-02-22T03:28:08.456634275Z"
+    created: "2023-02-24T03:42:30.064360767Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -590,7 +839,7 @@ entries:
     version: 0.1.3
   - apiVersion: v2
     appVersion: v0.1.2
-    created: "2023-02-22T03:28:08.473229651Z"
+    created: "2023-02-24T03:42:30.08168684Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -613,7 +862,7 @@ entries:
     version: v0.1.2
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2023-02-22T03:28:08.470562191Z"
+    created: "2023-02-24T03:42:30.079565758Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -636,7 +885,7 @@ entries:
     version: v0.1.1
   - apiVersion: v2
     appVersion: v0.1.0
-    created: "2023-02-22T03:28:08.468432942Z"
+    created: "2023-02-24T03:42:30.077370773Z"
     dependencies:
     - name: meta-plugins
       repository: https://spidernet-io.github.io/cni-plugins
@@ -649,12 +898,31 @@ entries:
     urls:
     - https://DaoCloud.github.io/dce-charts-repackage/multus-underlay-v0.1.0.tgz
     version: v0.1.0
+  neuvector:
+  - apiVersion: v1
+    appVersion: 5.1.1
+    created: "2023-02-24T03:42:30.089297336Z"
+    description: Helm chart for NeuVector's core services
+    digest: 4f4410afce25f5e088f51a5116a5474eb70d4ca15d9718babc5af3f1de952f75
+    home: https://neuvector.com
+    icon: https://avatars2.githubusercontent.com/u/19367275?s=200&v=4
+    keywords:
+    - monitoring
+    - security
+    - networking
+    maintainers:
+    - email: support@neuvector.com
+      name: becitsthere
+    name: neuvector
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/neuvector-2.4.2.tgz
+    version: 2.4.2
   nmstate:
   - apiVersion: v2
     appVersion: v0.74.0
-    created: "2023-02-22T03:28:08.477978359Z"
+    created: "2023-02-24T03:42:30.089972062Z"
     description: A Helm chart for Kubernetes
-    digest: 236fe6ece523d904b5342df4fec14446bd954ca93e258143e40dafaa1902f8bd
+    digest: c2b68de2cf51ceab5d2df5763bd20086c12463f88171f24920952c115ce1e4c4
     keywords:
     - networking
     name: nmstate
@@ -667,12 +935,12 @@ entries:
   node-problem-detector:
   - apiVersion: v1
     appVersion: v0.8.12
-    created: "2023-02-22T03:28:08.479108484Z"
+    created: "2023-02-24T03:42:30.091093706Z"
     description: 'This chart installs a [node-problem-detector](https://github.com/kubernetes/node-problem-detector)
       daemonset. This tool aims to make various node problems visible to the upstream
       layers in cluster management stack. It is a daemon which runs on each node,
       detects node problems and reports them to apiserver. '
-    digest: 7b0351bc61df4c0cc31401c3a543c9a087476ade362df62928849f507134e6a0
+    digest: 11d8bb967bee56ef10658be6248273e7a4dbd953d1fe8f2d603b0153173011dc
     home: https://github.com/kubernetes/node-problem-detector
     icon: https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png
     keywords:
@@ -690,16 +958,68 @@ entries:
     urls:
     - https://DaoCloud.github.io/dce-charts-repackage/node-problem-detector-2.3.1.tgz
     version: 2.3.1
+  prometheus-adapter:
+  - apiVersion: v1
+    appVersion: v0.10.0
+    created: "2023-02-24T03:42:30.09221355Z"
+    description: A Helm chart for k8s prometheus adapter
+    digest: 19a71fb3e037d07a84f0d2cbc6bc8444dd2c801c987cdc0ef907a8d2a417186e
+    home: https://github.com/kubernetes-sigs/prometheus-adapter
+    keywords:
+    - hpa
+    - metrics
+    - prometheus
+    - adapter
+    maintainers:
+    - email: mattias.gees@jetstack.io
+      name: mattiasgees
+    - name: steven-sheehy
+    - email: hfernandez@mesosphere.com
+      name: hectorj2f
+    name: prometheus-adapter
+    sources:
+    - https://github.com/kubernetes/charts
+    - https://github.com/kubernetes-sigs/prometheus-adapter
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/prometheus-adapter-4.1.1.tgz
+    version: 4.1.1
+  prometheus-node-exporter:
+  - apiVersion: v2
+    appVersion: 1.3.1
+    created: "2023-02-24T03:42:30.093392595Z"
+    dependencies:
+    - name: prometheus-node-exporter
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 4.6.0
+    description: A Helm chart for prometheus node-exporter
+    digest: f686dc874b4476e50c6a12924a98af40659afaaad0c79ef63c2e798c0d287883
+    home: https://github.com/prometheus/node_exporter/
+    keywords:
+    - node-exporter
+    - prometheus
+    - exporter
+    maintainers:
+    - email: gianrubio@gmail.com
+      name: gianrubio
+    - email: zanhsieh@gmail.com
+      name: zanhsieh
+    name: prometheus-node-exporter
+    sources:
+    - https://github.com/prometheus/node_exporter/
+    type: application
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/prometheus-node-exporter-4.6.0.tgz
+    version: 4.6.0
   spiderdoctor:
   - apiVersion: v2
     appVersion: 0.3.0
-    created: "2023-02-22T03:28:08.490795049Z"
+    created: "2023-02-24T03:42:30.105445764Z"
     dependencies:
     - name: spiderdoctor
       repository: https://spidernet-io.github.io/spiderdoctor
       version: 0.3.0
     description: spiderdoctor
-    digest: 52dc52cf01dfe22d4b2d7bb4cb30d23568e0e71b785fdc90173f3a2f78c3f530
+    digest: 82413dc5a182abd9728300fff18f94e6b1929054de4f083e2c5dc8fc5df36f32
     home: https://spidernet-io.github.io/agent
     keywords:
     - spiderdoctor
@@ -716,7 +1036,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 0.2.7
-    created: "2023-02-22T03:28:08.488768303Z"
+    created: "2023-02-24T03:42:30.102428047Z"
     dependencies:
     - name: spiderdoctor
       repository: https://spidernet-io.github.io/spiderdoctor
@@ -739,7 +1059,7 @@ entries:
     version: 0.2.7
   - apiVersion: v2
     appVersion: 0.2.4
-    created: "2023-02-22T03:28:08.486743857Z"
+    created: "2023-02-24T03:42:30.100411968Z"
     dependencies:
     - name: spiderdoctor
       repository: https://spidernet-io.github.io/spiderdoctor
@@ -762,7 +1082,7 @@ entries:
     version: 0.2.4
   - apiVersion: v2
     appVersion: 0.2.3
-    created: "2023-02-22T03:28:08.484746912Z"
+    created: "2023-02-24T03:42:30.09840359Z"
     dependencies:
     - name: spiderdoctor
       repository: https://spidernet-io.github.io/spiderdoctor
@@ -785,7 +1105,7 @@ entries:
     version: 0.2.3
   - apiVersion: v2
     appVersion: 0.2.2
-    created: "2023-02-22T03:28:08.481298634Z"
+    created: "2023-02-24T03:42:30.095376173Z"
     dependencies:
     - name: spiderdoctor
       repository: https://spidernet-io.github.io/spiderdoctor
@@ -809,17 +1129,17 @@ entries:
   spiderpool:
   - apiVersion: v2
     appVersion: 0.3.6
-    created: "2023-02-22T03:28:08.532177386Z"
+    created: "2023-02-24T03:42:30.154326464Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
       version: 0.3.6
     description: ipam for kubernetes cni
-    digest: dbec178fde3bfac725b3c5b2cfb130533c63e055b39f3ff6f97cb4024698b22b
+    digest: edefef77fdff94416fb6704e895d7549900bbad9b6e5725d7b96303273f92650
     home: https://spidernet-io.github.io/spiderpool
     icon: https://raw.githubusercontent.com/spidernet-io/spiderpool/main/docs/images/spider.png
     keywords:
-    - networking
+    - spiderpool
     - ipam
     kubeVersion: '>= 1.16.0-0'
     maintainers:
@@ -834,7 +1154,7 @@ entries:
     version: 0.3.6
   - apiVersion: v2
     appVersion: 0.3.5
-    created: "2023-02-22T03:28:08.526895866Z"
+    created: "2023-02-24T03:42:30.150229905Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -859,7 +1179,7 @@ entries:
     version: 0.3.5
   - apiVersion: v2
     appVersion: 0.3.4
-    created: "2023-02-22T03:28:08.522860975Z"
+    created: "2023-02-24T03:42:30.144715991Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -884,7 +1204,7 @@ entries:
     version: 0.3.4
   - apiVersion: v2
     appVersion: 0.3.3
-    created: "2023-02-22T03:28:08.518862184Z"
+    created: "2023-02-24T03:42:30.140702035Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -909,7 +1229,7 @@ entries:
     version: 0.3.3
   - apiVersion: v2
     appVersion: 0.3.2
-    created: "2023-02-22T03:28:08.513160655Z"
+    created: "2023-02-24T03:42:30.135326526Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -934,7 +1254,7 @@ entries:
     version: 0.3.2
   - apiVersion: v2
     appVersion: 0.3.1
-    created: "2023-02-22T03:28:08.509299668Z"
+    created: "2023-02-24T03:42:30.131366672Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -959,7 +1279,7 @@ entries:
     version: 0.3.1
   - apiVersion: v2
     appVersion: 0.3.0
-    created: "2023-02-22T03:28:08.504194252Z"
+    created: "2023-02-24T03:42:30.12747322Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -984,7 +1304,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 0.2.0
-    created: "2023-02-22T03:28:08.500300064Z"
+    created: "2023-02-24T03:42:30.121965006Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1009,7 +1329,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: 0.1.4
-    created: "2023-02-22T03:28:08.496359175Z"
+    created: "2023-02-24T03:42:30.117989652Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1034,7 +1354,7 @@ entries:
     version: 0.1.4
   - apiVersion: v2
     appVersion: v0.1.3
-    created: "2023-02-22T03:28:08.574380741Z"
+    created: "2023-02-24T03:42:30.188919509Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1059,7 +1379,7 @@ entries:
     version: v0.1.3
   - apiVersion: v2
     appVersion: v0.1.2
-    created: "2023-02-22T03:28:08.570294449Z"
+    created: "2023-02-24T03:42:30.184849451Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1083,7 +1403,7 @@ entries:
     version: v0.1.2
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2023-02-22T03:28:08.56461962Z"
+    created: "2023-02-24T03:42:30.179826155Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1107,7 +1427,7 @@ entries:
     version: v0.1.1
   - apiVersion: v2
     appVersion: v0.1.0
-    created: "2023-02-22T03:28:08.560872136Z"
+    created: "2023-02-24T03:42:30.176137612Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1131,7 +1451,7 @@ entries:
     version: v0.1.0
   - apiVersion: v2
     appVersion: v0.0.11
-    created: "2023-02-22T03:28:08.540717479Z"
+    created: "2023-02-24T03:42:30.162324575Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1155,7 +1475,7 @@ entries:
     version: v0.0.11
   - apiVersion: v2
     appVersion: v0.0.10
-    created: "2023-02-22T03:28:08.535755667Z"
+    created: "2023-02-24T03:42:30.158052909Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1179,7 +1499,7 @@ entries:
     version: v0.0.10
   - apiVersion: v2
     appVersion: v0.0.9
-    created: "2023-02-22T03:28:08.549493378Z"
+    created: "2023-02-24T03:42:30.172647176Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1203,7 +1523,7 @@ entries:
     version: v0.0.9
   - apiVersion: v2
     appVersion: v0.0.8
-    created: "2023-02-22T03:28:08.546207504Z"
+    created: "2023-02-24T03:42:30.167813188Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1227,7 +1547,7 @@ entries:
     version: v0.0.8
   - apiVersion: v2
     appVersion: v0.0.6
-    created: "2023-02-22T03:28:08.543432741Z"
+    created: "2023-02-24T03:42:30.165055781Z"
     dependencies:
     - name: spiderpool
       repository: https://spidernet-io.github.io/spiderpool
@@ -1252,13 +1572,13 @@ entries:
   submariner-k8s-broker:
   - apiVersion: v2
     appVersion: 0.14.0
-    created: "2023-02-22T03:28:08.574943454Z"
+    created: "2023-02-24T03:42:30.189481331Z"
     dependencies:
     - name: submariner-k8s-broker
       repository: https://submariner-io.github.io/submariner-charts/charts
       version: 0.14.0
     description: Submariner Kubernetes Broker
-    digest: 6aa61fba69293461ad668bfe8b6413addb55665d0e667a5314db1c36b24303a3
+    digest: ed1437e3a26a18eab71ab503af1baa8aadc819b4e745a5e30cd08cda55cd35df
     home: https://submariner-io.github.io/
     keywords:
     - networking
@@ -1275,14 +1595,14 @@ entries:
   submariner-operator:
   - apiVersion: v2
     appVersion: 0.14.0
-    created: "2023-02-22T03:28:08.57608638Z"
+    created: "2023-02-24T03:42:30.190877785Z"
     dependencies:
     - name: submariner-operator
       repository: https://submariner-io.github.io/submariner-charts/charts
       version: 0.14.0
     description: Submariner enables direct networking between Pods and Services in
       different Kubernetes clusters
-    digest: 06e7c3954c196e89996f9ab0811124a87c54d93951d61efb1d3115c6ddfa9481
+    digest: 60283780f1011d331ec030fe450c0e8e2916e804162d72576f1d6e96dd5b9cab
     home: https://submariner-io.github.io/
     keywords:
     - networking
@@ -1296,16 +1616,33 @@ entries:
     urls:
     - https://DaoCloud.github.io/dce-charts-repackage/submariner-operator-0.14.0.tgz
     version: 0.14.0
+  vela-core:
+  - apiVersion: v2
+    appVersion: 1.6.7
+    created: "2023-02-24T03:42:30.199591024Z"
+    dependencies:
+    - name: vela-core
+      repository: https://charts.kubevela.net/core
+      version: 1.6.7
+    description: A Helm chart for KubeVela core
+    digest: 3015e9c3316bc5168d57c471ad3753885a3e7974d84c613b841e1530e4e286d8
+    home: https://kubevela.io
+    icon: https://kubevela.io/img/logo.svg
+    name: vela-core
+    type: application
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/vela-core-1.6.7.tgz
+    version: 1.6.7
   velero:
   - apiVersion: v2
     appVersion: 1.10.0
-    created: "2023-02-22T03:28:08.580420278Z"
+    created: "2023-02-24T03:42:30.20386509Z"
     dependencies:
     - name: velero
       repository: https://vmware-tanzu.github.io/helm-charts
       version: 3.0.0
     description: A Helm chart for velero
-    digest: 2b7515277e3fcdc0aa65aac65d66a99d872cee8caaf6accaaba55c1e78e0933b
+    digest: 250d3cf3d94e9ceb6cf09de26d4ba6eb7367b50400eee56dcb58a3bd5d3a2e30
     home: https://github.com/vmware-tanzu/velero
     icon: https://cdn-images-1.medium.com/max/1600/1*-9mb3AKnKdcL_QD3CMnthQ.png
     kubeVersion: '>=1.16.0-0'
@@ -1327,7 +1664,7 @@ entries:
   veth:
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2023-02-22T03:28:08.580725685Z"
+    created: "2023-02-24T03:42:30.204171602Z"
     description: Veth works with macvlan cni to solve some communication problems
       when macvlan is used as CNI.
     digest: e532a68813205bdf899ff60ce100b5c80b27b4dee2c5e05bd85c512c70735af4
@@ -1343,13 +1680,16 @@ entries:
   vpa:
   - apiVersion: v2
     appVersion: 0.11.0
-    created: "2023-02-22T03:28:08.582473525Z"
+    created: "2023-02-24T03:42:30.206101077Z"
     dependencies:
     - name: vpa
       repository: https://charts.fairwinds.com/stable
       version: 1.5.0
     description: A Helm chart for Kubernetes Vertical Pod Autoscaler
-    digest: 766ec3ba102ac0c2c0ce246957626ac526b84ef34e4995075d185a15d1718333
+    digest: d8ee46d9169a4653ac12d3a3f8d574b096320b53240d4384a9531cc648ba6af3
+    keywords:
+    - vpa
+    - autoscale
     maintainers:
     - name: sudermanjr
     name: vpa
@@ -1357,4 +1697,39 @@ entries:
     urls:
     - https://DaoCloud.github.io/dce-charts-repackage/vpa-1.5.0.tgz
     version: 1.5.0
-generated: "2023-02-22T03:28:08.360501698Z"
+  wordpress:
+  - annotations:
+      category: CMS
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 6.1.1
+    created: "2023-02-24T03:42:30.218968777Z"
+    dependencies:
+    - name: wordpress
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.2.39
+    description: WordPress is the world's most popular blogging and content management
+      platform. Powerful yet simple, everyone from students to global corporations
+      use it to build beautiful, functional websites.
+    digest: 668de123334d229dbe73242a2e1d9e39665a4cac01ecd7ec296e5e9cdf3f139e
+    home: https://github.com/bitnami/charts/tree/main/bitnami/wordpress
+    icon: https://bitnami.com/assets/stacks/wordpress/img/wordpress-stack-220x234.png
+    keywords:
+    - application
+    - blog
+    - cms
+    - http
+    - php
+    - web
+    - wordpress
+    maintainers:
+    - name: Bitnami
+      url: https://github.com/bitnami/charts
+    name: wordpress
+    sources:
+    - https://github.com/bitnami/containers/tree/main/bitnami/wordpress
+    - https://wordpress.org/
+    urls:
+    - https://DaoCloud.github.io/dce-charts-repackage/wordpress-15.2.39.tgz
+    version: 15.2.39
+generated: "2023-02-24T03:42:29.912266854Z"
