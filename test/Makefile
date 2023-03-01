@@ -4,7 +4,6 @@ PROJECT ?=
 KIND_CLUSTER_NAME ?= network-chart
 KIND_KUBECONFIG := $(ROOT_DIR)/test/.config
 
-DANGEROUS_MULTUS := multus-underlay
 .PHONY: all
 all: e2e
 
@@ -18,10 +17,6 @@ e2e:
 		SUCCEED_PROJECT="" ; \
 		for ITEM in $$PROJECT_LIST ; do \
 		    [ -d "$${ITEM}" ] || continue ; \
-			if [ "$${ITEM}" == "$(DANGEROUS_MULTUS)" ] ; then  \
-					RUN_DANGEROUS_ITEM=true ; \
-					continue ; \
-			fi ; \
 			KIND_CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
 			INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
 			if [ -n "$(PROJECT)" ]; then \
@@ -45,34 +40,6 @@ e2e:
 			./clean.sh "$(KIND_KUBECONFIG)" || true ; \
 			SUCCEED_PROJECT+=" $${ITEM} " ; \
 	  	done ; \
-	  	if [ "$${RUN_DANGEROUS_ITEM}" == "true" ] ; then \
-	  			PROJECT_LIST=" $(DANGEROUS_MULTUS) "  ; \
-				for ITEM in $$PROJECT_LIST ; do \
-					[ -d "$${ITEM}" ] || continue ; \
-					KIND_CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
-					INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
-					if [ -n "$(PROJECT)" ]; then \
-						[ -f "$${INSTALL_PATH}" ] || { echo "error, miss $${INSTALL_PATH}" ; exit 1 ; } ; \
-					else \
-						[ ! -f "$${INSTALL_PATH}" ] && continue ; \
-					fi ; \
-					echo "============ run e2e for project $${ITEM} ===================="; \
-					if [ -f "$${KIND_CONFIG_PATH}" ] ; then  \
-						echo "the project $${ITEM}  needs a standby kind cluster" ; \
-						make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
-					fi ; \
-					if ( unset NO_IMAGE ;  source $(ROOT_DIR)/charts/$${ITEM}/config && [ "$${NO_IMAGE}" == "true" ] ) ; then \
-						echo "ignore sync project $${ITEM}"; \
-					else \
-						echo "sync project $${ITEM}"; \
-						make sync -e PROJECT=$${ITEM} || { echo "error, failed to sync $${ITEM}" ; FAILED_PROJECT+=" $${ITEM} " ; continue ; } ; \
-					fi ; \
-					echo "deploy project $${ITEM}"; \
-					make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ; FAILED_PROJECT+=" $${ITEM} " ; ./clean.sh "$(KIND_KUBECONFIG)" || true ; continue ; } ; \
-					./clean.sh "$(KIND_KUBECONFIG)" || true ; \
-					SUCCEED_PROJECT+=" $${ITEM} " ; \
-				done ; \
-  	    fi ;\
   	    echo "============== show final result ====================" ; \
   	    helm list -A  --kubeconfig $(KIND_KUBECONFIG)  ; \
   	    echo "----" ; \
