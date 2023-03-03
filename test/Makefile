@@ -98,7 +98,7 @@ sync: checkBin
 	VERSION=`yq ".version"  $(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT)/Chart.yaml ` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
 	echo "chart move $(PROJECT) $${VERSION}" ; \
 	mkdir -p _tmp && DIR=_tmp ;\
-    relok8s chart move $${CHART_PATH}/$(PROJECT) --to-intermediate-bundle $${DIR}/$(PROJECT)_$${VERSION}.bundle.tar -y || { echo "error, failed to save charts and images to local" ; exit 1 ; } ; \
+    relok8s chart move $${CHART_PATH}/$(PROJECT) --to-intermediate-bundle $${DIR}/$(PROJECT)_$${VERSION}.bundle.tar -y --retries 3 || { echo "error, failed to save charts and images to local" ; exit 1 ; } ; \
     CONFIG=" \
 source:  \n \
      intermediateBundlesPath: ${ROOT_DIR}/test/$${DIR} \n \
