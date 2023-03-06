@@ -1,0 +1,21 @@
+annotations:
+  artifacthub.io/changes: |
+    - kind: changed
+      description: Upgrade Argo Rollouts to v.1.4.1
+    - kind: added
+      description: Put Changelog URL on README.md
+apiVersion: v2
+appVersion: v1.4.1
+description: A Helm chart for Argo Rollouts
+home: https://github.com/argoproj/argo-helm
+icon: https://argoproj.github.io/argo-rollouts/assets/logo.png
+keywords:
+- argoproj
+- argo-rollouts
+maintainers:
+- name: argoproj
+  url: https://argoproj.github.io/
+name: argo-rollouts
+sources:
+- https://github.com/argoproj/argo-rollouts
+version: 2.22.3
