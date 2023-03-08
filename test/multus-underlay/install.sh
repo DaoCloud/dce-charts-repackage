@@ -19,9 +19,12 @@ if ! which jq &>/dev/null ; then
     chmod +x /usr/bin/jq
 fi
 
+set -x
+
 helm repo update chart-museum  --kubeconfig ${KIND_KUBECONFIG}
 helm pull chart-museum/multus-underlay --untar --untardir /tmp
-cat /tmp/multus-underlay/values.schema.json | jq '.properties.multus.properties.config.properties.cni_conf.properties.clusterNetwork.enum += ["kindnet"]' | tee /tmp/multus-underlay/values.schema.json
+cat <<< $(jq '.properties.multus.properties.config.properties.cni_conf.properties.clusterNetwork.enum += ["kindnet"]' /tmp/multus-underlay/values.schema.json) > /tmp/multus-underlay/values.schema.json
+grep -n 'kindnet'  /tmp/multus-underlay/values.schema.json
 
 HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG} \
 --namespace kube-public \
@@ -32,30 +35,6 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 
 #==================== add your deploy code bellow =============
 #==================== notice , prometheus CRD has been deployed , so you no need to =============
-
-set -x
-
-HELM_IMAGES_LIST=` helm template test /tmp/multus-underlay  ${HELM_MUST_OPTION} | grep " image: " | tr -d '"'| awk '{print $2}' `
-
-[ -z "${HELM_IMAGES_LIST}" ] && echo "can't found image of multus-underlay" && exit 1
-LOCAL_IMAGE_LIST=`docker images | awk '{printf("%s:%s\n",$1,$2)}'`
-
-for IMAGE in ${HELM_IMAGES_LIST}; do
-  found=false
-  for LOCAL_IMAGE in ${LOCAL_IMAGE_LIST}; do
-    if [ "${IMAGE}" == "${LOCAL_IMAGE}" ]; then
-      found=true
-      break
-    fi
-  done
-  if [ "${found}" == "false" ] ; then
-    echo "===> docker pull ${IMAGE}..."
-    docker pull ${IMAGE}
-  fi
-  echo "===> load image ${IMAGE} to kind..."
-  kind load docker-image ${IMAGE} --name ${KIND_NAME}
-done
-
 helm install multus /tmp/multus-underlay  ${HELM_MUST_OPTION}
 
 if (($?==0)) ; then
