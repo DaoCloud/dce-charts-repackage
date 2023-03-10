@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "base": {
+            "type": "object",
+            "properties": {
+                "base": {
+                    "type": "object",
+                    "properties": {
+                        "enableCRDTemplates": {
+                            "type": "boolean"
+                        },
+                        "enableIstioConfigCRDs": {
+                            "type": "boolean"
+                        },
+                        "validationURL": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "defaultRevision": {
+                    "type": "string"
+                },
+                "global": {
+                    "type": "object",
+                    "properties": {
+                        "configValidation": {
+                            "type": "boolean"
+                        },
+                        "externalIstiod": {
+                            "type": "boolean"
+                        },
+                        "imagePullSecrets": {
+                            "type": "array"
+                        },
+                        "istioNamespace": {
+                            "type": "string"
+                        },
+                        "istiod": {
+                            "type": "object",
+                            "properties": {
+                                "enableAnalysis": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "remotePilotAddress": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
