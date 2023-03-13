@@ -119,7 +119,7 @@ checkImages: checkBin
 	set -x ; helm repo update chart-museum  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to update helm chart-museum repo " ; exit 1 ; } ; \
 	helm search repo chart-museum  --kubeconfig $(KIND_KUBECONFIG) ; \
 	helm template test chart-museum/$${PROJECT} | grep " image: " ; \
-    IMAGE_LIST=` helm template test chart-museum/$${PROJECT}  | grep " image: " | tr -d '"' | tr -d '-' | awk '{print $$2}' ` ;\
+    IMAGE_LIST=` helm template test chart-museum/$${PROJECT}  | grep " image: " | tr -d '"' | tr -d '-' | grep -v " image: {{ "| awk '{print $$2}' ` ;\
 	if [ -z "$${IMAGE_LIST}" ] ; then \
 		echo "error, failed to find image from chart template for $(PROJECT)" ; exit 1 ; \
 	else \
@@ -143,7 +143,7 @@ deploy: checkBin
 		[ -d "$${CHART_DIR}" ] || { echo "error, failed to find chart $${CHART_DIR}" ; exit 1 ; } ; \
 		if [ "$(TRY_LOAD_LOCAL_IMAGE)" == "true" ] ; then \
 			echo "try to load local image for $(PROJECT)" ; \
-			IMAGE_LIST=` helm template test $${CHART_DIR}  | grep " image: " | tr -d '"'| tr -d '-'| awk '{print $$2}' ` ; \
+			IMAGE_LIST=` helm template test $${CHART_DIR}  | grep " image: " | tr -d '"'| tr -d '-'| grep -v "image: {{" | awk '{print $$2}' ` ; \
 			if [ -z "$${IMAGE_LIST}" ] ; then \
 			  	echo "warning, failed to find image from chart template for $(PROJECT)" ; \
 			else \

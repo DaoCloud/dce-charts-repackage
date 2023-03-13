@@ -1,0 +1,3 @@
+- "{{ .istiod.global.hub }}/{{ .istiod.pilot.image }}:{{ .istiod.global.tag }}"
+- "{{ .istiod.global.hub }}/{{ .istiod.global.proxy.image }}:{{ .istiod.global.tag }}"
+- "{{ .istiod.grpcSimaple.hub }}/{{ .istiod.grpcSimaple.image }}:{{ .istiod.grpcSimaple.tag }}"
