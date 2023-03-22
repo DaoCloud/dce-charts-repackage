@@ -1,7 +1,7 @@
 {{/* vim: set filetype=mustache: */}}
 {{/*
 Return the proper image name
-{{ include "common.images.image" ( dict "imageRoot" .Values.path.to.the.image "global" $) }}
+{{ include "common.images.image" ( dict "imageRoot" .Values.path.to.the.image "global" .Values.global ) }}
 */}}
 {{- define "common.images.image" -}}
 {{- $registryName := .imageRoot.registry -}}
@@ -17,7 +17,11 @@ Return the proper image name
     {{- $separator = "@" -}}
     {{- $termination = .imageRoot.digest | toString -}}
 {{- end -}}
-{{- printf "%s/%s%s%s" $registryName $repositoryName $separator $termination -}}
+{{- if $registryName }}
+    {{- printf "%s/%s%s%s" $registryName $repositoryName $separator $termination -}}
+{{- else -}}
+    {{- printf "%s%s%s"  $repositoryName $separator $termination -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
