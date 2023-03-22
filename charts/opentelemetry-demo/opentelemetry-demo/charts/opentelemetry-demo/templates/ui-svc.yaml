@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: webstore-ui
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otel-demo.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: webstore-ui
+spec:
+  type: NodePort
+  ports:
+    - name: service
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    app.kubernetes.io/component: frontendproxy
+    {{- include "otel-demo-ui.selectorLabels" . | nindent 4 }}

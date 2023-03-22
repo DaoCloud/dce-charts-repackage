@@ -1,0 +1,222 @@
+global:
+  serviceMonitor:
+    otelcol:
+      enabled: true
+    adservice:
+      enabled: true
+
+
+extensions:
+  mysql:
+    enabled: true
+  dataservice:
+    enabled: true
+    image:
+      repository: ghcr.io/openinsight-proj/demo
+      tag: "v1.3.2-dataservice"
+      pullPolicy: Always
+    env:
+      - name: NACOS_NAMESPACE_ID
+        value: public
+      - name: NACOS_GROUP_NAME
+        value: DEFAULT_GROUP
+      - name: SKOALA_REGISTRY
+        value: nacos-test
+      - name: OTEL_RESOURCE_ATTRIBUTES
+        value: >-
+          k8s.namespace.name=$(K8S_NAMESPACE),k8s.node.name=$(OTEL_RESOURCE_ATTRIBUTES_NODE_NAME),k8s.pod.name=$(OTEL_RESOURCE_ATTRIBUTES_POD_NAME),k8s.pod.uid=$(OTEL_RESOURCE_ATTRIBUTES_POD_UID),skoala.registry=$(SKOALA_REGISTRY),nacos.namespaceid=$(NACOS_NAMESPACE_ID),nacos.groupname=$(NACOS_GROUP_NAME)
+      - name: JAVA_OPTS
+        value: -Dotel.jmx.target.system=tomcat -Dspring.extraAdLabel=Daocloud -Dspring.matrixRow=200 -Dmeter.port=8888 -Dspring.cloud.nacos.discovery.enabled=false -Dspring.cloud.nacos.config.enabled=false -Dspring.cloud.sentinel.enabled=false -Dspring.cloud.nacos.config.server-addr=nacos-test.skoala-test:8848 -Dspring.application.name=adservice-springcloud -Dspring.cloud.nacos.discovery.server-addr=nacos-test.skoala-test:8848 -Dspring.cloud.nacos.discovery.namespace=$(NACOS_NAMESPACE_ID) -Dspring.cloud.nacos.discovery.group=$(NACOS_GROUP_NAME) -Dspring.cloud.nacos.discovery.metadata.k8s_cluster_id=xxx -Dspring.cloud.nacos.discovery.metadata.k8s_cluster_name=skoala-dev -Dspring.cloud.nacos.discovery.metadata.k8s_namespace_name=skoala-test -Dspring.cloud.nacos.discovery.metadata.k8s_workload_type=deployment -Dspring.cloud.nacos.discovery.metadata.k8s_workload_name=adservice-springcloud -Dspring.cloud.nacos.discovery.metadata.k8s_service_name=adservice-springcloud -Dspring.cloud.nacos.discovery.metadata.k8s_pod_name=$(HOSTNAME) -Dspring.cloud.sentinel.enabled=false -Dspring.cloud.sentinel.transport.dashboard=nacos-test-sentinel.skoala-test:8080
+
+opentelemetry-demo:
+  enabled: true
+  observability:
+    # collector settings are configured in the opentelemetry-collector section.
+    otelcol:
+      enabled: true
+    jaeger:
+      enabled: false
+    prometheus:
+      enabled: false
+    grafana:
+      enabled: false
+
+  default:
+    image:
+      repository: docker.m.daocloud.io/otel/demo
+
+  components:
+    redis:
+      enabled: true
+      useDefault:
+        env: false
+
+      # Options to override the default image settings.
+      imageOverride:
+        repository: "docker.m.daocloud.io/redis"
+        tag: "alpine"
+
+    adService:
+      enabled: true
+      useDefault:
+        env: false
+      imageOverride:
+        repository: ghcr.io/openinsight-proj/adservice
+        tag: "v0.4.6"
+      ports:
+        - name: http
+          value: 8081
+        - name: health-http
+          value: 8999
+        - name: metrics
+          value: 12345
+        - name: http-metrics
+          value: 8888
+      env:
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: 'http://{{ include "otel-demo.name" . }}-otelcol:4317'
+        - name: AD_SERVICE_PORT
+          value: "8080"
+        - name: NACOS_NAMESPACE_ID
+          value: public
+        - name: NACOS_GROUP_NAME
+          value: DEFAULT_GROUP
+        - name: SKOALA_REGISTRY
+          value: nacos-test
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: >-
+            k8s.namespace.name=$(K8S_NAMESPACE),k8s.node.name=$(OTEL_RESOURCE_ATTRIBUTES_NODE_NAME),k8s.pod.name=$(OTEL_RESOURCE_ATTRIBUTES_POD_NAME),k8s.pod.uid=$(OTEL_RESOURCE_ATTRIBUTES_POD_UID),skoala.registry=$(SKOALA_REGISTRY),nacos.namespaceid=$(NACOS_NAMESPACE_ID),nacos.groupname=$(NACOS_GROUP_NAME)
+        - name: JAVA_OPTS
+          value: -javaagent:./jmx_prometheus_javaagent-0.17.0.jar=12345:./prometheus-jmx-config.yaml -Dspring.extraAdLabel=Daocloud -Dspring.randomError=false -Dspring.matrixRow=200 -Dmeter.port=8888 -Dspring.cloud.nacos.discovery.enabled=false -Dspring.cloud.nacos.config.enabled=false -Dspring.cloud.sentinel.enabled=false -Dspring.cloud.nacos.config.server-addr=nacos-test.skoala-test:8848 -Dspring.cloud.nacos.discovery.namespace=$(NACOS_NAMESPACE_ID) -Dspring.cloud.nacos.discovery.group=$(NACOS_GROUP_NAME) -Dspring.application.name=adservice-springcloud -Dspring.cloud.nacos.discovery.server-addr=nacos-test.skoala-test:8848 -Dspring.cloud.nacos.discovery.metadata.k8s_cluster_id=xxx -Dspring.cloud.nacos.discovery.metadata.k8s_cluster_name=skoala-dev -Dspring.cloud.nacos.discovery.metadata.k8s_namespace_name=skoala-test -Dspring.cloud.nacos.discovery.metadata.k8s_workload_type=deployment -Dspring.cloud.nacos.discovery.metadata.k8s_workload_name=adservice-springcloud -Dspring.cloud.nacos.discovery.metadata.k8s_service_name=adservice-springcloud -Dspring.cloud.nacos.discovery.metadata.k8s_pod_name=$(HOSTNAME) -Dspring.cloud.sentinel.enabled=false -Dspring.cloud.sentinel.transport.dashboard=nacos-test-sentinel.skoala-test:8080
+      resources:
+        limits:
+          memory: 1Gi
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    cartService:
+      enabled: false
+
+    checkoutService:
+      enabled: true
+      useDefault:
+        env: false
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    currencyService:
+      enabled: true
+      useDefault:
+        env: false
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    emailService:
+      enabled: true
+      useDefault:
+        env: false
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    featureflagService:
+      enabled: true
+      useDefault:
+        env: false
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    ffsPostgres:
+      enabled: true
+      useDefault:
+        env: false
+      imageOverride:
+        repository: "docker.m.daocloud.io/postgres"
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    frontend:
+      enabled: true
+      useDefault:
+        env: false
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    frontendProxy:
+      enabled: true
+      useDefault:
+        env: false
+      resources:
+        limits:
+          memory: 100Mi
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    loadgenerator:
+      enabled: true
+      useDefault:
+        env: false
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    paymentService:
+      enabled: true
+      useDefault:
+        env: false
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    productCatalogService:
+      enabled: true
+      useDefault:
+        env: false
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    recommendationService:
+      enabled: true
+      useDefault:
+        env: false
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    shippingService:
+      enabled: true
+      useDefault:
+        env: false
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+    quoteService:
+      enabled: true
+      useDefault:
+        env: false
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+
+  opentelemetry-collector:
+    nameOverride: otelcol
+    mode: deployment
+    image:
+      repository: docker.m.daocloud.io/otel/opentelemetry-collector-contrib
+    resources:
+      limits:
+        memory: 100Mi
+    service:
+      type: ClusterIP
+    config:
+      exporters:
+        otlp:
+          endpoint: 'insight-agent-opentelemetry-collector.insight-system.svc.cluster.local:4317'
+
+redis_operator:
+  enabled: false
+
+redis_resource:
+  enabled: false
+  storageClassName: openebs-hostpath
+  storageSize: 1Gi
