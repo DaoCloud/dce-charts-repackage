@@ -1,0 +1,160 @@
+opentelemetry-demo:
+  extensions:
+    dataservice:
+      image:
+        registry: ghcr.m.daocloud.io
+        repository: openinsight-proj/demo
+        tag: v1.3.2-dataservice
+      resources:
+        limits:
+          cpu: 1
+          memory: 512Mi
+        request:
+          cpu: 25m
+          memory: 100Mi
+    mysql:
+      image:
+        registry: docker.m.daocloud.io
+        repository: mysql
+        tag: 8.0.31
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 2000Mi
+        requests:
+          cpu: 100m
+          memory: 200Mi
+  cartservice:
+    image:
+      registry: docker.m.daocloud.io
+      repository: otel/demo
+      tag: v1.1.0-cartservice
+
+
+  opentelemetry-demo:
+    observability:
+      jaeger:
+        enabled: false
+      prometheus:
+        enabled: false
+      grafana:
+        enabled: true
+    components:
+      adService:
+        imageOverride:
+          registry: ghcr.m.daocloud.io
+          repository: openinsight-proj/adservice
+          tag: "v0.4.6"
+      cartService:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: "v1.1.0-cartservice"
+      currencyService:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: "v1.1.0-currencyservice"
+      checkoutService:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: "v1.1.0-checkoutservice"
+      emailService:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: "v1.1.0-emailservice"
+      featureflagService:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: "v1.1.0-featureflagservice"
+      ffsPostgres:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: postgres
+          tag: "14"
+      frontend:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: v1.1.0-frontend
+      frontendProxy:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: v1.1.0-frontendproxy
+      loadgenerator:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: v1.1.0-loadgenerator
+      paymentService:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: v1.1.0-paymentservice
+      productCatalogService:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: v1.1.0-productcatalogservice
+      quoteService:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: v1.1.0-quoteservice
+      recommendationService:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: v1.1.0-recommendationservice
+      redis:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: redis
+          tag: alpine
+      shippingService:
+        imageOverride:
+          registry: docker.m.daocloud.io
+          repository: otel/demo
+          tag: v1.1.0-shippingservice
+    opentelemetry-collector:
+      image:
+        registry: docker.m.daocloud.io
+        repository: otel/opentelemetry-collector-contrib
+        tag: '0.64.1'
+    grafana:
+      image:
+        registry: docker.m.daocloud.io
+        repository: grafana/grafana
+        tag: '9.2.0'
+      testFramework:
+        image:
+          registry: docker.m.daocloud.io
+          repository: bats/bats
+          tag: v1.4.1
+    prometheus:
+      kube-state-metrics:
+        image:
+          registry: k8s-gcr.m.daocloud.io
+          repository: kube-state-metrics/kube-state-metrics
+          tag: v2.5.0
+      server:
+        image:
+          registry: quay.m.daocloud.io
+          repository: prometheus/prometheus
+          tag: v2.39.1
+  redis-operator:
+    redisOperator:
+      registry: quay.m.daocloud.io
+      repository: opstree/redis-operator
+      tag: v0.11.0
+    resources:
+      limits:
+        cpu: 500m
+        memory: 500Mi
+      requests:
+        cpu: 500m
+        memory: 500Mi
