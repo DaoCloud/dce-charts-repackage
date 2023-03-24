@@ -197,7 +197,7 @@ velero:
     # Labels to set for the upgrade/cleanup job. Optional.
     labels: {}
   # This job upgrades the CRDs.
-  upgradeCRDs: true
+  upgradeCRDs: false
   # This job is meant primarily for cleaning up CRDs on CI systems.
   # Using this on production systems, especially those that have multiple releases of Velero, will be destructive.
   cleanUpCRDs: false
@@ -211,7 +211,7 @@ velero:
   ##
   configuration:
     # Cloud provider being used (e.g. aws, azure, gcp).
-    provider:
+    provider: aws
     # Parameters for the `default` BackupStorageLocation. See
     # https://velero.io/docs/v1.6/api-types/backupstoragelocation/
     backupStorageLocation:
@@ -381,7 +381,7 @@ velero:
   # Whether to create volumesnapshotlocation crd, if false => disable snapshot feature
   snapshotsEnabled: true
   # Whether to deploy the node-agent daemonset.
-  deployNodeAgent: false
+  deployNodeAgent: true
   nodeAgent:
     podVolumePath: /var/lib/kubelet/pods
     privileged: false
