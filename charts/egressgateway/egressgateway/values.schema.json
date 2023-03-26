@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "egressgateway": {
+      "type": "object",
+      "properties": {
+        "feature": {
+          "type": "object",
+          "properties": {
+            "enableIPv4": {
+              "type": "boolean",
+              "title": "Enable IPv4",
+              "default": true
+            },
+            "enableIPv6": {
+              "type": "boolean",
+              "title": "Enable IPv6",
+              "default": false,
+              "description": "Turn on this option to enable dual-stack egress network, but note that the Pod network must be dual-stack for this to work properly."
+            },
+            "startRouteTable": {
+              "type": "integer",
+              "title": "Route table",
+              "default": 50
+            },
+            "tunnelIpv4Subnet": {
+              "type": "string",
+              "title": "Tunnel IPv4 subnet",
+              "default": "172.31.0.0/16",
+              "description": "The tunnel subnet for IPv4 must not overlap with the CIDR in the cluster."
+            },
+            "tunnelIpv6Subnet": {
+              "type": "string",
+              "title": "Tunnel IPv6 subnet",
+              "default": "fd11::/112",
+              "description": "If the option EnableIPv6 is turned on, you need to enter the tunnel subnet for IPv6, which must not overlap with the CIDR in the cluster."
+            },
+            "forwardMethod": {
+              "type": "string",
+              "title": "Forward method",
+              "enum": [
+                "active-passive",
+                "active-active"
+              ],
+              "default": "active-passive",
+              "description": "Tunnel base on which interface, active-active require kernel >=4.4, default is active-passive."
+            },
+            "vxlan": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "default": "egress.vxlan",
+                  "title": "VXLAN name"
+                },
+                "port": {
+                  "type": "string",
+                  "default": "7789",
+                  "title": "VXLAN port"
+                },
+                "id": {
+                  "type": "string",
+                  "title": "VXLAN ID",
+                  "default": "100"
+                },
+                "disableChecksumOffload": {
+                  "type": "boolean",
+                  "title": "Disable checksum offload",
+                  "default": true
+                }
+              },
+              "title": "VXLAN setting",
+              "required": []
+            },
+            "iptables": {
+              "type": "object",
+              "title": "iptables setting",
+              "properties": {
+                "backendMode": {
+                  "type": "string",
+                  "enum": [
+                    "",
+                    "nft",
+                    "legacy"
+                  ],
+                  "default": "",
+                  "title": "Backend mode",
+                  "description": "You can check the current mode of iptables by running “iptables –version” on the cluster host."
+                }
+              },
+              "required": []
+            }
+          },
+          "title": "Feature"
+        },
+        "egressgatewayController": {
+          "type": "object",
+          "properties": {
+            "image": {
+              "type": "object",
+              "properties": {
+                "registry": {
+                  "type": "string",
+                  "title": "Image registry",
+                  "default": "ghcr.m.daocloud.io"
+                }
+              },
+              "title": "Image setting",
+              "required": []
+            },
+            "debug": {
+              "type": "object",
+              "title": "Debug setting",
+              "properties": {
+                "logLevel": {
+                  "type": "string",
+                  "title": "Log level",
+                  "default": "info",
+                  "enum": ["debug", "info", "warn", "error", "fatal", "panic"]
+                }
+              }
+            }
+          },
+          "title": "Controller setting"
+        },
+        "egressgatewayAgent": {
+          "type": "object",
+          "properties": {
+            "image": {
+              "type": "object",
+              "properties": {
+                "registry": {
+                  "type": "string",
+                  "title": "Image registry",
+                  "default": "ghcr.m.daocloud.io"
+                }
+              },
+              "title": "Image setting"
+            },
+            "debug": {
+              "type": "object",
+              "title": "Debug setting",
+              "properties": {
+                "logLevel": {
+                  "type": "string",
+                  "title": "Log level",
+                  "default": "info",
+                  "enum": ["debug", "info", "warn", "error", "fatal", "panic"]
+                }
+              }
+            }
+          },
+          "title": "Agent setting"
+        }
+      },
+      "title": "Egress Gateway"
+    }
+  }
+}
