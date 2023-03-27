@@ -1,2 +1,5 @@
 ingress-nginx:
   - "controller/service/internal/externalTrafficPolicy"
+  - "controller/resources/limits"
+  - "controller/resources/limits/memory"
+  - "controller/resources/limits/cpu"
