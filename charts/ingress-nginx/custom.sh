@@ -33,6 +33,8 @@ yq -i '
    .ingress-nginx.controller.metrics.enabled=true |
    .ingress-nginx.controller.metrics.serviceMonitor.enabled=false |
    .ingress-nginx.controller.metrics.serviceMonitor.additionalLabels."operator.insight.io/managed-by"="insight" |
+   .ingress-nginx.controller.resources.limits.cpu="500m" |
+   .ingress-nginx.controller.resources.limits.memory="512Mi" |
    .ingress-nginx.controller.resources.requests.cpu="20m" |
    .ingress-nginx.controller.resources.requests.memory="150Mi" |
    .ingress-nginx.controller.service.ipFamilyPolicy="SingleStack" |
@@ -56,3 +58,4 @@ yq -i '
 ' values.yaml
 
 yq -i '.version=strenv(CHART_VERSION)' Chart.yaml
+yq -i '.keywords = ["networking"] + (.keywords)' Chart.yaml
