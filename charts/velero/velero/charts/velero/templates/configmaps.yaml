@@ -16,3 +16,17 @@ data:
   {{- toYaml $configMap.data | nindent 2 }}
 ---
 {{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: velero-fs-restore-action-config
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "velero.name" $ }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    helm.sh/chart: {{ include "velero.chart" $ }}
+    velero.io/plugin-config: ""
+    velero.io/pod-volume-restore: RestoreItemAction
+data:
+  image: {{ .Values.image.registry }}/{{ .Values.image.restoreHelperRepository }}:{{ .Values.image.restoreHelperTag }}

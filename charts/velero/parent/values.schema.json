@@ -1,38 +1,100 @@
 {
-    "$schema": "http://json-schema.org/schema#",
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/object1679640729.json",
+    "title": "Root",
     "type": "object",
     "properties": {
         "velero": {
+            "$id": "#root/velero",
+            "title": "Velero addon settings",
             "type": "object",
             "properties": {
-                "backupsEnabled": {
-                    "type": "boolean"
-                },
-                "cleanUpCRDs": {
-                    "type": "boolean"
-                },
                 "configuration": {
+                    "$id": "#root/velero/configuration",
+                    "title": "Configuration",
                     "type": "object",
                     "properties": {
                         "backupStorageLocation": {
+                            "$id": "#root/velero/configuration/backupStorageLocation",
+                            "title": "Backupstoragelocation",
                             "type": "object",
                             "properties": {
-                                "bucket": {
+                                "name": {
+                                    "$id": "#root/velero/configuration/backupStorageLocation/name",
+                                    "title": "Name",
                                     "type": "string",
-                                    "form": true,
-                                    "title": "bucket"
+                                    "default": "default"
                                 },
-                                "provider": {
+                                "bucket": {
+                                    "$id": "#root/velero/configuration/backupStorageLocation/bucket",
+                                    "title": "Bucket",
                                     "type": "string",
-                                    "form": true,
-                                    "title": "configuration.provider"
+                                    "default": "velero"
+                                },
+                                "default": {
+                                    "$id": "#root/velero/configuration/backupStorageLocation/default",
+                                    "title": "Default",
+                                    "type": "boolean",
+                                    "default": true
+                                },
+                                "accessMode": {
+                                    "$id": "#root/velero/configuration/backupStorageLocation/accessMode",
+                                    "title": "Accessmode",
+                                    "type": "string",
+                                    "default": "ReadWrite"
+                                },
+                                "config": {
+                                    "$id": "#root/velero/configuration/backupStorageLocation/config",
+                                    "title": "Config",
+                                    "type": "object",
+                                    "properties": {
+                                        "region": {
+                                            "$id": "#root/velero/configuration/backupStorageLocation/config/region",
+                                            "title": "Region",
+                                            "type": "string",
+                                            "default": "us-east-1"
+                                        },
+                                        "s3ForcePathStyle": {
+                                            "$id": "#root/velero/configuration/backupStorageLocation/config/s3ForcePathStyle",
+                                            "title": "S3forcepathstyle",
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "s3Url": {
+                                            "$id": "#root/velero/configuration/backupStorageLocation/config/s3Url",
+                                            "title": "S3url",
+                                            "type": "string",
+                                            "default": "http://myminio.io:9900"
+                                        }
+                                    }
                                 }
                             }
                         },
-                        "provider": {
+                        "features": {
+                            "$id": "#root/velero/configuration/features",
+                            "title": "Features",
                             "type": "string",
-                            "form": true,
-                            "title": "provider"
+                            "default": "EnableCSI"
+                        }
+                    }
+                },
+                "credentials": {
+                    "$id": "#root/velero/credentials",
+                    "title": "Credentials",
+                    "type": "object",
+                    "properties": {
+                        "useSecret": {
+                            "$id": "#root/velero/credentials/useSecret",
+                            "title": "Use secret",
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "existingSecret": {
+                            "$id": "#root/velero/credentials/existingSecret",
+                            "title": "Use existing secret",
+                            "type": "string",
+                            "default": "velero-s3-credential"
                         }
                     }
                 }
