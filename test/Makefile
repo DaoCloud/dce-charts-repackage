@@ -141,6 +141,7 @@ deploy: checkBin
 	@ [ -f "$(INSTALL_PATH)" ] || { echo "error, failed to find INSTALL_PATH $(INSTALL_PATH)" ;  exit 1 ; }
 	CHART_DIR=$(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT) ; \
 		[ -d "$${CHART_DIR}" ] || { echo "error, failed to find chart $${CHART_DIR}" ; exit 1 ; } ; \
+		IMAGE_LIST="" ; \
 		if [ "$(TRY_LOAD_LOCAL_IMAGE)" == "true" ] ; then \
 			echo "try to load local image for $(PROJECT)" ; \
 			IMAGE_LIST=` helm template test $${CHART_DIR}  | grep " image: " | tr -d '"'| tr -d '-'| grep -v "image: {{" | awk '{print $$2}' ` ; \
@@ -162,6 +163,12 @@ deploy: checkBin
 		chmod +x $(INSTALL_PATH) ; \
 		if $(INSTALL_PATH) "$(KIND_KUBECONFIG)" "$(KIND_CLUSTER_NAME)" ; then \
 			echo "succeeded to deploy $(PROJECT)" ; \
+			if [ -n "$${IMAGE_LIST}" ] ; then \
+  				for IMAGE in $${IMAGE_LIST} ; do \
+  				    echo "remove image $${IMAGE}" ; \
+  				    docker rmi $${IMAGE} || true ; \
+  				done ; \
+			fi ; \
 			exit 0 ; \
 		else  \
 			echo "error, failed to deploy $(PROJECT) "   ; \
