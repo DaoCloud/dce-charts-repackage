@@ -34,7 +34,7 @@ kubeanOperator:
     # -- kubean-operator image registry
     repository: kubean-io/kubean-operator
     # -- the image tag whose default is the chart appVersion
-    tag: "v0.4.3"
+    tag: "v0.4.5"
     # -- Pull policy of image
     pullPolicy: IfNotPresent
     # -- Pull secrets of image
@@ -56,7 +56,13 @@ kubeanOperator:
 
   nodeSelector: {}
   tolerations: []
-  affinity: {}
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: kubean
+          topologyKey: "kubernetes.io/hostname"
 ## define spray-job configuration
 sprayJob:
   ## define spray-job image
@@ -66,4 +72,4 @@ sprayJob:
     # -- spray-job image registry
     repository: kubean-io/spray-job
     # -- the image tag whose default is the chart appVersion
-    tag: "v0.4.3"
+    tag: "v0.4.5"

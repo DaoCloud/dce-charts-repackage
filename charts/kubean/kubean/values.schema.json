@@ -9,7 +9,38 @@
                     "type": "object",
                     "properties": {
                         "affinity": {
-                            "type": "object"
+                            "type": "object",
+                            "properties": {
+                                "podAntiAffinity": {
+                                    "type": "object",
+                                    "properties": {
+                                        "requiredDuringSchedulingIgnoredDuringExecution": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "labelSelector": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "matchLabels": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "app.kubernetes.io/instance": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "topologyKey": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         "fullnameOverride": {
                             "type": "string"
