@@ -8,7 +8,8 @@
       "properties": {
         "imageRegistry": {
           "type": "string",
-          "title": "Global Image Registry"
+          "title": "Global Image Registry",
+          "default": "release.daocloud.io"
         }
       }
     },
@@ -23,11 +24,13 @@
             "manageCRDs": {
               "type": "boolean",
               "title": "Manage CRDs",
-              "description": "Manage the creation, upgrade and deletion of Contour CRDs"
+              "description": "Manage the creation, upgrade and deletion of Contour CRDs",
+              "default": true
             },
             "replicaCount": {
               "type": "integer",
-              "title": "Controller Replica Count"
+              "title": "Controller Replica Count",
+              "default": "1"
             },
             "ingressClass": {
               "type": "object",
@@ -35,18 +38,21 @@
               "properties": {
                 "name": {
                   "type": "string",
-                  "title": "IngressClass Name"
+                  "title": "IngressClass Name",
+                  "default": "contour"
                 },
                 "default": {
                   "type": "boolean",
                   "title": "Default IngressClass",
-                  "description": "Is this the default ingressClass for the cluster."
+                  "description": "Is this the default ingressClass for the cluster.",
+                  "default": false
                 }
               }
             },
             "debug": {
               "type": "boolean",
-              "title": "Enable Debug Log"
+              "title": "Enable Debug Log",
+              "default": false
             }
           }
         },
@@ -57,7 +63,8 @@
           "properties": {
             "replicaCount": {
               "type": "integer",
-              "title": "Envoy Replica Count"
+              "title": "Envoy Replica Count",
+              "default": "2"
             },
             "kind": {
               "type": "string",
@@ -66,12 +73,14 @@
               "enum": [
                 "deployment",
                 "daemonset"
-              ]
+              ],
+              "default": "deployment"
             },
             "hostNetwork": {
               "type": "boolean",
               "title": "Enable HostNetwork",
-              "description": "envoy pod works as hostNetwork mode"
+              "description": "envoy pod works as hostNetwork mode",
+              "default": false
             },
             "logLevel": {
               "type": "string",
@@ -80,7 +89,8 @@
                 "info",
                 "error",
                 "disabled"
-              ]
+              ],
+              "default": "info"
             },
             "service": {
               "type": "object",
@@ -93,7 +103,8 @@
                     "LoadBalancer",
                     "NodePort",
                     "ClusterIP"
-                  ]
+                  ],
+                  "default": "NodePort"
                 },
                 "ipFamilyPolicy": {
                   "type": "string",
@@ -102,7 +113,8 @@
                     "SingleStack",
                     "PreferDualStack",
                     "RequireDualStack"
-                  ]
+                  ],
+                  "default": "PreferDualStack"
                 },
                 "externalTrafficPolicy": {
                   "type": "string",
@@ -111,7 +123,8 @@
                   "enum": [
                     "Cluster",
                     "Local"
-                  ]
+                  ],
+                  "default": "Cluster"
                 }
               }
             },
@@ -184,7 +197,8 @@
                 "enabled": {
                   "type": "boolean",
                   "title": "Install",
-                  "description": "install serviceMonitor CR for contour. Notice: It is required to install Prometheus CRDs firstly"
+                  "description": "install serviceMonitor CR for contour. Notice: It is required to install Prometheus CRDs firstly",
+                  "default": false
                 }
               }
             }
@@ -202,7 +216,8 @@
             "create": {
               "title": "Install",
               "type": "boolean",
-              "description": "install prometheusRule CR for contour. Notice: It is required to install Prometheus CRDs firstly"
+              "description": "install prometheusRule CR for contour. Notice: It is required to install Prometheus CRDs firstly",
+              "default": false
             }
           },
           "title": "Prometheus Rule"
