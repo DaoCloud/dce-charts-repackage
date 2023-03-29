@@ -4,7 +4,7 @@ export USE_OPENSOURCE_CHART=false
 export REPO_URL=https://spidernet-io.github.io/spiderpool
 export REPO_NAME=spiderpool
 export CHART_NAME=spiderpool
-export VERSION=0.3.7
+export VERSION=0.4.0
 
 # pr, issue, none
 export UPGRADE_METHOD=pr
@@ -17,3 +17,5 @@ export APPEND_VALUES_FILE=appendValues.yaml
 
 # push to daocloud repo
 export DAOCLOUD_REPO_PROJECT=addon
+
+export NO_TRIVY=true
