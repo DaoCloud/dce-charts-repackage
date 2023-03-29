@@ -55,10 +55,17 @@
                 "default": {
                   "type": "boolean",
                   "title": "Default IngressClass",
-                  "description": "set this ingressClass as the default ingressClass for the cluster.",
+                  "description": "Set this instance as the default ingress class.",
                   "default": false
+                },
+                "controllerValue": {
+                  "type": "string",
+                  "title": "Controller Value",
+                  "description": "If the ingress class name is set to “nginx”, set it to “k8s.io/ingress-nginx”. If the ingress class name is set to “nginx1”, set it to “k8s.io/ingress-nginx1”.",
+                  "default": "k8s.io/ingress-nginx"
                 }
-              }
+              },
+              "required": []
             },
             "electionID": {
               "type": "string",
