@@ -36,7 +36,7 @@ spec:
       jsonPath: .status.totalIPCount
       name: TOTAL-IP-COUNT
       type: integer
-    name: v1
+    name: v2beta1
     schema:
       openAPIV3Schema:
         description: SpiderSubnet is the Schema for the spidersubnets API.
@@ -71,7 +71,6 @@ spec:
               ips:
                 items:
                   type: string
-                minItems: 1
                 type: array
               routes:
                 items:
@@ -94,7 +93,6 @@ spec:
                 minimum: 0
                 type: integer
             required:
-            - ips
             - subnet
             type: object
           status:
@@ -105,16 +103,7 @@ spec:
                 minimum: 0
                 type: integer
               controlledIPPools:
-                additionalProperties:
-                  properties:
-                    ips:
-                      items:
-                        type: string
-                      type: array
-                  type: object
-                description: PoolIPPreAllocations is a map of pool IP pre-allocation
-                  details indexed by pool name.
-                type: object
+                type: string
               totalIPCount:
                 format: int64
                 minimum: 0
