@@ -15,7 +15,7 @@ opentelemetry-demo:
     mysql:
       image:
         registry: docker.m.daocloud.io
-        repository: mysql
+        repository: library/mysql
         tag: 8.0.31
       resources:
         limits:
@@ -73,7 +73,7 @@ opentelemetry-demo:
       ffsPostgres:
         imageOverride:
           registry: docker.m.daocloud.io
-          repository: postgres
+          repository: library/postgres
           tag: "14"
       frontend:
         imageOverride:
@@ -113,8 +113,8 @@ opentelemetry-demo:
       redis:
         imageOverride:
           registry: docker.m.daocloud.io
-          repository: redis
-          tag: alpine
+          repository: library/redis
+          tag: 7.0-alpine
       shippingService:
         imageOverride:
           registry: docker.m.daocloud.io
