@@ -117,9 +117,33 @@
                   "type": "string",
                   "title": "Log level",
                   "default": "info",
-                  "enum": ["debug", "info", "warn", "error", "fatal", "panic"]
+                  "enum": [
+                    "debug",
+                    "info",
+                    "warn",
+                    "error",
+                    "fatal",
+                    "panic"
+                  ]
                 }
               }
+            },
+            "prometheus": {
+              "type": "object",
+              "properties": {
+                "serviceMonitor": {
+                  "type": "object",
+                  "properties": {
+                    "install": {
+                      "type": "boolean",
+                      "title": "Install",
+                      "default": false
+                    }
+                  },
+                  "title": "ServiceMonitor setting"
+                }
+              },
+              "title": "Prometheus setting"
             }
           },
           "title": "Controller setting"
@@ -146,9 +170,33 @@
                   "type": "string",
                   "title": "Log level",
                   "default": "info",
-                  "enum": ["debug", "info", "warn", "error", "fatal", "panic"]
+                  "enum": [
+                    "debug",
+                    "info",
+                    "warn",
+                    "error",
+                    "fatal",
+                    "panic"
+                  ]
                 }
               }
+            },
+            "prometheus": {
+              "type": "object",
+              "properties": {
+                "serviceMonitor": {
+                  "type": "object",
+                  "properties": {
+                    "install": {
+                      "type": "boolean",
+                      "title": "Install",
+                      "default": false
+                    }
+                  },
+                  "title": "ServiceMonitor setting"
+                }
+              },
+              "title": "Prometheus setting"
             }
           },
           "title": "Agent setting"

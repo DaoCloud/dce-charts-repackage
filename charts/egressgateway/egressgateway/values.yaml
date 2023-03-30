@@ -188,7 +188,8 @@ egressgateway:
         ## @param egressgatewayAgent.prometheus.serviceMonitor.annotations The additional annotations of egressgateway agent ServiceMonitor
         annotations: {}
         ## @param egressgatewayAgent.prometheus.serviceMonitor.labels The additional label of egressgateway agent ServiceMonitor
-        labels: {}
+        labels:
+          operator.insight.io/managed-by: insight
       prometheusRule:
         ## @param egressgatewayAgent.prometheus.prometheusRule.install Install prometheusRule for template agent. This requires the prometheus CRDs to be available
         install: false
@@ -358,7 +359,8 @@ egressgateway:
         ## @param egressgatewayController.prometheus.serviceMonitor.annotations The additional annotations of egressgatewayController serviceMonitor
         annotations: {}
         ## @param egressgatewayController.prometheus.serviceMonitor.labels The additional label of egressgatewayController serviceMonitor
-        labels: {}
+        labels:
+          operator.insight.io/managed-by: insight
       prometheusRule:
         ## @param egressgatewayController.prometheus.prometheusRule.install Install prometheusRule for template agent. This requires the prometheus CRDs to be available
         install: false
