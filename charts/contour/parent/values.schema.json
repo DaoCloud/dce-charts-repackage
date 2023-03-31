@@ -30,7 +30,7 @@
             "replicaCount": {
               "type": "integer",
               "title": "Controller Replica Count",
-              "default": "1"
+              "default": 1
             },
             "ingressClass": {
               "type": "object",
@@ -64,7 +64,7 @@
             "replicaCount": {
               "type": "integer",
               "title": "Envoy Replica Count",
-              "default": "2"
+              "default": 2
             },
             "kind": {
               "type": "string",
