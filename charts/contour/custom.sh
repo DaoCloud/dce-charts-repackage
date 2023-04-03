@@ -31,8 +31,7 @@ fi
 
 yq -i '
    .contour.contour.manageCRDs=true |
-   .contour.contour.image.registry="release.daocloud.io" |
-   .contour.contour.image.repository="contour/contour" |
+   .contour.contour.image.registry="docker.m.daocloud.io" |
    .contour.contour.image.pullPolicy="IfNotPresent" |
    .contour.contour.replicaCount=2 |
    .contour.contour.ingressClass.name="contour" |
@@ -46,8 +45,7 @@ yq -i '
    .contour.envoy.resources.requests.memory="30Mi" |
    .contour.envoy.useHostPort=false |
    .contour.envoy.replicaCount=2 |
-   .contour.envoy.image.registry="release.daocloud.io" |
-   .contour.envoy.image.repository="contour/envoy" |
+   .contour.envoy.image.registry="docker.m.daocloud.io" |
    .contour.envoy.image.pullPolicy="IfNotPresent" |
    .contour.envoy.kind="deployment" |
    .contour.envoy.hostNetwork=false |
