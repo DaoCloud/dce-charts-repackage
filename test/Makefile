@@ -127,8 +127,15 @@ checkImages: checkBin
 		for IMAGE in $${IMAGE_LIST} ; do \
 		    echo image: $${IMAGE} ; \
 		    if [[ $${IMAGE} != 127.0.0.1:30080* ]] ; then \
-			    echo "error, failed to check image $${IMAGE} from chart template for $(PROJECT)" ; exit 1 ; \
+			    echo "error, failed to check image $${IMAGE} from chart template for $(PROJECT), because the image registry has not been replaced"  ; exit 1 ; \
 		    fi ; \
+		done ; \
+		for IMAGE in $${IMAGE_LIST} ; do \
+			echo image: $${IMAGE} ; \
+			LEN=`echo $${IMAGE} | awk -F '/' '{print NF}'` ;\
+			if [[ $${LEN} -lt 3 ]] ; then \
+				echo "error, failed to check image $${IMAGE} from chart template for $(PROJECT), because the image does not have repository" ; exit 1 ; \
+			fi ; \
 		done ; \
 	fi
 
