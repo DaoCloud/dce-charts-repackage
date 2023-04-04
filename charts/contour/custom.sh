@@ -62,3 +62,6 @@ yq -i '
    .contour.metrics.serviceMonitor.enabled=false |
    .contour.metrics.serviceMonitor.labels."operator.insight.io/managed-by"="insight"
 ' values.yaml
+
+yq -i '.version=strenv(CHART_VERSION)' Chart.yaml
+yq -i '.keywords = ["networking"] + (.keywords)' Chart.yaml
