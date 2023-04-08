@@ -113,7 +113,10 @@ jobs:
           for ITEM in $project_list ; do
               [ ! -d "${ROOT_DIR}/charts/${ITEM}/${ITEM}" ] && echo "error, failed to find project $ITEM in /charts" && exit 1
               helm package ${ROOT_DIR}/charts/${ITEM}/${ITEM}
+              echo "package ${ITEM}"
           done
+          echo "---------finish--------"
+          ls
           echo ::set-output name=project_list::${project_list}
 
       - name: Upload chart artifact
@@ -140,8 +143,8 @@ jobs:
           for ITEM in ${{ steps.package.outputs.project_list }} ; do
               DAO_PROJECT=` grep "DAOCLOUD_REPO_PROJECT" ${ROOT_DIR}/charts/${ITEM}/config | awk -F= '{print $2}' | tr -d ' ' `
               [ -z "$DAO_PROJECT" ] && echo "error, failed to find DAOCLOUD_REPO_PROJECT config in charts/${ITEM}/config " && exit 1
-              CHART_FILE=` ls | grep -o -E "${ITEM}-[v0-9\.]+.tgz" `
-              [ -z "${CHART_FILE}" ] && echo "error, failed to find chart.tgz for $ITEM " && exit 2
+              CHART_FILE=` ls | grep -o -E "^${ITEM}-[v0-9\.]+.tgz" `
+              [ ! -f "${CHART_FILE}" ] && echo "error, failed to find chart.tgz for $ITEM " && ls && exit 2
               DAO_ADDRESS=${{ env.DAOCLOUD_HARBOR_URL }}/chartrepo/${DAO_PROJECT}
               echo "push $CHART_FILE to $DAO_ADDRESS "
               BAD=true
