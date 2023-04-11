@@ -28,15 +28,17 @@ if [ $os == "Darwin" ];then
         line=`sed -n -e '/repository: registry/=' values.yaml`
         echo "line is:" $line
         sed -i "" "$line i\\
-    registry: m.daocloud.io/docker.io/library
+    registry: m.daocloud.io/docker.io
         " values.yaml
     fi
+    sed -i "" "s/repository: registry/repository: library\/registry/g" values.yaml
 elif [ $os == "Linux" ];then
     if [ $imageRegistry ];then
             line=`sed -n -e '/repository: registry/=' values.yaml`
             echo "line is:" $line
-            sed -i "$line i \    registry: m.daocloud.io/docker.io/library" values.yaml
+            sed -i "$line i \    registry: m.daocloud.io/docker.io" values.yaml
     fi
+    sed -i "s/repository: registry/repository: library\/registry/g" values.yaml
 fi
 
 # sub charts
@@ -46,15 +48,17 @@ if [ $os == "Darwin" ];then
         line=`sed -n -e '/repository: registry/=' charts/docker-registry/values.yaml`
         echo "line is:" $line
         sed -i "" "$line i\\
-  registry: m.daocloud.io/docker.io/library
+  registry: m.daocloud.io/docker.io
         " charts/docker-registry/values.yaml
     fi
+    sed -i "" "s/repository: registry/repository: library\/registry/g" charts/docker-registry/values.yaml
 elif [ $os == "Linux" ];then
     if [ $imageRegistry ];then
             line=`sed -n -e '/repository: registry/=' charts/docker-registry/values.yaml`
             echo "line is:" $line
-            sed -i "$line i \  registry: m.daocloud.io/docker.io/library" charts/docker-registry/values.yaml
+            sed -i "$line i \  registry: m.daocloud.io/docker.io" charts/docker-registry/values.yaml
     fi
+    sed -i "s/repository: registry/repository: library\/registry/g" charts/docker-registry/values.yaml
 fi
 
 # replace cronjob.yaml image url
@@ -76,3 +80,30 @@ echo "
 keywords:
   - docker-registry
 " >> charts/docker-registry/Chart.yaml
+
+# open resources
+if [ $os == "Darwin" ];then
+           sed -i "" "s/resources: {}/resources: /g" values.yaml
+          sed -i "" "s/# limits:/limits:/g" values.yaml
+          sed -i "" "s/#  cpu: 100m/  cpu: 100m/g" values.yaml
+          sed -i "" "s/#  memory: 128Mi/  memory: 128Mi/g" values.yaml
+          sed -i "" "s/# requests:/requests:/g" values.yaml
+
+      sed -i "" "s/resources: {}/resources: /g" charts/docker-registry/values.yaml
+      sed -i "" "s/# limits:/limits:/g" charts/docker-registry/values.yaml
+      sed -i "" "s/#  cpu: 100m/  cpu: 100m/g" charts/docker-registry/values.yaml
+      sed -i "" "s/#  memory: 128Mi/  memory: 128Mi/g" charts/docker-registry/values.yaml
+      sed -i "" "s/# requests:/requests:/g" charts/docker-registry/values.yaml
+elif [ $os == "Linux" ]; then
+    sed -i "s/resources: {}/resources: /g" values.yaml
+    sed -i "s/# limits:/limits:/g" values.yaml
+    sed -i "s/#  cpu: 100m/  cpu: 100m/g" values.yaml
+    sed -i "s/#  memory: 128Mi/  memory: 128Mi/g" values.yaml
+    sed -i "s/# requests:/requests:/g" values.yaml
+
+    sed -i "s/resources: {}/resources: /g" charts/docker-registry/values.yaml
+    sed -i "s/# limits:/limits:/g" charts/docker-registry/values.yaml
+    sed -i "s/#  cpu: 100m/  cpu: 100m/g" charts/docker-registry/values.yaml
+    sed -i "s/#  memory: 128Mi/  memory: 128Mi/g" charts/docker-registry/values.yaml
+    sed -i "s/# requests:/requests:/g" charts/docker-registry/values.yaml
+fi

@@ -8,7 +8,7 @@ image:
   tag: "v1.4.0-rc1"
 
 # installCRDs -- If true, CRD resources will be installed as part of the Helm chart. If enabled, when uninstalling CRD resources will be deleted causing all installed custom resources to be DELETED
-installCRDs: false
+installCRDs: true
 
 nameOverride: ""
 fullnameOverride: ""
