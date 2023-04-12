@@ -36,6 +36,8 @@ argo-rollouts:
   controller:
     # -- Value of label `app.kubernetes.io/component`
     component: rollouts-controller
+    # -- Annotations to be added to application controller pods
+    podAnnotations: {}
     # -- [Node selector]
     nodeSelector: {}
     # -- [Tolerations] for use with node taints
@@ -148,7 +150,7 @@ argo-rollouts:
     name: ""
   # -- Annotations to be added to all CRDs
   crdAnnotations: {}
-  # -- Annotations to be added to the Rollout pods
+  # -- Annotations for the all deployed pods
   podAnnotations: {}
   # -- Security Context to set on pod level
   podSecurityContext:
@@ -196,6 +198,8 @@ argo-rollouts:
     readonly: false
     # -- Value of label `app.kubernetes.io/component`
     component: rollouts-dashboard
+    # -- Annotations to be added to application dashboard pods
+    podAnnotations: {}
     # -- [Node selector]
     nodeSelector: {}
     # -- [Tolerations] for use with node taints
