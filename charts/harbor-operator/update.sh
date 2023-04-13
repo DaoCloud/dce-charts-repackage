@@ -107,3 +107,17 @@ echo "
 keywords:
   - harbor-operator
 " >> harbor-operator/Chart.yaml
+
+# remove README.md
+rm -rf harbor-operator/README.md
+rm -rf harbor-operator/README.md.gotmpl
+
+# update installCRDs: true
+if [ $os == "Linux" ];then
+    sed -i "s/installCRDs: false/installCRDs: true/g" harbor-operator/values.yaml
+elif [ $os == "Darwin" ];then
+    sed -i "" "s/installCRDs: false/installCRDs: true/g" harbor-operator/values.yaml
+fi
+
+# replace values.schema.json
+cp ./parent/values.schema.json ./harbor-operator/values.schema.json
