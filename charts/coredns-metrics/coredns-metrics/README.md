@@ -27,5 +27,5 @@ global.isInstallGD | 是否安装GrafanaDashboard | false/true
 ## 卸载
 
 ```
-helm uninstall coredn 
+helm uninstall coredns
 ```

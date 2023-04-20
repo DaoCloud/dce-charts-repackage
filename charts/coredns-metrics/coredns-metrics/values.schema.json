@@ -15,7 +15,7 @@
           "title": "CoreDNS ServiceMonitor 安装",
           "type": "boolean",
           "description": "一般每个集群都需要安装",
-          "default": "0",
+          "default": false,
           "ui:options": {
             "activeText": "安装"
           }
@@ -24,7 +24,7 @@
           "title": "CoreDNS GrafanaDashboard 安装",
           "type": "boolean",
           "description": "一般只在管理集群安装",
-          "default": "0",
+          "default": false,
           "ui:options": {
             "activeText": "安装"
           }
@@ -33,7 +33,7 @@
           "title": "CoreDNS PrometheusRule 安装",
           "type": "boolean",
           "description": "一般只在管理集群安装",
-          "default": "0",
+          "default": false,
           "ui:options": {
             "activeText": "安装"
           }
