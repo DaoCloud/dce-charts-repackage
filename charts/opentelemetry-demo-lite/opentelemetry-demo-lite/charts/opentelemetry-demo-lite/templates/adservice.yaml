@@ -1,0 +1,77 @@
+{{- if .Values.extensions.adservice.enabled -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "otel-demo.name" . }}-adservice
+  labels:
+    {{- include "otel-demo.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+          app.kubernetes.io/component: adservice
+          app.kubernetes.io/instance: {{ .Release.Name }}
+          app.kubernetes.io/name: {{ .Release.Name }}-adservice
+  template:
+    metadata:
+      labels:
+        opentelemetry.io/name: {{ .Release.Name }}-adservice
+        app.kubernetes.io/component: adservice
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/name: {{ .Release.Name }}-adservice
+        {{- if .Values.global.opentelemetryDemo.istioSidecar.enabled }}
+        sidecar.istio.io/inject: "true"
+        {{- end }}
+      {{- if .Values.extensions.adservice.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.extensions.adservice.podAnnotations | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+        - name: adservice
+          image: "{{ .Values.extensions.adservice.image.registry }}/{{ .Values.extensions.adservice.image.repository }}:{{ .Values.extensions.adservice.image.tag }}"
+          imagePullPolicy: {{ .Values.extensions.adservice.image.pullPolicy }}
+          {{- if .Values.extensions.adservice.ports }}
+          ports:
+          {{- range $port := .Values.extensions.adservice.ports }}
+          - name: {{ $port.name}}
+            containerPort: {{ $port.containerPort }}
+            protocol: {{ $port.protocol }}
+          {{- end }}
+          {{- end }}
+          env:
+            {{- with .Values.extensions.adservice.env }}
+            {{- . | toYaml | nindent 12 }}
+            {{- end }}
+            - name: JAVA_OPTS
+              value: '{{ include "java.adservice.opt" . }}'
+            - name: DATA_SERVICE_ADDR
+              value: '{{ include "otel-demo.name" . }}-dataservice:8080'
+          resources:
+            requests:
+              cpu: "0.2"
+              memory: 100Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "otel-demo.name" . }}-adservice
+  labels:
+    {{- include "otel-demo.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.extensions.adservice.servcie.type | default "ClusterIP" }}
+  {{- if .Values.extensions.adservice.ports }}
+  ports:
+  {{- range $port := .Values.extensions.adservice.ports }}
+  - name: {{ $port.name}}
+    port: {{ $port.containerPort }}
+    protocol: {{ $port.protocol }}
+    targetPort: {{ $port.containerPort }}
+  {{- end }}
+  {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ .Release.Name }}-adservice
+{{- end }}
