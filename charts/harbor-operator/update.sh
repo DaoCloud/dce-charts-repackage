@@ -19,7 +19,7 @@ ls -lh
 cp .relok8s-images.yaml ./harbor-operator/
 
 # add image.registry field
-imageRegistry=`sed -n -e 'registry: docker.io' harbor-operator/values.yaml`
+imageRegistry=`sed -n -e 'registry: release.daocloud.io' harbor-operator/values.yaml`
 os=$(uname)
 echo $os
 
@@ -28,14 +28,14 @@ if [ $os == "Darwin" ];then
         line=`sed -n -e '/# image.repository/=' harbor-operator/values.yaml`
         echo "line is:" $line
         sed -i "" "$line i\\
-  registry: m.daocloud.io\\/docker.io
+  registry: release.daocloud.io
         " harbor-operator/values.yaml
     fi
 elif [ $os == "Linux" ];then
     if [ ! $imageRegistry ];then
             line=`sed -n -e '/# image.repository/=' harbor-operator/values.yaml`
             echo "line is:" $line
-            sed -i "$line i \  registry: m.daocloud.io\\/docker.io" harbor-operator/values.yaml
+            sed -i "$line i \  registry: release.daocloud.io" harbor-operator/values.yaml
     fi
 fi
 
