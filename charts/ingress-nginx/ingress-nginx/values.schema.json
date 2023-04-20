@@ -236,6 +236,22 @@
               },
               "required": [],
               "title": "Scope"
+            },
+            "config": {
+              "type": "object",
+              "properties": {
+                "load-balance": {
+                  "type": "string",
+                  "title": "Load Balance Algorithm",
+                  "enum": [
+                    "round_robin",
+                    "ewma"
+                  ],
+                  "default": "round_robin"
+                }
+              },
+              "title": "ConfigMap",
+              "required": []
             }
           }
         }
