@@ -45,10 +45,12 @@
                 "storageClass": {
                   "type": "string",
                   "title": "pvc storageClass",
+                  "default": "",
                   "description": "it requires storageClass to support ReadWriteMany(RWX) accessMode"
                 },
                 "capacity": {
                   "type": "string",
+                  "default": "",
                   "title": "pvc capacity"
                 }
               }
