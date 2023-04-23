@@ -78,7 +78,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.prometheus.podMonitor.jobLabel | string | `"app.kubernetes.io/name"` |  |
 | metallb.prometheus.podMonitor.metricRelabelings | list | `[]` |  |
 | metallb.prometheus.podMonitor.relabelings | list | `[]` |  |
-| metallb.prometheus.prometheusRule.additionalLabels | object | `{}` |  |
+| metallb.prometheus.prometheusRule.additionalLabels."operator.insight.io/managed-by" | string | `"insight"` |  |
 | metallb.prometheus.prometheusRule.addressPoolExhausted.enabled | bool | `true` |  |
 | metallb.prometheus.prometheusRule.addressPoolExhausted.labels.severity | string | `"alert"` |  |
 | metallb.prometheus.prometheusRule.addressPoolUsage.enabled | bool | `true` |  |
@@ -97,14 +97,14 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.prometheus.prometheusRule.extraAlerts | list | `[]` |  |
 | metallb.prometheus.prometheusRule.staleConfig.enabled | bool | `true` |  |
 | metallb.prometheus.prometheusRule.staleConfig.labels.severity | string | `"warning"` |  |
-| metallb.prometheus.rbacPrometheus | bool | `true` |  |
+| metallb.prometheus.rbacPrometheus | bool | `false` |  |
 | metallb.prometheus.rbacProxy.pullPolicy | string | `nil` |  |
 | metallb.prometheus.rbacProxy.registry | string | `"gcr.m.daocloud.io"` |  |
 | metallb.prometheus.rbacProxy.repository | string | `"kubebuilder/kube-rbac-proxy"` |  |
 | metallb.prometheus.rbacProxy.tag | string | `"v0.12.0"` |  |
 | metallb.prometheus.scrapeAnnotations | bool | `false` |  |
 | metallb.prometheus.serviceAccount | string | `""` |  |
-| metallb.prometheus.serviceMonitor.controller.additionalLabels | object | `{}` |  |
+| metallb.prometheus.serviceMonitor.controller.additionalLabels."operator.insight.io/managed-by" | string | `"insight"` |  |
 | metallb.prometheus.serviceMonitor.controller.annotations | object | `{}` |  |
 | metallb.prometheus.serviceMonitor.controller.tlsConfig.insecureSkipVerify | bool | `true` |  |
 | metallb.prometheus.serviceMonitor.enabled | bool | `false` |  |
@@ -112,7 +112,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.prometheus.serviceMonitor.jobLabel | string | `"app.kubernetes.io/name"` |  |
 | metallb.prometheus.serviceMonitor.metricRelabelings | list | `[]` |  |
 | metallb.prometheus.serviceMonitor.relabelings | list | `[]` |  |
-| metallb.prometheus.serviceMonitor.speaker.additionalLabels | object | `{}` |  |
+| metallb.prometheus.serviceMonitor.speaker.additionalLabels."operator.insight.io/managed-by" | string | `"insight"` |  |
 | metallb.prometheus.serviceMonitor.speaker.annotations | object | `{}` |  |
 | metallb.prometheus.serviceMonitor.speaker.tlsConfig.insecureSkipVerify | bool | `true` |  |
 | metallb.prometheus.speakerMetricsTLSSecret | string | `""` |  |

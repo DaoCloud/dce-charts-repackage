@@ -37,7 +37,7 @@ metallb:
     # certificate to be used.
     controllerMetricsTLSSecret: ""
     # prometheus doens't have the permission to scrape all namespaces so we give it permission to scrape metallb's one
-    rbacPrometheus: true
+    rbacPrometheus: false
     # the service account used by prometheus
     # required when " .Values.prometheus.rbacPrometheus == true " and " .Values.prometheus.podMonitor.enabled=true or prometheus.serviceMonitor.enabled=true "
     serviceAccount: ""
@@ -83,7 +83,8 @@ metallb:
       enabled: false
       speaker:
         # optional additional labels for the speaker serviceMonitor
-        additionalLabels: {}
+        additionalLabels:
+          operator.insight.io/managed-by: insight
         # optional additional annotations for the speaker serviceMonitor
         annotations: {}
         # optional tls configuration for the speaker serviceMonitor, in case
@@ -92,7 +93,8 @@ metallb:
           insecureSkipVerify: true
       controller:
         # optional additional labels for the controller serviceMonitor
-        additionalLabels: {}
+        additionalLabels:
+          operator.insight.io/managed-by: insight
         # optional additional annotations for the controller serviceMonitor
         annotations: {}
         # optional tls configuration for the controller serviceMonitor, in case
@@ -122,7 +124,8 @@ metallb:
       # enable alertmanager alerts
       enabled: false
       # optional additionnal labels for prometheusRules
-      additionalLabels: {}
+      additionalLabels:
+        operator.insight.io/managed-by: insight
       # optional annotations for prometheusRules
       annotations: {}
       # MetalLBStaleConfig

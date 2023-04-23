@@ -39,6 +39,10 @@ echo "IMAGE_VERSION: ${IMAGE_VERSION}"
 yq -i '
    .metallb.prometheus.rbacProxy.registry="gcr.m.daocloud.io" |
    .metallb.prometheus.rbacProxy.repository="kubebuilder/kube-rbac-proxy" |
+   .metallb.prometheus.rbacPrometheus=false |
+   .metallb.prometheus.serviceMonitor.speaker.additionalLabels."operator.insight.io/managed-by"="insight" |
+   .metallb.prometheus.serviceMonitor.controller.additionalLabels."operator.insight.io/managed-by"="insight" |
+   .metallb.prometheus.prometheusRule.additionalLabels."operator.insight.io/managed-by"="insight" |
    .metallb.controller.image.tag=strenv(IMAGE_VERSION) |
    .metallb.controller.image.registry="quay.m.daocloud.io" |
    .metallb.controller.image.repository="metallb/controller" |
