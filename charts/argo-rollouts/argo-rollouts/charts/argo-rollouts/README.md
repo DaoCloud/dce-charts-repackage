@@ -95,13 +95,16 @@ For full list of changes please check ArtifactHub [changelog].
 | controller.pdb.labels | object | `{}` | Labels to be added to controller [Pod Disruption Budget] |
 | controller.pdb.maxUnavailable | string | `nil` | Maximum number / percentage of pods that may be made unavailable |
 | controller.pdb.minAvailable | string | `nil` | Minimum number / percentage of pods that should remain scheduled |
+| controller.podAnnotations | object | `{}` | Annotations to be added to application controller pods |
 | controller.priorityClassName | string | `""` | [priorityClassName] for the controller |
 | controller.readinessProbe | object | See [values.yaml] | Configure readiness [probe] for the controller |
 | controller.replicas | int | `2` | The number of controller pods to run |
 | controller.resources | object | `{}` | Resource limits and requests for the controller pods. |
 | controller.tolerations | list | `[]` | [Tolerations] for use with node taints |
 | controller.topologySpreadConstraints | list | `[]` | Assign custom [TopologySpreadConstraints] rules to the controller |
-| podAnnotations | object | `{}` | Annotations to be added to the Rollout pods |
+| controller.volumeMounts | list | `[]` | Additional volumeMounts to add to the controller container |
+| controller.volumes | list | `[]` | Additional volumes to add to the controller pod |
+| podAnnotations | object | `{}` | Annotations for the all deployed pods |
 | podLabels | object | `{}` | Labels to be added to the Rollout pods |
 | podSecurityContext | object | `{"runAsNonRoot":true}` | Security Context to set on pod level |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
@@ -139,6 +142,7 @@ For full list of changes please check ArtifactHub [changelog].
 | dashboard.pdb.labels | object | `{}` | Labels to be added to dashboard [Pod Disruption Budget] |
 | dashboard.pdb.maxUnavailable | string | `nil` | Maximum number / percentage of pods that may be made unavailable |
 | dashboard.pdb.minAvailable | string | `nil` | Minimum number / percentage of pods that should remain scheduled |
+| dashboard.podAnnotations | object | `{}` | Annotations to be added to application dashboard pods |
 | dashboard.podSecurityContext | object | `{"runAsNonRoot":true}` | Security Context to set on pod level |
 | dashboard.priorityClassName | string | `""` | [priorityClassName] for the dashboard server |
 | dashboard.readonly | bool | `false` | Set cluster role to readonly |
@@ -159,6 +163,8 @@ For full list of changes please check ArtifactHub [changelog].
 | dashboard.serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | dashboard.tolerations | list | `[]` | [Tolerations] for use with node taints |
 | dashboard.topologySpreadConstraints | list | `[]` | Assign custom [TopologySpreadConstraints] rules to the dashboard server |
+| dashboard.volumeMounts | list | `[]` | Additional volumeMounts to add to the dashboard container |
+| dashboard.volumes | list | `[]` | Additional volumes to add to the dashboard pod |
 
 ## Upgrading
 
