@@ -53,6 +53,7 @@
                                         "enabled": {
                                             "type": "boolean",
                                             "title": "Enable Nacos",
+                                            "description": "If enabled, The Chart will deploy two extra services: dataservice and mysql. The adservice will call dataservice which uses mysql to store Ad data to get Ad data.",
                                             "default": false
                                         },
                                         "registryAddr": {

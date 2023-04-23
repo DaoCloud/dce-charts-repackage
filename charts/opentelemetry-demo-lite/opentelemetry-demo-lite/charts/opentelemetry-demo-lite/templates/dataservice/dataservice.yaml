@@ -1,4 +1,4 @@
-{{- if .Values.extensions.dataservice.enabled -}}
+{{- if and .Values.extensions.dataservice.enabled .Values.global.microservices.nacos.enabled -}}
 ---
 apiVersion: apps/v1
 kind: Deployment

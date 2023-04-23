@@ -1,4 +1,4 @@
-{{- if .Values.global.serviceMonitor.dataservice.enabled -}}
+{{- if and .Values.global.serviceMonitor.dataservice.enabled .Values.global.microservices.nacos.enabled -}}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:

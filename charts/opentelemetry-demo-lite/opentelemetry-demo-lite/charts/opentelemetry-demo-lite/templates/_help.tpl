@@ -92,7 +92,7 @@ java dataservice opt
 {{- end }}
 
 {{/*
-common java adService opt bug
+common java adservice opt bug
 */}}
 {{- define "java.adservice.opt" -}}
 {{- $opt := "-Dmeter.port=8888" -}}
@@ -104,7 +104,13 @@ common java adService opt bug
 {{- $opt = cat $opt "-Dotel.exporter.prometheus.port=9464" -}}
 {{- end }}
 
+{{/* check nacos is enable */}}
+{{- if .Values.global.microservices.nacos.enabled }}
 {{- $opt = cat $opt "-Dspring.dataService.enabled=true" -}}
+{{- else }}
+{{- $opt = cat $opt "-Dspring.dataService.enabled=false" -}}
+{{- end }}
+
 {{- $opt = cat $opt "-Dspring.extraAdLabel=Daocloud" -}}
 {{- $opt = cat $opt "-Dspring.randomError=false" -}}
 {{- $opt = cat $opt "-Dspring.matrixRow=200" -}}
