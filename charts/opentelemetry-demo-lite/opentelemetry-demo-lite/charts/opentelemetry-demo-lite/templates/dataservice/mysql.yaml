@@ -1,0 +1,53 @@
+{{- if and .Values.extensions.mysql.enabled .Values.global.microservices.nacos.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "otel-demo.name" . }}-mysql
+  labels:
+    {{- include "otel-demo.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "otel-demo.name" . }}-mysql
+  labels:
+    {{- include "otel-demo.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+        {{- if .Values.global.opentelemetryDemo.istioSidecar.enabled }}
+        sidecar.istio.io/inject: 'true'
+        {{- end }}
+    spec:
+      containers:
+      - image: '{{ .Values.extensions.mysql.image.registry }}/{{ .Values.extensions.mysql.image.repository }}:{{ .Values.extensions.mysql.image.tag }}'
+        name: mysql
+        env:
+          # Use secret in real usage
+        - name: MYSQL_ROOT_PASSWORD
+          value: otel
+        - name: MYSQL_DATABASE
+          value: otel
+        ports:
+        - containerPort: 3306
+          name: mysql
+        resources:
+          requests:
+            cpu: "0.2"
+            memory: 100Mi
+          limits:
+            cpu: "1"
+            memory: 1024Mi
+{{- end }}

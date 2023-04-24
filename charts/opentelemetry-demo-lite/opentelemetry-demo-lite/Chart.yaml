@@ -1,0 +1,19 @@
+apiVersion: v2
+appVersion: v1.4.0-beta-daocloud
+description: A helm chart for openTelemetry community demo application integration with other component(lite version).
+icon: https://opentelemetry.io/img/logos/opentelemetry-logo-nav.png
+keywords:
+  - opentelemetry
+  - webstore-demo
+maintainers:
+  - name: JaredTan95
+  - name: Frapschen
+name: opentelemetry-demo-lite
+sources:
+  - https://github.com/openinsight-proj/openinsight-helm-charts
+type: application
+version: 1.0.4
+dependencies:
+  - name: opentelemetry-demo-lite
+    version: "1.0.4"
+    repository: "https://openinsight-proj.github.io/openinsight-helm-charts"

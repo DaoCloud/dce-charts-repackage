@@ -1,0 +1,78 @@
+{{- if and .Values.extensions.dataservice.enabled .Values.global.microservices.nacos.enabled -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "otel-demo.name" . }}-dataservice
+  labels:
+    {{- include "otel-demo.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+          app.kubernetes.io/component: dataservice
+          app.kubernetes.io/instance: {{ .Release.Name }}
+          app.kubernetes.io/name: {{ .Release.Name }}-dataservice
+  template:
+    metadata:
+      labels:
+        opentelemetry.io/name: {{ .Release.Name }}-dataservice
+        app.kubernetes.io/component: dataservice
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/name: {{ .Release.Name }}-dataservice
+        {{- if .Values.global.opentelemetryDemo.istioSidecar.enabled }}
+        sidecar.istio.io/inject: 'true'
+        {{- end }}
+      {{- if .Values.extensions.dataservice.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.extensions.dataservice.podAnnotations | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+        - name: dataservice
+          image: "{{ .Values.extensions.dataservice.image.registry }}/{{ .Values.extensions.dataservice.image.repository }}:{{ .Values.extensions.dataservice.image.tag }}"
+          imagePullPolicy: {{ .Values.extensions.dataservice.image.pullPolicy }}
+          {{- if .Values.extensions.dataservice.ports }}
+          ports:
+          {{- range $port := .Values.extensions.dataservice.ports }}
+          - name: {{ $port.name}}
+            containerPort: {{ $port.containerPort }}
+            protocol: {{ $port.protocol }}
+          {{- end }}
+          {{- end }}
+          env:
+            {{- with .Values.extensions.dataservice.env }}
+            {{- . | toYaml | nindent 12 }}
+            {{- end }}
+            - name: JAVA_OPTS
+              value: '{{ include "java.dataservice.opt" . }}'
+            - name: MYSQL_HOST
+              value: '{{ include "otel-demo.name" . }}-mysql'
+
+          resources:
+            requests:
+              cpu: "0.2"
+              memory: 100Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "otel-demo.name" . }}-dataservice
+  labels:
+    {{- include "otel-demo.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.extensions.dataservice.servcie.type | default "ClusterIP" }}
+  {{- if .Values.extensions.dataservice.ports }}
+  ports:
+  {{- range $port := .Values.extensions.dataservice.ports }}
+  - name: {{ $port.name}}
+    port: {{ $port.containerPort }}
+    protocol: {{ $port.protocol }}
+    targetPort: {{ $port.containerPort }}
+  {{- end }}
+  {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ .Release.Name }}-dataservice
+{{- end }}
