@@ -15,7 +15,7 @@ opentelemetry-demo-lite:
       adServiceJVMEnable: true
     microservices:
       nacos:
-        enabled: true
+        enabled: false
         registryAddr: ""
         registryNamespace: $(NACOS_NAMESPACE_ID)
         registryServiceGroup: $(NACOS_GROUP_NAME)
@@ -24,7 +24,7 @@ opentelemetry-demo-lite:
         username: ""
         password: ""
       sentinel:
-        enabled: true
+        enabled: false
     middleware:
       redis:
         # enum: builtin or redisCR
