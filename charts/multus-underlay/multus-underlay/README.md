@@ -1,6 +1,6 @@
 # multus-underlay
 
-![Version: 0.2.2](https://img.shields.io/badge/Version-0.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.2](https://img.shields.io/badge/AppVersion-0.2.2-informational?style=flat-square)
+![Version: 0.2.3](https://img.shields.io/badge/Version-0.2.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.3](https://img.shields.io/badge/AppVersion-0.2.3-informational?style=flat-square)
 
 Multi-underlay enables attaching multiple network interfaces to pods in Kubernetes.
 
@@ -14,7 +14,7 @@ Multi-underlay enables attaching multiple network interfaces to pods in Kubernet
 |------------|------|---------|
 | file://charts/multus | multus | v3.9 |
 | file://charts/sriov | sriov | 0.1.2 |
-| https://spidernet-io.github.io/cni-plugins | meta-plugins | 0.2.2 |
+| https://spidernet-io.github.io/cni-plugins | meta-plugins | 0.2.3 |
 
 ## Values
 
@@ -38,7 +38,7 @@ Multi-underlay enables attaching multiple network interfaces to pods in Kubernet
 | macvlan.vlanID | int | `0` |  |
 | meta-plugins.image.registry | string | `"ghcr.m.daocloud.io"` |  |
 | meta-plugins.image.repository | string | `"spidernet-io/cni-plugins/meta-plugins"` |  |
-| meta-plugins.image.tag | string | `"v0.2.2"` |  |
+| meta-plugins.image.tag | string | `"v0.2.3"` |  |
 | multus.config.cni_conf.binDir | string | `"/opt/cni/bin"` |  |
 | multus.config.cni_conf.capabilities.bandwidth | bool | `true` |  |
 | multus.config.cni_conf.capabilities.portMappings | bool | `true` |  |
