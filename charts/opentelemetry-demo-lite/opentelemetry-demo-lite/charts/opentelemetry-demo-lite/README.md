@@ -128,6 +128,17 @@ helm repo add open-insight https://openinsight-proj.github.io/openinsight-helm-c
 helm install webstore-demo open-insight/opentelemetry-demo-lite -n webstore-demo --create-namespace
 ```
 
+## 常见参数
+
+| 参数位置 | 参数说明                                                                                                                                            |
+| -------- |-------------------------------------------------------------------------------------------------------------------------------------------------|
+|adservice.enabled| 为 true 时部署adservice                                                                                                                             |
+|microservices.nacos.enabled| 改为 true，将会额外部署两个服务：dataservice, mysql, dataservice 会从 mysql 中获取广告数据，adservice 会向 dataservice 请求广告数据。此外，adservice, dataservice两个服务会被注册到nacos注册中心 |
+|microservices.nacos.registryAddr| 请修改为集群内nacos的可解析的域名，注意要带namespace                                                                                                               |
+
+更多的参数配置可以将 `values.schema.json` 文件中的内容复制到[ json schema editor ](https://form.lljj.me/#/demo?ui=VueElementForm&type=Test)
+进行实时配置编辑，用[ json-to-yaml ](https://codebeautify.org/json-to-yaml)将编辑的j结果转成 yaml。
+
 
 
 
