@@ -1,4 +1,4 @@
-{{- if and .Values.extensions.mysql.enabled .Values.global.microservices.nacos.enabled -}}
+{{- if .Values.global.microservices.nacos.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:

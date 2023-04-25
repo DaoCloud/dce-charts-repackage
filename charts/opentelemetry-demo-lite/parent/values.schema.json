@@ -4,8 +4,8 @@
     "properties": {
         "opentelemetry-demo-lite": {
             "type": "object",
-            "title": "Opentelemetry-demo",
-            "description": "The Opentelemetry-demo is a microservice-based distributed system. This demo aims to help users quickly and easily trial the features of DaoCloud Enterprise.",
+            "title": "Opentelemetry demo lite",
+            "description": "The Opentelemetry demo lite is a microservice-based distributed system. This demo aims to help users quickly and easily trial the features of DaoCloud Enterprise.",
             "properties": {
                 "global": {
                     "type": "object",
@@ -35,7 +35,7 @@
                                             "type": "boolean",
                                             "title": "Enable Service Mesh",
                                             "description": "Please ensure that the cluster has enabled the Istio plugin. The sidecar will be injected for all services by default.",
-                                            "default": true
+                                            "default": false
                                         }
                                     }
                                 }
@@ -49,6 +49,13 @@
                                 "nacos": {
                                     "type": "object",
                                     "title": "nacos settings",
+                                    "required": [
+                                        "registryAddr",
+                                        "registryNamespace",
+                                        "registryServiceGroup",
+                                        "registryInstanceGroup",
+                                        "kubeMetadataClusterName"
+                                    ],
                                     "properties": {
                                         "enabled": {
                                             "type": "boolean",
@@ -58,18 +65,13 @@
                                         },
                                         "registryAddr": {
                                             "type": "string",
-                                            "title": "Registry Address",
-                                            "default": "nacos-test.skoala-test:8848"
-                                        },
-                                        "registryInstance": {
-                                            "type": "string",
-                                            "title": "Registry Instance",
-                                            "default": "DEFAULT"
+                                            "title": "Registry address",
+                                            "default": ""
                                         },
                                         "registryNamespace": {
                                             "type": "string",
-                                            "title": "Registry Namespace",
-                                            "default": "DEFAULT_GROUP"
+                                            "title": "Registry namespace",
+                                            "default": "public"
                                         },
                                         "registryServiceGroup": {
                                             "type": "string",
@@ -78,8 +80,13 @@
                                         },
                                         "registryInstanceGroup": {
                                             "type": "string",
-                                            "title": "Registry Instance Group",
+                                            "title": "Registry instance group",
                                             "default": "DEFAULT"
+                                        },
+                                        "kubeMetadataClusterName": {
+                                            "type": "string",
+                                            "title": "Kubernetes cluster name",
+                                            "default": ""
                                         },
                                         "username": {
                                             "type": "string",
