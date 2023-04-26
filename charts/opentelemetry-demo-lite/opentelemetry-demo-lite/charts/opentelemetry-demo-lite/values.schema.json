@@ -4,8 +4,8 @@
     "properties": {
         "opentelemetry-demo-lite": {
             "type": "object",
-            "title": "Opentelemetry demo lite",
-            "description": "The Opentelemetry demo lite is a microservice-based distributed system. This demo aims to help users quickly and easily trial the features of DaoCloud Enterprise.",
+            "title": "Opentelemetry-demo",
+            "description": "The Opentelemetry-demo is a microservice-based distributed system. This demo aims to help users quickly and easily trial the features of DaoCloud Enterprise.",
             "properties": {
                 "global": {
                     "type": "object",
@@ -65,12 +65,12 @@
                                         },
                                         "registryAddr": {
                                             "type": "string",
-                                            "title": "Registry address",
+                                            "title": "Registry Address",
                                             "default": ""
                                         },
                                         "registryNamespace": {
                                             "type": "string",
-                                            "title": "Registry namespace",
+                                            "title": "Registry Namespace",
                                             "default": "public"
                                         },
                                         "registryServiceGroup": {
@@ -80,12 +80,12 @@
                                         },
                                         "registryInstanceGroup": {
                                             "type": "string",
-                                            "title": "Registry instance group",
+                                            "title": "Registry Instance Group",
                                             "default": "DEFAULT"
                                         },
                                         "kubeMetadataClusterName": {
                                             "type": "string",
-                                            "title": "Kubernetes cluster name",
+                                            "title": "Kubernetes Cluster name",
                                             "default": ""
                                         },
                                         "username": {

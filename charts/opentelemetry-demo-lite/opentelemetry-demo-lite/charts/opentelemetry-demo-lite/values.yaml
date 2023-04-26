@@ -1,28 +1,24 @@
 global:
-  serviceMonitor:
-    adservice:
-      enabled: true
-    dataservice:
-      enabled: true
   opentelemetryDemo:
     image:
-      registry: ghcr.io
+      registry: ghcr.m.daocloud.io
       repository: openinsight-proj/demo
     busyboxImage:
       registry: docker.m.daocloud.io
       repository: rancher/busybox
       tag: "1.31.1"
     istioSidecar:
-      enabled: true
+      enabled: false
   observability:
     adServiceJVMEnable: true
   microservices:
     nacos:
       enabled: false
-      registryAddr: nacos-test.skoala-test.svc.cluster.local:8848
+      registryAddr: ""
       registryNamespace: $(NACOS_NAMESPACE_ID)
       registryServiceGroup: $(NACOS_GROUP_NAME)
       registryInstanceGroup: DEFAULT
+      kubeMetadataClusterName: ""
       username: ""
       password: ""
     sentinel:
@@ -34,6 +30,7 @@ global:
 
 extensions:
   mysql:
+    # this value is not in used, it replaces by global.microservices.nacos.enabled
     enabled: true
     image:
       registry: docker.m.daocloud.io
@@ -54,23 +51,21 @@ extensions:
       repository: opstree/redis
       tag: "v7.0.5"
   dataservice:
+    # this value is not in used, it replaces by global.microservices.nacos.enabled
     enabled: true
     image:
-      registry: ghcr.io
+      registry: ghcr.m.daocloud.io
       repository: openinsight-proj/demo
       tag: "993ff3d8b4548b4da08c4fb748dced2bdd20ba43-dataservice"
       pullPolicy: Always
     servcie:
-      type: NodePort
+      type: ClusterIP
     ports:
       - name: http
         containerPort: 8080
         protocol: TCP
       - name: health-http
         containerPort: 8999
-        protocol: TCP
-      - name: jvm-metrics
-        containerPort: 9464
         protocol: TCP
     env:
       - name: OTEL_SERVICE_NAME
@@ -116,7 +111,7 @@ extensions:
   cartservice:
     enabled: true
     image:
-      registry: ghcr.io
+      registry: ghcr.m.daocloud.io
       repository: openinsight-proj/demo
       tag: "v1.3.2-cartservice"
     busyboxImage:
@@ -126,15 +121,18 @@ extensions:
   adservice:
     enabled: true
     image:
-      registry: ghcr.io
+      registry: ghcr.m.daocloud.io
       repository: openinsight-proj/demo
       tag: "ce8efa5113e52421612cae34e76875fd4a95ace1-adservice-v2"
       pullPolicy: Always
     servcie:
       type: NodePort
     ports:
-      - name: http
+      - name: service-grpc
         containerPort: 8080
+        protocol: TCP
+      - name: rest-http
+        containerPort: 8081
         protocol: TCP
       - name: health-http
         containerPort: 8999
@@ -197,7 +195,7 @@ opentelemetry-demo:
 
   default:
     image:
-      repository: ghcr.io/openinsight-proj/demo
+      repository: ghcr.m.daocloud.io/openinsight-proj/demo
       tag: "v1.4.0-beta-daocloud"
 
   serviceAccount:
