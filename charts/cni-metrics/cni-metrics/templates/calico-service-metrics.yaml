@@ -1,0 +1,36 @@
+{{- if eq .Values.cni "calico" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: calico-node-metrics
+  namespace: kube-system
+  labels:
+    {{ .Values.insightLabelName }}: {{ .Values.insightLabelValue }}
+    k8s-app: calico-node
+spec:
+  clusterIP: None
+  selector:
+    k8s-app: calico-node
+  ports:
+  - port: 9091
+    name: http-metrics
+    targetPort: 9091
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-controllers-metrics-svc
+  namespace: kube-system
+  labels:
+    k8s-app: calico-kube-controllers
+    {{ .Values.insightLabelName }}: {{ .Values.insightLabelValue }}
+spec:
+  clusterIP: None
+  selector:
+    k8s-app: calico-kube-controllers
+  ports:
+  - port: 9094
+    targetPort: 9094
+    protocol: TCP
+    name: http-metrics
+{{- end }}

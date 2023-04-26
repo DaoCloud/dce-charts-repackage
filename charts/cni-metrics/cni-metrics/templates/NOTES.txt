@@ -1,0 +1,8 @@
+You can use following command to checking install:
+
+----------------------
+
+kubectl get service -n {{ .Release.Namespace }}
+kubectl get serviceMonitor -n {{ .Release.Namespace }}
+
+----------------------

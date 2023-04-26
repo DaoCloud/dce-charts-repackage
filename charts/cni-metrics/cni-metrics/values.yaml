@@ -1,0 +1,13 @@
+# Default values for cni-metrics.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# calico、cilium、kube-ovn
+cni: "calico"
+
+serviceMonitor:
+  interval: 30s
+  path: '/metrics'
+
+insightLabelName: "operator.insight.io/managed-by"
+insightLabelValue: "insight"
