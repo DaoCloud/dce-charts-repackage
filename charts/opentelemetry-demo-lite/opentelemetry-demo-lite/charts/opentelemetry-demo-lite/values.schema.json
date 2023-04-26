@@ -50,6 +50,7 @@
                                     "type": "object",
                                     "title": "nacos settings",
                                     "required": [
+                                        "registryName",
                                         "registryAddr",
                                         "registryNamespace",
                                         "registryServiceGroup",
@@ -63,14 +64,19 @@
                                             "description": "If enabled, The Chart will deploy two extra services: dataservice and mysql. The adservice will call dataservice which uses mysql to store Ad data to get Ad data.",
                                             "default": false
                                         },
+                                        "registryName": {
+                                            "type": "string",
+                                            "title": "Registry name",
+                                            "default": ""
+                                        },
                                         "registryAddr": {
                                             "type": "string",
-                                            "title": "Registry Address",
+                                            "title": "Registry address",
                                             "default": ""
                                         },
                                         "registryNamespace": {
                                             "type": "string",
-                                            "title": "Registry Namespace",
+                                            "title": "Registry mamespace",
                                             "default": "public"
                                         },
                                         "registryServiceGroup": {
@@ -80,12 +86,12 @@
                                         },
                                         "registryInstanceGroup": {
                                             "type": "string",
-                                            "title": "Registry Instance Group",
+                                            "title": "Registry instance group",
                                             "default": "DEFAULT"
                                         },
                                         "kubeMetadataClusterName": {
                                             "type": "string",
-                                            "title": "Kubernetes Cluster name",
+                                            "title": "Kubernetes cluster name",
                                             "default": ""
                                         },
                                         "username": {

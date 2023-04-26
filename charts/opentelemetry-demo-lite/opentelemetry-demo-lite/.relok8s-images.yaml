@@ -7,6 +7,8 @@
 - "{{ .opentelemetry-demo-lite.extensions.redis.redisCRResource.image.registry }}/{{ .opentelemetry-demo-lite.extensions.redis.redisCRResource.image.repository }}:{{ .opentelemetry-demo-lite.extensions.redis.redisCRResource.image.tag }}"
 - "{{ .opentelemetry-demo-lite.extensions.redis.redisCRResource.redisExporterImage.registry }}/{{ .opentelemetry-demo-lite.extensions.redis.redisCRResource.redisExporterImage.repository }}:{{ .opentelemetry-demo-lite.extensions.redis.redisCRResource.redisExporterImage.tag }}"
 - "{{ .opentelemetry-demo-lite.extensions.adservice.image.registry }}/{{ .opentelemetry-demo-lite.extensions.adservice.image.repository }}:{{ .opentelemetry-demo-lite.extensions.adservice.image.tag }}"
+- "{{ .opentelemetry-demo-lite.extensions.springCloudGateway.image.registry }}/{{ .opentelemetry-demo-lite.extensions.springCloudGateway.image.repository }}:{{ .opentelemetry-demo-lite.extensions.springCloudGateway.image.tag }}"
+
 
 # opentelemetry-demo component
 - "{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.registry }}/{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.checkoutService.imageOverride.tag }}"

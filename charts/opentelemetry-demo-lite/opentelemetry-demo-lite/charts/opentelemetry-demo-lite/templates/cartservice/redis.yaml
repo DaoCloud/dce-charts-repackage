@@ -70,6 +70,10 @@ spec:
               limits:
                 cpu: "0.5"
                 memory: 512Mi
+            securityContext:
+              runAsUser: 999
+              runAsGroup: 1000
+              runAsNonRoot: true
 ---
 apiVersion: v1
 kind: Service
