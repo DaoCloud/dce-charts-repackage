@@ -21,14 +21,14 @@ falco-exporter:
   image:
     registry: docker.m.daocloud.io
     repository: falcosecurity/falco-exporter
-    tag: 0.7.0
+    tag: 0.8.0
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   nameOverride: ""
   fullnameOverride: ""
   priorityClassName:
   falco:
-    grpcUnixSocketPath: "unix:///var/run/falco/falco.sock"
+    grpcUnixSocketPath: "unix:///run/falco/falco.sock"
     grpcTimeout: 2m
   serviceAccount:
     # Specifies whether a service account should be created
@@ -104,6 +104,7 @@ falco-exporter:
     scrapeTimeout: ""
   grafanaDashboard:
     enabled: false
+    folder:
     namespace: default
     prometheusDatasourceName: Prometheus
   scc:
