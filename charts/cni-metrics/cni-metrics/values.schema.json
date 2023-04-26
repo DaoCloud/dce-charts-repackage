@@ -1,0 +1,33 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "cni": {
+            "type": "string",
+            "description": "which cni is deployed in your cluster",
+            "enum": [
+                "calico",
+                "cilium",
+                "kube-ovn"
+            ]
+        },
+        "serviceMonitor": {
+            "type": "object",
+            "description": "Create servicemonitor cr. Notice: It is required to install Prometheus CRDs firstly",
+            "properties": {
+                "interval": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                }
+            }
+        },
+        "insightLabelName": {
+            "type": "string"
+        },
+        "insightLabelValue": {
+            "type": "string"
+        }
+    }
+}

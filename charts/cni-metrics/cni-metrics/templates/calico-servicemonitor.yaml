@@ -1,0 +1,37 @@
+{{- if eq .Values.cni "calico" }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    {{ .Values.insightLabelName }}: {{ .Values.insightLabelValue }}
+  name: calico-node-metrics
+spec:
+  endpoints:
+  - port: http-metrics
+    interval: {{ .Values.serviceMonitor.interval }}
+    path: {{ .Values.serviceMonitor.path }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      k8s-app: calico-node
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    {{ .Values.insightLabelName }}: {{ .Values.insightLabelValue }}
+  name: calico-kube-controller-metrics
+spec:
+  endpoints:
+  - port: http-metrics
+    interval: {{ .Values.serviceMonitor.interval }}
+    path: {{ .Values.serviceMonitor.path }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      k8s-app: calico-kube-controllers
+{{- end }}
