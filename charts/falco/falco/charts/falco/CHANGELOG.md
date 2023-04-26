@@ -3,6 +3,112 @@
 This file documents all notable changes to Falco Helm Chart. The release
 numbering uses [semantic versioning](http://semver.org).
 
+## v3.1.3
+
+* Updates the grpc-service to use the correct label selector
+
+## v3.1.2
+
+* Bump `falcosidekick` dependency to 0.6.1
+
+## v3.1.1
+* Update `k8saudit` section in README.md file.
+
+## v3.1.0
+* Upgrade Falco to 0.34.1
+
+## v3.0.0
+* Drop support for falcosecuriy/falco image, only the init container approach is supported out of the box;
+* Simplify the driver-loader init container logic;
+* Support **falcoctl** tool in the chart:
+  * Install the *rulesfile* artifacts;
+  * Follow the *rulesfile* artifacts in order to have the latest rules once they are released from falcosecurity org;
+* Support the **modern-bpf** probe a new driver (experimental)
+* Add a new file *BREAKING_CHANGES.md* to document the breaking changes and how to update the new chart.
+
+## v2.5.5
+
+* Bump `falcosidekick` dependency to 0.5.16
+
+## v2.5.4
+
+* Fix incorrect entry in v2.5.2 changelog 
+
+## v2.5.3
+
+* Bump `falcosidekick` dependency to 0.5.14
+
+## v2.5.2
+
+* Fixed notes template to only include daemon set info if set to daemon set
+
+## v2.5.1
+
+* Update README to clarify driver behavior for chart
+
+## v2.5.0
+
+* Support custom dictionaries when setting environment variables
+
+Note: this is a breaking change. If you were passing _objects_ to `extra.env` or `driver.loader.initContainer.env` , you will need to update your values file to pass _lists_.
+
+## v2.4.7
+
+* Add `controller.annotations` configuration
+
+## v2.4.6
+
+* Bump `falcosidekick` dependency to 0.5.11
+
+## v2.4.5
+
+* Bump `falcosidekick` dependency to 0.5.10
+
+## v2.4.4
+
+* Update README for gRPC
+
+## v2.4.3
+
+* Update README for gVisor and GKE
+
+## v2.4.2
+
+* Add toleration for node-role.kubernetes.io/control-plane
+
+## v2.4.1
+
+* Fixed error in values.yaml comments
+
+## v2.4.0
+
+* Add support for Falco+gVisor
+* Add new preset `values.yaml `file for gVisor-enabled GKE clusters
+
+## v2.3.1
+
+* Fixed incorrect spelling of `been`
+
+## v2.3.0
+
+* Add variable namespaceOverride to allow setting release namespace in values
+
+## v2.2.0
+
+* Change the grpc socket path from `unix:///var/run/falco/falco.soc` to `unix:///run/falco/falco.sock`. Please note that this change is potentially a breaking change if upgrading falco from a previous version and you have external consumers of the grpc socket.
+
+## v2.1.0
+
+* Bump Falco to 0.33.0
+* Implicitly disable `syscall` source when not required
+* Update `values.yaml` to reflect the new configuration options in Falco 0.33.0
+* Mount `/sys/module/falco` when deployed using the `kernel module`
+* Update rulesets for falco and plugins
+
+## v2.0.18
+
+* Bump `falcosidekick` dependency to 0.5.9
+
 ## v2.0.17
 
 * Fix: remove `namespace` from `clusterrole` and `clusterrolebinding` metadata
@@ -134,7 +240,7 @@ update(falco/OWNERS): move inactive approvers to emeritus_approvers
 ## v1.18.5
 
 * Bump falcosidekick chart dependency
-  
+
 ## v1.18.4
 
 * Now the url to falcosidekick on NOTES.txt on falco helm chart points to the right place.
