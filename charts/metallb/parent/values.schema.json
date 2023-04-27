@@ -50,6 +50,29 @@
                             }
                         }
                     }
+                },
+                "prometheus": {
+                    "type": "object",
+                    "properties": {
+                        "serviceMonitor": {
+                            "type": "object",
+                            "description": "install serviceMonitor CR for controller and speaker. Notice: ensure prometheus installed firstly.",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "prometheusRule": {
+                            "type": "object",
+                            "description": "install prometheusRule CR. Notice: ensure prometheus installed firstly.",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -119,8 +142,7 @@
                             "title": "Interfaces",
                             "description": "A list of interfaces to announce from. The LB IP will be announced only from these interfaces. If the field is not set, we advertise from all the interfaces on the host",
                             "items": {
-                                "type": "string",
-                                "description": "The name of Network-Interface,"
+                                "type": "string"
                             }
                         }
                     }
