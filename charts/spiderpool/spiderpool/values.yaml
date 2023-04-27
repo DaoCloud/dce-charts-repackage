@@ -66,6 +66,19 @@ spiderpool:
         ## @param feature.gc.GcDeletingTimeOutPod.delay the gc delay seconds after the pod times out of deleting graceful period
         delay: 0
   
+    grafanaDashboard:
+      ## @param feature.grafanaDashboard.install install grafanaDashboard for spiderpool. This requires the grafana operator CRDs to be available
+      install: false
+  
+      ## @param feature.grafanaDashboard.namespace the grafanaDashboard namespace. Default to the namespace of helm instance
+      namespace: ""
+  
+      ## @param feature.grafanaDashboard.annotations the additional annotations of spiderpool grafanaDashboard
+      annotations: {}
+  
+      ## @param feature.grafanaDashboard.labels the additional label of spiderpool grafanaDashboard
+      labels: {}
+  
   ## @section clusterDefaultPool parameters
   ##
   clusterDefaultPool:
@@ -128,7 +141,7 @@ spiderpool:
       digest: ""
   
       ## @param spiderpoolAgent.image.tag the image tag of spiderpoolAgent, overrides the image tag whose default is the chart appVersion.
-      tag: v0.4.1
+      tag: v0.5.0-rc0
   
       ## @param spiderpoolAgent.image.imagePullSecrets the image imagePullSecrets of spiderpoolAgent
       imagePullSecrets: []
@@ -257,6 +270,9 @@ spiderpool:
       ## @param spiderpoolAgent.prometheus.enabled enable spiderpool agent to collect metrics
       enabled: true
   
+      ## @param spiderpoolAgent.prometheus.enabledDebugMetric enable spiderpool agent to collect debug level metrics
+      enabledDebugMetric: false
+  
       ## @param spiderpoolAgent.prometheus.port the metrics port of spiderpool agent
       port: 5711
   
@@ -304,19 +320,6 @@ spiderpool:
         ## @param spiderpoolAgent.prometheus.prometheusRule.enableWarningIPAMReleaseOverTime the additional rule of spiderpoolAgent prometheusRule
         enableWarningIPAMReleaseOverTime: true
   
-      grafanaDashboard:
-        ## @param spiderpoolAgent.prometheus.grafanaDashboard.install install grafanaDashboard for spiderpool agent. This requires the prometheus CRDs to be available
-        install: false
-  
-        ## @param spiderpoolAgent.prometheus.grafanaDashboard.namespace the grafanaDashboard namespace. Default to the namespace of helm instance
-        namespace: ""
-  
-        ## @param spiderpoolAgent.prometheus.grafanaDashboard.annotations the additional annotations of spiderpoolAgent grafanaDashboard
-        annotations: {}
-  
-        ## @param spiderpoolAgent.prometheus.grafanaDashboard.labels the additional label of spiderpoolAgent grafanaDashboard
-        labels: {}
-  
     debug:
       ## @param spiderpoolAgent.debug.logLevel the log level of spiderpool agent [debug, info, warn, error, fatal, panic]
       logLevel: "debug"
@@ -352,7 +355,7 @@ spiderpool:
       digest: ""
   
       ## @param spiderpoolController.image.tag the image tag of spiderpoolController, overrides the image tag whose default is the chart appVersion.
-      tag: v0.4.1
+      tag: v0.5.0-rc0
   
       ## @param spiderpoolController.image.imagePullSecrets the image imagePullSecrets of spiderpoolController
       imagePullSecrets: []
@@ -490,6 +493,9 @@ spiderpool:
       ## @param spiderpoolController.prometheus.enabled enable spiderpool Controller to collect metrics
       enabled: true
   
+      ## @param spiderpoolController.prometheus.enabledDebugMetric enable spiderpool Controller to collect debug level metrics
+      enabledDebugMetric: false
+  
       ## @param spiderpoolController.prometheus.port the metrics port of spiderpool Controller
       port: 5721
   
@@ -524,19 +530,6 @@ spiderpool:
   
         ## @param spiderpoolController.prometheus.prometheusRule.enableWarningIPGCFailureCounts the additional rule of spiderpoolController prometheusRule
         enableWarningIPGCFailureCounts: true
-  
-      grafanaDashboard:
-        ## @param spiderpoolController.prometheus.grafanaDashboard.install install grafanaDashboard for spiderpool agent. This requires the prometheus CRDs to be available
-        install: false
-  
-        ## @param spiderpoolController.prometheus.grafanaDashboard.namespace the grafanaDashboard namespace. Default to the namespace of helm instance
-        namespace: ""
-  
-        ## @param spiderpoolController.prometheus.grafanaDashboard.annotations the additional annotations of spiderpoolController grafanaDashboard
-        annotations: {}
-  
-        ## @param spiderpoolController.prometheus.grafanaDashboard.labels the additional label of spiderpoolController grafanaDashboard
-        labels: {}
   
     debug:
       ## @param spiderpoolController.debug.logLevel the log level of spiderpool Controller [debug, info, warn, error, fatal, panic]
@@ -621,7 +614,7 @@ spiderpool:
       digest: ""
   
       ## @param spiderpoolInit.image.tag the image tag of spiderpoolInit, overrides the image tag whose default is the chart appVersion.
-      tag: v0.4.1
+      tag: v0.5.0-rc0
   
       ## @param spiderpoolInit.image.imagePullSecrets the image imagePullSecrets of spiderpoolInit
       imagePullSecrets: []
