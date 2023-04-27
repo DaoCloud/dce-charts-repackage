@@ -2,26 +2,54 @@
     "$schema": "http://json-schema.org/schema#",
     "type": "object",
     "properties": {
+        "affinity": {
+            "type": "object"
+        },
+        "fullnameOverride": {
+            "type": "string"
+        },
         "image": {
             "type": "object",
-            "title": "Image Configuration",
             "properties": {
+                "pullPolicy": {
+                    "type": "string"
+                },
                 "registry": {
-                    "type": "string",
-                    "default": "ghcr.io",
-                    "title": "Registry"
+                    "type": "string"
                 },
                 "repository": {
-                    "type": "string",
-                    "default": "spidernet-io/cni-plugins/meta-plugins",
-                    "title": "Repository"
+                    "type": "string"
                 },
                 "tag": {
-                    "type": "string",
-                    "default": "v0.1.8",
-                    "title": "Tag"
+                    "type": "string"
                 }
             }
+        },
+        "imagePullSecrets": {
+            "type": "array"
+        },
+        "imageRepositoryOverride": {
+            "type": "string"
+        },
+        "nameOverride": {
+            "type": "string"
+        },
+        "nodeSelector": {
+            "type": "object",
+            "properties": {
+                "kubernetes.io/os": {
+                    "type": "string"
+                }
+            }
+        },
+        "podAnnotations": {
+            "type": "object"
+        },
+        "resources": {
+            "type": "object"
+        },
+        "tolerations": {
+            "type": "array"
         }
     }
 }
