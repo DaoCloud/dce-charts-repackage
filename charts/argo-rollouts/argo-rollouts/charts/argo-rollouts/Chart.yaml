@@ -1,9 +1,7 @@
 annotations:
   artifacthub.io/changes: |
-    - kind: changed
-      description: Upgrade Argo Rollouts to v.1.4.1
     - kind: added
-      description: Put Changelog URL on README.md
+      description: Ability to provide service monitor relabeling configs
 apiVersion: v2
 appVersion: v1.4.1
 description: A Helm chart for Argo Rollouts
@@ -18,4 +16,4 @@ maintainers:
 name: argo-rollouts
 sources:
 - https://github.com/argoproj/argo-rollouts
-version: 2.22.3
+version: 2.26.0
