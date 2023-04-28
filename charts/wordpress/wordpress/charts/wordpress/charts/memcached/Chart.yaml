@@ -1,13 +1,14 @@
 annotations:
   category: Infrastructure
+  licenses: Apache-2.0
 apiVersion: v2
-appVersion: 1.6.18
+appVersion: 1.6.19
 dependencies:
 - name: common
-  repository: https://charts.bitnami.com/bitnami
+  repository: oci://registry-1.docker.io/bitnamicharts
   tags:
   - bitnami-common
-  version: 2.x.x
+  version: 2.2.4
 description: Memcached is an high-performance, distributed memory object caching system,
   generic in nature, but intended for use in speeding up dynamic web applications
   by alleviating database load.
@@ -23,4 +24,4 @@ name: memcached
 sources:
 - https://github.com/bitnami/containers/tree/main/bitnami/memcached
 - http://memcached.org/
-version: 6.3.5
+version: 6.3.14
