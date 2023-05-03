@@ -14,6 +14,7 @@ global:
   microservices:
     nacos:
       enabled: false
+      registryName: $(SKOALA_REGISTRY)
       registryAddr: ""
       registryNamespace: $(NACOS_NAMESPACE_ID)
       registryServiceGroup: $(NACOS_GROUP_NAME)
@@ -101,8 +102,6 @@ extensions:
         value: DEFAULT_GROUP
       - name: SKOALA_REGISTRY
         value: nacos-test
-      - name: OTEL_RESOURCE_ATTRIBUTES
-        value: -Dspring.application.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(K8S_NAMESPACE),k8s.node.name=$(OTEL_RESOURCE_ATTRIBUTES_NODE_NAME),k8s.pod.name=$(OTEL_RESOURCE_ATTRIBUTES_POD_NAME),k8s.pod.uid=$(OTEL_RESOURCE_ATTRIBUTES_POD_UID),skoala.registry=$(SKOALA_REGISTRY),nacos.namespaceid=$(NACOS_NAMESPACE_ID),nacos.groupname=$(NACOS_GROUP_NAME)
     podAnnotations:
       instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
       insight.opentelemetry.io/metric-scrape: "true"
@@ -182,8 +181,6 @@ extensions:
         value: nacos-test
       - name: AD_SERVICE_PORT
         value: "8080"
-      - name: OTEL_RESOURCE_ATTRIBUTES
-        value: -Dspring.application.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(K8S_NAMESPACE),k8s.node.name=$(OTEL_RESOURCE_ATTRIBUTES_NODE_NAME),k8s.pod.name=$(OTEL_RESOURCE_ATTRIBUTES_POD_NAME),k8s.pod.uid=$(OTEL_RESOURCE_ATTRIBUTES_POD_UID),skoala.registry=$(SKOALA_REGISTRY),nacos.namespaceid=$(NACOS_NAMESPACE_ID),nacos.groupname=$(NACOS_GROUP_NAME)
     podAnnotations:
       instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
       insight.opentelemetry.io/metric-scrape: "true"
