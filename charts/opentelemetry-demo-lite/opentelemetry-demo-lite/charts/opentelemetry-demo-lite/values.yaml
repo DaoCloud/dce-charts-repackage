@@ -1,12 +1,12 @@
 global:
   opentelemetryDemo:
     image:
-      registry: ghcr.m.daocloud.io
+      registry: ghcr.io
       repository: openinsight-proj/demo
     busyboxImage:
       registry: docker.m.daocloud.io
-      repository: rancher/busybox
-      tag: "1.31.1"
+      repository: library/busybox
+      tag: "1.34.1"
     istioSidecar:
       enabled: false
   observability:
@@ -14,6 +14,7 @@ global:
   microservices:
     nacos:
       enabled: false
+      registryName: $(SKOALA_REGISTRY)
       registryAddr: ""
       registryNamespace: $(NACOS_NAMESPACE_ID)
       registryServiceGroup: $(NACOS_GROUP_NAME)
@@ -29,12 +30,20 @@ global:
       deployBy: "builtin"
 
 extensions:
+  springCloudGateway:
+    enabled: false
+    image:
+      registry: ghcr.io
+      repository: openinsight-proj/demo
+      tag: "b0dba6b89cf0fa7c8f5281451cfbfff3e1cc6a19-spring-cloud-gateway"
+    service:
+      type: NodePort
   mysql:
     # this value is not in used, it replaces by global.microservices.nacos.enabled
     enabled: true
     image:
       registry: docker.m.daocloud.io
-      repository: bitnami/mysql
+      repository: library/mysql
       tag: "8.0"
   redis:
     redisCRResource:
@@ -47,16 +56,16 @@ extensions:
         repository: opstree/redis
         tag: "v7.0.5"
     image:
-      registry: quay.m.daocloud.io
-      repository: opstree/redis
-      tag: "v7.0.5"
+      registry: docker.m.daocloud.io
+      repository: library/redis
+      tag: "alpine"
   dataservice:
     # this value is not in used, it replaces by global.microservices.nacos.enabled
     enabled: true
     image:
-      registry: ghcr.m.daocloud.io
+      registry: ghcr.io
       repository: openinsight-proj/demo
-      tag: "993ff3d8b4548b4da08c4fb748dced2bdd20ba43-dataservice"
+      tag: "b0dba6b89cf0fa7c8f5281451cfbfff3e1cc6a19-dataservice"
       pullPolicy: Always
     servcie:
       type: ClusterIP
@@ -101,29 +110,24 @@ extensions:
         value: DEFAULT_GROUP
       - name: SKOALA_REGISTRY
         value: nacos-test
-      - name: OTEL_RESOURCE_ATTRIBUTES
-        value: -Dspring.application.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(K8S_NAMESPACE),k8s.node.name=$(OTEL_RESOURCE_ATTRIBUTES_NODE_NAME),k8s.pod.name=$(OTEL_RESOURCE_ATTRIBUTES_POD_NAME),k8s.pod.uid=$(OTEL_RESOURCE_ATTRIBUTES_POD_UID),skoala.registry=$(SKOALA_REGISTRY),nacos.namespaceid=$(NACOS_NAMESPACE_ID),nacos.groupname=$(NACOS_GROUP_NAME)
     podAnnotations:
       instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
-      insight.opentelemetry.io/metric-scrape: "true"
-      insight.opentelemetry.io/metric-path: "/"
-      insight.opentelemetry.io/metric-port: "9464"
   cartservice:
     enabled: true
     image:
-      registry: ghcr.m.daocloud.io
+      registry: ghcr.io
       repository: openinsight-proj/demo
       tag: "v1.3.2-cartservice"
     busyboxImage:
       registry: docker.m.daocloud.io
-      repository: rancher/busybox
-      tag: "1.31.1"
+      repository: library/busybox
+      tag: "1.34.1"
   adservice:
     enabled: true
     image:
-      registry: ghcr.m.daocloud.io
+      registry: ghcr.io
       repository: openinsight-proj/demo
-      tag: "ce8efa5113e52421612cae34e76875fd4a95ace1-adservice-v2"
+      tag: "b0dba6b89cf0fa7c8f5281451cfbfff3e1cc6a19-adservice-v2"
       pullPolicy: Always
     servcie:
       type: NodePort
@@ -182,8 +186,6 @@ extensions:
         value: nacos-test
       - name: AD_SERVICE_PORT
         value: "8080"
-      - name: OTEL_RESOURCE_ATTRIBUTES
-        value: -Dspring.application.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(K8S_NAMESPACE),k8s.node.name=$(OTEL_RESOURCE_ATTRIBUTES_NODE_NAME),k8s.pod.name=$(OTEL_RESOURCE_ATTRIBUTES_POD_NAME),k8s.pod.uid=$(OTEL_RESOURCE_ATTRIBUTES_POD_UID),skoala.registry=$(SKOALA_REGISTRY),nacos.namespaceid=$(NACOS_NAMESPACE_ID),nacos.groupname=$(NACOS_GROUP_NAME)
     podAnnotations:
       instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
       insight.opentelemetry.io/metric-scrape: "true"
@@ -195,17 +197,16 @@ opentelemetry-demo:
 
   default:
     image:
-      repository: ghcr.m.daocloud.io/openinsight-proj/demo
-      tag: "v1.4.0-beta-daocloud"
+      repository: ghcr.io/openinsight-proj/demo
 
   serviceAccount:
-    create: false
+    create: true
 
   components:
     checkoutService:
       enabled: true
       imageOverride:
-        tag: "eaad6dbdbbf8dfa8b09c83b945cd09e6e68363d0-checkoutservice-v2"
+        tag: "723c34f33f97815c7b53c8ccb6477c5266ec4edb-checkoutservice-v2"
       useDefault:
         env: false
       env:
@@ -233,8 +234,8 @@ opentelemetry-demo:
       initContainers:
         # this is use for rewrite official initContainer
         - name: dumpy
-          image: "{{ .global.opentelemetryDemo.busyboxImage.registry }}/{{ .global.opentelemetryDemo.busyboxImage.repository }}:{{ .global.opentelemetryDemo.busyboxImage.tag }}"
-          command: [ 'echo', 'Hello World!' ]
+          image: docker.m.daocloud.io/library/busybox:1.34.1
+          command: ['echo', 'Hello World!']
           resources:
             requests:
               cpu: "0.2"
@@ -246,7 +247,7 @@ opentelemetry-demo:
     frontend:
       enabled: true
       imageOverride:
-        tag: "v1.4.0-beta-daocloud-frontend"
+        tag: "v1.4.0-daocloud-frontend"
       useDefault:
         env: false
       env:
@@ -287,7 +288,7 @@ opentelemetry-demo:
     loadgenerator:
       enabled: true
       imageOverride:
-        tag: "v1.4.0-beta-daocloud-loadgenerator"
+        tag: "v1.4.0-daocloud-loadgenerator"
       useDefault:
         env: false
       env:
@@ -320,7 +321,7 @@ opentelemetry-demo:
     paymentService:
       enabled: true
       imageOverride:
-        tag: "v1.4.0-beta-daocloud-paymentservice"
+        tag: "v1.4.0-daocloud-paymentservice"
       useDefault:
         env: false
       env:
@@ -341,7 +342,7 @@ opentelemetry-demo:
     productCatalogService:
       enabled: true
       imageOverride:
-        tag: "v1.4.0-beta-daocloud-productcatalogservice"
+        tag: "v1.4.0-daocloud-productcatalogservice"
       useDefault:
         env: false
       env:
@@ -364,7 +365,7 @@ opentelemetry-demo:
     quoteService:
       enabled: true
       imageOverride:
-        tag: "v1.4.0-beta-daocloud-quoteservice"
+        tag: "v1.4.0-daocloud-quoteservice"
       useDefault:
         env: false
       service:
@@ -389,7 +390,7 @@ opentelemetry-demo:
     shippingService:
       enabled: true
       imageOverride:
-        tag: "v1.4.0-beta-daocloud-shippingservice"
+        tag: "v1.4.0-daocloud-shippingservice"
       useDefault:
         env: false
       env:
@@ -408,7 +409,6 @@ opentelemetry-demo:
         limits:
           cpu: "0.5"
           memory: 512Mi
-
     # this component is redefined in /template/cartservice/cartservice.yaml
     # cartservice deploy by /template/cartservice/cartservice.yaml supports switch redis deploy style
     cartService:
