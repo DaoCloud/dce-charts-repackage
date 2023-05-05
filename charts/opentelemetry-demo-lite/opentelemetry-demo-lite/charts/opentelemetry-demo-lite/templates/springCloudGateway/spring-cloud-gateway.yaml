@@ -1,0 +1,52 @@
+{{- if .Values.extensions.springCloudGateway.enabled -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-spring-cloud-gateway
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: spring-cloud-gateway
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: {{ .Release.Name }}-spring-cloud-gateway
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: spring-cloud-gateway
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/name: {{ .Release.Name }}-spring-cloud-gateway
+    spec:
+      containers:
+          - name: spring-cloud-gateway
+            image: "{{ .Values.extensions.springCloudGateway.image.registry }}/{{ .Values.extensions.springCloudGateway.image.repository }}:{{ .Values.extensions.springCloudGateway.image.tag | default .Chart.AppVersion }}"
+            imagePullPolicy: Always
+            ports:
+              - name: http
+                containerPort: 18080
+                protocol: TCP
+            env:
+              - name: AD_SERVICE_ADDR
+                value: 'http://{{ .Release.Name }}-adservice:8081'
+              - name: AUTH_ENABLED
+                value: "false"
+            resources:
+              limits:
+                memory: 512Mi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-spring-cloud-gateway
+spec:
+  type: {{ .Values.extensions.springCloudGateway.service.type | default "ClusterIP" }}
+  ports:
+    - name: http
+      port: 18080
+      protocol: TCP
+      targetPort: 18080
+  selector:
+    app.kubernetes.io/name: {{ .Release.Name }}-spring-cloud-gateway
+  {{- end }}

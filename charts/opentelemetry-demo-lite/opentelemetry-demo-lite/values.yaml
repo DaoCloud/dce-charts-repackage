@@ -7,8 +7,8 @@ opentelemetry-demo-lite:
         repository: openinsight-proj/demo
       busyboxImage:
         registry: docker.m.daocloud.io
-        repository: rancher/busybox
-        tag: "1.31.1"
+        repository: library/busybox
+        tag: "1.34.1"
       istioSidecar:
         enabled: false
     observability:
@@ -16,6 +16,7 @@ opentelemetry-demo-lite:
     microservices:
       nacos:
         enabled: false
+        registryName: $(SKOALA_REGISTRY)
         registryAddr: ""
         registryNamespace: $(NACOS_NAMESPACE_ID)
         registryServiceGroup: $(NACOS_GROUP_NAME)
@@ -29,13 +30,22 @@ opentelemetry-demo-lite:
       redis:
         # enum: builtin or redisCR
         deployBy: "builtin"
+
   extensions:
+    springCloudGateway:
+      enabled: false
+      image:
+        registry: ghcr.m.daocloud.io
+        repository: openinsight-proj/demo
+        tag: "b0dba6b89cf0fa7c8f5281451cfbfff3e1cc6a19-spring-cloud-gateway"
+      service:
+        type: NodePort
     mysql:
       # this value is not in used, it replaces by global.microservices.nacos.enabled
       enabled: true
       image:
         registry: docker.m.daocloud.io
-        repository: bitnami/mysql
+        repository: library/mysql
         tag: "8.0"
     redis:
       redisCRResource:
@@ -48,16 +58,62 @@ opentelemetry-demo-lite:
           repository: opstree/redis
           tag: "v7.0.5"
       image:
-        registry: quay.m.daocloud.io
-        repository: opstree/redis
-        tag: "v7.0.5"
+        registry: docker.m.daocloud.io
+        repository: library/redis
+        tag: "alpine"
     dataservice:
       # this value is not in used, it replaces by global.microservices.nacos.enabled
       enabled: true
       image:
         registry: ghcr.m.daocloud.io
         repository: openinsight-proj/demo
-        tag: "993ff3d8b4548b4da08c4fb748dced2bdd20ba43-dataservice"
+        tag: "b0dba6b89cf0fa7c8f5281451cfbfff3e1cc6a19-dataservice"
+        pullPolicy: Always
+      servcie:
+        type: ClusterIP
+      ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: health-http
+          containerPort: 8999
+          protocol: TCP
+      env:
+        - name: OTEL_SERVICE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: "metadata.labels['app.kubernetes.io/name']"
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: OTEL_RESOURCE_ATTRIBUTES_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: OTEL_RESOURCE_ATTRIBUTES_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: OTEL_RESOURCE_ATTRIBUTES_POD_UID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.uid
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: 'http://insight-agent-opentelemetry-collector.insight-system.svc.cluster.local:4317'
+        - name: NACOS_NAMESPACE_ID
+          value: public
+        - name: NACOS_GROUP_NAME
+          value: DEFAULT_GROUP
+        - name: SKOALA_REGISTRY
+          value: nacos-test
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
     cartservice:
       enabled: true
       image:
@@ -66,16 +122,77 @@ opentelemetry-demo-lite:
         tag: "v1.3.2-cartservice"
       busyboxImage:
         registry: docker.m.daocloud.io
-        repository: rancher/busybox
-        tag: "1.31.1"
+        repository: library/busybox
+        tag: "1.34.1"
     adservice:
       enabled: true
       image:
         registry: ghcr.m.daocloud.io
         repository: openinsight-proj/demo
-        tag: "ce8efa5113e52421612cae34e76875fd4a95ace1-adservice-v2"
+        tag: "b0dba6b89cf0fa7c8f5281451cfbfff3e1cc6a19-adservice-v2"
         pullPolicy: Always
+      servcie:
+        type: NodePort
+      ports:
+        - name: service-grpc
+          containerPort: 8080
+          protocol: TCP
+        - name: rest-http
+          containerPort: 8081
+          protocol: TCP
+        - name: health-http
+          containerPort: 8999
+          protocol: TCP
+        - name: jmx-metrics
+          containerPort: 12345
+          protocol: TCP
+        - name: custom-metrics
+          containerPort: 8888
+          protocol: TCP
+        - name: jvm-metrics
+          containerPort: 9464
+          protocol: TCP
+      env:
+        - name: OTEL_SERVICE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: "metadata.labels['app.kubernetes.io/name']"
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: OTEL_RESOURCE_ATTRIBUTES_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: OTEL_RESOURCE_ATTRIBUTES_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: OTEL_RESOURCE_ATTRIBUTES_POD_UID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.uid
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: 'http://insight-agent-opentelemetry-collector.insight-system.svc.cluster.local:4317'
+        - name: NACOS_NAMESPACE_ID
+          value: public
+        - name: NACOS_GROUP_NAME
+          value: DEFAULT_GROUP
+        - name: SKOALA_REGISTRY
+          value: nacos-test
+        - name: AD_SERVICE_PORT
+          value: "8080"
+      podAnnotations:
+        instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
+        insight.opentelemetry.io/metric-scrape: "true"
+        insight.opentelemetry.io/metric-path: "/"
+        insight.opentelemetry.io/metric-port: "12345"
+
   opentelemetry-demo:
-    default:
-      image:
-        repository: ghcr.m.daocloud.io/openinsight-proj/demo
+    enabled: true

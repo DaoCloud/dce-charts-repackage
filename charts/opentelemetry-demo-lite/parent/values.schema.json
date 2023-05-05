@@ -50,6 +50,7 @@
                                     "type": "object",
                                     "title": "nacos settings",
                                     "required": [
+                                        "registryName",
                                         "registryAddr",
                                         "registryNamespace",
                                         "registryServiceGroup",
@@ -62,6 +63,11 @@
                                             "title": "Enable Nacos",
                                             "description": "If enabled, The Chart will deploy two extra services: dataservice and mysql. The adservice will call dataservice which uses mysql to store Ad data to get Ad data.",
                                             "default": false
+                                        },
+                                        "registryName": {
+                                            "type": "string",
+                                            "title": "Registry name",
+                                            "default": ""
                                         },
                                         "registryAddr": {
                                             "type": "string",

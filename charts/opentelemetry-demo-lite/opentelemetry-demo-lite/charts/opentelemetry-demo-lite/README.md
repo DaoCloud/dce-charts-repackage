@@ -1,12 +1,11 @@
 # OpenTelemetry Demo Lite Helm Chart
 
-这个 Chart 是官方 [OpenTelemetry Demo](https://github.com/open-telemetry/opentelemetry-demo) 和
-[OpenTelemetry Demo Chart](https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-demo)
-的扩展。
+This chart is an extension of [OpenTelemetry Demo](https://github.com/open-telemetry/opentelemetry-demo) and
+[OpenTelemetry Demo Chart](https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-demo).
 
-## 架构
+## Architecture
 
-这个 Chart 在保证购物主流程正常的情况下缩减了其他服务。以下是 OpenTelemetry Demo Lite 的架构图:
+This chart only retains those core services to ensure the shopping flow. Below is the current service diagram:
 
 ```mermaid
 graph TD
@@ -77,50 +76,45 @@ classDef rust fill:#dea584,color:black;
 classDef typescript fill:#e98516,color:black;
 ```
 
-## 涉及的改动
+## Changelog
 
-我们对官方的 Demo 做了一定的改造，以下是具体的改造细节。
+We have made certain modifications to the official demo, and the following are the specific details of the modifications.
 
-### 重写的组件
+### Re-implement components
 
 #### [Adservice](https://github.com/openinsight-proj/opentelemetry-demo/tree/daocloud/src/adservice-v2#note-the-overall-helm-chart)
 
-这个组件在重写后增加了以下功能：
-- 服务接入 nacos
-- 服务接入 sentinel
-- 支持 grpcurl 请求
-- [暴露 Prometheus 指标](https://github.com/openinsight-proj/adservice#metrics)
-- [延时模拟](https://github.com/openinsight-proj/adservice#mock-latency)
-- [50% 的请求错误率](https://github.com/openinsight-proj/adservice#mock-error)
-- 从 Dataservice 获取 Ad 数据
+- integrate nacos
+- integrate sentinel
+- support grpcurl
+- [expose Prometheus metrics](https://github.com/openinsight-proj/adservice#metrics)
+- [mock latency](https://github.com/openinsight-proj/adservice#mock-latency)
+- [50% error rate](https://github.com/openinsight-proj/adservice#mock-error)
+- call Dataservice to get Ad data
 
-#### [checkoutservice](https://github.com/openinsight-proj/opentelemetry-demo/tree/daocloud/src/checkoutservice-v2#checkout-service)
+#### [Checkoutservice](https://github.com/openinsight-proj/opentelemetry-demo/tree/daocloud/src/checkoutservice-v2#checkout-service)
 
-具体的改动：
+- doesn't depend Emailservice
+- doesn't depend Currencyservice
+- doesn't depend Kafka
 
-- 不再调用 Emailservice
-- 不再调用 Currencyservice
-- 不再依赖 Kafka
-
-### 增加的组件
+### Added components
 
 #### [Dataservice](https://github.com/openinsight-proj/opentelemetry-demo/tree/daocloud/src/dataservice)
 
-这个组件只被 Adservice 调用，在收到请求后，它会去 Mysql 中获取相关的数据并返回给 Adservice。
+This service only used by Adservice. It will accept Adservice's http request then response Ad data from mysql.
 
-### 官方 chart 参数改造
+### Official chart re-configuration
 
-1. 我们关闭了所有非业务组件，比如： Opentelemetry collector, Prometheus, Jaeger, Grafana等，在我们的版本中不需要用它们展示数据。
-   业务的观测性数据传输路径变成了：`Components --> Insight-agent OTel collector`。
+1. Close all none business services, such as Opentelemetry collector, Prometheus, Jaeger, Grafana,
+   all service's telemetry data will fellow this data flow: `Components --> Insight-agent OTel collector`。
 
-2. 支持通过 Redis operator 拉起 Redis 实例（保证 Redis operator 已经安装并正常工作）。
-   默认情况下使用官方的方式创建 Redis（`--set .global.middleware.redis.deployBy=builtin`）,
-   你可以通过 `--set .global.middleware.redis.deployBy=redisCR` 下发 Redis CR, 最后由 Redis operator 拉起 Redis 实例。
+2. Support deploying Redis instance from a  Redis operator(Make sure Redis operator already works).
 
-## 安装
+## Install
 
-_前提条件：请保证 Insight agent 已经安装并就绪(在 `--set .global.middleware.redis.deployBy=redisCR` 时请求保证 Redis operator
-已经安装并正常工作)_
+_Note：make sure Insight agent already works(If`--set .global.middleware.redis.deployBy=redisCR`, make sure Redis 
+operator already works)_
 
 ```shell
 helm repo add open-insight https://openinsight-proj.github.io/openinsight-helm-charts
@@ -128,17 +122,11 @@ helm repo add open-insight https://openinsight-proj.github.io/openinsight-helm-c
 helm install webstore-demo open-insight/opentelemetry-demo-lite -n webstore-demo --create-namespace
 ```
 
-## 常见参数
+## Common chart param
 
-| 参数位置 | 参数说明                                                                                                                                            |
-| -------- |-------------------------------------------------------------------------------------------------------------------------------------------------|
-|adservice.enabled| 为 true 时部署adservice                                                                                                                             |
-|microservices.nacos.enabled| 改为 true，将会额外部署两个服务：dataservice, mysql, dataservice 会从 mysql 中获取广告数据，adservice 会向 dataservice 请求广告数据。此外，adservice, dataservice两个服务会被注册到nacos注册中心 |
-|microservices.nacos.registryAddr| 请修改为集群内nacos的可解析的域名，注意要带namespace                                                                                                               |
-
-更多的参数配置可以将 `values.schema.json` 文件中的内容复制到[ json schema editor ](https://form.lljj.me/#/demo?ui=VueElementForm&type=Test)
-进行实时配置编辑，用[ json-to-yaml ](https://codebeautify.org/json-to-yaml)将编辑的j结果转成 yaml。
-
+Please use `values.schema.json` to get to know how to control the deployment behavior of this chart(use 
+[json schema editor](https://form.lljj.me/#/demo?ui=VueElementForm&type=Test) to parse the schema and use 
+[json-to-yaml](https://codebeautify.org/json-to-yaml) to generate values.yaml).
 
 
 

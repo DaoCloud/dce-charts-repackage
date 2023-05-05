@@ -69,7 +69,7 @@ global: {}
     {{- $config := set . "global" $.Values.global }}
 ' ./charts/opentelemetry-demo-lite/charts/opentelemetry-demo/templates/component.yaml
   sed -i '' 's?{{ ((.imageOverride).repository) | default .defaultValues.image.repository }}?{{ .global.opentelemetryDemo.image.registry }}/{{ .global.opentelemetryDemo.image.repository }}?' ./charts/opentelemetry-demo-lite/charts/opentelemetry-demo/templates/_objects.tpl
-  sed -i '' 's?docker.m.daocloud.io/rancher/busybox:1.31.1?"{{ .global.opentelemetryDemo.busyboxImage.registry }}/{{ .global.opentelemetryDemo.busyboxImage.repository }}:{{ .global.opentelemetryDemo.busyboxImage.tag }}"?' ./charts/opentelemetry-demo-lite/values.yaml
+  sed -i '' 's?docker.m.daocloud.io/library/busybox:1.34.1?"{{ .global.opentelemetryDemo.busyboxImage.registry }}/{{ .global.opentelemetryDemo.busyboxImage.repository }}:{{ .global.opentelemetryDemo.busyboxImage.tag }}"?' ./charts/opentelemetry-demo-lite/values.yaml
 else
   # add a global key to opentelemetry-demo chart, then it can access the global value from father chart
   sed -i '1i\global: {}' ./charts/opentelemetry-demo-lite/charts/opentelemetry-demo/values.yaml
@@ -77,7 +77,7 @@ else
   # replace image template in _objects.tpl ./charts/opentelemetry-demo-lite/charts/opentelemetry-demo/templates/_objects.tpl
   sed -i 's?{{ ((.imageOverride).repository) | default .defaultValues.image.repository }}?{{ .global.opentelemetryDemo.image.registry }}/{{ .global.opentelemetryDemo.image.repository }}?' ./charts/opentelemetry-demo-lite/charts/opentelemetry-demo/templates/_objects.tpl
   # replace initcontainer image in ./charts/opentelemetry-demo-lite/values.yaml
-  sed -i 's?docker.m.daocloud.io/rancher/busybox:1.31.1?"{{ .global.opentelemetryDemo.busyboxImage.registry }}/{{ .global.opentelemetryDemo.busyboxImage.repository }}:{{ .global.opentelemetryDemo.busyboxImage.tag }}"?' ./charts/opentelemetry-demo-lite/values.yaml
+  sed -i 's?docker.m.daocloud.io/library/busybox:1.34.1?"{{ .global.opentelemetryDemo.busyboxImage.registry }}/{{ .global.opentelemetryDemo.busyboxImage.repository }}:{{ .global.opentelemetryDemo.busyboxImage.tag }}"?' ./charts/opentelemetry-demo-lite/values.yaml
 fi
 
 # add istio label support https://github.com/open-telemetry/opentelemetry-helm-charts/pull/751
