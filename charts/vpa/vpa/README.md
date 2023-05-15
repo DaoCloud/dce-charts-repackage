@@ -75,7 +75,7 @@ recommender:
 | recommender.extraArgs | object | `{"pod-recommendation-min-cpu-millicores":15,"pod-recommendation-min-memory-mb":100,"v":"4"}` | A set of key-value flags to be passed to the recommender |
 | recommender.replicaCount | int | `1` |  |
 | recommender.podDisruptionBudget | object | `{}` | This is the setting for the pod disruption budget |
-| recommender.image.repository | string | `"k8s.gcr.io/autoscaling/vpa-recommender"` | The location of the recommender image |
+| recommender.image.repository | string | `"registry.k8s.io/autoscaling/vpa-recommender"` | The location of the recommender image |
 | recommender.image.pullPolicy | string | `"Always"` | The pull policy for the recommender image. Recommend not changing this |
 | recommender.image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
 | recommender.podAnnotations | object | `{}` | Annotations to add to the recommender pod |
@@ -91,7 +91,7 @@ recommender:
 | updater.extraArgs | object | `{}` | A key-value map of flags to pass to the updater |
 | updater.replicaCount | int | `1` |  |
 | updater.podDisruptionBudget | object | `{}` | This is the setting for the pod disruption budget |
-| updater.image.repository | string | `"k8s.gcr.io/autoscaling/vpa-updater"` | The location of the updater image |
+| updater.image.repository | string | `"registry.k8s.io/autoscaling/vpa-updater"` | The location of the updater image |
 | updater.image.pullPolicy | string | `"Always"` | The pull policy for the updater image. Recommend not changing this |
 | updater.image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
 | updater.podAnnotations | object | `{}` | Annotations to add to the updater pod |
@@ -111,6 +111,7 @@ recommender:
 | admissionController.certGen.image.pullPolicy | string | `"Always"` | The pull policy for the certgen image. Recommend not changing this |
 | admissionController.certGen.env | object | `{}` | Additional environment variables to be added to the certgen container. Format is KEY: Value format |
 | admissionController.certGen.resources | object | `{}` | The resources block for the certgen pod |
+| admissionController.certGen.securityContext | object | `{}` | The securityContext block for the certgen pod |
 | admissionController.certGen.nodeSelector | object | `{}` |  |
 | admissionController.certGen.tolerations | list | `[]` |  |
 | admissionController.certGen.affinity | object | `{}` |  |
@@ -123,7 +124,7 @@ recommender:
 | admissionController.cleanupOnDelete.affinity | object | `{}` |  |
 | admissionController.replicaCount | int | `1` |  |
 | admissionController.podDisruptionBudget | object | `{}` | This is the setting for the pod disruption budget |
-| admissionController.image.repository | string | `"k8s.gcr.io/autoscaling/vpa-admission-controller"` | The location of the vpa admission controller image |
+| admissionController.image.repository | string | `"registry.k8s.io/autoscaling/vpa-admission-controller"` | The location of the vpa admission controller image |
 | admissionController.image.pullPolicy | string | `"Always"` | The pull policy for the admission controller image. Recommend not changing this |
 | admissionController.image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
 | admissionController.podAnnotations | object | `{}` | Annotations to add to the admission controller pod |
