@@ -1,14 +1,14 @@
 apiVersion: v2
-appVersion: 0.11.0
+appVersion: 0.13.0
 description: A Helm chart for Kubernetes Vertical Pod Autoscaler
 maintainers:
   - name: sudermanjr
 name: vpa
 type: application
-version: 1.5.0
+version: 1.7.3
 dependencies:
   - name: vpa
-    version: "1.5.0"
+    version: "1.7.3"
     repository: "https://charts.fairwinds.com/stable"
 keywords:
   - vpa

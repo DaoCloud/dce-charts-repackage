@@ -51,7 +51,7 @@ vpa:
     podAnnotations: {}
     # recommender.podLabels -- Labels to add to the recommender pod
     podLabels: {}
-    # recommender.podSecurityContetxt -- The security context for the recommender pod
+    # recommender.podSecurityContext -- The security context for the recommender pod
     podSecurityContext:
       runAsNonRoot: true
       runAsUser: 65534
@@ -90,7 +90,7 @@ vpa:
     podAnnotations: {}
     # updater.podLabels -- Labels to add to the updater pod
     podLabels: {}
-    # updater.podSecurityContetxt -- The security context for the updater pod
+    # updater.podSecurityContext -- The security context for the updater pod
     podSecurityContext:
       runAsNonRoot: true
       runAsUser: 65534
@@ -127,6 +127,8 @@ vpa:
       env: {}
       # admissionController.certGen.resources -- The resources block for the certgen pod
       resources: {}
+      # admissionController.certGen.securityContext -- The securityContext block for the certgen pod
+      securityContext: {}
       nodeSelector: {}
       tolerations: []
       affinity: {}
@@ -160,7 +162,7 @@ vpa:
     podAnnotations: {}
     # admissionController.podLabels -- Labels to add to the admission controller pod
     podLabels: {}
-    # admissionController.podSecurityContetxt -- The security context for the admission controller pod
+    # admissionController.podSecurityContext -- The security context for the admission controller pod
     podSecurityContext:
       runAsNonRoot: true
       runAsUser: 65534
