@@ -3,6 +3,47 @@
 This file documents all notable changes to `falco-exporter` Helm Chart. The release
 numbering uses [semantic versioning](http://semver.org).
 
+## v0.9.5
+
+### Minor Changes
+
+* Removed unnecessary capabilities from security context
+* Setted filesystem on read-only
+
+## v0.9.4
+
+### Minor Changes
+
+* Add options to configure readiness/liveness probe values
+
+## v0.9.3
+
+### Minor Changes
+
+* Bump falco-exporter to v0.8.2
+
+## v0.9.2
+
+### Minor Changes
+
+* Add option to place Grafana dashboard in a folder
+
+## v0.9.1
+
+### Minor Changes
+
+* Fix PSP allowed host path prefix to match grpc socket path change.
+
+## v0.8.3
+
+### Major Changes
+
+* Changing the grpc socket path from `unix:///var/run/falco/falco.soc` to `unix:///run/falco/falco.sock`.
+
+### Minor Changes
+
+* Bump falco-exporter to v0.8.0
+
 ## v0.8.2
 
 ### Minor Changes

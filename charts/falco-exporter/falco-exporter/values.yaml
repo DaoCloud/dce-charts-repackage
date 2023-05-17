@@ -16,19 +16,36 @@ falco-exporter:
     # Enable Mutual TLS for HTTP metrics server
     mTLS:
       enabled: false
-  # /readiness and /liveness probes port
-  probesPort: 19376
+  healthChecks:
+    livenessProbe:
+      # liveness probes port
+      probesPort: 19376
+      # -- Tells the kubelet that it should wait X seconds before performing the first probe.
+      initialDelaySeconds: 60
+      # -- Number of seconds after which the probe times out.
+      timeoutSeconds: 5
+      # -- Specifies that the kubelet should perform the check every x seconds.
+      periodSeconds: 15
+    readinessProbe:
+      # readiness probes port
+      probesPort: 19376
+      # -- Tells the kubelet that it should wait X seconds before performing the first probe.
+      initialDelaySeconds: 30
+      # -- Number of seconds after which the probe times out.
+      timeoutSeconds: 5
+      # -- Specifies that the kubelet should perform the check every x seconds.
+      periodSeconds: 15
   image:
     registry: docker.m.daocloud.io
     repository: falcosecurity/falco-exporter
-    tag: 0.7.0
+    tag: 0.8.2
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   nameOverride: ""
   fullnameOverride: ""
   priorityClassName:
   falco:
-    grpcUnixSocketPath: "unix:///var/run/falco/falco.sock"
+    grpcUnixSocketPath: "unix:///run/falco/falco.sock"
     grpcTimeout: 2m
   serviceAccount:
     # Specifies whether a service account should be created
@@ -60,14 +77,15 @@ falco-exporter:
     # Annotations to add to the DaemonSet pods
     annotations: {}
     podLabels: {}
-  securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
+  securityContext:
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    privileged: false
+    seccompProfile:
+      type: RuntimeDefault
   resources:
     limits:
       cpu: 100m
@@ -104,6 +122,7 @@ falco-exporter:
     scrapeTimeout: ""
   grafanaDashboard:
     enabled: false
+    folder:
     namespace: default
     prometheusDatasourceName: Prometheus
   scc:
