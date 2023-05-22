@@ -75,6 +75,8 @@ For full list of changes please check ArtifactHub [changelog].
 | containerSecurityContext | object | `{}` | Security Context to set on container level |
 | controller.affinity | object | `{}` | Assign custom [affinity] rules to the deployment |
 | controller.component | string | `"rollouts-controller"` | Value of label `app.kubernetes.io/component` |
+| controller.containerPorts.healthz | int | `8080` | Healthz container port |
+| controller.containerPorts.metrics | int | `8090` | Metrics container port |
 | controller.createClusterRole | bool | `true` | flag to enable creation of cluster controller role (requires cluster RBAC) |
 | controller.extraArgs | list | `[]` | Additional command line arguments to pass to rollouts-controller.  A list of flags. |
 | controller.extraContainers | list | `[]` | Literal yaml for extra containers to be added to controller deployment. |
@@ -85,23 +87,31 @@ For full list of changes please check ArtifactHub [changelog].
 | controller.image.tag | string | `""` | Overrides the image tag (default is the chart appVersion) |
 | controller.initContainers | list | `[]` | Init containers to add to the rollouts controller pod |
 | controller.livenessProbe | object | See [values.yaml] | Configure liveness [probe] for the controller |
+| controller.metricProviderPlugins | object | `{}` | Configures 3rd party metric providers for controller |
 | controller.metrics.enabled | bool | `false` | Deploy metrics service |
+| controller.metrics.service.port | int | `8090` | Metrics service port |
+| controller.metrics.service.portName | string | `"metrics"` | Metrics service port name |
 | controller.metrics.serviceMonitor.additionalAnnotations | object | `{}` | Annotations to be added to the ServiceMonitor |
 | controller.metrics.serviceMonitor.additionalLabels | object | `{}` | Labels to be added to the ServiceMonitor |
 | controller.metrics.serviceMonitor.enabled | bool | `false` | Enable a prometheus ServiceMonitor |
+| controller.metrics.serviceMonitor.metricRelabelings | list | `[]` | MetricRelabelConfigs to apply to samples before ingestion |
+| controller.metrics.serviceMonitor.relabelings | list | `[]` | RelabelConfigs to apply to samples before scraping |
 | controller.nodeSelector | object | `{}` | [Node selector] |
 | controller.pdb.annotations | object | `{}` | Annotations to be added to controller [Pod Disruption Budget] |
 | controller.pdb.enabled | bool | `false` | Deploy a [Pod Disruption Budget] for the controller |
 | controller.pdb.labels | object | `{}` | Labels to be added to controller [Pod Disruption Budget] |
 | controller.pdb.maxUnavailable | string | `nil` | Maximum number / percentage of pods that may be made unavailable |
 | controller.pdb.minAvailable | string | `nil` | Minimum number / percentage of pods that should remain scheduled |
+| controller.podAnnotations | object | `{}` | Annotations to be added to application controller pods |
 | controller.priorityClassName | string | `""` | [priorityClassName] for the controller |
 | controller.readinessProbe | object | See [values.yaml] | Configure readiness [probe] for the controller |
 | controller.replicas | int | `2` | The number of controller pods to run |
 | controller.resources | object | `{}` | Resource limits and requests for the controller pods. |
 | controller.tolerations | list | `[]` | [Tolerations] for use with node taints |
 | controller.topologySpreadConstraints | list | `[]` | Assign custom [TopologySpreadConstraints] rules to the controller |
-| podAnnotations | object | `{}` | Annotations to be added to the Rollout pods |
+| controller.volumeMounts | list | `[]` | Additional volumeMounts to add to the controller container |
+| controller.volumes | list | `[]` | Additional volumes to add to the controller pod |
+| podAnnotations | object | `{}` | Annotations for the all deployed pods |
 | podLabels | object | `{}` | Labels to be added to the Rollout pods |
 | podSecurityContext | object | `{"runAsNonRoot":true}` | Security Context to set on pod level |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
@@ -139,6 +149,7 @@ For full list of changes please check ArtifactHub [changelog].
 | dashboard.pdb.labels | object | `{}` | Labels to be added to dashboard [Pod Disruption Budget] |
 | dashboard.pdb.maxUnavailable | string | `nil` | Maximum number / percentage of pods that may be made unavailable |
 | dashboard.pdb.minAvailable | string | `nil` | Minimum number / percentage of pods that should remain scheduled |
+| dashboard.podAnnotations | object | `{}` | Annotations to be added to application dashboard pods |
 | dashboard.podSecurityContext | object | `{"runAsNonRoot":true}` | Security Context to set on pod level |
 | dashboard.priorityClassName | string | `""` | [priorityClassName] for the dashboard server |
 | dashboard.readonly | bool | `false` | Set cluster role to readonly |
@@ -159,6 +170,8 @@ For full list of changes please check ArtifactHub [changelog].
 | dashboard.serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | dashboard.tolerations | list | `[]` | [Tolerations] for use with node taints |
 | dashboard.topologySpreadConstraints | list | `[]` | Assign custom [TopologySpreadConstraints] rules to the dashboard server |
+| dashboard.volumeMounts | list | `[]` | Additional volumeMounts to add to the dashboard container |
+| dashboard.volumes | list | `[]` | Additional volumes to add to the dashboard pod |
 
 ## Upgrading
 

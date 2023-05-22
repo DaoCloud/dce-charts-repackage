@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "argo-rollouts.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: {{ .Values.controller.component }}
     {{- include "argo-rollouts.labels" . | nindent 4 }}
@@ -15,9 +16,11 @@ spec:
   replicas: {{ .Values.controller.replicas }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      {{- with (mergeOverwrite (deepCopy .Values.podAnnotations) .Values.controller.podAnnotations) }}
       annotations:
-        {{- toYaml . | nindent 8 }}
+        {{- range $key, $value := . }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
       {{- end }}
       labels:
         {{- include "argo-rollouts.selectorLabels" . | nindent 8 }}
@@ -34,6 +37,8 @@ spec:
       containers:
       - image: "{{ .Values.controller.image.registry }}/{{ .Values.controller.image.repository }}:{{ default .Chart.AppVersion .Values.controller.image.tag }}"
         args:
+        - --healthzPort={{ .Values.controller.containerPorts.healthz }}
+        - --metricsport={{ .Values.controller.containerPorts.metrics }}
         {{- if not .Values.clusterInstall }}
         - --namespaced
         {{- end }}
@@ -50,9 +55,9 @@ spec:
         imagePullPolicy: {{ .Values.controller.image.pullPolicy }}
         name: argo-rollouts
         ports:
-        - containerPort: 8090
+        - containerPort: {{ .Values.controller.containerPorts.metrics }}
           name: metrics
-        - containerPort: 8080
+        - containerPort: {{ .Values.controller.containerPorts.healthz }}
           name: healthz
         livenessProbe:
           {{- toYaml .Values.controller.livenessProbe | nindent 10 }}
@@ -62,6 +67,10 @@ spec:
           {{- toYaml .Values.containerSecurityContext | nindent 10 }}
         resources:
           {{- toYaml .Values.controller.resources | nindent 10 }}
+        {{- with .Values.controller.volumeMounts }}
+        volumeMounts:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.controller.extraContainers }}
         {{- toYaml . | nindent 6 }}
       {{- end }}
@@ -97,4 +106,8 @@ spec:
       {{- end }}
       {{- with .Values.controller.priorityClassName }}
       priorityClassName: {{ . }}
+      {{- end }}
+      {{- with .Values.controller.volumes }}
+      volumes:
+        {{- toYaml . | nindent 6 }}
       {{- end }}
