@@ -76,7 +76,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
 
       - name: Install Kind
-        uses: helm/kind-action@v1.5.0
+        uses: helm/kind-action@v1.7.0
         with:
           install_only: true
 
