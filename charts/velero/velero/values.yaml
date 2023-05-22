@@ -234,7 +234,10 @@ velero:
       accessMode: ReadWrite
       # Additional provider-specific configuration. See link above
       # for details of required/optional fields for your provider.
-      config: {}
+      config:
+        region: ""
+        s3ForcePathStyle: true
+        s3Url: ""
       #  region:
       #  s3ForcePathStyle:
       #  s3Url:
@@ -365,7 +368,11 @@ velero:
     # [AWS] https://github.com/vmware-tanzu/velero-plugin-for-aws/blob/main/README.md
     # [GCP] https://github.com/vmware-tanzu/velero-plugin-for-gcp/blob/main/README.md
     # [Azure] https://github.com/vmware-tanzu/velero-plugin-for-microsoft-azure/blob/main/README.md
-    secretContents: {}
+    secretContents:
+      cloud: |-
+        [default]
+                                                      aws_access_key_id = <modifiy>
+                                                      aws_secret_access_key = <modifiy>
     #  cloud: |
     #    [default]
     #    aws_access_key_id=<REDACTED>
