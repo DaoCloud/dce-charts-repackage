@@ -54,8 +54,18 @@ yq  -i '."velero"."configuration"."provider"="aws"' values.yaml
 
 yq -i '
   .velero.image.registry = "docker.m.daocloud.io" |
-  .velero.kubectl.image.registry = "docker.m.daocloud.io" 
+  .velero.kubectl.image.registry = "docker.m.daocloud.io" |
+  .velero.configuration.backupStorageLocation.config.region = "" |
+  .velero.configuration.backupStorageLocation.config.s3ForcePathStyle = true |
+  .velero.configuration.backupStorageLocation.config.s3Url = "" |
+  .velero.credentials.secretContents.cloud = "[default]
+                                              aws_access_key_id = <modifiy>
+                                              aws_secret_access_key = <modifiy>"
 ' values.yaml
+
+yq -i '
+   .annotations["addon.kpanda.io/namespace"]="velero"
+' Chart.yaml
 
 if ! grep "keywords:" Chart.yaml &>/dev/null ; then
     echo "keywords:" >> Chart.yaml

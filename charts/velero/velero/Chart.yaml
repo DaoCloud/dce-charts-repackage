@@ -21,6 +21,8 @@ dependencies:
   - name: velero
     version: "3.0.0"
     repository: "https://vmware-tanzu.github.io/helm-charts"
+annotations:
+  addon.kpanda.io/namespace: velero
 keywords:
   - velero
   - backup
