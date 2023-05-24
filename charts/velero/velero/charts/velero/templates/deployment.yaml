@@ -226,12 +226,6 @@ spec:
           {{- end }}
       dnsPolicy: {{ .Values.dnsPolicy }}
       initContainers:
-        - name: velero-plugin-for-csi
-          image: {{ .Values.image.registry }}/{{ .Values.image.pluginCSIRepository }}:{{ .Values.image.pluginCSITag }}
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-            - mountPath: /target
-              name: plugins
         - name: velero-plugin-for-aws
           image: {{ .Values.image.registry }}/{{ .Values.image.pluginAWSRepository }}:{{ .Values.image.pluginAWSTag }}
           imagePullPolicy: IfNotPresent
