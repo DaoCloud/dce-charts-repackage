@@ -26,15 +26,20 @@ if ! which yq &>/dev/null ; then
      mv /tmp/${YQ_BINARY} /usr/bin/yq
 fi
 
-yq -i ' .istiod.global.hub = "docker.m.daocloud.io/istio" ' values.yaml
+yq -i ' .name = "istio-istiod"' Chart.yaml
+
+yq -i ' .istiod.global.hub = "docker.m.daocloud.io" ' values.yaml
 yq -i ' .istiod.global.defaultResources.requests.cpu = "10m" ' values.yaml
 yq -i ' .istiod.global.defaultResources.requests.memory = "128Mi" ' values.yaml
 yq -i ' .istiod.global.defaultResources.limits.cpu = "100m" ' values.yaml
 yq -i ' .istiod.global.defaultResources.limits.memory = "200Mi" ' values.yaml
 
 # add custom image
+yq -i ' .istiod.pilot.image = "istio/pilot" ' values.yaml
+yq -i ' .istiod.global.proxy.image = "istio/proxyv2" ' values.yaml
+yq -i ' .istiod.global.proxy_init.image = "istio/proxyv2" ' values.yaml
 yq -i ' .istiod.grpcSimaple.hub = "docker.m.daocloud.io" ' values.yaml
-yq -i ' .istiod.grpcSimaple.image = "busybox" ' values.yaml
+yq -i ' .istiod.grpcSimaple.image = "istio/busybox" ' values.yaml
 yq -i ' .istiod.grpcSimaple.tag = "1.28" ' values.yaml
 
 if [ "$(uname)" == "Darwin" ];then

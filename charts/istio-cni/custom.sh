@@ -26,7 +26,10 @@ if ! which yq &>/dev/null ; then
      mv /tmp/${YQ_BINARY} /usr/bin/yq
 fi
 
-yq -i ' .cni.global.hub = "docker.m.daocloud.io/istio" ' values.yaml
+yq -i ' .name = "istio-cni"' Chart.yaml
+
+yq -i ' .cni.global.hub = "docker.m.daocloud.io" ' values.yaml
+yq -i ' .cni.cni.image = "istio/install-cni" ' values.yaml
 yq -i ' .cni.cni.resources.requests.cpu = "10m" ' values.yaml
 yq -i ' .cni.cni.resources.requests.memory = "100Mi" ' values.yaml
 yq -i ' .cni.cni.resources.limits.cpu = "100m" ' values.yaml

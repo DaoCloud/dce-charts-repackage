@@ -17,9 +17,9 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 
 set -x
 
-# deploy istiod
+# deploy istio-istiod
 # shellcheck disable=SC2086
-helm install istiod chart-museum/istiod ${HELM_MUST_OPTION} --namespace istio-system --create-namespace \
+helm install istio-istiod chart-museum/istio-istiod ${HELM_MUST_OPTION} --namespace istio-system --create-namespace \
      --set istiod.telemetry.enabled=false \
      --set global.omitSidecarInjectorConfigMap=true
 

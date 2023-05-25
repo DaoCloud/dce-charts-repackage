@@ -4,7 +4,7 @@ cni:
     hub: ""
     tag: ""
     variant: ""
-    image: install-cni
+    image: istio/install-cni
     pullPolicy: ""
     # Configuration log level of istio-cni binary
     # by default istio-cni send all logs to UDS server
@@ -67,7 +67,7 @@ cni:
     # Default hub for Istio images.
     # Releases are published to docker hub under 'istio' project.
     # Dev builds from prow are on gcr.io
-    hub: docker.m.daocloud.io/istio
+    hub: docker.m.daocloud.io
     # Default tag for Istio images.
     tag: 1.17.1
     # Variant of the image to use.

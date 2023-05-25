@@ -17,9 +17,9 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 
 set -x
 
-# deploy cni
+# deploy istio-cni
 # shellcheck disable=SC2086
-helm install cni chart-museum/cni ${HELM_MUST_OPTION} --namespace istio-system --create-namespace
+helm install istio-cni chart-museum/istio-cni ${HELM_MUST_OPTION} --namespace istio-system --create-namespace
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
