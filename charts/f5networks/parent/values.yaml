@@ -32,8 +32,8 @@ f5-bigip-ctlr:
     node_label_selector: "node-role=f5nodeport"
 
   image:
-    user: docker.m.daocloud.io/f5networks
-    repo: k8s-bigip-ctlr
+    user: docker.m.daocloud.io
+    repo: f5networks/k8s-bigip-ctlr
     pullPolicy: IfNotPresent
 
   # k8s-bigip-ctlr version
@@ -57,8 +57,8 @@ f5-ipam-controller:
 
   image:
     # Use the tag to target a specific version of the Controller
-    user: 'docker.m.daocloud.io/f5networks'
-    repo: f5-ipam-controller
+    user: 'docker.m.daocloud.io'
+    repo: f5networks/f5-ipam-controller
     pullPolicy: IfNotPresent
     version: 0.1.8
 

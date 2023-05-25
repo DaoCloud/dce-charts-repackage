@@ -5,12 +5,14 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+IPAM_VERSION=0.0.4
+CTLR_VERISON=0.0.23
 
 CURRENT_DIR_PATH=$(cd $(dirname $0); pwd)
 
 cd $CURRENT_DIR_PATH
 
-rm -rf f5networks
+rm -rf f5networks || true
 mkdir -p f5networks/charts
 cp -rf parent/.  f5networks/
 
@@ -21,17 +23,18 @@ set -o nounset
 #================== set sub-charts
 
 cd f5networks/charts
-rm * -rf
+rm * -rf || true
 
 helm repo remove f5-ipam-stable || true
 helm repo add f5-ipam-stable https://f5networks.github.io/f5-ipam-controller/helm-charts/stable
-helm pull f5-ipam-stable/f5-ipam-controller --untar
+helm pull f5-ipam-stable/f5-ipam-controller --untar --version ${IPAM_VERSION}
 
 helm repo remove f5-stable || true
 helm repo add f5-stable https://f5networks.github.io/charts/stable
-helm pull f5-stable/f5-bigip-ctlr --untar
+helm pull f5-stable/f5-bigip-ctlr --untar --version ${CTLR_VERISON}
 
 # update
+pwd
 
 FILE="./f5-ipam-controller/templates/f5-ipam-controller-deploy.yaml"
 

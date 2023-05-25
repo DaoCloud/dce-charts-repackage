@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 if ! which helm &>/dev/null ; then
     echo "error, please install 'helm'"
     exit 1

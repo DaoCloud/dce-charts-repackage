@@ -18,7 +18,7 @@
               "default": "",
               "title": "Registry",
               "examples": [
-                "docker.m.daocloud.io/f5networks"
+                "docker.m.daocloud.io"
               ]
             },
             "repo": {
@@ -26,7 +26,7 @@
               "default": "",
               "title": "repository",
               "examples": [
-                "k8s-bigip-ctlr"
+                "f5networks/k8s-bigip-ctlr"
               ]
             }
           }
@@ -153,13 +153,16 @@
               "default": "",
               "title": "Registry",
               "examples": [
-                "docker.m.daocloud.io/f5networks"
+                "docker.m.daocloud.io"
               ]
             },
             "repo": {
               "type": "string",
               "default": "",
-              "title": "repository"
+              "title": "repository",
+              "examples": [
+                "f5networks/f5-ipam-controller"
+              ]
             },
             "version": {
               "type": "string",
