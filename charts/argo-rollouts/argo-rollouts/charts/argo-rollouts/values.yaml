@@ -38,9 +38,17 @@ extraObjects: []
   #     api-key: <datadog-api-key>
   #     app-key: <datadog-app-key>
 
+global:
+  # -- Annotations for all deployed Deployments
+  deploymentAnnotations: {}
+
 controller:
   # -- Value of label `app.kubernetes.io/component`
   component: rollouts-controller
+  # -- Annotations to be added to the controller deployment
+  deploymentAnnotations: {}
+  # -- Annotations to be added to application controller pods
+  podAnnotations: {}
   # -- [Node selector]
   nodeSelector: {}
   # -- [Tolerations] for use with node taints
@@ -104,9 +112,21 @@ controller:
   # -- flag to enable creation of cluster controller role (requires cluster RBAC)
   createClusterRole: true
 
+  # Controller container ports
+  containerPorts:
+    # -- Metrics container port
+    metrics: 8090
+    # -- Healthz container port
+    healthz: 8080
+
   metrics:
     # -- Deploy metrics service
     enabled: false
+    service:
+      # -- Metrics service port name
+      portName: metrics
+      # -- Metrics service port
+      port: 8090
     serviceMonitor:
       # -- Enable a prometheus ServiceMonitor
       enabled: false
@@ -114,6 +134,10 @@ controller:
       additionalLabels: {}
       # -- Annotations to be added to the ServiceMonitor
       additionalAnnotations: {}
+      # -- RelabelConfigs to apply to samples before scraping
+      relabelings: []
+      # -- MetricRelabelConfigs to apply to samples before ingestion
+      metricRelabelings: []
 
   # -- Configure liveness [probe] for the controller
   # @default -- See [values.yaml]
@@ -152,6 +176,24 @@ controller:
     # -- Maximum number / percentage of pods that may be made unavailable
     maxUnavailable: # 0
 
+  # -- Additional volumes to add to the controller pod
+  volumes: []
+    # - configMap:
+    #     name: my-certs-cm
+    #   name: my-certs
+
+  # -- Additional volumeMounts to add to the controller container
+  volumeMounts: []
+    # - mountPath: /etc/ssl/certs
+    #   name: my-certs
+
+  # -- Configures 3rd party metric providers for controller
+  ## Ref: https://argo-rollouts.readthedocs.io/en/stable/analysis/plugins/
+  metricProviderPlugins: {}
+    # metricProviderPlugins: |-
+    #   - name: "argoproj-labs/sample-prometheus" # name of the plugin, it must match the name required by the plugin so that it can find its configuration
+    #     location: "file://./my-custom-plugin" # supports http(s):// urls and file://
+
 serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
@@ -164,7 +206,7 @@ serviceAccount:
 # -- Annotations to be added to all CRDs
 crdAnnotations: {}
 
-# -- Annotations to be added to the Rollout pods
+# -- Annotations for the all deployed pods
 podAnnotations: {}
 
 # -- Security Context to set on pod level
@@ -217,6 +259,10 @@ dashboard:
   readonly: false
   # -- Value of label `app.kubernetes.io/component`
   component: rollouts-dashboard
+  # -- Annotations to be added to the dashboard deployment
+  deploymentAnnotations: {}
+  # -- Annotations to be added to application dashboard pods
+  podAnnotations: {}
   # -- [Node selector]
   nodeSelector: {}
   # -- [Tolerations] for use with node taints
@@ -350,6 +396,12 @@ dashboard:
       # - secretName: argorollouts-example-tls
       #   hosts:
       #     - argorollouts.example.com
+
+  # -- Additional volumes to add to the dashboard pod
+  volumes: []
+
+  # -- Additional volumeMounts to add to the dashboard container
+  volumeMounts: []
 
 notifications:
   secret:
