@@ -13,25 +13,10 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-if ! which yq &>/dev/null ; then
-    echo " 'yq' no found"
-    if [ "$(uname)" == "Darwin" ];then
-      exit 1
-    fi
-    echo "try to install..."
-    YQ_VERSION=v4.30.6
-    YQ_BINARY="yq_$(uname | tr 'A-Z' 'a-z')_amd64"
-    wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}.tar.gz -O /tmp/yq.tar.gz &&
-     tar -xzf /tmp/yq.tar.gz -C /tmp &&
-     mv /tmp/${YQ_BINARY} /usr/bin/yq
-fi
-
 if ! helm schema-gen -h &>/dev/null ; then
       echo "install helm-schema-gen "
       helm plugin install https://github.com/karuppiah7890/helm-schema-gen.git
 fi
-
-yq -i ' .name = "istio-gateway"' Chart.yaml
 
 ## bug fix, overwrite values.schema.json
 rm -rf values.schema.json

@@ -4,7 +4,7 @@ CURRENT_FILENAME=$( basename "$0" )
 CURRENT_DIR_PATH=$(cd `dirname $0` ; pwd )
 
 KIND_KUBECONFIG=$1
-CHART_DIR=$( cd ${CURRENT_DIR_PATH}/../../charts/istio-base/istio-base ; pwd )
+CHART_DIR=$( cd ${CURRENT_DIR_PATH}/../../charts/base/base ; pwd )
 
 [ -d "$CHART_DIR" ] || { echo "error, failed to find chart $CHART_DIR " ; exit 1 ; }
 [ -f "$KIND_KUBECONFIG" ] || { echo "error, failed to find kubeconfig $KIND_KUBECONFIG " ; exit 1 ; }
@@ -20,9 +20,9 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 
 set -x
 
-# deploy istio-base
+# deploy base
 # shellcheck disable=SC2086
-helm install istio-base "${CHART_DIR}" ${HELM_MUST_OPTION}  --namespace istio-system --create-namespace
+helm install base "${CHART_DIR}" ${HELM_MUST_OPTION}  --namespace istio-system --create-namespace
 
 if (($?==0)) ; then
  echo "succeeded to deploy $CHART_DIR"

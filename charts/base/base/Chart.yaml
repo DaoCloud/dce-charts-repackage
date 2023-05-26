@@ -1,16 +1,14 @@
-apiVersion: v2
+apiVersion: v1
 appVersion: 1.17.1
-description: Helm chart for deploying Istio gateways
+description: Helm chart for deploying Istio cluster resources and CRDs
 icon: https://istio.io/latest/favicons/android-192x192.png
 keywords:
   - istio
-  - gateways
-name: istio-gateway
+name: base
 sources:
   - http://github.com/istio/istio
-type: application
 version: 1.17.1
 dependencies:
-  - name: gateway
+  - name: base
     version: "1.17.1"
     repository: "https://istio-release.storage.googleapis.com/charts"

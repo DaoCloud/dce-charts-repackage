@@ -35,7 +35,7 @@ yq -i ' .istiod.global.defaultResources.limits.cpu = "100m" ' values.yaml
 yq -i ' .istiod.global.defaultResources.limits.memory = "200Mi" ' values.yaml
 
 # add custom image
-yq -i ' .istiod.grpcSimaple.hub = "docker.m.daocloud.io/istio" ' values.yaml
+yq -i ' .istiod.grpcSimaple.hub = "docker.m.daocloud.io" ' values.yaml
 yq -i ' .istiod.grpcSimaple.image = "busybox" ' values.yaml
 yq -i ' .istiod.grpcSimaple.tag = "1.28" ' values.yaml
 

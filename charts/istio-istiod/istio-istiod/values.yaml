@@ -452,6 +452,6 @@ istiod:
     # Users should consider enabling this if they want full gateway-api validation but don't have other validation servers.
     validateGateway: false
   grpcSimaple:
-    hub: docker.m.daocloud.io/istio
+    hub: docker.m.daocloud.io
     image: busybox
     tag: "1.28"
