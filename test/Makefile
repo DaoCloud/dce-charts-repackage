@@ -94,6 +94,7 @@ init-kind: checkBin clean
 sync: PROJECT=
 sync: checkBin
 	@ echo "sync $(PROJECT) charts and images to local registry"
+	PROJECT_REPO_DIR="$$(grep -E '^PROJECT_HUB=' $(ROOT_DIR)/test/$(PROJECT)/make.env 2>/dev/null | cut -d'=' -f2)"; \
 	set -x ; CHART_PATH=$(ROOT_DIR)/charts/$(PROJECT) ; \
 	VERSION=`yq ".version"  $(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT)/Chart.yaml ` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
 	echo "chart move $(PROJECT) $${VERSION}" ; \
@@ -103,7 +104,7 @@ sync: checkBin
 source:  \n \
      intermediateBundlesPath: ${ROOT_DIR}/test/$${DIR} \n \
 target:  \n \
-     containerRegistry: 127.0.0.1:30080 \n \
+     containerRegistry: 127.0.0.1:30080$$PROJECT_REPO_DIR \n \
      repo:  \n \
          kind: CHARTMUSEUM \n \
          url: http://127.0.0.1:30081"; \

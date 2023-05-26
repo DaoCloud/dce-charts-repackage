@@ -169,6 +169,10 @@
 
     默认，E2E 测试所有chart时，是在一个共享 kind 集群中 测试 安装 所有项目的 安装，如果你的项目需要一个定制、独立的 kind 集群，则可生成一份 /test/${PROJECT}/kind.yaml ，那么 E2E 只会在你的独立 kind 中跑 你的安装
 
+3. （可选）/test/${PROJECT}/make.env。自定义变量，用于整个 CI 与 e2e 流程。
+
+   `PROJECT_REPO_DIR` 变量为了兼容某些开源 chart 必须定义 containerRegistry 如 `custom.io/istio` 两级或以上路径
+
 工程目录下，执行 `make e2e` 运行所有 chart 安装测试，或者 运行 `make e2e -e PROJECT=${PROJECT}` 只测试某个项目
 
 e2e 流程:
