@@ -14,11 +14,11 @@ global:
   microservices:
     nacos:
       enabled: false
-      registryName: $(SKOALA_REGISTRY)
-      registryAddr: ""
-      registryNamespace: $(NACOS_NAMESPACE_ID)
-      registryServiceGroup: $(NACOS_GROUP_NAME)
-      registryInstanceGroup: DEFAULT
+      registryName: "nacos"
+      registryAddr: "nacos:8848"
+      registryNamespace: "public"
+      registryServiceGroup: "DEFAULT_GROUP"
+      registryInstanceGroup: "DEFAULT"
       kubeMetadataClusterName: ""
       username: ""
       password: ""
@@ -178,12 +178,6 @@ extensions:
             fieldPath: metadata.uid
       - name: OTEL_EXPORTER_OTLP_ENDPOINT
         value: 'http://insight-agent-opentelemetry-collector.insight-system.svc.cluster.local:4317'
-      - name: NACOS_NAMESPACE_ID
-        value: public
-      - name: NACOS_GROUP_NAME
-        value: DEFAULT_GROUP
-      - name: SKOALA_REGISTRY
-        value: nacos-test
       - name: AD_SERVICE_PORT
         value: "8080"
     podAnnotations:
