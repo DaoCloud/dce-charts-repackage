@@ -64,7 +64,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          
+
       - name: check change
         id: check_change
         run: |
@@ -163,9 +163,10 @@ jobs:
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
               source ${BASE}/charts/${PROJECT}/config && [ "${NO_IMAGE}" == "true" ] && continue
               CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
-              if helm template test ${CHART_PATH} | grep ' image: ' | cut -d ":" -f2,3 | grep -v "daocloud" &>/dev/null ; then
+              # istio template compatibility, need `grep -v " image: {{"`, related issue: https://github.com/DaoCloud/dce-charts-repackage/pull/1094
+              if helm template test ${CHART_PATH} | grep ' image: ' | cut -d ":" -f2,3 | grep -v " image: {{ " | grep -v "daocloud" &>/dev/null ; then
                   echo "error, ${PROJECT} image is not in daocloud repo"
-                  helm template test ${CHART_PATH} | grep ' image: ' | cut -d ":" -f2,3 | grep -v "daocloud"
+                  helm template test ${CHART_PATH} | grep ' image: ' | cut -d ":" -f2,3 | grep -v " image: {{ " | grep -v "daocloud"
                   exit 1
               fi
           done
@@ -210,7 +211,7 @@ jobs:
               (( $? == 0 )) || { echo "error, failed to check chart trivy" && exit 1 ; }
               echo "chart trivy check: pass charts/${PROJECT}/${PROJECT} "
           done
-          
+
       - name: check upgrade
         run: |
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
