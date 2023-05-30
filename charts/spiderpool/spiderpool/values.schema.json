@@ -209,7 +209,8 @@
           "default": {},
           "required": [
             "enableIPv4",
-            "enableIPv6"
+            "enableIPv6",
+            "grafanaDashboard"
           ],
           "properties": {
             "enableIPv4": {
@@ -229,6 +230,25 @@
               "examples": [
                 true
               ]
+            },
+            "grafanaDashboard": {
+              "title": "Spiderpool Grafana Dashboard",
+              "type": "object",
+              "default": {},
+              "required": [
+                "install"
+              ],
+              "properties": {
+                "install": {
+                  "title": "install GrafanaDashboard",
+                  "type": "boolean",
+                  "description": "enable to install Grafana Dashboard",
+                  "default": true,
+                  "examples": [
+                    false
+                  ]
+                }
+              }
             }
           }
         },
