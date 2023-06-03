@@ -1,11 +1,12 @@
 annotations:
   artifacthub.io/changes: |
-    - kind: changed
-      description: Upgrade Argo Rollouts to v.1.4.1
     - kind: added
-      description: Put Changelog URL on README.md
+      description: Missing get access for configmaps in argo rollouts dashboard service account role
+  artifacthub.io/signKey: |
+    fingerprint: 2B8F22F57260EFA67BE1C5824B11F800CD9D2252
+    url: https://argoproj.github.io/argo-helm/pgp_keys.asc
 apiVersion: v2
-appVersion: v1.4.1
+appVersion: v1.5.0
 description: A Helm chart for Argo Rollouts
 home: https://github.com/argoproj/argo-helm
 icon: https://argoproj.github.io/argo-rollouts/assets/logo.png
@@ -18,8 +19,8 @@ maintainers:
 name: argo-rollouts
 sources:
   - https://github.com/argoproj/argo-rollouts
-version: 2.22.3
+version: 2.30.1
 dependencies:
   - name: argo-rollouts
-    version: "2.22.3"
+    version: "2.30.1"
     repository: "https://argoproj.github.io/argo-helm"
