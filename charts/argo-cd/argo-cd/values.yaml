@@ -919,7 +919,7 @@ argo-cd:
     ## Redis image
     image:
       # -- Redis repository
-      repository: redis
+      repository: library/redis
       # -- Redis tag
       tag: 7.0.5-alpine
       # -- Redis imagePullPolicy
@@ -1129,13 +1129,13 @@ argo-cd:
         enabled: true
       image:
         registry: docker.m.daocloud.io
-        repository: haproxy
+        repository: library/haproxy
         tag: 2.6.4
     image:
       # -- Redis tag
       tag: 7.0.5-alpine
       registry: docker.m.daocloud.io
-      repository: redis
+      repository: library/redis
     ## https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     topologySpreadConstraints:
       # -- Enable Redis HA topology spread constraints
@@ -1157,7 +1157,7 @@ argo-cd:
     sysctlImage:
       image:
         registry: docker.m.daocloud.io
-        repository: busybox
+        repository: library/busybox
         tag: 1.34.1
   # External Redis parameters
   externalRedis:
@@ -2716,13 +2716,13 @@ argo-cd:
             drop:
               - ALL
         # -- Resource limits and requests for the Slack bot
-        resources: {}
-        # limits:
-        #   cpu: 100m
-        #   memory: 128Mi
-        # requests:
-        #   cpu: 100m
-        #   memory: 128Mi
+        resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
 
         # -- Assign custom [affinity] rules
         affinity: {}

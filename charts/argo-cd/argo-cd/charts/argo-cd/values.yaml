@@ -2923,13 +2923,13 @@ notifications:
           - ALL
 
       # -- Resource limits and requests for the Slack bot
-      resources: {}
-      # limits:
-      #   cpu: 100m
-      #   memory: 128Mi
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
 
       # -- Assign custom [affinity] rules
       affinity: {}
