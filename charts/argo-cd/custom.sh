@@ -47,21 +47,22 @@ yq -i '
   .argo-cd.dex.image.registry = "ghcr.m.daocloud.io" |
   .argo-cd.dex.image.repository = "dexidp/dex" |
   .argo-cd.redis.image.registry = "docker.m.daocloud.io" |
-  .argo-cd.redis.image.repository = "redis" |
+  .argo-cd.redis.image.repository = "library/redis" |
   .argo-cd.redis.metrics.image.registry = "docker.m.daocloud.io" |
   .argo-cd.redis.metrics.image.repository = "bitnami/redis-exporter" |
   .argo-cd.redis-ha.image.registry = "docker.m.daocloud.io" |
-  .argo-cd.redis-ha.image.repository = "redis" |
+  .argo-cd.redis-ha.image.repository = "library/redis" |
   .argo-cd.redis-ha.configmapTest.image.registry = "docker.m.daocloud.io" |
   .argo-cd.redis-ha.configmapTest.image.repository = "koalaman/shellcheck" |
   .argo-cd.redis-ha.haproxy.image.registry = "docker.m.daocloud.io" |
-  .argo-cd.redis-ha.haproxy.image.repository = "haproxy" |
+  .argo-cd.redis-ha.haproxy.image.repository = "library/haproxy" |
   .argo-cd.redis-ha.sysctlImage.image.registry = "docker.m.daocloud.io" |
-  .argo-cd.redis-ha.sysctlImage.image.repository = "busybox" |
+  .argo-cd.redis-ha.sysctlImage.image.repository = "library/busybox" |
   .argo-cd.redis-ha.exporter.image.registry = "docker.m.daocloud.io" |
   .argo-cd.redis-ha.exporter.image.repository = "oliver006/redis_exporter"
 ' values.yaml
 
+yq -i '.argo-cd.dex.resources = {"limits": {"cpu": "50m", "memory": "64Mi"}, "requests": {"cpu": "10m", "memory": "32Mi"}}' values.yaml
 yq -i "
   .argo-cd.global.image.tag = \"${globalImageTag}\" |
   .argo-cd.redis-ha.configmapTest.image.tag = \"${configmapImageTag}\" |

@@ -870,7 +870,13 @@ argo-cd:
     # -- Priority class for dex
     priorityClassName: ""
     # -- Resource limits and requests for dex
-    resources: {}
+    resources:
+      limits:
+        cpu: 50m
+        memory: 64Mi
+      requests:
+        cpu: 10m
+        memory: 32Mi
     #  limits:
     #    cpu: 50m
     #    memory: 64Mi
@@ -2716,13 +2722,13 @@ argo-cd:
             drop:
               - ALL
         # -- Resource limits and requests for the Slack bot
-        resources:
-        limits:
-          cpu: 100m
-          memory: 128Mi
-        requests:
-          cpu: 100m
-          memory: 128Mi
+        resources: {}
+        # limits:
+        #   cpu: 100m
+        #   memory: 128Mi
+        # requests:
+        #   cpu: 100m
+        #   memory: 128Mi
 
         # -- Assign custom [affinity] rules
         affinity: {}
