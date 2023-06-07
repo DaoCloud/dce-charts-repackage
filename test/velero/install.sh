@@ -17,14 +17,13 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 
 set -x
 
-# deploy vpa
+# deploy velero
 helm install velero chart-museum/velero  ${HELM_MUST_OPTION}  --namespace velero --create-namespace \
-  --set velero.configuration.backupStorageLocation.name=default \
-  --set velero.configuration.backupStorageLocation.provider=aws \
-  --set velero.configuration.backupStorageLocation.bucket=velero \
-  --set velero.configuration.volumeSnapshotLocation.name=default \
-  --set velero.configuration.volumeSnapshotLocation.provider=aws \
-  --set velero.configuration.provider=aws
+  --set velero.configuration.backupStorageLocation[0].name=default \
+  --set velero.configuration.backupStorageLocation[0].provider=aws \
+  --set velero.configuration.backupStorageLocation[0].bucket=velero \
+  --set velero.configuration.volumeSnapshotLocation[0].name=default \
+  --set velero.configuration.volumeSnapshotLocation[0].provider=aws \
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"

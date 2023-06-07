@@ -16,53 +16,72 @@ set -o pipefail
 set -o nounset
 
 #==============================
-if [ "$(uname)" == "Darwin" ];then
-  sed  -i '' 's?{{ .Values.image.repository }}:{{ .Values.image.tag?{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag?' charts/velero/templates/deployment.yaml
-
-  sed  -i '' 's?{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag?{{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag?' charts/velero/templates/cleanup-crds.yaml
-
-  sed  -i '' 's?{{ .Values.image.repository }}:{{ .Values.image.tag?{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag?' charts/velero/templates/upgrade-crds/upgrade-crds.yaml
-  sed  -i '' 's?{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag?{{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag?' charts/velero/templates/upgrade-crds/upgrade-crds.yaml
-
-  sed  -i '' 's?{{ .Values.image.repository }}:{{ .Values.image.tag?{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag?' charts/velero/templates/node-agent-daemonset.yaml
-
-  sed  -i '' '228,235c \ \ \ \ \ \ initContainers:\n        - name: velero-plugin-for-aws\n          image: {{ .Values.image.registry }}/{{ .Values.image.pluginAWSRepository }}:{{ .Values.image.pluginAWSTag }}\n          imagePullPolicy: IfNotPresent\n          volumeMounts:\n            - mountPath: /target\n              name: plugins' charts/velero/templates/deployment.yaml
-
-  sed  -i '' '18a apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: velero-fs-restore-action-config\n  namespace: {{ $.Release.Namespace }}\n  labels:\n    app.kubernetes.io/name: {{ include "velero.name" $ }}\n    app.kubernetes.io/instance: {{ $.Release.Name }}\n    app.kubernetes.io/managed-by: {{ $.Release.Service }}\n    helm.sh/chart: {{ include "velero.chart" $ }}\n    velero.io/plugin-config: ""\n    velero.io/pod-volume-restore: RestoreItemAction\ndata:\n  image: {{ .Values.image.registry }}/{{ .Values.image.restoreHelperRepository }}:{{ .Values.image.restoreHelperTag }}' charts/velero/templates/configmaps.yaml
-else
-  sed  -i 's?{{ .Values.image.repository }}:{{ .Values.image.tag?{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag?' charts/velero/templates/deployment.yaml
-
-  sed  -i 's?{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag?{{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag?' charts/velero/templates/cleanup-crds.yaml
-
-  sed  -i 's?{{ .Values.image.repository }}:{{ .Values.image.tag?{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag?' charts/velero/templates/upgrade-crds/upgrade-crds.yaml
-  sed  -i 's?{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag?{{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag?' charts/velero/templates/upgrade-crds/upgrade-crds.yaml
-
-  sed  -i 's?{{ .Values.image.repository }}:{{ .Values.image.tag?{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag?' charts/velero/templates/node-agent-daemonset.yaml
-
-  sed  -i '228,235c \ \ \ \ \ \ initContainers:\n        - name: velero-plugin-for-aws\n          image: {{ .Values.image.registry }}/{{ .Values.image.pluginAWSRepository }}:{{ .Values.image.pluginAWSTag }}\n          imagePullPolicy: IfNotPresent\n          volumeMounts:\n            - mountPath: /target\n              name: plugins' charts/velero/templates/deployment.yaml
-  sed  -i '18a apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: velero-fs-restore-action-config\n  namespace: {{ $.Release.Namespace }}\n  labels:\n    app.kubernetes.io/name: {{ include "velero.name" $ }}\n    app.kubernetes.io/instance: {{ $.Release.Name }}\n    app.kubernetes.io/managed-by: {{ $.Release.Service }}\n    helm.sh/chart: {{ include "velero.chart" $ }}\n    velero.io/plugin-config: ""\n    velero.io/pod-volume-restore: RestoreItemAction\ndata:\n  image: {{ .Values.image.registry }}/{{ .Values.image.restoreHelperRepository }}:{{ .Values.image.restoreHelperTag }}' charts/velero/templates/configmaps.yaml
-
-fi
-
-yq  -i '."velero"."image"+={"registry":"docker.io","repository":"velero/velero","pluginAWSRepository":"velero/velero-plugin-for-aws","pluginAWSTag":"v1.6.0","restoreHelperRepository":"velero/velero-restore-helper","restoreHelperTag":"v1.10.0"}' values.yaml
-yq  -i '."velero"."kubectl"."image"+={"registry":"docker.io","repository":"bitnami/kubectl","tag":"1.21.0"}' values.yaml
-yq  -i '."velero"."deployNodeAgent"=true' values.yaml
-yq  -i '."velero"."upgradeCRDs"=false' values.yaml
-yq  -i '."velero"."snapshotsEnabled"=false' values.yaml
-yq  -i '."velero"."cleanUpCRDs"=false' values.yaml
-yq  -i '."velero"."configuration"."provider"="aws"' values.yaml
+#remove the darwin part since it's out of maintenance.
 
 
+
+# add registry variable both to parent and child chart
+yq -i '.velero.image.registry="docker.m.daocloud.io"' values.yaml
+yq -i "with(.image.registry; . = \"\" | . tag=\"!!null\")" charts/velero/values.yaml   # child just expose this parameter
+
+
+
+#remove the comments for initContainers, we need them
+sed -i '/initContainers:/,/^\s*$/{/^\s*$/!s/#/ /g}' values.yaml
+#add more variables to make relok8s happy
+yq -i '.velero.image.initContainers.veleroPluginForCsi.repository="velero/velero-plugin-for-csi"' values.yaml
+yq -i '.velero.image.initContainers.veleroPluginForAws.repository="velero/velero-plugin-for-aws"' values.yaml
+
+
+# get initContainers image tag from values.yaml
+img0=$(yq  '.velero.initContainers[0].image' values.yaml)
+arr0=(${img0//:/ })
+tag0=${arr0[1]}
+img1=$(yq  '.velero.initContainers[1].image' values.yaml)
+arr1=(${img1//:/ })
+tag1=${arr1[1]}
+yq -i .velero.image.initContainers.veleroPluginForCsi.tag=\"$tag0\"  values.yaml
+yq -i .velero.image.initContainers.veleroPluginForAws.tag=\"$tag1\" values.yaml
+
+
+# change image string to go-template,
+sed -i 's/image: velero\/velero-plugin-for-csi:v.*/image: "{{ .Values.image.registry }}\/{{ .Values.image.initContainers.veleroPluginForCsi.repository }}:{{ .Values.image.initContainers.veleroPluginForCsi.tag }}"/' values.yaml
+sed -i 's/image: velero\/velero-plugin-for-aws:v.*/image: "{{ .Values.image.registry }}\/{{ .Values.image.initContainers.veleroPluginForAws.repository }}:{{ .Values.image.initContainers.veleroPluginForAws.tag }}"/' values.yaml
+#change the image style of relok8s style
+sed -i  's/{{ .Values.image.repository }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}/' charts/velero/templates/*.yaml
+
+# update template style
+# reference: https://austindewey.com/2021/02/22/using-the-helm-tpl-function-to-refer-values-in-values-files/
+sed -i 's/toYaml .Values.initContainers/tpl (toYaml .Values.initContainers) ./' charts/velero/templates/deployment.yaml
+
+
+yq  -i '.velero.deployNodeAgent=true' values.yaml
+yq  -i '.velero.upgradeCRDs=false' values.yaml
+yq  -i '.velero.snapshotsEnabled=false' values.yaml
+yq  -i '.velero.cleanUpCRDs=false' values.yaml
+#yq  -i '."velero"."configuration"."provider"="aws"' values.yaml the configuration.provider is deprecated
+yq  -i '.velero.configuration.volumeSnapshotLocation[0].provider="aws"' values.yaml
+yq  -i '.velero.configuration.backupStorageLocation[0].provider="aws"'  values.yaml
+
+
+
+# to make `helm template test` complains ` Invalid type. Expected: string, given: null`
 yq -i '
-  .velero.image.registry = "docker.m.daocloud.io" |
-  .velero.kubectl.image.registry = "docker.m.daocloud.io" |
-  .velero.configuration.backupStorageLocation.config.region = "" |
-  .velero.configuration.backupStorageLocation.config.s3ForcePathStyle = true |
-  .velero.configuration.backupStorageLocation.config.s3Url = "" |
+  .velero.configuration.backupStorageLocation[0].name= "default-backup-storage-location" |
+  .velero.configuration.backupStorageLocation[0].bucket= "velero" |
+  .velero.configuration.backupStorageLocation[0].default= true' values.yaml
+# some default values
+yq -i '
+  .velero.configuration.backupStorageLocation[0].config.region = "us-east-1" |
+  .velero.configuration.backupStorageLocation[0].config.s3ForcePathStyle = true |
+  .velero.configuration.backupStorageLocation[0].config.s3Url = "" |
   .velero.credentials.secretContents.cloud = "[default]
                                               aws_access_key_id = <modifiy>
                                               aws_secret_access_key = <modifiy>"
 ' values.yaml
+
+
+# we don't need kubectl sidecar
 yq  -i 'del(."velero"."kubectl")' values.yaml
 
 yq -i '
