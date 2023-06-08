@@ -42,7 +42,7 @@ spec:
           {{- if .Values.kubectl.image.digest }}
           image: "{{ .Values.kubectl.image.repository }}@{{ .Values.kubectl.image.digest }}"
           {{- else if .Values.kubectl.image.tag }}
-          image: "{{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}"
+          image: "{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}"
           {{- else }}
           image: "{{ .Values.kubectl.image.repository }}:{{ template "chart.KubernetesVersion" . }}"
           {{- end }}

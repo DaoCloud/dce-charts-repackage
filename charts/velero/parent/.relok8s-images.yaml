@@ -1,3 +1,3 @@
 - "{{ .velero.image.registry }}/{{ .velero.image.repository }}:{{ .velero.image.tag }}"
-- "{{ .velero.image.registry }}/{{ .velero.image.pluginAWSRepository }}:{{ .velero.image.pluginAWSTag }}"
-- "{{ .velero.image.registry }}/{{ .velero.image.restoreHelperRepository }}:{{ .velero.image.restoreHelperTag }}"
+- "{{ .velero.image.registry }}/{{ .velero.image.initContainers.veleroPluginForAws.repository }}:{{ .velero.image.initContainers.veleroPluginForAws.tag }}"
+- "{{ .velero.image.registry }}/{{ .velero.image.initContainers.veleroPluginForCsi.repository }}:{{ .velero.image.initContainers.veleroPluginForCsi.tag }}"
