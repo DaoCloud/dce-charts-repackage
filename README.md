@@ -191,6 +191,26 @@ e2e 流程:
 
 ***
 
+## 手动更新
+
+注意1： 在没有不向下兼容的情况下，可以使用自动升级(如下章节所述)。
+
+注意2: `charts/<PROJECT>/<PROJECT>` 目录下的文件是脚本生成/覆盖的，请不要手动修改（T_T）。
+
+
+1. 更新`charts/<PROJECT>/config`，更新`VERSION`变量为新的helm chart release
+2. 如果官方对`values.yaml`有一些向前不兼容的情况， 需要更新`charts/<PROJECT>/custom.sh`
+3. 如果有这次更新，官方chart对`values.yaml`里的变量有yaml格式的变化，可能要更新`values.schema.json`(注意： 请更新父目录里的文件 `charts/<PROJECT>/parent/values.schema.json`，先不要更新子目录下同名文件。后者是被前者覆盖的)
+4. 如果chart里的镜像有增减或者格式变化，可能要更新`.relok8s-images.yaml`（注意： 请更新父目录里的文件 `charts/<PROJECT>/parent/.relok8s-images.yaml`， 先不要更新子目录下同名文件。后者是被前者覆盖的)
+5. 注意`.relok8s-images.yaml` 必须是三段式的形态，否则无法离线化替换registry.
+7. `git add` 和 `git commit` 你的上述改动
+8. 在代码目录里，执行 ` make build_chart -e PROJECT=velero ` (只构建你修改的PROJECT，这里拿velero为例)，渲染charts/<PROJECT>/<PROJECT> 子目录
+9. 把新出现的改动 `git add` ，作为第二个commit
+10. 完善的PR Gate会对你的改动作检查
+11. (可选) 最好手动`helm install --dry-run`一次，确认镜像都被替换成`*.m.daocloud.io`的仓库
+12. (可选)手动执行`relok8s chart move charts/<PROJECT>/<PROJECT>  --to-intermediate-bundle /tmp/a.tar -y` 确认格式正确
+13. (可选) 执行`PROJECT=velero  make e2e` 进行e2e验证
+
 ## 自动升级
 
 在项目的 config 配置文件中，变量 UPGRADE_METHOD 控制着自动chart包升级的方式
