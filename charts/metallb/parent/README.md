@@ -4,7 +4,7 @@
 
 ```shell
 helm repo add daocloud-system https://release.daocloud.io/chartrepo/addon
-helm install metallb daocloud-system/metallb  -n kube-system
+helm install metallb daocloud-system/metallb  -n metallb-system
 ```
 
 ### ARP Mode
@@ -16,7 +16,7 @@ ARP Mode can be enabled when helm installing. Please refer to the following comm
 ```shell
 helm install metallb daocloud-system/metallb --set instances.enabled=true \
 --set instances.ipAddressPools.addresses="{192.168.1.0/24,172.16.20.1-172.16.20.100}" \
--n kube-system \
+-n metallb-system \
 --wait
 ```
 
@@ -31,7 +31,7 @@ helm install metallb daocloud-system/metallb --set instances.enabled=true \
 helm install metallb daocloud-system/metallb --set instances.enabled=true \
 --set instances.ipAddressPools.addresses="{192.168.1.0/24,172.16.20.1-172.16.20.100}" \
 --set instances.arp.interfaces="{ens192}"
--n kube-system \
+-n metallb-system \
 --wait
 ```
 
@@ -47,7 +47,7 @@ BGP Mode requires with special hardware support, Such as BGP Router. If you want
 If you want to upgrade **metallb**, Such as image version used. You should use the following command：
 
 ```shell
-helm upgrade metallb daocloud-system/metallb  --set metallb.controller.image.tag=0.13.7
+helm upgrade metallb daocloud-system/metallb  --set metallb.controller.image.tag=0.13.10
 ```
 
 > **Note**: There is no support at this time for upgrading or deleting CRDs using Helm. So if you enabled arp mode when helm installing. And also you want to upgrade the CR resources(update address pool),

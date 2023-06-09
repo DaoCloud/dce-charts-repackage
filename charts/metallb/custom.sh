@@ -47,7 +47,7 @@ yq -i '
    .metallb.controller.image.registry="quay.m.daocloud.io" |
    .metallb.controller.image.repository="metallb/controller" |
    .metallb.controller.resources.requests.cpu="10m" |
-   .metallb.controller.resources.requests.memory="50m" |
+   .metallb.controller.resources.requests.memory="50Mi" |
    .metallb.controller.resources.limits.cpu="100m" |
    .metallb.controller.resources.limits.memory="200Mi" |
    .metallb.speaker.image.registry="quay.m.daocloud.io" |
