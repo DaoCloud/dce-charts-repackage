@@ -383,7 +383,7 @@ velero:
   # Whether to create backupstoragelocation crd, if false => do not create a default backup location
   backupsEnabled: true
   # Whether to create volumesnapshotlocation crd, if false => disable snapshot feature
-  snapshotsEnabled: false
+  snapshotsEnabled: true
   # Whether to deploy the node-agent daemonset.
   deployNodeAgent: true
   nodeAgent:

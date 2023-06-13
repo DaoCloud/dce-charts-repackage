@@ -57,7 +57,7 @@ sed -i 's/toYaml .Values.initContainers/tpl (toYaml .Values.initContainers) ./' 
 
 yq  -i '.velero.deployNodeAgent=true' values.yaml
 yq  -i '.velero.upgradeCRDs=false' values.yaml
-yq  -i '.velero.snapshotsEnabled=false' values.yaml
+#yq  -i '.velero.snapshotsEnabled=true' values.yaml # was set false by NiuLechuan in commit e8a28ef99f548b16905cd7051262ee93aa51a716.No idea why, so restore it back
 yq  -i '.velero.cleanUpCRDs=false' values.yaml
 #yq  -i '."velero"."configuration"."provider"="aws"' values.yaml the configuration.provider is deprecated
 yq  -i '.velero.configuration.volumeSnapshotLocation[0].provider="aws"' values.yaml
