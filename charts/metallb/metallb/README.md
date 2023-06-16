@@ -1,6 +1,6 @@
 # metallb
 
-![Version: 0.13.9](https://img.shields.io/badge/Version-0.13.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.13.9](https://img.shields.io/badge/AppVersion-0.13.9-informational?style=flat-square)
+![Version: 0.13.10](https://img.shields.io/badge/Version-0.13.10-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.13.10](https://img.shields.io/badge/AppVersion-0.13.10-informational?style=flat-square)
 
 A network load-balancer implementation for Kubernetes using standard routing protocols
 
@@ -8,7 +8,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://metallb.github.io/metallb | metallb | 0.13.9 |
+| https://metallb.github.io/metallb | metallb | 0.13.10 |
 
 ## Values
 
@@ -32,7 +32,8 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.image.pullPolicy | string | `nil` |  |
 | metallb.controller.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.controller.image.repository | string | `"metallb/controller"` |  |
-| metallb.controller.image.tag | string | `"v0.13.9"` |  |
+| metallb.controller.image.tag | string | `"v0.13.10"` |  |
+| metallb.controller.labels | object | `{}` |  |
 | metallb.controller.livenessProbe.enabled | bool | `true` |  |
 | metallb.controller.livenessProbe.failureThreshold | int | `3` |  |
 | metallb.controller.livenessProbe.initialDelaySeconds | int | `10` |  |
@@ -52,7 +53,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.resources.limits.cpu | string | `"100m"` |  |
 | metallb.controller.resources.limits.memory | string | `"200Mi"` |  |
 | metallb.controller.resources.requests.cpu | string | `"10m"` |  |
-| metallb.controller.resources.requests.memory | string | `"50m"` |  |
+| metallb.controller.resources.requests.memory | string | `"50Mi"` |  |
 | metallb.controller.runtimeClassName | string | `""` |  |
 | metallb.controller.securityContext.fsGroup | int | `65534` |  |
 | metallb.controller.securityContext.runAsNonRoot | bool | `true` |  |
@@ -119,18 +120,20 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.rbac.create | bool | `true` |  |
 | metallb.speaker.affinity | object | `{}` |  |
 | metallb.speaker.enabled | bool | `true` |  |
-| metallb.speaker.frr.enabled | bool | `false` |  |
+| metallb.speaker.excludeInterfaces.enabled | bool | `true` |  |
+| metallb.speaker.frr.enabled | bool | `true` |  |
 | metallb.speaker.frr.image.pullPolicy | string | `nil` |  |
 | metallb.speaker.frr.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.speaker.frr.image.repository | string | `"frrouting/frr"` |  |
-| metallb.speaker.frr.image.tag | string | `"7.5.1"` |  |
+| metallb.speaker.frr.image.tag | string | `"8.4.2"` |  |
 | metallb.speaker.frr.metricsPort | int | `7473` |  |
 | metallb.speaker.frr.resources | object | `{}` |  |
 | metallb.speaker.frrMetrics.resources | object | `{}` |  |
 | metallb.speaker.image.pullPolicy | string | `nil` |  |
 | metallb.speaker.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.speaker.image.repository | string | `"metallb/speaker"` |  |
-| metallb.speaker.image.tag | string | `"v0.13.9"` |  |
+| metallb.speaker.image.tag | string | `"v0.13.10"` |  |
+| metallb.speaker.labels | object | `{}` |  |
 | metallb.speaker.livenessProbe.enabled | bool | `true` |  |
 | metallb.speaker.livenessProbe.failureThreshold | int | `3` |  |
 | metallb.speaker.livenessProbe.initialDelaySeconds | int | `10` |  |
@@ -174,7 +177,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 
 ```shell
 helm repo add daocloud-system https://release.daocloud.io/chartrepo/addon
-helm install metallb daocloud-system/metallb  -n kube-system
+helm install metallb daocloud-system/metallb  -n metallb-system
 ```
 
 ### ARP Mode
@@ -186,7 +189,7 @@ ARP Mode can be enabled when helm installing. Please refer to the following comm
 ```shell
 helm install metallb daocloud-system/metallb --set instances.enabled=true \
 --set instances.ipAddressPools.addresses="{192.168.1.0/24,172.16.20.1-172.16.20.100}" \
--n kube-system \
+-n metallb-system \
 --wait
 ```
 
@@ -201,7 +204,7 @@ helm install metallb daocloud-system/metallb --set instances.enabled=true \
 helm install metallb daocloud-system/metallb --set instances.enabled=true \
 --set instances.ipAddressPools.addresses="{192.168.1.0/24,172.16.20.1-172.16.20.100}" \
 --set instances.arp.interfaces="{ens192}"
--n kube-system \
+-n metallb-system \
 --wait
 ```
 
@@ -217,7 +220,7 @@ BGP Mode requires with special hardware support, Such as BGP Router. If you want
 If you want to upgrade **metallb**, Such as image version used. You should use the following command：
 
 ```shell
-helm upgrade metallb daocloud-system/metallb  --set metallb.controller.image.tag=0.13.7
+helm upgrade metallb daocloud-system/metallb  --set metallb.controller.image.tag=0.13.10
 ```
 
 > **Note**: There is no support at this time for upgrading or deleting CRDs using Helm. So if you enabled arp mode when helm installing. And also you want to upgrade the CR resources(update address pool),

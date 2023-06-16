@@ -171,7 +171,7 @@ metallb:
     # webhookMode: enabled
     image:
       repository: metallb/controller
-      tag: v0.13.9
+      tag: v0.13.10
       pullPolicy:
       registry: quay.m.daocloud.io
     ## @param controller.updateStrategy.type Metallb controller deployment strategy type.
@@ -200,7 +200,7 @@ metallb:
     resources:
       requests:
         cpu: 10m
-        memory: 50m
+        memory: 50Mi
       limits:
         cpu: 100m
         memory: 200Mi
@@ -213,6 +213,7 @@ metallb:
     runtimeClassName: ""
     affinity: {}
     podAnnotations: {}
+    labels: {}
     livenessProbe:
       enabled: true
       failureThreshold: 3
@@ -239,9 +240,11 @@ metallb:
       enabled: true
       mlBindPort: 7946
       mlSecretKeyPath: "/etc/ml_secret_key"
+    excludeInterfaces:
+      enabled: true
     image:
       repository: metallb/speaker
-      tag: v0.13.9
+      tag: v0.13.10
       pullPolicy:
       registry: quay.m.daocloud.io
     ## @param speaker.updateStrategy.type Speaker daemonset strategy type
@@ -280,6 +283,7 @@ metallb:
     ## Selects which runtime class will be used by the pod.
     runtimeClassName: ""
     podAnnotations: {}
+    labels: {}
     livenessProbe:
       enabled: true
       failureThreshold: 3
@@ -301,10 +305,10 @@ metallb:
     # frr contains configuration specific to the MetalLB FRR container,
     # for speaker running alongside FRR.
     frr:
-      enabled: false
+      enabled: true
       image:
         repository: frrouting/frr
-        tag: 7.5.1
+        tag: 8.4.2
         pullPolicy:
         registry: quay.m.daocloud.io
       metricsPort: 7473

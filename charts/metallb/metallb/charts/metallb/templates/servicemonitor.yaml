@@ -33,7 +33,7 @@ spec:
       scheme: "https"
 {{- if .Values.prometheus.serviceMonitor.speaker.tlsConfig }}
       tlsConfig:
-{{ toYaml .Values.prometheus.serviceMonitor.speaker.tlsConfig | indent 8 }}
+{{ toYaml .Values.prometheus.serviceMonitor.speaker.tlsConfig | indent 8 }}      
 {{- end }}
 {{ end }}
 {{- if .Values.speaker.frr.enabled }}
@@ -47,7 +47,7 @@ spec:
       scheme: "https"
 {{- if .Values.prometheus.serviceMonitor.speaker.tlsConfig }}
       tlsConfig:
-{{ toYaml .Values.prometheus.serviceMonitor.speaker.tlsConfig | indent 8 }}
+{{ toYaml .Values.prometheus.serviceMonitor.speaker.tlsConfig | indent 8 }}      
 {{- end }}
 {{- end }}
 {{- end }}
@@ -58,14 +58,6 @@ spec:
   selector:
     matchLabels:
       name: {{ template "metallb.fullname" . }}-speaker-monitor-service
-{{- if .Values.prometheus.serviceMonitor.metricRelabelings }}
-  metricRelabelings:
-{{- toYaml .Values.prometheus.serviceMonitor.metricRelabelings | nindent 4 }}
-{{- end }}
-{{- if .Values.prometheus.serviceMonitor.relabelings }}
-  relabelings:
-{{- toYaml .Values.prometheus.serviceMonitor.relabelings | nindent 4 }}
-{{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -112,6 +104,14 @@ metadata:
 spec:
   endpoints:
     - port: {{ template "metrics.exposedportname" . }}
+      {{- if .Values.prometheus.serviceMonitor.metricRelabelings }}
+      metricRelabelings:
+      {{- toYaml .Values.prometheus.serviceMonitor.metricRelabelings | nindent 8 }}
+      {{- end -}}
+      {{- if .Values.prometheus.serviceMonitor.relabelings }}
+      relabelings:
+      {{- toYaml .Values.prometheus.serviceMonitor.relabelings | nindent 8 }}
+      {{- end }}
       {{- if .Values.prometheus.serviceMonitor.interval }}
       interval: {{ .Values.prometheus.serviceMonitor.interval }}
       {{- end }}
@@ -121,7 +121,7 @@ spec:
       scheme: "https"
 {{- if .Values.prometheus.serviceMonitor.controller.tlsConfig }}
       tlsConfig:
-{{ toYaml .Values.prometheus.serviceMonitor.controller.tlsConfig | indent 8 }}
+{{ toYaml .Values.prometheus.serviceMonitor.controller.tlsConfig | indent 8 }}      
 {{- end }}
 {{- end }}
   jobLabel: {{ .Values.prometheus.serviceMonitor.jobLabel | quote }}
@@ -131,14 +131,6 @@ spec:
   selector:
     matchLabels:
       name: {{ template "metallb.fullname" . }}-controller-monitor-service
-{{- if .Values.prometheus.serviceMonitor.metricRelabelings }}
-  metricRelabelings:
-{{- toYaml .Values.prometheus.serviceMonitor.metricRelabelings | nindent 4 }}
-{{- end }}
-{{- if .Values.prometheus.serviceMonitor.relabelings }}
-  relabelings:
-{{- toYaml .Values.prometheus.serviceMonitor.relabelings | nindent 4 }}
-{{- end }}
 ---
 apiVersion: v1
 kind: Service
