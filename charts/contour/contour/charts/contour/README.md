@@ -11,8 +11,7 @@ Trademarks: This software listing is packaged by Bitnami. The respective tradema
 ## TL;DR
 
 ```console
-helm repo add my-repo https://charts.bitnami.com/bitnami
-helm install my-release my-repo/contour
+helm install my-release oci://registry-1.docker.io/bitnamicharts/contour
 ```
 
 ## Introduction
@@ -34,8 +33,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.dev/) for deployment
 To install the chart with the release name `my-release`:
 
 ```console
-helm repo add my-repo https://charts.bitnami.com/bitnami
-helm install my-release my-repo/contour
+helm install my-release oci://registry-1.docker.io/bitnamicharts/contour
 ```
 
 These commands deploy contour on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
@@ -90,7 +88,7 @@ helm uninstall my-release
 | `contour.enabled`                                             | Contour Deployment creation.                                                                                                       | `true`                |
 | `contour.image.registry`                                      | Contour image registry                                                                                                             | `docker.io`           |
 | `contour.image.repository`                                    | Contour image name                                                                                                                 | `bitnami/contour`     |
-| `contour.image.tag`                                           | Contour image tag                                                                                                                  | `1.24.2-debian-11-r5` |
+| `contour.image.tag`                                           | Contour image tag                                                                                                                  | `1.25.0-debian-11-r3` |
 | `contour.image.digest`                                        | Contour image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag                            | `""`                  |
 | `contour.image.pullPolicy`                                    | Contour Image pull policy                                                                                                          | `IfNotPresent`        |
 | `contour.image.pullSecrets`                                   | Contour Image pull secrets                                                                                                         | `[]`                  |
@@ -110,6 +108,7 @@ helm uninstall my-release
 | `contour.manageCRDs`                                          | Manage the creation, upgrade and deletion of Contour CRDs.                                                                         | `true`                |
 | `contour.envoyServiceNamespace`                               | Namespace of the envoy service to inspect for Ingress status details.                                                              | `""`                  |
 | `contour.envoyServiceName`                                    | Name of the envoy service to inspect for Ingress status details.                                                                   | `""`                  |
+| `contour.leaderElectionResourceName`                          | Name of the contour (Lease) leader election will lease.                                                                            | `""`                  |
 | `contour.ingressStatusAddress`                                | Address to set in Ingress object status. It is exclusive with `envoyServiceName` and `envoyServiceNamespace`.                      | `""`                  |
 | `contour.podAffinityPreset`                                   | Contour Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                        | `""`                  |
 | `contour.podAntiAffinityPreset`                               | Contour Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                   | `soft`                |
@@ -197,7 +196,7 @@ helm uninstall my-release
 | `envoy.enabled`                                     | Envoy Proxy creation                                                                                                  | `true`                |
 | `envoy.image.registry`                              | Envoy Proxy image registry                                                                                            | `docker.io`           |
 | `envoy.image.repository`                            | Envoy Proxy image repository                                                                                          | `bitnami/envoy`       |
-| `envoy.image.tag`                                   | Envoy Proxy image tag (immutable tags are recommended)                                                                | `1.24.4-debian-11-r1` |
+| `envoy.image.tag`                                   | Envoy Proxy image tag (immutable tags are recommended)                                                                | `1.26.1-debian-11-r7` |
 | `envoy.image.digest`                                | Envoy Proxy image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag           | `""`                  |
 | `envoy.image.pullPolicy`                            | Envoy image pull policy                                                                                               | `IfNotPresent`        |
 | `envoy.image.pullSecrets`                           | Envoy image pull secrets                                                                                              | `[]`                  |
@@ -211,6 +210,8 @@ helm uninstall my-release
 | `envoy.command`                                     | Override default command                                                                                              | `[]`                  |
 | `envoy.args`                                        | Override default args                                                                                                 | `[]`                  |
 | `envoy.shutdownManager.enabled`                     | Contour shutdownManager sidecar                                                                                       | `true`                |
+| `envoy.shutdownManager.extraArgs`                   | Extra arguments passed to shutdown container                                                                          | `[]`                  |
+| `envoy.shutdownManager.port`                        | Specify Port for shutdown container                                                                                   | `8090`                |
 | `envoy.shutdownManager.resources.limits`            | Specify resource limits which the container is not allowed to succeed.                                                | `{}`                  |
 | `envoy.shutdownManager.resources.requests`          | Specify resource requests which the container needs to spawn.                                                         | `{}`                  |
 | `envoy.kind`                                        | Install as deployment or daemonset                                                                                    | `daemonset`           |
@@ -248,18 +249,21 @@ helm uninstall my-release
 | `envoy.serviceAccount.automountServiceAccountToken` | Whether to auto mount API credentials for a service account                                                           | `false`               |
 | `envoy.serviceAccount.annotations`                  | Annotations for service account. Evaluated as a template. Only used if `create` is `true`.                            | `{}`                  |
 | `envoy.livenessProbe.enabled`                       | Enable livenessProbe                                                                                                  | `true`                |
+| `envoy.livenessProbe.port`                          | LivenessProbe port                                                                                                    | `8002`                |
 | `envoy.livenessProbe.initialDelaySeconds`           | Initial delay seconds for livenessProbe                                                                               | `120`                 |
 | `envoy.livenessProbe.periodSeconds`                 | Period seconds for livenessProbe                                                                                      | `20`                  |
 | `envoy.livenessProbe.timeoutSeconds`                | Timeout seconds for livenessProbe                                                                                     | `5`                   |
 | `envoy.livenessProbe.failureThreshold`              | Failure threshold for livenessProbe                                                                                   | `6`                   |
 | `envoy.livenessProbe.successThreshold`              | Success threshold for livenessProbe                                                                                   | `1`                   |
 | `envoy.readinessProbe.enabled`                      | Enable/disable the readiness probe                                                                                    | `true`                |
+| `envoy.readinessProbe.port`                         | ReadinessProbe port                                                                                                   | `8002`                |
 | `envoy.readinessProbe.initialDelaySeconds`          | Delay before readiness probe is initiated                                                                             | `10`                  |
 | `envoy.readinessProbe.periodSeconds`                | How often to perform the probe                                                                                        | `3`                   |
 | `envoy.readinessProbe.timeoutSeconds`               | When the probe times out                                                                                              | `1`                   |
 | `envoy.readinessProbe.failureThreshold`             | Minimum consecutive failures for the probe to be considered failed after having succeeded.                            | `3`                   |
 | `envoy.readinessProbe.successThreshold`             | Minimum consecutive successes for the probe to be considered successful after having failed.                          | `1`                   |
 | `envoy.startupProbe.enabled`                        | Enable/disable the startup probe                                                                                      | `false`               |
+| `envoy.startupProbe.port`                           | StartupProbe port                                                                                                     | `8002`                |
 | `envoy.startupProbe.initialDelaySeconds`            | Delay before startup probe is initiated                                                                               | `15`                  |
 | `envoy.startupProbe.periodSeconds`                  | How often to perform the probe                                                                                        | `10`                  |
 | `envoy.startupProbe.timeoutSeconds`                 | When the probe times out                                                                                              | `5`                   |
@@ -293,10 +297,13 @@ helm uninstall my-release
 | `envoy.useHostIP`                                   | Enable/disable `hostIP`                                                                                               | `false`               |
 | `envoy.hostPorts.http`                              | Sets `hostPort` http port                                                                                             | `80`                  |
 | `envoy.hostPorts.https`                             | Sets `hostPort` https port                                                                                            | `443`                 |
+| `envoy.hostPorts.metrics`                           | Sets `hostPort` metrics port                                                                                          | `8002`                |
 | `envoy.hostIPs.http`                                | Sets `hostIP` http IP                                                                                                 | `127.0.0.1`           |
 | `envoy.hostIPs.https`                               | Sets `hostIP` https IP                                                                                                | `127.0.0.1`           |
+| `envoy.hostIPs.metrics`                             | Sets `hostIP` metrics IP                                                                                              | `127.0.0.1`           |
 | `envoy.containerPorts.http`                         | Sets http port inside Envoy pod  (change this to >1024 to run envoy as a non-root user)                               | `8080`                |
 | `envoy.containerPorts.https`                        | Sets https port inside Envoy pod  (change this to >1024 to run envoy as a non-root user)                              | `8443`                |
+| `envoy.containerPorts.metrics`                      | Sets metrics port inside Envoy pod (change this to >1024 to run envoy as a non-root user)                             | `8002`                |
 | `envoy.initContainers`                              | Attach additional init containers to Envoy pods                                                                       | `[]`                  |
 | `envoy.sidecars`                                    | Add additional sidecar containers to the Envoy pods                                                                   | `[]`                  |
 | `envoy.extraVolumes`                                | Array to add extra volumes                                                                                            | `[]`                  |
@@ -312,7 +319,7 @@ helm uninstall my-release
 | `defaultBackend.enabled`                               | Enable a default backend based on NGINX                                                                         | `false`                  |
 | `defaultBackend.image.registry`                        | Default backend image registry                                                                                  | `docker.io`              |
 | `defaultBackend.image.repository`                      | Default backend image name                                                                                      | `bitnami/nginx`          |
-| `defaultBackend.image.tag`                             | Default backend image tag                                                                                       | `1.23.4-debian-11-r0`    |
+| `defaultBackend.image.tag`                             | Default backend image tag                                                                                       | `1.23.4-debian-11-r18`   |
 | `defaultBackend.image.digest`                          | Default backend image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `""`                     |
 | `defaultBackend.image.pullPolicy`                      | Image pull policy                                                                                               | `IfNotPresent`           |
 | `defaultBackend.image.pullSecrets`                     | Specify docker-registry secret names as an array                                                                | `[]`                     |
@@ -412,6 +419,10 @@ helm uninstall my-release
 | `metrics.serviceMonitor.scrapeTimeout`     | The timeout after which the scrape is ended                                                                                          | `""`                     |
 | `metrics.serviceMonitor.selector`          | Specify honorLabels parameter to add the scrape endpoint                                                                             | `{}`                     |
 | `metrics.serviceMonitor.labels`            | Extra labels for the ServiceMonitor                                                                                                  | `{}`                     |
+| `metrics.prometheusRule.enabled`           | Creates a Prometheus Operator prometheusRule                                                                                         | `false`                  |
+| `metrics.prometheusRule.namespace`         | Namespace for the prometheusRule Resource (defaults to the Release Namespace)                                                        | `""`                     |
+| `metrics.prometheusRule.additionalLabels`  | Additional labels that can be used so prometheusRule will be discovered by Prometheus                                                | `{}`                     |
+| `metrics.prometheusRule.rules`             | Prometheus Rule definitions                                                                                                          | `[]`                     |
 
 ### Other parameters
 
@@ -426,7 +437,7 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 ```console
 helm install my-release \
   --set envoy.readinessProbe.successThreshold=5 \
-    my-repo/contour
+    oci://registry-1.docker.io/bitnamicharts/contour
 ```
 
 The above command sets the `envoy.readinessProbe.successThreshold` to `5`.
@@ -619,7 +630,7 @@ kubectl delete tlscertificatedelegations.projectcontour.io
 Upgrade the Contour chart with the release name `my-release`:
 
 ```console
-helm upgrade my-release my-repo/contour
+helm upgrade my-release oci://registry-1.docker.io/bitnamicharts/contour
 ```
 
 If you made a backup earlier, restore the objects:
