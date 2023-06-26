@@ -1,0 +1,17 @@
+apiVersion: v2
+appVersion: 0.0.2
+description: 4paradigm vgpu for kubernetes
+keywords:
+  - vgpu
+  - gpu
+kubeVersion: '>= 1.14.0'
+maintainers:
+  - email: opensource@4paradigm.com
+    name: 4pd
+name: nvidia-vgpu
+type: application
+version: 2.0.0
+dependencies:
+  - name: vgpu
+    version: "2.0.0"
+    repository: "https://4paradigm.github.io/k8s-vgpu-scheduler"
