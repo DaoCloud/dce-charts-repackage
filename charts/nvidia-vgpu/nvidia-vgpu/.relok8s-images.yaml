@@ -1,0 +1,5 @@
+- "{{ .vgpu.scheduler.kubeScheduler.registry }}/{{ .vgpu.scheduler.kubeScheduler.repository }}:{{ .vgpu.scheduler.kubeScheduler.imageTag }}"
+- "{{ .vgpu.scheduler.extender.registry }}/{{ .vgpu.scheduler.extender.repository }}:{{ .vgpu.version }}"
+- "{{ .vgpu.scheduler.patch.registry }}/{{ .vgpu.scheduler.patch.repository }}:{{ .vgpu.scheduler.patch.tag }}"
+- "{{ .vgpu.scheduler.patch.registry }}/{{ .vgpu.scheduler.patch.newRepository }}:{{ .vgpu.scheduler.patch.newTag }}"
+- "{{ .vgpu.devicePlugin.registry }}/{{ .vgpu.devicePlugin.repository }}:{{ .vgpu.version }}"
