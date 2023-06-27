@@ -3,20 +3,17 @@ metrics-server:
   # Default values for metrics-server.
   # This is a YAML-formatted file.
   # Declare variables to be passed into your templates.
-
   image:
-    registry: k8s.gcr.io
+    registry: k8s-gcr.m.daocloud.io
     repository: metrics-server/metrics-server
     # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
     tag: "v0.6.2"
     pullPolicy: IfNotPresent
-
   imagePullSecrets: []
   # - name: registrySecretName
 
   nameOverride: ""
   fullnameOverride: ""
-
   serviceAccount:
     # Specifies whether a service account should be created
     create: true
@@ -28,12 +25,10 @@ metrics-server:
     # The list of secrets mountable by this service account.
     # See https://kubernetes.io/docs/reference/labels-annotations-taints/#enforce-mountable-secrets
     secrets: []
-
   rbac:
     # Specifies whether RBAC resources should be created
     create: true
     pspEnabled: false
-
   apiService:
     # Specifies if the v1beta1.metrics.k8s.io API service should be created.
     #
@@ -47,23 +42,17 @@ metrics-server:
     insecureSkipTLSVerify: true
     # The PEM encoded CA bundle for TLS verification
     caBundle: ""
-
   commonLabels: {}
   podLabels: {}
   podAnnotations: {}
-
   podSecurityContext: {}
-
   securityContext:
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     runAsNonRoot: true
     runAsUser: 1000
-
   priorityClassName: system-cluster-critical
-
   containerPort: 4443
-
   hostNetwork:
     # Specifies if metrics-server should be started in hostNetwork mode.
     #
@@ -71,9 +60,7 @@ metrics-server:
     # API server unable to communicate with metrics-server. As an example, this is required
     # if you use Weave network on EKS
     enabled: false
-
   replicas: 1
-
   updateStrategy: {}
   #   type: RollingUpdate
   #   rollingUpdate:
@@ -85,16 +72,13 @@ metrics-server:
     enabled: false
     minAvailable:
     maxUnavailable:
-
   defaultArgs:
     - --cert-dir=/tmp
     - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
     - --kubelet-use-node-status-port
     - --metric-resolution=15s
     - --kubelet-insecure-tls
-
   args: []
-
   livenessProbe:
     httpGet:
       path: /livez
@@ -103,7 +87,6 @@ metrics-server:
     initialDelaySeconds: 0
     periodSeconds: 10
     failureThreshold: 3
-
   readinessProbe:
     httpGet:
       path: /readyz
@@ -112,7 +95,6 @@ metrics-server:
     initialDelaySeconds: 20
     periodSeconds: 10
     failureThreshold: 3
-
   service:
     type: ClusterIP
     port: 443
@@ -121,10 +103,8 @@ metrics-server:
     #  Add these labels to have metrics-server show up in `kubectl cluster-info`
     #  kubernetes.io/cluster-service: "true"
     #  kubernetes.io/name: "Metrics-server"
-
   metrics:
     enabled: false
-
   serviceMonitor:
     enabled: false
     additionalLabels: {}
@@ -132,23 +112,20 @@ metrics-server:
     scrapeTimeout: 10s
     metricRelabelings: []
     relabelings: []
-
   # See https://github.com/kubernetes-sigs/metrics-server#scaling
-  resources: {}
-
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 20m
+      memory: 150Mi
   extraVolumeMounts: []
-
   extraVolumes: []
-
   nodeSelector: {}
-
   tolerations: []
-
   affinity: {}
-
   topologySpreadConstraints: []
-
   # Annotations to add to the deployment
   deploymentAnnotations: {}
-
   schedulerName: ""
