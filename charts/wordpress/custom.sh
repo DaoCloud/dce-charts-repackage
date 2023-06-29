@@ -45,3 +45,13 @@ yq -i '
   .wordpress.metrics.image.registry = "docker.m.daocloud.io" |
   .wordpress.volumePermissions.image.registry = "docker.m.daocloud.io"
 ' values.yaml
+
+yq -i "
+   .wordpress.mariadb.image.repository = \"$(yq '.image.repository' charts/wordpress/charts/mariadb/values.yaml)\" |
+   .wordpress.mariadb.image.tag = \"$(yq '.image.tag' charts/wordpress/charts/mariadb/values.yaml)\"
+" values.yaml
+
+yq -i "
+   .wordpress.memcached.image.repository = \"$(yq '.image.repository' charts/wordpress/charts/memcached/values.yaml)\" |
+   .wordpress.memcached.image.tag = \"$(yq '.image.tag' charts/wordpress/charts/memcached/values.yaml)\"
+" values.yaml

@@ -1114,6 +1114,8 @@ wordpress:
         size: 8Gi
     image:
       registry: docker.m.daocloud.io
+      repository: bitnami/mariadb
+      tag: 10.6.12-debian-11-r0
   ## External Database Configuration
   ## All of these values are only used if `mariadb.enabled=false`
   ##
@@ -1166,6 +1168,8 @@ wordpress:
       port: 11211
     image:
       registry: docker.m.daocloud.io
+      repository: bitnami/memcached
+      tag: 1.6.18-debian-11-r0
   ## External Memcached Configuration
   ## All of these values are only used if `memcached.enabled=false`
   ##
