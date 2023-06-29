@@ -35,10 +35,10 @@ metadata:
 {{- end }}
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
-    v1.multus-underlay-cni.io/instance-type: "macvlan_standalone"
+    v1.multus-underlay-cni.io/instance-type: "macvlan_underlay"
     v1.multus-underlay-cni.io/default-cni: "true"
     v1.multus-underlay-cni.io/underlay-cni: "true"
-    v1.multus-underlay-cni.io/coexist-types: '["macvlan_standalone"]'
+    v1.multus-underlay-cni.io/coexist-types: '["macvlan_underlay"]'
     v1.multus-underlay-cni.io/vlanId: {{ .Values.macvlan.vlanID | quote }}
 spec:
   config: |-
@@ -144,9 +144,9 @@ metadata:
 {{- end }}
   annotations:
     {{- include "multus-underlay.helm-hook-annotations" . | nindent 4 }}
-    v1.multus-underlay-cni.io/instance-type: "sriov_standalone"
+    v1.multus-underlay-cni.io/instance-type: "sriov_underlay"
     v1.multus-underlay-cni.io/default-cni: "true"
-    v1.multus-underlay-cni.io/other-cni: '["sriov_standalone"]'
+    v1.multus-underlay-cni.io/other-cni: '["sriov_underlay"]'
     v1.multus-underlay-cni.io/vlanId: {{ .Values.sriov.sriov_crd.vlanId | quote }}
     k8s.v1.cni.cncf.io/resourceName: "{{ .Values.sriov.config.sriov_device_plugin.resourcePrefix }}/{{ .Values.sriov.config.sriov_device_plugin.name }}"
 spec:
