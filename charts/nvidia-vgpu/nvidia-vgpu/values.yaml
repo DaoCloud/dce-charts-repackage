@@ -30,7 +30,7 @@ vgpu:
     defaultMem: 0
     defaultCores: 0
     kubeScheduler:
-      imageTag: "v1.20.0"
+      imageTag: "v1.24.0"
       registry: k8s-gcr.m.daocloud.io
       repository: kubernetes/kube-scheduler
       imagePullPolicy: IfNotPresent

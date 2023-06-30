@@ -53,6 +53,13 @@ elif [ $os == "Linux" ];then
     sed -i "s/image: {{ .Values.scheduler.kubeScheduler.image }}:{{ .Values.scheduler.kubeScheduler.imageTag }}/image: \"{{ .Values.scheduler.kubeScheduler.registry }}\/{{ .Values.scheduler.kubeScheduler.repository }}:{{ .Values.scheduler.kubeScheduler.imageTag }}\"/" charts/vgpu/templates/scheduler/deployment.yaml
 fi
 
+# set scheduler imageTag v1.20.0 to "v1.24.0"
+if [ $os == "Darwin" ];then
+        sed -i "" "s/imageTag: \"v1.20.0\"/imageTag: \"v1.24.0\"/g" values.yaml
+elif [ $os == "Linux" ];then
+        sed -i "s/imageTag: \"v1.20.0\"/imageTag: \"v1.24.0\"/g" values.yaml
+fi
+
 # sed scheduler.extender.image
 line=$(sed -n -e '/ image: "4pdosc\/k8s-vdevice"/=' values.yaml  | head -n 1)
 if [ $os == "Darwin" ];then
