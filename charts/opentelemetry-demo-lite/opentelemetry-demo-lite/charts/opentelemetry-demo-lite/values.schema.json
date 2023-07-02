@@ -4,8 +4,8 @@
     "properties": {
         "opentelemetry-demo-lite": {
             "type": "object",
-            "title": "Opentelemetry-demo",
-            "description": "The Opentelemetry-demo is a microservice-based distributed system. This demo aims to help users quickly and easily trial the features of DaoCloud Enterprise.",
+            "title": "Opentelemetry demo lite",
+            "description": "The Opentelemetry demo lite is a microservice-based distributed system. This demo aims to help users quickly and easily trial the features of DaoCloud Enterprise.",
             "properties": {
                 "global": {
                     "type": "object",
@@ -51,7 +51,7 @@
                                     "title": "nacos settings",
                                     "required": [
                                         "registryName",
-                                        "registryAddr",
+                                        "registryEndpoint",
                                         "registryNamespace",
                                         "registryServiceGroup",
                                         "registryInstanceGroup",
@@ -69,7 +69,7 @@
                                             "title": "Registry name",
                                             "default": "nacos"
                                         },
-                                        "registryAddr": {
+                                        "registryEndpoint": {
                                             "type": "string",
                                             "title": "Registry endpoint",
                                             "default": "nacos:8848"
@@ -77,7 +77,7 @@
                                         "registryNamespace": {
                                             "type": "string",
                                             "title": "Registry namespace",
-                                            "default": "public"
+                                            "default": ""
                                         },
                                         "registryServiceGroup": {
                                             "type": "string",
@@ -109,12 +109,20 @@
                                 "sentinel": {
                                     "type": "object",
                                     "title": "Sentinel settings",
+                                    "required": [
+                                        "endpoint"
+                                    ],
                                     "properties": {
                                         "enabled": {
                                             "type": "boolean",
                                             "title": "Enable sentinel",
                                             "description": "please ensure Nacos is enabled and that the parameters above are filled in correctly for the Registry. Meanwhile, Please ensure that Sentinel governance has been enabled in the same Registry.",
                                             "default": false
+                                        },
+                                        "endpoint": {
+                                            "type": "string",
+                                            "title": "Endpoint",
+                                            "default": "sentinel:8080"
                                         }
                                     }
                                 }

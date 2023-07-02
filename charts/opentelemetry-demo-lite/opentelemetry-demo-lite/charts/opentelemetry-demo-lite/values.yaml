@@ -15,8 +15,8 @@ global:
     nacos:
       enabled: false
       registryName: "nacos"
-      registryAddr: "nacos:8848"
-      registryNamespace: "public"
+      registryEndpoint: "nacos:8848"
+      registryNamespace: ""
       registryServiceGroup: "DEFAULT_GROUP"
       registryInstanceGroup: "DEFAULT"
       kubeMetadataClusterName: ""
@@ -24,6 +24,8 @@ global:
       password: ""
     sentinel:
       enabled: false
+      endpoint: "sentinel:8080"
+
   middleware:
     redis:
       # enum: builtin or redisCR
@@ -104,12 +106,6 @@ extensions:
             fieldPath: metadata.uid
       - name: OTEL_EXPORTER_OTLP_ENDPOINT
         value: 'http://insight-agent-opentelemetry-collector.insight-system.svc.cluster.local:4317'
-      - name: NACOS_NAMESPACE_ID
-        value: public
-      - name: NACOS_GROUP_NAME
-        value: DEFAULT_GROUP
-      - name: SKOALA_REGISTRY
-        value: nacos-test
     podAnnotations:
       instrumentation.opentelemetry.io/inject-sdk: "insight-system/insight-opentelemetry-autoinstrumentation"
   cartservice:
