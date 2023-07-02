@@ -15,10 +15,14 @@ spec:
     securityContext:
       runAsUser: {{ $.Values.securityContext.runAsUser }}
       fsGroup: {{ $.Values.securityContext.fsGroup }}
+      {{- if $.Values.securityContext.seccompProfile }}
+      seccompProfile:
+        {{- toYaml $.Values.securityContext.seccompProfile | nindent 8 }}
+      {{- end }}
     {{- end }}
-    {{- if .Values.imagePullSecrets }}
+    {{- if $.Values.imagePullSecrets }}
     imagePullSecrets:
-      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+      {{ toYaml $.Values.imagePullSecrets | indent 2 }}
     {{- end }}
     containers:
     - name: main
