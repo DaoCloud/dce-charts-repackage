@@ -44,7 +44,7 @@ spec:
             {{- . | toYaml | nindent 12 }}
             {{- end }}
             - name: NACOS_NAMESPACE_ID
-              value: {{ .Values.global.microservices.nacos.registryNamespace }}
+              value: {{ .Values.global.microservices.nacos.registryNamespace | default "public" }}
             - name: NACOS_GROUP_NAME
               value: {{ .Values.global.microservices.nacos.registryServiceGroup }}
             - name: SKOALA_REGISTRY

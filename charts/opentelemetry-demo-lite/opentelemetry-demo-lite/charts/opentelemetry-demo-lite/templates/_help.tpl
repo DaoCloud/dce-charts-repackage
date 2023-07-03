@@ -46,8 +46,10 @@ common java nacos opt
 {{- if .Values.global.microservices.nacos.enabled }}
 {{- $opt := "-Dspring.cloud.nacos.config.enabled=true" -}}
 {{- $opt = cat  $opt "-Dspring.cloud.nacos.discovery.enabled=true" -}}
-{{- $opt = cat  $opt ( printf "-Dspring.cloud.nacos.config.server-addr=%s -Dspring.cloud.nacos.discovery.server-addr=%s" .Values.global.microservices.nacos.registryAddr .Values.global.microservices.nacos.registryAddr ) -}}
+{{- $opt = cat  $opt ( printf "-Dspring.cloud.nacos.config.server-addr=%s -Dspring.cloud.nacos.discovery.server-addr=%s" .Values.global.microservices.nacos.registryEndpoint .Values.global.microservices.nacos.registryEndpoint ) -}}
+{{- if .Values.global.microservices.nacos.registryNamespace -}}
 {{- $opt = cat  $opt ( printf "-Dspring.cloud.nacos.discovery.namespace=%s" .Values.global.microservices.nacos.registryNamespace ) -}}
+{{- end }}
 {{- $opt = cat  $opt ( printf "-Dspring.cloud.nacos.discovery.group=%s" .Values.global.microservices.nacos.registryServiceGroup ) -}}
 {{- $opt = cat  $opt ( printf "-Dspring.cloud.nacos.discovery.cluster-name=%s" .Values.global.microservices.nacos.registryInstanceGroup ) -}}
 
@@ -62,7 +64,6 @@ common java nacos opt
 {{/* metadata k8s */}}
 {{- $opt = cat $opt ( printf "-Dspring.cloud.nacos.discovery.metadata.k8s_cluster_id=%s" (lookup "v1" "Namespace" "" "kube-system").metadata.uid ) }}
 {{- $opt = cat $opt ( printf "-Dspring.cloud.nacos.discovery.metadata.k8s_cluster_name=%s" .Values.global.microservices.nacos.kubeMetadataClusterName ) -}}
-
 {{- $opt = cat $opt "-Dspring.cloud.nacos.discovery.metadata.k8s_namespace_name=$(K8S_NAMESPACE)" -}}
 {{- $opt = cat $opt "-Dspring.cloud.nacos.discovery.metadata.k8s_workload_type=deployment" -}}
 {{- $opt = cat $opt "-Dspring.cloud.nacos.discovery.metadata.k8s_workload_name=$(OTEL_SERVICE_NAME)" -}}
@@ -79,7 +80,7 @@ common java sentinel opt
 */}}
 {{- define "java.sentinel.opt" -}}
 {{- if .Values.global.microservices.sentinel.enabled }}
--Dspring.cloud.sentinel.enabled=true -Dspring.cloud.sentinel.transport.dashboard={{ .Values.global.microservices.nacos.registryAddr }}
+-Dspring.cloud.sentinel.enabled=true -Dspring.cloud.sentinel.transport.dashboard={{ .Values.global.microservices.sentinel.endpoint }}
 {{- else }}
 -Dspring.cloud.sentinel.enabled=false
 {{- end }}
