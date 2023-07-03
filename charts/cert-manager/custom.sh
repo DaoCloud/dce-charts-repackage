@@ -33,6 +33,8 @@ yq -i '
    .cert-manager.installCRDs=true |
    .cert-manager.resources.requests.cpu="10m" |
    .cert-manager.resources.requests.memory="32Mi" |
+   .cert-manager.resources.limits.cpu="200m" |
+   .cert-manager.resources.limits.memory="256Mi" |
    .cert-manager.image.repository="quay.m.daocloud.io/jetstack/cert-manager-controller" |
    .cert-manager.image.tag=strenv(IMAGE_VERSION) |
    .cert-manager.replicaCount=2 |
@@ -41,16 +43,22 @@ yq -i '
    .cert-manager.webhook.image.tag=strenv(IMAGE_VERSION) |
    .cert-manager.webhook.resources.requests.cpu="10m" |
    .cert-manager.webhook.resources.requests.memory="32Mi" |
+   .cert-manager.webhook.resources.limits.cpu="200m" |
+   .cert-manager.webhook.resources.limits.memory="256Mi" |
    .cert-manager.cainjector.enabled=true |
    .cert-manager.cainjector.replicaCount=2 |
    .cert-manager.cainjector.image.repository="quay.m.daocloud.io/jetstack/cert-manager-cainjector" |
    .cert-manager.cainjector.image.tag=strenv(IMAGE_VERSION) |
    .cert-manager.cainjector.resources.requests.cpu="10m" |
    .cert-manager.cainjector.resources.requests.memory="32Mi" |
+   .cert-manager.cainjector.resources.limits.cpu="200m" |
+   .cert-manager.cainjector.resources.limits.memory="256Mi" |
    .cert-manager.startupapicheck.image.repository="quay.m.daocloud.io/jetstack/cert-manager-ctl" |
    .cert-manager.startupapicheck.image.tag=strenv(IMAGE_VERSION) |
    .cert-manager.startupapicheck.resources.requests.cpu="10m" |
    .cert-manager.startupapicheck.resources.requests.memory="32Mi" |
+   .cert-manager.startupapicheck.resources.limits.cpu="10m" |
+   .cert-manager.startupapicheck.resources.limits.memory="32Mi" |
    .cert-manager.prometheus.enabled=true |
    .cert-manager.prometheus.servicemonitor.enabled=true
 ' values.yaml
