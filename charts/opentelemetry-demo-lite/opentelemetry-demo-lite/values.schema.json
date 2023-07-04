@@ -51,11 +51,9 @@
                                     "title": "nacos settings",
                                     "required": [
                                         "registryName",
-                                        "registryAddr",
-                                        "registryNamespace",
+                                        "registryEndpoint",
                                         "registryServiceGroup",
-                                        "registryInstanceGroup",
-                                        "kubeMetadataClusterName"
+                                        "registryInstanceGroup"
                                     ],
                                     "properties": {
                                         "enabled": {
@@ -69,7 +67,7 @@
                                             "title": "Registry name",
                                             "default": "nacos"
                                         },
-                                        "registryAddr": {
+                                        "registryEndpoint": {
                                             "type": "string",
                                             "title": "Registry endpoint",
                                             "default": "nacos:8848"
@@ -77,7 +75,7 @@
                                         "registryNamespace": {
                                             "type": "string",
                                             "title": "Registry namespace",
-                                            "default": "public"
+                                            "default": ""
                                         },
                                         "registryServiceGroup": {
                                             "type": "string",
@@ -88,11 +86,6 @@
                                             "type": "string",
                                             "title": "Registry instance group",
                                             "default": "DEFAULT"
-                                        },
-                                        "kubeMetadataClusterName": {
-                                            "type": "string",
-                                            "title": "Kubernetes cluster name",
-                                            "default": ""
                                         },
                                         "username": {
                                             "type": "string",
@@ -109,12 +102,20 @@
                                 "sentinel": {
                                     "type": "object",
                                     "title": "Sentinel settings",
+                                    "required": [
+                                        "endpoint"
+                                    ],
                                     "properties": {
                                         "enabled": {
                                             "type": "boolean",
                                             "title": "Enable sentinel",
                                             "description": "please ensure Nacos is enabled and that the parameters above are filled in correctly for the Registry. Meanwhile, Please ensure that Sentinel governance has been enabled in the same Registry.",
                                             "default": false
+                                        },
+                                        "endpoint": {
+                                            "type": "string",
+                                            "title": "Endpoint",
+                                            "default": "sentinel:8080"
                                         }
                                     }
                                 }
