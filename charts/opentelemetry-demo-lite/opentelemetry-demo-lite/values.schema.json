@@ -53,8 +53,7 @@
                                         "registryName",
                                         "registryEndpoint",
                                         "registryServiceGroup",
-                                        "registryInstanceGroup",
-                                        "kubeMetadataClusterName"
+                                        "registryInstanceGroup"
                                     ],
                                     "properties": {
                                         "enabled": {
@@ -87,11 +86,6 @@
                                             "type": "string",
                                             "title": "Registry instance group",
                                             "default": "DEFAULT"
-                                        },
-                                        "kubeMetadataClusterName": {
-                                            "type": "string",
-                                            "title": "Kubernetes cluster name",
-                                            "default": "CLUSTER_NAME"
                                         },
                                         "username": {
                                             "type": "string",
