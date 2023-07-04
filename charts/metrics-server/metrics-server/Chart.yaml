@@ -1,19 +1,7 @@
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: "Added support for topologySpreadConstraints."
-    - kind: added
-      description: "Set resource namespaces explicitly."
-    - kind: added
-      description: "Allow configuring TLS on the APIService."
-    - kind: added
-      description: "Enabled service monitor relabelling."
-    - kind: added
-      description: "Added ability to set the scheduler name."
-    - kind: added
-      description: "Added support for common labels."
     - kind: changed
-      description: "Updated Metrics Server image to v0.6.2."
+      description: "Changed the image registry location to registry.k8s.io."
   addon.kpanda.io/required: "true"
 apiVersion: v2
 appVersion: 0.6.2
@@ -35,8 +23,8 @@ name: metrics-server
 sources:
   - https://github.com/kubernetes-sigs/metrics-server
 type: application
-version: 3.8.3
+version: 3.8.4
 dependencies:
   - name: metrics-server
-    version: "3.8.3"
+    version: "3.8.4"
     repository: "https://kubernetes-sigs.github.io/metrics-server"
