@@ -1,0 +1,104 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "images": {
+            "type": "object",
+            "properties": {
+                "registry": {
+                    "type": "string",
+                    "description": "sriov-network-operator global image registry"
+                },
+                "operator": {
+                    "type": "object",
+                    "properties": {
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "sriovCni": {
+                    "type": "object",
+                    "properties": {
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "sriovConfigDaemon": {
+                    "type": "object",
+                    "properties": {
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "sriovDevicePlugin": {
+                    "type": "object",
+                    "properties": {
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "operator": {
+            "type": "object",
+            "properties": {
+                "enableAdmissionController": {
+                    "type": "boolean"
+                },
+                "resourcePrefix": {
+                    "type": "string"
+                }
+            }
+        },
+        "sriovNetworkNodePolicy": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "pfNames": {
+                    "type": "array",
+                    "description": "A list of name of SR-IoV PF",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "numVfs": {
+                    "type": "integer",
+                    "description": "Number of VFs for each PF" 
+                },
+                "resourceName": {
+                    "type": "string",
+                    "description": "SRIOV Network device plugin endpoint resource name"
+                },
+                "nodeSelector": {
+                    "type": "object",
+                    "properties": {
+                        "labelKey": {
+                            "type": "string"
+                        },
+                        "labelValue": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

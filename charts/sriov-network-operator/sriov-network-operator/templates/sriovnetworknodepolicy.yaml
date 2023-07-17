@@ -1,0 +1,28 @@
+apiVersion: sriovnetwork.openshift.io/v1
+kind: SriovNetworkNodePolicy
+metadata:
+  name: default
+  namespace: {{ .Release.Namespace }}
+spec:
+  nicSelector: {}
+  nodeSelector: {}
+  numVfs: 0
+  resourceName: ""
+---
+{{- if .Values.sriovNetworkNodePolicy.pfNames }}
+apiVersion: sriovnetwork.openshift.io/v1
+kind: SriovNetworkNodePolicy
+metadata:
+  name: {{ .Values.sriovNetworkNodePolicy.name }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    v1.sriov-cni.io/resource-name: {{ .Values.operator.resourcePrefix }}/{{ .Values.sriovNetworkNodePolicy.resourceName }}
+spec:
+  nodeSelector:
+    {{ .Values.sriovNetworkNodePolicy.nodeSelector.labelKey }}: {{ .Values.sriovNetworkNodePolicy.nodeSelector.labelValue | quote }}
+  resourceName: {{ .Values.sriovNetworkNodePolicy.resourceName }}
+  numVfs: {{ .Values.sriovNetworkNodePolicy.numVfs }}
+  nicSelector:
+    pfNames: 
+{{ toYaml .Values.sriovNetworkNodePolicy.pfNames | indent 4 }}
+{{- end }}

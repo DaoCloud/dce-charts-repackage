@@ -1,0 +1,62 @@
+operator:
+  tolerations:
+    - key: "node-role.kubernetes.io/master"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+  nodeSelector: {}
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: "node-role.kubernetes.io/master"
+                operator: In
+                values: [""]
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: "node-role.kubernetes.io/control-plane"
+                operator: In
+                values: [""]
+  nameOverride: ""
+  fullnameOverride: ""
+  resourcePrefix: "spidernet.io"
+  enableAdmissionController: false
+  cniBinPath: "/opt/cni/bin"
+  clusterType: "kubernetes"
+# Image URIs for sriov-network-operator components
+images:
+  registry: ghcr.m.daocloud.io
+  operator:
+    repository: k8snetworkplumbingwg/sriov-network-operator
+    tag: v1.2.0
+  sriovConfigDaemon:
+    repository: k8snetworkplumbingwg/sriov-network-operator-config-daemon
+    tag: v1.2.0
+  sriovCni:
+    repository: k8snetworkplumbingwg/sriov-cni
+    tag: v2.7.0
+  ibSriovCni:
+    repository: k8snetworkplumbingwg/ib-sriov-cni
+    tag: v1.0.3
+  sriovDevicePlugin:
+    repository: k8snetworkplumbingwg/sriov-network-device-plugin
+    tag: v3.5.1
+  resourcesInjector:
+    repository: k8snetworkplumbingwg/network-resources-injector
+    tag: v1.5
+  webhook:
+    repository: k8snetworkplumbingwg/sriov-network-operator-webhook
+    tag: v1.2.0
+sriovNetworkNodePolicy:
+  name: default-nodepolicy
+  resourceName: sriov_netdevice
+  numVfs: 0
+  pfNames: []
+  nodeSelector:
+    labelKey: node-role.kubernetes.io/worker
+    labelValue: ""

@@ -1,0 +1,7 @@
+- "{{ .images.registry }}/{{ .images.operator.repository }}:{{ .images.operator.tag }}"
+- "{{ .images.registry }}/{{ .images.sriovCni.repository }}:{{ .images.sriovCni.tag }}"
+- "{{ .images.registry }}/{{ .images.ibSriovCni.repository }}:{{ .images.ibSriovCni.tag }}"
+- "{{ .images.registry }}/{{ .images.sriovDevicePlugin.repository }}:{{ .images.sriovDevicePlugin.tag }}"
+- "{{ .images.registry }}/{{ .images.resourcesInjector.repository }}:{{ .images.resourcesInjector.tag }}"
+- "{{ .images.registry }}/{{ .images.sriovConfigDaemon.repository }}:{{ .images.sriovConfigDaemon.tag }}"
+- "{{ .images.registry }}/{{ .images.webhook.repository }}:{{ .images.webhook.tag }}"
