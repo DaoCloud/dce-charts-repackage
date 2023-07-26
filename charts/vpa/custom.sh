@@ -88,6 +88,11 @@ yq -i '
   .vpa.admissionController.cleanupOnDelete.image.tag = "v0.1.52"
 ' values.yaml
 
+yq -i '
+   .annotations["addon.kpanda.io/namespace"]="kube-system" |
+   .annotations["addon.kpanda.io/name"]="vpa"
+' Chart.yaml
+
 if ! grep "keywords:" Chart.yaml &>/dev/null ; then
     echo "keywords:" >> Chart.yaml
     echo "  - vpa" >> Chart.yaml

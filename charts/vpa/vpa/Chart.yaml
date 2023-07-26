@@ -10,6 +10,9 @@ dependencies:
   - name: vpa
     version: "1.5.0"
     repository: "https://charts.fairwinds.com/stable"
+annotations:
+  addon.kpanda.io/namespace: kube-system
+  addon.kpanda.io/name: vpa
 keywords:
   - vpa
   - autoscale
