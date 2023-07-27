@@ -90,7 +90,7 @@ yq -i '
 
 yq -i '
    .annotations["addon.kpanda.io/namespace"]="kube-system" |
-   .annotations["addon.kpanda.io/name"]="vpa"
+   .annotations["addon.kpanda.io/release-name"]="vpa"
 ' Chart.yaml
 
 if ! grep "keywords:" Chart.yaml &>/dev/null ; then
