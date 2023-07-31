@@ -4,10 +4,14 @@
     "properties": {
         "images": {
             "type": "object",
+            "required": [
+                "registry"
+            ],
             "properties": {
                 "registry": {
                     "type": "string",
-                    "description": "sriov-network-operator global image registry"
+                    "description": "sriov-network-operator global image registry",
+                    "default": "ghcr.m.daocloud.io"
                 },
                 "operator": {
                     "type": "object",
@@ -57,34 +61,45 @@
         },
         "operator": {
             "type": "object",
+            "required": [
+                "resourcePrefix"
+            ],
             "properties": {
-                "enableAdmissionController": {
-                    "type": "boolean"
-                },
                 "resourcePrefix": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "spidernet.io",
+                    "description": "SRIOV Network device plugin endpoint resource prefix"
                 }
             }
         },
         "sriovNetworkNodePolicy": {
             "type": "object",
+            "required": [
+                "name",
+                "resourceName",
+                "numVfs"
+            ],
             "properties": {
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "the name of sriovNetworkNodePolicy",
+                    "default": "default-policy"
                 },
                 "pfNames": {
                     "type": "array",
-                    "description": "A list of name of SR-IoV PF",
+                    "description": "A list of name of SR-IoV Physical Function(PF)",
                     "items": {
                         "type": "string"
                     }
                 },
                 "numVfs": {
                     "type": "integer",
-                    "description": "Number of VFs for each PF" 
+                    "default": 4,
+                    "description": "Number of Virtual Functions(VFs) for each Physical Function(PF)"
                 },
                 "resourceName": {
                     "type": "string",
+                    "default": "sriov_netdevice",
                     "description": "SRIOV Network device plugin endpoint resource name"
                 },
                 "nodeSelector": {
