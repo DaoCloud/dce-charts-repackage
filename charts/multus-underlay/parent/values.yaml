@@ -77,7 +77,7 @@ macvlan:
   vlanID: 0
   migrate_route: -1
   overlayInterface: eth0
-  custom_route: []
+  custom_route: ["169.254.25.10/32"]
   skip_call: false
 
 sriov:
@@ -137,7 +137,7 @@ sriov:
     name: sriov-overlay-vlan0
     vlanId: 0
     overlayInterface: eth0
-    custom_route: []
+    custom_route: ["169.254.25.10/32"]
     skip_call: false
     migrate_route: -1
 

@@ -107,6 +107,17 @@
                     "default": "ens192",
                     "description": "Notice: The master interface must exist on the host"
                 },
+                "custom_route": {
+                    "type": "array",
+                    "title": "additional_hijack_routes",
+                    "description": "special subnet routing table that need to be hijacked to node forwarding, such as nodelocaldns",
+                    "items": {
+                        "type": "string",
+                        "default": [
+                            "169.254.25.10/32"
+                        ]
+                    }
+                },
                 "vlanID": {
                     "type": "integer",
                     "title": "Vlan ID",
@@ -188,6 +199,17 @@
                         "name": {
                             "type": "string",
                             "title": "SRIOV CR Name"
+                        },
+                        "custom_route": {
+                            "type": "array",
+                            "title": "additional_hijack_routes",
+                            "description": "special subnet routing table that need to be hijacked to node forwarding, such as nodelocaldns",
+                            "items": {
+                                "type": "string",
+                                "default": [
+                                    "169.254.25.10/32"
+                                ]
+                            }
                         },
                         "vlanId": {
                             "type": "integer",
