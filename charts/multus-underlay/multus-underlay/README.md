@@ -27,7 +27,7 @@ Multi-underlay enables attaching multiple network interfaces to pods in Kubernet
 | cluster_subnet.service_subnet.ipv6 | string | `""` |  |
 | fullnameOverride | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
-| macvlan.custom_route | list | `[]` |  |
+| macvlan.custom_route[0] | string | `"169.254.25.10/32"` |  |
 | macvlan.enable | bool | `true` |  |
 | macvlan.master | string | `"ens192"` |  |
 | macvlan.migrate_route | int | `-1` |  |
@@ -102,7 +102,7 @@ Multi-underlay enables attaching multiple network interfaces to pods in Kubernet
 | sriov.pod.resources.sriov_cni.requests.cpu | string | `"100m"` |  |
 | sriov.pod.resources.sriov_cni.requests.memory | string | `"50Mi"` |  |
 | sriov.serviceAccount.name | string | `"sriov-device-plugin-test"` |  |
-| sriov.sriov_crd.custom_route | list | `[]` |  |
+| sriov.sriov_crd.custom_route[0] | string | `"169.254.25.10/32"` |  |
 | sriov.sriov_crd.migrate_route | int | `-1` |  |
 | sriov.sriov_crd.name | string | `"sriov-overlay-vlan0"` |  |
 | sriov.sriov_crd.overlayInterface | string | `"eth0"` |  |
