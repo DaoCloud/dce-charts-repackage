@@ -1,15 +1,15 @@
-{{ if .Values.notifications.secret.create }}
 apiVersion: v1
-kind: Secret
+kind: ConfigMap
 metadata:
-  name: argo-rollouts-notification-secret
+  name: argo-rollouts-config
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: {{ .Values.controller.component }}
     {{- include "argo-rollouts.labels" . | nindent 4 }}
-type: Opaque
-stringData:
-  {{- with .Values.notifications.secret.items }}
+data:
+  {{- with .Values.controller.metricProviderPlugins }}
     {{- toYaml . | nindent 2 }}
   {{- end }}
-{{- end }}
+  {{- with .Values.controller.trafficRouterPlugins }}
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
