@@ -66,7 +66,7 @@ extensions:
     image:
       registry: ghcr.io
       repository: openinsight-proj/demo
-      tag: "b0dba6b89cf0fa7c8f5281451cfbfff3e1cc6a19-dataservice"
+      tag: "fb41b4c0f323f929300ca2769e34f41fda8f9c25-dataservice"
       pullPolicy: Always
     servcie:
       type: ClusterIP
@@ -122,7 +122,7 @@ extensions:
     image:
       registry: ghcr.io
       repository: openinsight-proj/demo
-      tag: "b0dba6b89cf0fa7c8f5281451cfbfff3e1cc6a19-adservice-v2"
+      tag: "fb41b4c0f323f929300ca2769e34f41fda8f9c25-adservice-v2"
       pullPolicy: Always
     servcie:
       type: NodePort
