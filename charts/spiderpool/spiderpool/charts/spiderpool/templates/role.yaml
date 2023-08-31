@@ -8,6 +8,7 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - configmaps
   - endpoints
   - namespaces
   - nodes
@@ -68,9 +69,9 @@ rules:
   - get
   - update
 - apiGroups:
-  - spiderpool.spidernet.io
+  - k8s.cni.cncf.io
   resources:
-  - spiderendpoints
+  - network-attachment-definitions
   verbs:
   - create
   - delete
@@ -82,11 +83,35 @@ rules:
 - apiGroups:
   - spiderpool.spidernet.io
   resources:
-  - spiderendpoints/status
+  - spidercoordinators
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - spiderpool.spidernet.io
+  resources:
+  - spidercoordinators/status
   verbs:
   - get
   - patch
   - update
+- apiGroups:
+  - spiderpool.spidernet.io
+  resources:
+  - spiderendpoints
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
 - apiGroups:
   - spiderpool.spidernet.io
   resources:
@@ -108,6 +133,18 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - spiderpool.spidernet.io
+  resources:
+  - spidermultusconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
 - apiGroups:
   - spiderpool.spidernet.io
   resources:

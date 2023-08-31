@@ -32,14 +32,18 @@ set -x
 helm install spiderpool chart-museum/spiderpool  ${HELM_MUST_OPTION} \
   --namespace kube-system \
   --set spiderpool.spiderpoolController.tls.method=auto \
-  --set spiderpool.feature.enableSpiderSubnet=true \
-  --set spiderpool.feature.enableIPv4=true --set spiderpool.feature.enableIPv6=true \
+  --set spiderpool.ipam.enableSpiderSubnet=true \
+  --set spiderpool.multus.multusCNI.defaultCNIName=kindnet \
+  --set spiderpool.ipam.enableIPv4=true --set spiderpool.ipam.enableIPv6=true \
   --set spiderpool.clusterDefaultPool.installIPv4IPPool=true  --set spiderpool.clusterDefaultPool.installIPv6IPPool=true  \
   --set spiderpool.clusterDefaultPool.ipv4Subnet=${Ipv4Subnet} --set spiderpool.clusterDefaultPool.ipv4IPRanges={${Ipv4Range}} --set spiderpool.clusterDefaultPool.ipv4Gateway=${Ipv4GW}\
   --set spiderpool.clusterDefaultPool.ipv6Subnet=${Ipv6Subnet} --set spiderpool.clusterDefaultPool.ipv6IPRanges={${Ipv6Range}} --set spiderpool.clusterDefaultPool.ipv6Gateway=${Ipv6GW}
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
+  kubectl get spidercoordinator default -o yaml --kubeconfig ${KIND_KUBECONFIG}
+  kubectl get smc -A -o yaml --kubeconfig ${KIND_KUBECONFIG}
+
   exit 0
 else
   echo "error, faild to deploy $CHART_DIR"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Deprecated: multus-underlay has mark deprecated, skip install" && exit 0
+
 CURRENT_FILENAME=$( basename $0 )
 CURRENT_DIR_PATH=$(cd $(dirname $0); pwd)
 
