@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: ""
+    controller-gen.kubebuilder.io/version: (unknown)
   creationTimestamp: null
   name: spidersubnets.spiderpool.spidernet.io
 spec:
@@ -89,7 +89,7 @@ spec:
               vlan:
                 default: 0
                 format: int64
-                maximum: 4095
+                maximum: 4094
                 minimum: 0
                 type: integer
             required:
@@ -114,9 +114,3 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []

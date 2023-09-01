@@ -18,7 +18,9 @@
               "title": "global image Registry",
               "type": "string",
               "default": "ghcr.m.daocloud.io",
-              "examples": [ "ghcr.m.daocloud.io" ]
+              "examples": [
+                "ghcr.m.daocloud.io"
+              ]
             }
           }
         },
@@ -173,9 +175,11 @@
                       ]
                     }
                   },
-                  "examples": [{
-                    "install": false
-                  }]
+                  "examples": [
+                    {
+                      "install": false
+                    }
+                  ]
                 },
                 "prometheusRule": {
                   "title": "Spiderpool Controller PrometheusRule",
@@ -195,15 +199,58 @@
                       ]
                     }
                   },
-                  "examples": [{
-                    "install": false
-                  }]
+                  "examples": [
+                    {
+                      "install": false
+                    }
+                  ]
                 }
               }
             }
           }
         },
-        "feature": {
+        "multus": {
+          "type": "object",
+          "title": "Multus Setting",
+          "properties": {
+            "multusCNI": {
+              "type": "object",
+              "required": [
+                "install"
+              ],
+              "properties": {
+                "install": {
+                  "type": "boolean",
+                  "title": "Install Multus CNI",
+                  "description": "If you already have multus installed, you can set it to false. Default to true",
+                  "default": true,
+                  "examples": [
+                    {
+                      "install": true
+                    }
+                  ]
+                },
+                "defaultCniCRName": {
+                  "type": "string",
+                  "title": "Default CNI Name",
+                  "description": "The name of cluster default CNI name. Default is \"\", If this value is empty, spiderpool will automatically get default CNI according to the existed CNI conf file in /etc/cni/net.d/"
+                },
+                "image": {
+                  "type": "object",
+                  "title": "Multus Image",
+                  "properties": {
+                    "repository": {
+                      "title": "repository",
+                      "type": "string",
+                      "default": "k8snetworkplumbingwg/multus-cni"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ipam": {
           "title": "IP Family Setting",
           "type": "object",
           "default": {},
@@ -216,7 +263,7 @@
               "title": "enable IPv4",
               "description": "enable IPAM IPv4 feature. Notice: required to create IPv4 ippool",
               "type": "boolean",
-              "default": false,
+              "default": true,
               "examples": [
                 true
               ]
@@ -278,7 +325,7 @@
             "ipv4Subnet": {
               "title": "IPv4 ippool subnet",
               "type": "string",
-              "default": "",
+              "default": "192.168.1.0/24",
               "examples": [
                 "192.168.1.0/24"
               ]
@@ -286,17 +333,19 @@
             "ipv6Subnet": {
               "title": "IPv6 ippool subnet",
               "type": "string",
-              "default": "",
+              "default": "fd00::/64",
               "examples": [
                 "fd00::/64"
               ]
             },
             "ipv4Gateway": {
               "title": "IPv4 ippool gateway",
+              "default": "192.168.1.1",
               "type": "string"
             },
             "ipv6Gateway": {
               "title": "IPv6 ippool gateway",
+              "default": "fd00::1",
               "type": "string"
             },
             "ipv4IPRanges": {
@@ -308,7 +357,9 @@
                 "type": "string"
               },
               "examples": [
-                ["192.168.1.10-192.168.1.200"]
+                [
+                  "192.168.1.10-192.168.1.200"
+                ]
               ]
             },
             "ipv6IPRanges": {
@@ -320,7 +371,9 @@
                 "type": "string"
               },
               "examples": [
-                ["fd00::10-fd00::200"]
+                [
+                  "fd00::10-fd00::200"
+                ]
               ]
             }
           }
@@ -329,4 +382,3 @@
     }
   }
 }
-

@@ -78,7 +78,7 @@ IPV4_IPRANGES_YOU_EXPECT="172.18.40.40-172.20.40.200"
 
 helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
   --set spiderpoolController.tls.method=auto \
-  --set feature.enableIPv4=true --set feature.enableIPv6=false \
+  --set ipam.enableIPv4=true --set ipam.enableIPv6=false \
   --set clusterDefaultPool.installIPv4IPPool=true  \
   --set clusterDefaultPool.ipv4Subnet=${IPV4_SUBNET_YOU_EXPECT} \
   --set clusterDefaultPool.ipv4IPRanges={${IPV4_IPRANGES_YOU_EXPECT}}
@@ -98,55 +98,93 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 
 ### Global parameters
 
-| Name                            | Description                                         | Value                                |
-| ------------------------------- | --------------------------------------------------- | ------------------------------------ |
-| `global.imageRegistryOverride`  | Global Docker image registry                        | `""`                                 |
-| `global.nameOverride`           | instance name                                       | `""`                                 |
-| `global.clusterDnsDomain`       | cluster dns domain                                  | `cluster.local`                      |
-| `global.commonAnnotations`      | Annotations to add to all deployed objects          | `{}`                                 |
-| `global.commonLabels`           | Labels to add to all deployed objects               | `{}`                                 |
-| `global.ipamBinHostPath`        | the host path of the IPAM plugin directory.         | `/opt/cni/bin`                       |
-| `global.ipamUNIXSocketHostPath` | the host path of unix domain socket for ipam plugin | `/var/run/spidernet/spiderpool.sock` |
-| `global.configName`             | the configmap name                                  | `spiderpool-conf`                    |
+| Name                            | Description                                                                | Value                                |
+| ------------------------------- | -------------------------------------------------------------------------- | ------------------------------------ |
+| `global.imageRegistryOverride`  | Global Docker image registry for spiderpool images, but not for multus tag | `""`                                 |
+| `global.nameOverride`           | instance name                                                              | `""`                                 |
+| `global.clusterDnsDomain`       | cluster dns domain                                                         | `cluster.local`                      |
+| `global.commonAnnotations`      | Annotations to add to all deployed objects                                 | `{}`                                 |
+| `global.commonLabels`           | Labels to add to all deployed objects                                      | `{}`                                 |
+| `global.ipamBinHostPath`        | the host path of the IPAM plugin directory.                                | `/opt/cni/bin`                       |
+| `global.cniConfHostPath`        | the host path of the cni config directory                                  | `/etc/cni/net.d`                     |
+| `global.ipamUNIXSocketHostPath` | the host path of unix domain socket for ipam plugin                        | `/var/run/spidernet/spiderpool.sock` |
+| `global.configName`             | the configmap name                                                         | `spiderpool-conf`                    |
 
+### ipam parameters
 
-### feature parameters
+| Name                                   | Description                                                                                      | Value   |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------ | ------- |
+| `ipam.enableIPv4`                      | enable ipv4                                                                                      | `true`  |
+| `ipam.enableIPv6`                      | enable ipv6                                                                                      | `true`  |
+| `ipam.enableStatefulSet`               | the network mode                                                                                 | `true`  |
+| `ipam.enableSpiderSubnet`              | SpiderSubnet feature gate.                                                                       | `false` |
+| `ipam.subnetDefaultFlexibleIPNumber`   | the default flexible IP number of SpiderSubnet feature auto-created IPPools                      | `1`     |
+| `ipam.gc.enabled`                      | enable retrieve IP in spiderippool CR                                                            | `true`  |
+| `ipam.gc.gcAll.intervalInSecond`       | the gc all interval duration                                                                     | `600`   |
+| `ipam.gc.GcDeletingTimeOutPod.enabled` | enable retrieve IP for the pod who times out of deleting graceful period                         | `true`  |
+| `ipam.gc.GcDeletingTimeOutPod.delay`   | the gc delay seconds after the pod times out of deleting graceful period                         | `0`     |
+| `grafanaDashboard.install`             | install grafanaDashboard for spiderpool. This requires the grafana operator CRDs to be available | `false` |
+| `grafanaDashboard.namespace`           | the grafanaDashboard namespace. Default to the namespace of helm instance                        | `""`    |
+| `grafanaDashboard.annotations`         | the additional annotations of spiderpool grafanaDashboard                                        | `{}`    |
+| `grafanaDashboard.labels`              | the additional label of spiderpool grafanaDashboard                                              | `{}`    |
 
-| Name                                      | Description                                                                                      | Value    |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------ | -------- |
-| `feature.enableIPv4`                      | enable ipv4                                                                                      | `true`   |
-| `feature.enableIPv6`                      | enable ipv6                                                                                      | `false`  |
-| `feature.networkMode`                     | the network mode                                                                                 | `legacy` |
-| `feature.enableStatefulSet`               | the network mode                                                                                 | `true`   |
-| `feature.enableSpiderSubnet`              | SpiderSubnet feature gate.                                                                       | `true`   |
-| `feature.gc.enabled`                      | enable retrieve IP in spiderippool CR                                                            | `true`   |
-| `feature.gc.gcAll.intervalInSecond`       | the gc all interval duration                                                                     | `600`    |
-| `feature.gc.GcDeletingTimeOutPod.enabled` | enable retrieve IP for the pod who times out of deleting graceful period                         | `true`   |
-| `feature.gc.GcDeletingTimeOutPod.delay`   | the gc delay seconds after the pod times out of deleting graceful period                         | `0`      |
-| `feature.grafanaDashboard.install`        | install grafanaDashboard for spiderpool. This requires the grafana operator CRDs to be available | `false`  |
-| `feature.grafanaDashboard.namespace`      | the grafanaDashboard namespace. Default to the namespace of helm instance                        | `""`     |
-| `feature.grafanaDashboard.annotations`    | the additional annotations of spiderpool grafanaDashboard                                        | `{}`     |
-| `feature.grafanaDashboard.labels`         | the additional label of spiderpool grafanaDashboard                                              | `{}`     |
+### coordinator parameters
 
+| Name                           | Description                                                               | Value     |
+| ------------------------------ | ------------------------------------------------------------------------- | --------- |
+| `coordinator.enabled`          | enable SpiderCoordinator                                                  | `true`    |
+| `coordinator.name`             | the name of the default SpiderCoordinator CR                              | `default` |
+| `coordinator.mode`             | optional network mode, ["auto","underlay", "overlay", "disabled"]         | `auto`    |
+| `coordinator.podCIDRType`      | Pod CIDR type that should be collected, [ "cluster", "calico", "cilium" ] | `cluster` |
+| `coordinator.detectGateway`    | detect the reachability of the gateway                                    | `false`   |
+| `coordinator.detectIPConflict` | detect IP address conflicts                                               | `false`   |
+| `coordinator.tunePodRoutes`    | tune Pod routes                                                           | `true`    |
+| `coordinator.hijackCIDR`       | Additional subnets that need to be hijacked to the host forward           | `[]`      |
+
+### multus parameters
+
+| Name                                          | Description                                                                                                                                                                                                                                                                                      | Value                             |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| `multus.enableMultusConfig`                   | enable SpiderMultusConfig                                                                                                                                                                                                                                                                        | `true`                            |
+| `multus.multusCNI.install`                    | enable install multus-CNI                                                                                                                                                                                                                                                                        | `true`                            |
+| `multus.multusCNI.uninstall`                  | enable remove multus-CNI configuration and binary files on multus-ds pod shutdown. Enable this if you uninstall multus from your cluster. Disable this in the multus upgrade phase to prevent CNI configuration file from being removed, which may cause pods start failure                      | `false`                           |
+| `multus.multusCNI.name`                       | the name of spiderpool multus                                                                                                                                                                                                                                                                    | `spiderpool-multus`               |
+| `multus.multusCNI.image.registry`             | the multus-CNI image registry                                                                                                                                                                                                                                                                    | `ghcr.io`                         |
+| `multus.multusCNI.image.repository`           | the multus-CNI image repository                                                                                                                                                                                                                                                                  | `k8snetworkplumbingwg/multus-cni` |
+| `multus.multusCNI.image.pullPolicy`           | the multus-CNI image pullPolicy                                                                                                                                                                                                                                                                  | `IfNotPresent`                    |
+| `multus.multusCNI.image.digest`               | the multus-CNI image digest                                                                                                                                                                                                                                                                      | `""`                              |
+| `multus.multusCNI.image.tag`                  | the multus-CNI image tag                                                                                                                                                                                                                                                                         | `v3.9.3`                          |
+| `multus.multusCNI.image.imagePullSecrets`     | the multus-CNI image imagePullSecrets                                                                                                                                                                                                                                                            | `[]`                              |
+| `multus.multusCNI.defaultCniCRName`           | please update the related SpiderMultusConfig for default CNI after installation. The namespace of defaultCniCRName follows with the release namespace of spdierpool. if this value is empty, multus will automatically get default CNI according to the existed CNI conf file in /etc/cni/net.d/ | `default`                         |
+| `multus.multusCNI.resources.limits.cpu`       | the cpu limit of multus-CNI daemonset pod                                                                                                                                                                                                                                                        | `100m`                            |
+| `multus.multusCNI.resources.limits.memory`    | the memory limit of multus-CNI daemonset pod                                                                                                                                                                                                                                                     | `50Mi`                            |
+| `multus.multusCNI.resources.requests.cpu`     | the cpu requests of multus-CNI daemonset pod                                                                                                                                                                                                                                                     | `100m`                            |
+| `multus.multusCNI.resources.requests.memory`  | the memory requests of multus-CNI daemonset pod                                                                                                                                                                                                                                                  | `50Mi`                            |
+| `multus.multusCNI.podAnnotations`             | the additional annotations of multus-CNI daemonset pod                                                                                                                                                                                                                                           | `{}`                              |
+| `multus.multusCNI.podLabels`                  | the additional label of multus-CNI daemonset pod                                                                                                                                                                                                                                                 | `{}`                              |
+| `multus.multusCNI.securityContext.privileged` | the securityContext privileged of multus-CNI daemonset pod                                                                                                                                                                                                                                       | `true`                            |
+| `multus.multusCNI.extraEnv`                   | the additional environment variables of multus-CNI daemonset pod container                                                                                                                                                                                                                       | `[]`                              |
+| `multus.multusCNI.extraVolumes`               | the additional volumes of multus-CNI daemonset pod container                                                                                                                                                                                                                                     | `[]`                              |
+| `multus.multusCNI.extraVolumeMounts`          | the additional hostPath mounts of multus-CNI daemonset pod container                                                                                                                                                                                                                             | `[]`                              |
+| `multus.multusCNI.log.logLevel`               | the multus-CNI daemonset pod log level                                                                                                                                                                                                                                                           | `debug`                           |
+| `multus.multusCNI.log.logFile`                | the multus-CNI daemonset pod log file                                                                                                                                                                                                                                                            | `/var/log/multus.log`             |
 
 ### clusterDefaultPool parameters
 
-| Name                                               | Description                                                                     | Value               |
-| -------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------- |
-| `clusterDefaultPool.installIPv4IPPool`             | install ipv4 spiderpool instance. It is required to set feature.enableIPv4=true | `false`             |
-| `clusterDefaultPool.installIPv6IPPool`             | install ipv6 spiderpool instance. It is required to set feature.enableIPv6=true | `false`             |
-| `clusterDefaultPool.ipv4IPPoolName`                | the name of ipv4 spiderpool instance                                            | `default-v4-ippool` |
-| `clusterDefaultPool.ipv6IPPoolName`                | the name of ipv6 spiderpool instance                                            | `default-v6-ippool` |
-| `clusterDefaultPool.ipv4SubnetName`                | the name of ipv4 spidersubnet instance                                          | `default-v4-subnet` |
-| `clusterDefaultPool.ipv6SubnetName`                | the name of ipv6 spidersubnet instance                                          | `default-v6-subnet` |
-| `clusterDefaultPool.ipv4Subnet`                    | the subnet of ipv4 spiderpool instance                                          | `""`                |
-| `clusterDefaultPool.ipv6Subnet`                    | the subnet of ipv6 spiderpool instance                                          | `""`                |
-| `clusterDefaultPool.ipv4IPRanges`                  | the available IP of ipv4 spiderpool instance                                    | `[]`                |
-| `clusterDefaultPool.ipv6IPRanges`                  | the available IP of ipv6 spiderpool instance                                    | `[]`                |
-| `clusterDefaultPool.ipv4Gateway`                   | the gateway of ipv4 subnet                                                      | `""`                |
-| `clusterDefaultPool.ipv6Gateway`                   | the gateway of ipv6 subnet                                                      | `""`                |
-| `clusterDefaultPool.subnetDefaultFlexibleIPNumber` | the default flexible IP number of SpiderSubnet feature auto-created IPPools     | `1`                 |
-
+| Name                                   | Description                                                                  | Value               |
+| -------------------------------------- | ---------------------------------------------------------------------------- | ------------------- |
+| `clusterDefaultPool.installIPv4IPPool` | install ipv4 spiderpool instance. It is required to set ipam.enableIPv4=true | `false`             |
+| `clusterDefaultPool.installIPv6IPPool` | install ipv6 spiderpool instance. It is required to set ipam.enableIPv6=true | `false`             |
+| `clusterDefaultPool.ipv4IPPoolName`    | the name of ipv4 spiderpool instance                                         | `default-v4-ippool` |
+| `clusterDefaultPool.ipv6IPPoolName`    | the name of ipv6 spiderpool instance                                         | `default-v6-ippool` |
+| `clusterDefaultPool.ipv4SubnetName`    | the name of ipv4 spidersubnet instance                                       | `default-v4-subnet` |
+| `clusterDefaultPool.ipv6SubnetName`    | the name of ipv6 spidersubnet instance                                       | `default-v6-subnet` |
+| `clusterDefaultPool.ipv4Subnet`        | the subnet of ipv4 spiderpool instance                                       | `""`                |
+| `clusterDefaultPool.ipv6Subnet`        | the subnet of ipv6 spiderpool instance                                       | `""`                |
+| `clusterDefaultPool.ipv4IPRanges`      | the available IP of ipv4 spiderpool instance                                 | `[]`                |
+| `clusterDefaultPool.ipv6IPRanges`      | the available IP of ipv6 spiderpool instance                                 | `[]`                |
+| `clusterDefaultPool.ipv4Gateway`       | the gateway of ipv4 subnet                                                   | `""`                |
+| `clusterDefaultPool.ipv6Gateway`       | the gateway of ipv6 subnet                                                   | `""`                |
 
 ### spiderpoolAgent parameters
 
@@ -203,7 +241,6 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `spiderpoolAgent.prometheus.prometheusRule.enableWarningIPAMReleaseOverTime`         | the additional rule of spiderpoolAgent prometheusRule                                            | `true`                                     |
 | `spiderpoolAgent.debug.logLevel`                                                     | the log level of spiderpool agent [debug, info, warn, error, fatal, panic]                       | `info`                                     |
 | `spiderpoolAgent.debug.gopsPort`                                                     | the gops port of spiderpool agent                                                                | `5712`                                     |
-
 
 ### spiderpoolController parameters
 
@@ -275,7 +312,6 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `spiderpoolController.tls.auto.extraIpAddresses`                                | extra IP addresses of server certificate for auto method                                                                          | `[]`                                            |
 | `spiderpoolController.tls.auto.extraDnsNames`                                   | extra DNS names of server cert for auto method                                                                                    | `[]`                                            |
 
-
 ### spiderpoolInit parameters
 
 | Name                                        | Description                                                                                                                 | Value                                           |
@@ -300,7 +336,4 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `spiderpoolInit.securityContext`            | the security Context of spiderpoolInit pod                                                                                  | `{}`                                            |
 | `spiderpoolInit.podAnnotations`             | the additional annotations of spiderpoolInit pod                                                                            | `{}`                                            |
 | `spiderpoolInit.podLabels`                  | the additional label of spiderpoolInit pod                                                                                  | `{}`                                            |
-| `spiderpoolInit.serviceAccount.create`      | create the service account for the spiderpoolInit                                                                           | `true`                                          |
 | `spiderpoolInit.serviceAccount.annotations` | the annotations of spiderpoolInit service account                                                                           | `{}`                                            |
-
-

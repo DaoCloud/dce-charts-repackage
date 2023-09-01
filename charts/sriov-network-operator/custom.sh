@@ -39,8 +39,6 @@ export SRIOV_NETWORK_OPERATOR_CURRENT_COMMIT_HASH=$(git show -s --format='format
 export SRIOV_NETWORK_OPERATOR_CURRENT_CHART_TIME=$(date "+%Y-%m-%dT%H:%M:%S")
 cd -
 
-export CHART_VERSION=$(helm show chart sriov-network-operator | grep '^version' |grep -E '[0-9].*.[0-9]' | awk -F ':' '{print $2}' | tr -d ' ')
-echo "CHART_VERSION: ${CHART_VERSION}"
 echo "SRIOV_NETWORK_OPERATOR_CURRENT_CHART_TIME: ${SRIOV_NETWORK_OPERATOR_CURRENT_CHART_TIME}"
 echo "SRIOV_NETWORK_OPERATOR_CURRENT_COMMIT_TIME: ${SRIOV_NETWORK_OPERATOR_CURRENT_COMMIT_TIME}"
 echo "SRIOV_NETWORK_OPERATOR_CURRENT_COMMIT_HASH: ${SRIOV_NETWORK_OPERATOR_CURRENT_COMMIT_HASH}"
@@ -104,24 +102,12 @@ else
   sed  -i  's?{{ .Values.images.webhook }}?{{ .Values.images.registry }}/{{ .Values.images.webhook.repository }}:{{ .Values.images.webhook.tag }}?'   $OPERATOR_TEMPLATE_PATH
 fi
 
-MAJOR_VERSION=$(awk -F "." '{print $1}' <<< ${CHART_VERSION})
-MINOR_VERSION=$(awk -F "." '{print $2}' <<< ${CHART_VERSION})
-PATCH_VERSION=$(awk -F "." '{print $3}' <<< ${CHART_VERSION})
-
-let PATCH_VERSION+=1
-if [ "${PATCH_VERSION}" -eq "10" ]; then
-  PATCH_VERSION=0
-  let MINOR_VERSION+=1
-fi
-
-export NEW_CHART_VERSION=$(printf "%s.%s.%s" "$MAJOR_VERSION" "$MINOR_VERSION" "$PATCH_VERSION")
-echo "NEW_CHART_VERSION: $NEW_CHART_VERSION"
-
 # Version
+export NEW_CHART_VERSION=1.2.0
 yq -i '
    .version=strenv(NEW_CHART_VERSION) |
    .appVersion=strenv(NEW_CHART_VERSION) |
-   .keywords[1]="network"
+   .keywords[1]="networking"
 ' $CURRENT_DIR_PATH/$CHART_NAME/Chart.yaml
 
 # README.md
