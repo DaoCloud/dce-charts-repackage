@@ -8,6 +8,20 @@
                 "cni": {
                     "type": "object",
                     "properties": {
+                        "affinity": {
+                            "type": "object"
+                        },
+                        "ambient": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "redirectMode": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "chained": {
                             "type": "boolean"
                         },
@@ -103,19 +117,14 @@
                                 }
                             }
                         },
+                        "rollingMaxUnavailable": {
+                            "type": "integer"
+                        },
                         "seccompProfile": {
                             "type": "object"
                         },
                         "tag": {
                             "type": "string"
-                        },
-                        "taint": {
-                            "type": "object",
-                            "properties": {
-                                "enabled": {
-                                    "type": "boolean"
-                                }
-                            }
                         },
                         "variant": {
                             "type": "string"
