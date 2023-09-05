@@ -1,0 +1,2 @@
+- "{{ .kdoctor.global.imageRegistryOverride }}/{{ .kdoctor.kdoctorAgent.image.repository }}:{{ .kdoctor.kdoctorAgent.image.tag }}"
+- "{{ .kdoctor.global.imageRegistryOverride }}/{{ .kdoctor.kdoctorController.image.repository }}:{{ .kdoctor.kdoctorController.image.tag }}"
