@@ -56,7 +56,7 @@ yq -i '
    .images.sriovCni.repository="k8snetworkplumbingwg/sriov-cni" |
    .images.sriovCni.tag="v2.7.0" |
    .images.ibSriovCni.repository="k8snetworkplumbingwg/ib-sriov-cni" |
-   .images.ibSriovCni.tag="v1.0.3" |
+   .images.ibSriovCni.tag="v1.0.2" |
    .images.sriovDevicePlugin.repository="k8snetworkplumbingwg/sriov-network-device-plugin" |
    .images.sriovDevicePlugin.tag="v3.5.1" |
    .images.resourcesInjector.repository="k8snetworkplumbingwg/network-resources-injector" |
