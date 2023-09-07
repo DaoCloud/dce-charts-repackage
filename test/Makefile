@@ -191,7 +191,7 @@ install-relok8s:
 
 .PHONY: install-charts-syncer
 install-charts-syncer:
-	VERSION=0.0.5 ; \
+	VERSION=0.0.15 ; \
 	curl -OL https://github.com/DaoCloud/charts-syncer/releases/download/v$${VERSION}/charts-syncer_$${VERSION}_linux_x86_64.tar.gz ; \
 	tar -zvxf charts-syncer_$${VERSION}_linux_x86_64.tar.gz && mv charts-syncer /usr/local/bin/charts-syncer && rm -rf README.md charts-syncer*.tar.gz
 
