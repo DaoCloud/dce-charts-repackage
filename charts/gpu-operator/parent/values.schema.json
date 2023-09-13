@@ -1,0 +1,272 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "gpu-operator": {
+            "type": "object",
+            "properties": {
+                "dcgm": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "dcgmExporter": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "serviceMonitor": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "devicePlugin": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "driver": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "manager": {
+                            "type": "object",
+                            "properties": {
+                                "image": {
+                                    "type": "string"
+                                },
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "version": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "repoConfig": {
+                            "type": "object",
+                            "properties": {
+                                "configMapName": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "gfd": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "mig": {
+                    "type": "object",
+                    "properties": {
+                        "strategy": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "migManager": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "node-feature-discovery": {
+                    "type": "object",
+                    "properties": {
+                        "enableNodeFeatureApi": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "registry": {
+                                    "type": "string"
+                                },
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "nodeStatusExporter": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "operator": {
+                    "type": "object",
+                    "properties": {
+                        "cleanupCRD": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "initContainer": {
+                            "type": "object",
+                            "properties": {
+                                "image": {
+                                    "type": "string"
+                                },
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "version": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "upgradeCRD": {
+                            "type": "boolean"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "toolkit": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "validator": {
+                    "type": "object",
+                    "properties": {
+                        "image": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "vfioManager": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
