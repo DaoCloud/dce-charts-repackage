@@ -1,0 +1,40 @@
+{{- if .Values.tests.enabled -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-ui-test"
+  annotations:
+    "helm.sh/hook": test-success
+  labels:
+    app: {{ template "sonarqube.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  {{- if or .Values.image.pullSecrets .Values.image.pullSecret }}
+  imagePullSecrets:
+    {{- if .Values.image.pullSecret }}
+    - name: {{ .Values.image.pullSecret }}
+    {{- end}}
+    {{- if .Values.image.pullSecrets}}
+{{ toYaml .Values.image.pullSecrets | indent 4 }}
+    {{- end}}
+  {{- end }}
+  containers:
+    - name: {{ .Release.Name }}-ui-test
+      image: {{ default "docker.m.daocloud.io" .Values.image.registry }}/{{ default "library/sonarqube" .Values.image.repository }}:{{ default "10.2.0-community" .Values.image.tag }}
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      command: ['wget']
+      args: [
+        '--retry-connrefused',
+        '--waitretry=1',
+        '--timeout=5',
+        '-t',
+        '12',
+        '-qO-',
+        '{{ template "sonarqube.fullname" . }}:{{ .Values.service.internalPort }}/api/system/status'
+        ]
+      resources:
+{{ toYaml .Values.tests.resources | indent 8 }}
+  restartPolicy: Never
+{{- end -}}
