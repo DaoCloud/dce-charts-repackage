@@ -1,0 +1,90 @@
+# child values
+gpu-operator:
+  validator:
+    repository: nvcr.io
+    image: nvidia/cloud-native/gpu-operator-validator
+    # If version is not specified, then default is to use chart.AppVersion
+    version: "v23.6.1"
+  operator:
+    repository: nvcr.io
+    image: nvidia/gpu-operator
+    # If version is not specified, then default is to use chart.AppVersion
+    version: "v23.6.1"
+    # cleanup CRD on chart un-install
+    cleanupCRD: false
+    # upgrade CRD on chart upgrade, requires --disable-openapi-validation flag
+    # to be passed during helm upgrade.
+    upgradeCRD: false
+    initContainer:
+      image: nvidia/cuda
+      repository: nvcr.io
+      version: 12.2.0-base-ubi8
+  mig:
+    strategy: single
+  driver:
+    enabled: true
+    repository: nvcr.io
+    image: nvidia/driver
+    version: "535.104.05"
+    repoConfig:
+      configMapName: ""
+    manager:
+      image: nvidia/cloud-native/k8s-driver-manager
+      repository: nvcr.io
+      version: v0.6.2
+  toolkit:
+    enabled: true
+    repository: nvcr.io
+    image: nvidia/k8s/container-toolkit
+    version: v1.13.4-centos7
+  devicePlugin:
+    enabled: false
+    repository: nvcr.io
+    image: nvidia/k8s-device-plugin
+    version: v0.14.1-ubi8
+  # standalone dcgm hostengine
+  dcgm:
+    # disabled by default to use embedded nv-hostengine by exporter
+    enabled: false
+    repository: nvcr.io
+    image: nvidia/cloud-native/dcgm
+    version: 3.1.8-1-ubuntu20.04
+
+  dcgmExporter:
+    enabled: true
+    repository: nvcr.io
+    image: nvidia/k8s/dcgm-exporter
+    version: 3.1.8-3.1.5-ubuntu20.04
+    serviceMonitor:
+      enabled: true
+  gfd:
+    enabled: true
+    repository: nvcr.io
+    image: nvidia/gpu-feature-discovery
+    version: v0.8.1-ubi8
+
+  migManager:
+    enabled: false
+    repository: nvcr.io
+    image: nvidia/cloud-native/k8s-mig-manager
+    version: v0.5.3-ubuntu20.04
+
+  nodeStatusExporter:
+    enabled: false
+    repository: nvcr.io
+    image: nvidia/cloud-native/gpu-operator-validator
+    # If version is not specified, then default is to use chart.AppVersion
+    version: "v23.6.1"
+
+  vfioManager:
+    enabled: false
+    repository: nvcr.io
+    image: nvidia/cuda
+    version: 12.2.0-base-ubi8
+
+  node-feature-discovery:
+    enableNodeFeatureApi: true
+    image:
+      registry: k8s.m.daocloud.io
+      repository: nfd/node-feature-discovery
+      tag: v23.6.1
