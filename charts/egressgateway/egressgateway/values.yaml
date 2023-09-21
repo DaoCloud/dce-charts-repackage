@@ -35,6 +35,12 @@ egressgateway:
     tunnelIpv6Subnet: "fd11::/112"
     ## @param feature.tunnelDetectMethod Tunnel base on which interface [`defaultRouteInterface`, `interface=eth0`]
     tunnelDetectMethod: "defaultRouteInterface"
+    ## @param feature.enableGatewayReplyRoute  the gateway node reply route is enabled, which should be enabled for spiderpool
+    enableGatewayReplyRoute: false
+    ## @param feature.gatewayReplyRouteTable  host Reply routing table number on gateway node
+    gatewayReplyRouteTable: 600
+    ## @param feature.gatewayReplyRouteMark  host iptables mark for reply packet on gateway node
+    gatewayReplyRouteMark: 39
     iptables:
       ## @param feature.iptables.backendMode Iptables mode can be specified as `nft` or `legacy`, with `auto` meaning automatic detection. The default value is `auto`.
       backendMode: "auto"
@@ -63,6 +69,16 @@ egressgateway:
     announcedInterfacesToExclude:
       - "^cali.*"
       - "br-*"
+    ## @section feature.gatewayFailover Enable gateway failover.
+    gatewayFailover:
+      ## @param feature.gatewayFailover.enable Enable gateway failover, default `false`.
+      enable: false
+      ## @param feature.gatewayFailover.tunnelMonitorPeriod The egress controller check tunnel last update status at an interval set in seconds, default `5`.
+      tunnelMonitorPeriod: 5
+      ## @param feature.gatewayFailover.tunnelUpdatePeriod The egress agent updates the tunnel status at an interval set in seconds, default `5`.
+      tunnelUpdatePeriod: 5
+      ## @param feature.gatewayFailover.eipEvictionTimeout If the last updated time of the egress tunnel exceeds this time, move the Egress IP of the node to an available node, the unit is seconds, default is `15`.
+      eipEvictionTimeout: 15
   ## @section Egressgateway agent parameters
   ##
   agent:
@@ -82,7 +98,7 @@ egressgateway:
       ## @param agent.image.digest The image digest of egressgateway agent, which takes preference over tag
       digest: ""
       ## @param agent.image.tag The image tag of egressgateway agent, overrides the image tag whose default is the chart appVersion.
-      tag: "v0.2.0"
+      tag: "v0.4.0"
       ## @param agent.image.imagePullSecrets the image pull secrets of egressgateway agent
       imagePullSecrets: []
       # - name: "image-pull-secret"
@@ -224,7 +240,7 @@ egressgateway:
       ## @param controller.image.digest The image digest of egressgatewayController, which takes preference over tag
       digest: ""
       ## @param controller.image.tag The image tag of egressgateway controller, overrides the image tag whose default is the chart appVersion.
-      tag: "v0.2.0"
+      tag: "v0.4.0"
       ## @param controller.image.imagePullSecrets The image pull secrets of egressgateway controller
       imagePullSecrets: []
       # - name: "image-pull-secret"
@@ -393,3 +409,6 @@ egressgateway:
         extraIpAddresses: []
         ## @param controller.tls.auto.extraDnsNames Extra DNS names of server cert for auto method
         extraDnsNames: []
+  cleanup:
+    ## @param cleanup.enable clean up resources when helm uninstall
+    enable: true

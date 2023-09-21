@@ -31,6 +31,9 @@ helm install egressgateway egressgateway/egressgateway --namespace kube-system
 | `feature.tunnelIpv4Subnet`                   | Tunnel IPv4 subnet                                                                                                         | `172.31.0.0/16`         |
 | `feature.tunnelIpv6Subnet`                   | Tunnel IPv6 subnet                                                                                                         | `fd11::/112`            |
 | `feature.tunnelDetectMethod`                 | Tunnel base on which interface [`defaultRouteInterface`, `interface=eth0`]                                                 | `defaultRouteInterface` |
+| `feature.enableGatewayReplyRoute`            | the gateway node reply route is enabled, which should be enabled for spiderpool                                            | `false`                 |
+| `feature.gatewayReplyRouteTable`             | host Reply routing table number on gateway node                                                                            | `600`                   |
+| `feature.gatewayReplyRouteMark`              | host iptables mark for reply packet on gateway node                                                                        | `39`                    |
 | `feature.iptables.backendMode`               | Iptables mode can be specified as `nft` or `legacy`, with `auto` meaning automatic detection. The default value is `auto`. | `auto`                  |
 | `feature.vxlan.name`                         | The name of VXLAN device                                                                                                   | `egress.vxlan`          |
 | `feature.vxlan.port`                         | VXLAN port                                                                                                                 | `7789`                  |
@@ -43,6 +46,15 @@ helm install egressgateway egressgateway/egressgateway --namespace kube-system
 | `feature.maxNumberEndpointPerSlice`          | max number of endpoints per slice                                                                                          | `100`                   |
 | `feature.announcedInterfacesToExclude`       | The list of network interface excluded for announcing Egress IP.                                                           | `["^cali.*","br-*"]`    |
 
+### feature.gatewayFailover Enable gateway failover.
+
+| Name                                          | Description                                                                                                                                                 | Value   |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `feature.gatewayFailover.enable`              | Enable gateway failover, default `false`.                                                                                                                   | `false` |
+| `feature.gatewayFailover.tunnelMonitorPeriod` | The egress controller check tunnel last update status at an interval set in seconds, default `5`.                                                           | `5`     |
+| `feature.gatewayFailover.tunnelUpdatePeriod`  | The egress agent updates the tunnel status at an interval set in seconds, default `5`.                                                                      | `5`     |
+| `feature.gatewayFailover.eipEvictionTimeout`  | If the last updated time of the egress tunnel exceeds this time, move the Egress IP of the node to an available node, the unit is seconds, default is `15`. | `15`    |
+
 ### Egressgateway agent parameters
 
 | Name                                                 | Description                                                                                                     | Value                              |
@@ -54,7 +66,7 @@ helm install egressgateway egressgateway/egressgateway --namespace kube-system
 | `agent.image.repository`                             | The image repository of egressgateway agent                                                                     | `spidernet-io/egressgateway-agent` |
 | `agent.image.pullPolicy`                             | The image pull policy of egressgateway agent                                                                    | `IfNotPresent`                     |
 | `agent.image.digest`                                 | The image digest of egressgateway agent, which takes preference over tag                                        | `""`                               |
-| `agent.image.tag`                                    | The image tag of egressgateway agent, overrides the image tag whose default is the chart appVersion.            | `v0.2.0`                           |
+| `agent.image.tag`                                    | The image tag of egressgateway agent, overrides the image tag whose default is the chart appVersion.            | `v0.4.0`                           |
 | `agent.image.imagePullSecrets`                       | the image pull secrets of egressgateway agent                                                                   | `[]`                               |
 | `agent.serviceAccount.create`                        | Create the service account for the egressgateway agent                                                          | `true`                             |
 | `agent.serviceAccount.annotations`                   | The annotations of egressgateway agent service account                                                          | `{}`                               |
@@ -113,7 +125,7 @@ helm install egressgateway egressgateway/egressgateway --namespace kube-system
 | `controller.image.repository`                             | The image repository of egressgateway controller                                                                                     | `spidernet-io/egressgateway-controller` |
 | `controller.image.pullPolicy`                             | The image pullPolicy of egressgateway controller                                                                                     | `IfNotPresent`                          |
 | `controller.image.digest`                                 | The image digest of egressgatewayController, which takes preference over tag                                                         | `""`                                    |
-| `controller.image.tag`                                    | The image tag of egressgateway controller, overrides the image tag whose default is the chart appVersion.                            | `v0.2.0`                                |
+| `controller.image.tag`                                    | The image tag of egressgateway controller, overrides the image tag whose default is the chart appVersion.                            | `v0.4.0`                                |
 | `controller.image.imagePullSecrets`                       | The image pull secrets of egressgateway controller                                                                                   | `[]`                                    |
 | `controller.serviceAccount.create`                        | Create the service account for the egressgateway controller                                                                          | `true`                                  |
 | `controller.serviceAccount.annotations`                   | The annotations of egressgateway controller service account                                                                          | `{}`                                    |
@@ -175,3 +187,4 @@ helm install egressgateway egressgateway/egressgateway --namespace kube-system
 | `controller.tls.auto.certExpiration`                      | Server cert expiration for auto method                                                                                               | `73000`                                 |
 | `controller.tls.auto.extraIpAddresses`                    | Extra IP addresses of server certificate for auto method                                                                             | `[]`                                    |
 | `controller.tls.auto.extraDnsNames`                       | Extra DNS names of server cert for auto method                                                                                       | `[]`                                    |
+| `cleanup.enable`                                          | clean up resources when helm uninstall                                                                                               | `true`                                  |
