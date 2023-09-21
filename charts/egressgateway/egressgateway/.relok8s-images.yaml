@@ -1,2 +1,2 @@
-- "{{ .egressgateway.egressgatewayAgent.image.registry }}/{{ .egressgateway.egressgatewayAgent.image.repository }}:{{ .egressgateway.egressgatewayAgent.image.tag }}"
-- "{{ .egressgateway.egressgatewayController.image.registry }}/{{ .egressgateway.egressgatewayController.image.repository }}:{{ .egressgateway.egressgatewayController.image.tag }}"
+- "{{ .egressgateway.agent.image.registry }}/{{ .egressgateway.agent.image.repository }}:{{ .egressgateway.agent.image.tag }}"
+- "{{ .egressgateway.controller.image.registry }}/{{ .egressgateway.controller.image.repository }}:{{ .egressgateway.controller.image.tag }}"

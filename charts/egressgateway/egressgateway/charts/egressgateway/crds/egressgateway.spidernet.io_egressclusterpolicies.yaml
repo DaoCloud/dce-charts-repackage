@@ -4,24 +4,41 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
-  creationTimestamp: null
-  name: egressgatewaypolicies.egressgateway.spidernet.io
+  name: egressclusterpolicies.egressgateway.spidernet.io
 spec:
   group: egressgateway.spidernet.io
   names:
     categories:
-    - egressgatewaypolicy
-    kind: EgressGatewayPolicy
-    listKind: EgressGatewayPolicyList
-    plural: egressgatewaypolicies
+    - egressclusterpolicy
+    kind: EgressClusterPolicy
+    listKind: EgressClusterPolicyList
+    plural: egressclusterpolicies
     shortNames:
-    - epo
-    singular: egressgatewaypolicy
+    - egcp
+    singular: egressclusterpolicy
   scope: Cluster
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - description: egressGatewayName
+      jsonPath: .spec.egressGatewayName
+      name: gateway
+      type: string
+    - description: ipv4
+      jsonPath: .status.eip.ipv4
+      name: ipv4
+      type: string
+    - description: ipv6
+      jsonPath: .status.eip.ipv6
+      name: ipv6
+      type: string
+    - description: egressTunnel
+      jsonPath: .status.node
+      name: egressTunnel
+      type: string
+    name: v1beta1
     schema:
       openAPIV3Schema:
+        description: EgressClusterPolicy represents a cluster egress policy
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -39,6 +56,54 @@ spec:
             properties:
               appliedTo:
                 properties:
+                  namespaceSelector:
+                    description: A label selector is a label query over a set of resources.
+                      The result of matchLabels and matchExpressions are ANDed. An
+                      empty label selector matches all objects. A null label selector
+                      matches no objects.
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector
+                          requirements. The requirements are ANDed.
+                        items:
+                          description: A label selector requirement is a selector
+                            that contains values, a key, and an operator that relates
+                            the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector
+                                applies to.
+                              type: string
+                            operator:
+                              description: operator represents a key's relationship
+                                to a set of values. Valid operators are In, NotIn,
+                                Exists and DoesNotExist.
+                              type: string
+                            values:
+                              description: values is an array of string values. If
+                                the operator is In or NotIn, the values array must
+                                be non-empty. If the operator is Exists or DoesNotExist,
+                                the values array must be empty. This array is replaced
+                                during a strategic merge patch.
+                              items:
+                                type: string
+                              type: array
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        type: array
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: matchLabels is a map of {key,value} pairs. A
+                          single {key,value} in the matchLabels map is equivalent
+                          to an element of matchExpressions, whose key field is "key",
+                          the operator is "In", and the values array contains only
+                          "value". The requirements are ANDed.
+                        type: object
+                    type: object
+                    x-kubernetes-map-type: atomic
                   podSelector:
                     description: A label selector is a label query over a set of resources.
                       The result of matchLabels and matchExpressions are ANDed. An
@@ -95,22 +160,42 @@ spec:
               destSubnet:
                 items:
                   type: string
-                minItems: 1
                 type: array
-              gatewayNodeConfig:
+              egressGatewayName:
+                type: string
+              egressIP:
+                default:
+                  allocatorPolicy: default
+                  useNodeIP: false
                 properties:
-                  egressIPv4VIP:
+                  allocatorPolicy:
+                    default: default
                     type: string
-                  egressIPv6VIP:
+                  ipv4:
                     type: string
-                  interface:
+                  ipv6:
                     type: string
-                required:
-                - interface
+                  useNodeIP:
+                    default: false
+                    type: boolean
                 type: object
+              priority:
+                format: int64
+                type: integer
             required:
             - appliedTo
-            - destSubnet
+            type: object
+          status:
+            properties:
+              eip:
+                properties:
+                  ipv4:
+                    type: string
+                  ipv6:
+                    type: string
+                type: object
+              node:
+                type: string
             type: object
         required:
         - metadata
