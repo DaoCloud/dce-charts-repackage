@@ -64,6 +64,6 @@ $ charts-syncer sync --config config-write-bundles.yaml --insecure=true
 
 6. schema-gen
 ```
-$ helm schema-gen values.yaml > values.schema.json
+$ helm schema-gen values-schema.yaml > values.schema.json
 ```
 
