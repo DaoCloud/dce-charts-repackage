@@ -57,16 +57,13 @@ cert-manager:
 
   podDisruptionBudget:
     enabled: false
-    minAvailable: 1
+    # minAvailable and maxUnavailable can either be set to an integer (e.g. 1)
+    # or a percentage value (e.g. 25%)
+    # if neither minAvailable or maxUnavailable is set, we default to `minAvailable: 1`
+    # minAvailable: 1
     # maxUnavailable: 1
-  # minAvailable and maxUnavailable can either be set to an integer (e.g. 1)
-  # or a percentage value (e.g. 25%)
-
-  # Comma separated list of feature gates that should be enabled on the controller
-  # Note: do not use this field to pass feature gate values into webhook
-  # component as this behaviour relies on a bug that will be fixed in cert-manager 1.13
-  # https://github.com/cert-manager/cert-manager/pull/6093
-  # Use webhook.extraArgs to pass --feature-gates flag directly instead.
+  # Comma separated list of feature gates that should be enabled on the
+  # controller pod.
   featureGates: ""
   # The maximum number of challenges that can be scheduled as 'processing' at once
   maxConcurrentChallenges: 60
@@ -83,7 +80,7 @@ cert-manager:
     # Setting a digest will override any tag
     # digest: sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20
     pullPolicy: IfNotPresent
-    tag: v1.12.2
+    tag: v1.13.0
   # Override the namespace used to store DNS provider credentials etc. for ClusterIssuer
   # resources. By default, the same namespace as cert-manager is deployed within is
   # used. This namespace will not be automatically created by the Helm chart.
@@ -109,6 +106,29 @@ cert-manager:
 
   # When this flag is enabled, secrets will be automatically removed when the certificate resource is deleted
   enableCertificateOwnerRef: false
+  # Used to configure options for the controller pod.
+  # This allows setting options that'd usually be provided via flags.
+  # An APIVersion and Kind must be specified in your values.yaml file.
+  # Flags will override options that are set here.
+  config:
+  #   apiVersion: controller.config.cert-manager.io/v1alpha1
+  #   kind: ControllerConfiguration
+  #   logging:
+  #    verbosity: 2
+  #    format: text
+  #   leaderElectionConfig:
+  #    namespace: kube-system
+  #   kubernetesAPIQPS: 9000
+  #   kubernetesAPIBurst: 9000
+  #   numberOfConcurrentWorkers: 200
+  #   featureGates:
+  #     additionalCertificateOutputFormats: true
+  #     experimentalCertificateSigningRequestControllers: true
+  #     experimentalGatewayAPISupport: true
+  #     serverSideApply: true
+  #     literalCertificateSubject: true
+  #     useCertificateRequestBasicConstraints: true
+
   # Setting Nameservers for DNS01 Self Check
   # See: https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check
 
@@ -196,6 +216,7 @@ cert-manager:
       labels: {}
       annotations: {}
       honorLabels: false
+      endpointAdditionalProperties: {}
   # Use these variables to configure the HTTP_PROXY environment variables
   # http_proxy: "http://proxy:8080"
   # https_proxy: "https://proxy:8080"
@@ -247,6 +268,10 @@ cert-manager:
     timeoutSeconds: 15
     successThreshold: 1
     failureThreshold: 8
+  # enableServiceLinks indicates whether information about services should be
+  # injected into pod's environment variables, matching the syntax of Docker
+  # links.
+  enableServiceLinks: false
   webhook:
     replicaCount: 2
     timeoutSeconds: 10
@@ -280,11 +305,11 @@ cert-manager:
         type: RuntimeDefault
     podDisruptionBudget:
       enabled: false
-      minAvailable: 1
+      # minAvailable and maxUnavailable can either be set to an integer (e.g. 1)
+      # or a percentage value (e.g. 25%)
+      # if neither minAvailable or maxUnavailable is set, we default to `minAvailable: 1`
+      # minAvailable: 1
       # maxUnavailable: 1
-    # minAvailable and maxUnavailable can either be set to an integer (e.g. 1)
-    # or a percentage value (e.g. 25%)
-
     # Container Security Context to be set on the webhook component container
     # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
     containerSecurityContext:
@@ -315,6 +340,9 @@ cert-manager:
     # Path to a file containing a WebhookConfiguration object used to configure the webhook
     # - --config=<path-to-config-file>
 
+    # Comma separated list of feature gates that should be enabled on the
+    # webhook pod.
+    featureGates: ""
     resources:
       requests:
         cpu: 10m
@@ -363,7 +391,7 @@ cert-manager:
       # Setting a digest will override any tag
       # digest: sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20
       pullPolicy: IfNotPresent
-      tag: v1.12.2
+      tag: v1.13.0
     serviceAccount:
       # Specifies whether a service account should be created
       create: true
@@ -432,6 +460,10 @@ cert-manager:
                 cidr: 0.0.0.0/0
     volumes: []
     volumeMounts: []
+    # enableServiceLinks indicates whether information about services should be
+    # injected into pod's environment variables, matching the syntax of Docker
+    # links.
+    enableServiceLinks: false
   cainjector:
     enabled: true
     replicaCount: 2
@@ -449,11 +481,11 @@ cert-manager:
         type: RuntimeDefault
     podDisruptionBudget:
       enabled: false
-      minAvailable: 1
+      # minAvailable and maxUnavailable can either be set to an integer (e.g. 1)
+      # or a percentage value (e.g. 25%)
+      # if neither minAvailable or maxUnavailable is set, we default to `minAvailable: 1`
+      # minAvailable: 1
       # maxUnavailable: 1
-    # minAvailable and maxUnavailable can either be set to an integer (e.g. 1)
-    # or a percentage value (e.g. 25%)
-
     # Container Security Context to be set on the cainjector component container
     # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
     containerSecurityContext:
@@ -506,7 +538,7 @@ cert-manager:
       # Setting a digest will override any tag
       # digest: sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20
       pullPolicy: IfNotPresent
-      tag: v1.12.2
+      tag: v1.13.0
     serviceAccount:
       # Specifies whether a service account should be created
       create: true
@@ -523,6 +555,10 @@ cert-manager:
     # automountServiceAccountToken: true
     volumes: []
     volumeMounts: []
+    # enableServiceLinks indicates whether information about services should be
+    # injected into pod's environment variables, matching the syntax of Docker
+    # links.
+    enableServiceLinks: false
   acmesolver:
     image:
       repository: quay.io/jetstack/cert-manager-acmesolver
@@ -605,7 +641,7 @@ cert-manager:
       # Setting a digest will override any tag
       # digest: sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20
       pullPolicy: IfNotPresent
-      tag: v1.12.2
+      tag: v1.13.0
     rbac:
       # annotations for the startup API Check job RBAC and PSP resources
       annotations:
@@ -632,6 +668,10 @@ cert-manager:
       # labels: {}
     volumes: []
     volumeMounts: []
+    # enableServiceLinks indicates whether information about services should be
+    # injected into pod's environment variables, matching the syntax of Docker
+    # links.
+    enableServiceLinks: false
 alert:
   prometheusRule:
     create: false
