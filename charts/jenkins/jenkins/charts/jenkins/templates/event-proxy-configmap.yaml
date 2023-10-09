@@ -1,0 +1,10 @@
+{{ if .Values.eventProxy.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: event-proxy-config
+  namespace: {{ include "jenkins.namespace" . }}
+data:
+  event-proxy.yaml: |
+  {{- include "jenkins.event-proxy.config" . | nindent 4 }}
+{{ end }}
