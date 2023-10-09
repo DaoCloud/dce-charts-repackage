@@ -21,7 +21,7 @@ jenkins:
       SchedulerName: ""
     Name: jenkins-master
     Image: "amambadev/jenkins"
-    ImageTag: "v0.2.0-alpha.1-2.413"
+    ImageTag: "v0.3.0-2.413"
     ImagePullPolicy: "IfNotPresent"
     ImagePullSecret: ""
     Component: "jenkins-master"
@@ -317,22 +317,22 @@ jenkins:
     Builder:
       Base:
         Image: amambadev/jenkins-agent-base
-        ImageTag: v0.2.0-alpha.1
+        ImageTag: v0.3.0
       NodeJs16:
         Image: amambadev/jenkins-agent-nodejs
-        ImageTag: v0.2.0-alpha.1
+        ImageTag: v0.3.0
       Maven:
         Image: amambadev/jenkins-agent-maven
-        ImageTag: v0.2.0-alpha.1-jdk1.8
+        ImageTag: v0.3.0-jdk1.8
       Mavenjdk11:
         Image: amambadev/jenkins-agent-maven
-        ImageTag: v0.2.0-alpha.1-jdk11
+        ImageTag: v0.3.0-jdk11
       Golang:
         Image: amambadev/jenkins-agent-go
-        ImageTag: v0.2.0-alpha.1
+        ImageTag: v0.3.0
       Python:
         Image: amambadev/jenkins-agent-python
-        ImageTag: v0.2.0-alpha.1
+        ImageTag: v0.3.0
       ContainerRuntime: podman # Available values: docker, podman
   Persistence:
     Enabled: true
