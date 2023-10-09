@@ -1,0 +1,53 @@
+image:
+  registry: 
+Master:
+  AdminUser: admin
+  AdminPassword: Admin01
+  resources:
+    requests:
+      cpu: "1"
+      memory: "799Mi"
+    limits:
+      cpu: "2"
+      memory: "4096Mi"
+  JavaOpts: |-
+    -XX:MaxRAMPercentage=70.0 
+    -XX:MaxRAM=2g
+    -Dhudson.slaves.NodeProvisioner.initialDelay=20
+    -Dhudson.slaves.NodeProvisioner.MARGIN=50
+    -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85
+    -Dhudson.model.LoadStatistics.clock=5000
+    -Dhudson.model.LoadStatistics.decay=0.2
+    -Dhudson.slaves.NodeProvisioner.recurrencePeriod=5000
+    -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true
+    -Dio.jenkins.plugins.casc.ConfigurationAsCode.initialDelay=10000
+    -Djenkins.install.runSetupWizard=false
+    -XX:+UseG1GC
+    -XX:+UseStringDeduplication
+    -XX:+ParallelRefProcEnabled
+    -XX:+DisableExplicitGC
+    -XX:+UnlockDiagnosticVMOptions
+    -XX:+UnlockExperimentalVMOptions
+    -javaagent:/otel-auto-instrumentation/javaagent.jar
+  ServicePort: 80
+  ServiceType: ClusterIP
+  NodePort: 31767
+  Deploy:
+    NotWithApiServer: false
+    # If the cluster where jenkins is deployed and amamba-apiserver are not in the same cluster, you need to fill in this item
+    JenkinsHost: ""
+
+eventProxy:
+  enabled: true
+  image:
+    repository: amamba/amamba-event-proxy
+    tag: "v0.15.0-alpha.0"
+  imagePullPolicy: IfNotPresent
+  configMap:
+    eventProxy:
+      host: "amamba-devops-server.amamba-system:80"
+      proto: "http"
+      webhookUrl: "/apis/internel.amamba.io/devops/pipeline/v1alpha1/webhooks/jenkins"
+      token: ""
+  resources: {}
+
