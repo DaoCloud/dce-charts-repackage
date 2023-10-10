@@ -8,6 +8,23 @@
                 "cni": {
                     "type": "object",
                     "properties": {
+                        "affinity": {
+                            "type": "object"
+                        },
+                        "ambient": {
+                            "type": "object",
+                            "properties": {
+                                "configDir": {
+                                    "type": "string"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "redirectMode": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "chained": {
                             "type": "boolean"
                         },
@@ -40,6 +57,9 @@
                         },
                         "privileged": {
                             "type": "boolean"
+                        },
+                        "provider": {
+                            "type": "string"
                         },
                         "psp_cluster_role": {
                             "type": "string"
@@ -103,19 +123,14 @@
                                 }
                             }
                         },
+                        "rollingMaxUnavailable": {
+                            "type": "integer"
+                        },
                         "seccompProfile": {
                             "type": "object"
                         },
                         "tag": {
                             "type": "string"
-                        },
-                        "taint": {
-                            "type": "object",
-                            "properties": {
-                                "enabled": {
-                                    "type": "boolean"
-                                }
-                            }
                         },
                         "variant": {
                             "type": "string"
