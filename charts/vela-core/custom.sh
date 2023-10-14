@@ -11,6 +11,9 @@ echo "CHART_DIRECTORY $(ls)"
 #========================= add your customize bellow ====================
 #===============================
 
+os=$(uname)
+echo $os
+
 set -o errexit
 set -o pipefail
 set -o nounset
@@ -70,18 +73,38 @@ yq -i '
   .vela-core.admissionWebhooks.patch.image.repository = "oamdev/kube-webhook-certgen"
 ' values.yaml
 
-sed -i 's?{{ .Values.image.repository }}?{{ .Values.image.registry }}/{{ .Values.image.repository }}?g' charts/vela-core/templates/kubevela-controller.yaml
-sed -i 's?{{ .Values.multicluster.clusterGateway.image.repository }}?{{ .Values.multicluster.clusterGateway.image.registry }}/{{ .Values.multicluster.clusterGateway.image.repository }}?g' charts/vela-core/templates/cluster-gateway/cluster-gateway.yaml
-sed -i 's?{{ .Values.multicluster.clusterGateway.image.repository }}?{{ .Values.multicluster.clusterGateway.image.registry }}/{{ .Values.multicluster.clusterGateway.image.repository }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
-sed -i 's?{{ .Values.test.app.repository }}?{{ .Values.test.app.registry }}/{{ .Values.test.app.repository }}?g' charts/vela-core/templates/test/test-application.yaml
-sed -i 's?{{ .Values.test.k8s.repository }}?{{ .Values.test.k8s.registry }}/{{ .Values.test.k8s.repository }}?g' charts/vela-core/templates/test/test-application.yaml
+yq -i '
+  .keywords[0]="oam"
+' Chart.yaml
 
-sed -i 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-createSecret.yaml
-sed -i 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
-sed -i 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
 
-sed -i 's?fluxcd/helm-controller:v0.11.1?{{ .Values.fluxcd.helm_controller.image.registry }}/{{ .Values.fluxcd.helm_controller.image.repository }}:{{ .Values.fluxcd.helm_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
-sed -i 's?fluxcd/image-automation-controller:v0.14.0?{{ .Values.fluxcd.image_automation_controller.image.registry }}/{{ .Values.fluxcd.image_automation_controller.image.repository }}:{{ .Values.fluxcd.image_automation_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
-sed -i 's?fluxcd/image-reflector-controller:v0.11.0?{{ .Values.fluxcd.image_reflector_controller.image.registry }}/{{ .Values.fluxcd.image_reflector_controller.image.repository }}:{{ .Values.fluxcd.image_reflector_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
-sed -i 's?fluxcd/kustomize-controller:v0.13.1?{{ .Values.fluxcd.kustomize_controller.image.registry }}/{{ .Values.fluxcd.kustomize_controller.image.repository }}:{{ .Values.fluxcd.kustomize_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
-sed -i 's?fluxcd/fluxcd/source-controller:v0.15.3?{{ .Values.fluxcd.source_controller.image.registry }}/{{ .Values.fluxcd.source_controller.image.repository }}:{{ .Values.fluxcd.source_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+if [ $os == "Darwin" ];then
+  sed -i "" 's?{{ .Values.image.repository }}?{{ .Values.image.registry }}/{{ .Values.image.repository }}?g' charts/vela-core/templates/kubevela-controller.yaml
+  sed -i "" 's?{{ .Values.multicluster.clusterGateway.image.repository }}?{{ .Values.multicluster.clusterGateway.image.registry }}/{{ .Values.multicluster.clusterGateway.image.repository }}?g' charts/vela-core/templates/cluster-gateway/cluster-gateway.yaml
+  sed -i "" 's?{{ .Values.multicluster.clusterGateway.image.repository }}?{{ .Values.multicluster.clusterGateway.image.registry }}/{{ .Values.multicluster.clusterGateway.image.repository }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
+  sed -i "" 's?{{ .Values.test.app.repository }}?{{ .Values.test.app.registry }}/{{ .Values.test.app.repository }}?g' charts/vela-core/templates/test/test-application.yaml
+  sed -i "" 's?{{ .Values.test.k8s.repository }}?{{ .Values.test.k8s.registry }}/{{ .Values.test.k8s.repository }}?g' charts/vela-core/templates/test/test-application.yaml
+  sed -i "" 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-createSecret.yaml
+  sed -i "" 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
+  sed -i "" 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
+  sed -i "" 's?fluxcd/helm-controller:v0.11.1?{{ .Values.fluxcd.helm_controller.image.registry }}/{{ .Values.fluxcd.helm_controller.image.repository }}:{{ .Values.fluxcd.helm_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+  sed -i "" 's?fluxcd/image-automation-controller:v0.14.0?{{ .Values.fluxcd.image_automation_controller.image.registry }}/{{ .Values.fluxcd.image_automation_controller.image.repository }}:{{ .Values.fluxcd.image_automation_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+  sed -i "" 's?fluxcd/image-reflector-controller:v0.11.0?{{ .Values.fluxcd.image_reflector_controller.image.registry }}/{{ .Values.fluxcd.image_reflector_controller.image.repository }}:{{ .Values.fluxcd.image_reflector_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+  sed -i "" 's?fluxcd/kustomize-controller:v0.13.1?{{ .Values.fluxcd.kustomize_controller.image.registry }}/{{ .Values.fluxcd.kustomize_controller.image.repository }}:{{ .Values.fluxcd.kustomize_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+  sed -i "" 's?fluxcd/fluxcd/source-controller:v0.15.3?{{ .Values.fluxcd.source_controller.image.registry }}/{{ .Values.fluxcd.source_controller.image.repository }}:{{ .Values.fluxcd.source_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+elif [ $os == "Linux" ];then
+  sed -i 's?{{ .Values.image.repository }}?{{ .Values.image.registry }}/{{ .Values.image.repository }}?g' charts/vela-core/templates/kubevela-controller.yaml
+  sed -i 's?{{ .Values.multicluster.clusterGateway.image.repository }}?{{ .Values.multicluster.clusterGateway.image.registry }}/{{ .Values.multicluster.clusterGateway.image.repository }}?g' charts/vela-core/templates/cluster-gateway/cluster-gateway.yaml
+  sed -i 's?{{ .Values.multicluster.clusterGateway.image.repository }}?{{ .Values.multicluster.clusterGateway.image.registry }}/{{ .Values.multicluster.clusterGateway.image.repository }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
+  sed -i 's?{{ .Values.test.app.repository }}?{{ .Values.test.app.registry }}/{{ .Values.test.app.repository }}?g' charts/vela-core/templates/test/test-application.yaml
+  sed -i 's?{{ .Values.test.k8s.repository }}?{{ .Values.test.k8s.registry }}/{{ .Values.test.k8s.repository }}?g' charts/vela-core/templates/test/test-application.yaml
+  sed -i 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-createSecret.yaml
+  sed -i 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
+  sed -i 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
+  sed -i 's?fluxcd/helm-controller:v0.11.1?{{ .Values.fluxcd.helm_controller.image.registry }}/{{ .Values.fluxcd.helm_controller.image.repository }}:{{ .Values.fluxcd.helm_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+  sed -i 's?fluxcd/image-automation-controller:v0.14.0?{{ .Values.fluxcd.image_automation_controller.image.registry }}/{{ .Values.fluxcd.image_automation_controller.image.repository }}:{{ .Values.fluxcd.image_automation_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+  sed -i 's?fluxcd/image-reflector-controller:v0.11.0?{{ .Values.fluxcd.image_reflector_controller.image.registry }}/{{ .Values.fluxcd.image_reflector_controller.image.repository }}:{{ .Values.fluxcd.image_reflector_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+  sed -i 's?fluxcd/kustomize-controller:v0.13.1?{{ .Values.fluxcd.kustomize_controller.image.registry }}/{{ .Values.fluxcd.kustomize_controller.image.repository }}:{{ .Values.fluxcd.kustomize_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+  sed -i 's?fluxcd/fluxcd/source-controller:v0.15.3?{{ .Values.fluxcd.source_controller.image.registry }}/{{ .Values.fluxcd.source_controller.image.repository }}:{{ .Values.fluxcd.source_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+fi
+
