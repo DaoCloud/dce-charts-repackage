@@ -1,8 +1,12 @@
 annotations:
   artifacthub.io/changes: |
-    - "[Removed]: Legacy API versions for Ingresses"
+    - kind: added
+      description: Option to set appProtocol for Argocd server https service port
+  artifacthub.io/signKey: |
+    fingerprint: 2B8F22F57260EFA67BE1C5824B11F800CD9D2252
+    url: https://argoproj.github.io/argo-helm/pgp_keys.asc
 apiVersion: v2
-appVersion: v2.5.5
+appVersion: v2.7.3
 description: A Helm chart for Argo CD, a declarative, GitOps continuous delivery tool for Kubernetes.
 home: https://github.com/argoproj/argo-helm
 icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
@@ -18,8 +22,8 @@ name: argo-cd
 sources:
   - https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd
   - https://github.com/argoproj/argo-cd
-version: 5.16.13
+version: 5.34.6
 dependencies:
   - name: argo-cd
-    version: "5.16.13"
+    version: "5.34.6"
     repository: "https://argoproj.github.io/argo-helm"

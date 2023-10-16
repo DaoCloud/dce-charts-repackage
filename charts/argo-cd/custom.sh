@@ -10,6 +10,7 @@ echo "CHART_DIRECTORY $(ls)"
 
 #========================= add your customize bellow ====================
 #===============================
+os=$(uname)
 
 os=$(uname)
 
@@ -40,6 +41,16 @@ exporterImageTag=$(yq .exporter.tag charts/argo-cd/charts/redis-ha/values.yaml)
 globalImageTag=$(yq .appVersion Chart.yaml)
 redisTag=$(yq .redis.image.tag charts/argo-cd/values.yaml)
 
+
+if [[ ${exporterImageTag:0:1} != "v" ]]; then
+    exporterImageTag="v$exporterImageTag"
+fi
+
+redisTag=$(yq .redis.image.tag charts/argo-cd/values.yaml)
+redisNewTag=${redisTag//-alpine/}
+
+redisHaProxyTag=${haproxyImageTag//-alpine/}
+
 yq -i '
   .argo-cd.global.image.registry = "quay.m.daocloud.io" |
   .argo-cd.global.image.repository = "argoproj/argocd" |
@@ -49,7 +60,10 @@ yq -i '
   .argo-cd.redis.image.repository = "library/redis" |
   .argo-cd.redis.image.tag = "'${redisTag}'" |
   .argo-cd.redis.metrics.image.registry = "docker.m.daocloud.io" |
-  .argo-cd.redis.metrics.image.repository = "bitnami/redis-exporter" |
+  .argo-cd.redis.metrics.image.repository = "oliver006/redis_exporter" |
+  .argo-cd.redis.exporter.image.registry = "docker.m.daocloud.io" |
+  .argo-cd.redis.exporter.image.repository = "oliver006/redis_exporter" |
+  .argo-cd.redis.exporter.image.tag =  "'${exporterImageTag}'" |
   .argo-cd.redis-ha.image.registry = "docker.m.daocloud.io" |
   .argo-cd.redis-ha.image.repository = "library/redis" |
   .argo-cd.redis-ha.image.tag = "'${redisTag}'" |
@@ -68,17 +82,31 @@ yq -i '
 # reset image to strut
 yq -i 'del(.exporter.image)' charts/argo-cd/charts/redis-ha/values.yaml
 yq -i "
-  .exporter.image.registry = \"quay.m.daocloud.io\" |
+  .exporter.image.registry = \"docker.m.daocloud.io\" |
   .exporter.image.repository = \"oliver006/redis_exporter\" |
   .exporter.image.tag = \"${exporterImageTag}\" |
   .image.registry = \"docker.m.daocloud.io\" |
   .haproxy.image.registry = \"docker.m.daocloud.io\"
 " charts/argo-cd/charts/redis-ha/values.yaml
 
+yq -i 'del(.redis-ha.exporter.image)' charts/argo-cd/values.yaml
+yq -i "
+  .redis-ha.exporter.image.registry = \"docker.m.daocloud.io\" |
+  .redis-ha.exporter.image.repository = \"oliver006/redis_exporter\" |
+  .redis-ha.exporter.image.tag = \"${exporterImageTag}\"
+" charts/argo-cd/values.yaml
+
 yq -i "
   .argo-cd.global.image.tag = \"${globalImageTag}\" |
   .argo-cd.redis-ha.configmapTest.image.tag = \"${configmapImageTag}\" |
   .argo-cd.redis-ha.sysctlImage.image.tag = \"${sysctlImageTag}\" |
+  .argo-cd.redis-ha.exporter.image.tag = \"${exporterImageTag}\"
+" values.yaml
+
+yq -i 'del(.argo-cd.redis-ha.exporter.image)' values.yaml
+yq -i "
+  .argo-cd.redis-ha.exporter.image.registry = \"docker.m.daocloud.io\" |
+  .argo-cd.redis-ha.exporter.image.repository = \"oliver006/redis_exporter\" |
   .argo-cd.redis-ha.exporter.image.tag = \"${exporterImageTag}\"
 " values.yaml
 
@@ -170,12 +198,12 @@ if [ $os == "Darwin" ];then
   sed -i "" 's?{{ default .Values.global.image.repository .Values.controller.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.controller.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.controller.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-application-controller/statefulset.yaml
   sed -i "" 's?{{ default .Values.global.image.repository .Values.applicationSet.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.applicationSet.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.applicationSet.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-applicationset/deployment.yaml
   sed -i "" 's?{{ default .Values.global.image.repository .Values.notifications.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.notifications.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.notifications.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-notifications/deployment.yaml
-  sed -i "" 's?{{ default .Values.global.image.repository .Values.notifications.bots.slack.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.notifications.bots.slack.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.notifications.bots.slack.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-notifications/bots/slack/deployment.yaml
   sed -i "" 's?{{ default .Values.global.image.repository .Values.repoServer.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.repoServer.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.repoServer.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-repo-server/deployment.yaml
   sed -i "" 's?{{ default .Values.global.image.repository .Values.server.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.server.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.server.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-server/deployment.yaml
   sed -i "" 's?{{ default .Values.global.image.repository .Values.dex.initImage.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.dex.initImage.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.dex.initImage "global" .Values.global ) }}?g' charts/argo-cd/templates/dex/deployment.yaml
   sed -i "" 's?{{ .Values.dex.image.repository }}:{{ .Values.dex.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.dex.image "global" .Values.global ) }}?g' charts/argo-cd/templates/dex/deployment.yaml
   sed -i "" 's?{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.redis.image "global" .Values.global ) }}?g' charts/argo-cd/templates/redis/deployment.yaml
+  sed -i "" 's?{{ .Values.redis.exporter.image.repository }}:{{ .Values.redis.exporter.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.redis.exporter.image "global" .Values.global ) }}?g' charts/argo-cd/templates/redis/deployment.yaml
   sed -i "" 's?{{ .Values.redis.metrics.image.repository }}:{{ .Values.redis.metrics.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.redis.metrics.image "global" .Values.global ) }}?g' charts/argo-cd/templates/redis/deployment.yaml
   sed -i "" 's?{{ .Values.image.repository }}:{{ .Values.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}?g' charts/argo-cd/charts/redis-ha/templates/redis-ha-statefulset.yaml
   sed -i "" 's?"{{ .Values.exporter.image }}:{{ .Values.exporter.tag }}"?{{ include "global.images.image" (dict "imageRoot" .Values.exporter.image "global" .Values.global ) }}?g' charts/argo-cd/charts/redis-ha/templates/redis-ha-statefulset.yaml
@@ -188,12 +216,12 @@ elif [ $os == "Linux" ];then
   sed -i 's?{{ default .Values.global.image.repository .Values.controller.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.controller.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.controller.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-application-controller/statefulset.yaml
   sed -i 's?{{ default .Values.global.image.repository .Values.applicationSet.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.applicationSet.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.applicationSet.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-applicationset/deployment.yaml
   sed -i 's?{{ default .Values.global.image.repository .Values.notifications.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.notifications.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.notifications.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-notifications/deployment.yaml
-  sed -i 's?{{ default .Values.global.image.repository .Values.notifications.bots.slack.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.notifications.bots.slack.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.notifications.bots.slack.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-notifications/bots/slack/deployment.yaml
   sed -i 's?{{ default .Values.global.image.repository .Values.repoServer.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.repoServer.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.repoServer.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-repo-server/deployment.yaml
   sed -i 's?{{ default .Values.global.image.repository .Values.server.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.server.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.server.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-server/deployment.yaml
   sed -i 's?{{ default .Values.global.image.repository .Values.dex.initImage.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.dex.initImage.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.dex.initImage "global" .Values.global ) }}?g' charts/argo-cd/templates/dex/deployment.yaml
   sed -i 's?{{ .Values.dex.image.repository }}:{{ .Values.dex.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.dex.image "global" .Values.global ) }}?g' charts/argo-cd/templates/dex/deployment.yaml
   sed -i 's?{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.redis.image "global" .Values.global ) }}?g' charts/argo-cd/templates/redis/deployment.yaml
+  sed -i 's?{{ .Values.redis.exporter.image.repository }}:{{ .Values.redis.exporter.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.redis.exporter.image "global" .Values.global ) }}?g' charts/argo-cd/templates/redis/deployment.yaml
   sed -i 's?{{ .Values.redis.metrics.image.repository }}:{{ .Values.redis.metrics.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.redis.metrics.image "global" .Values.global ) }}?g' charts/argo-cd/templates/redis/deployment.yaml
   sed -i 's?{{ .Values.image.repository }}:{{ .Values.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}?g' charts/argo-cd/charts/redis-ha/templates/redis-ha-statefulset.yaml
   sed -i 's?"{{ .Values.exporter.image }}:{{ .Values.exporter.tag }}"?{{ include "global.images.image" (dict "imageRoot" .Values.exporter.image "global" .Values.global ) }}?g' charts/argo-cd/charts/redis-ha/templates/redis-ha-statefulset.yaml
