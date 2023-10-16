@@ -15,6 +15,8 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+os=$(uname)
+
 if ! which yq &>/dev/null ; then
     echo " 'yq' no found"
     if [ "$(uname)" == "Darwin" ];then
@@ -29,33 +31,35 @@ if ! which yq &>/dev/null ; then
 fi
 
 echo '
-  fluxcd:
-    helm_controller:
-      image:
-        registry: fluxcd
-        repository: helm-controller
-        tag: v0.11.1
-    image_automation_controller:
-      image:
-        registry: fluxcd
-        repository: image-automation-controller
-        tag: v0.14.0
-    image_reflector_controller:
-      image:
-        registry: fluxcd
-        repository: image-reflector-controller
-        tag: v0.11.0
-    kustomize_controller:
-      image:
-        registry: fluxcd
-        repository: kustomize-controller
-        tag: v0.13.1
-    source_controller:
-      image:
-        registry: fluxcd
-        repository: source-controller
-        tag: v0.15.3
-'>>values.yaml
+{{- define "global.images.image" -}}
+{{- $registryName := .imageRoot.registry -}}
+{{- $repositoryName := .imageRoot.repository -}}
+{{- $tag := .imageRoot.tag | toString -}}
+{{- if .global }}
+    {{- if .global.imageRegistry }}
+     {{- $registryName = .global.imageRegistry -}}
+    {{- end -}}
+    {{- if and .global.repository (eq $repositoryName "") }}
+     {{- $repositoryName = .global.repository -}}
+    {{- end -}}
+    {{- if and .global.tag (eq $tag "")}}
+     {{- $tag = .global.tag -}}
+    {{- end -}}
+{{- end -}}
+{{- if .tag }}
+    {{- if .tag.imageTag }}
+     {{- $tag = .tag.imageTag -}}
+    {{- end -}}
+{{- end -}}
+{{- if $registryName }}
+{{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
+{{- else -}}
+{{- printf "%s:%s" $repositoryName $tag -}}
+{{- end -}}
+{{- end -}}
+'>>charts/vela-core/templates/_helpers.tpl
+
+yq -i '.keywords[0]="oam"' Chart.yaml
 
 yq -i '
   .vela-core.image.registry = "docker.m.daocloud.io" |
@@ -70,18 +74,30 @@ yq -i '
   .vela-core.admissionWebhooks.patch.image.repository = "oamdev/kube-webhook-certgen"
 ' values.yaml
 
-sed -i 's?{{ .Values.image.repository }}?{{ .Values.image.registry }}/{{ .Values.image.repository }}?g' charts/vela-core/templates/kubevela-controller.yaml
-sed -i 's?{{ .Values.multicluster.clusterGateway.image.repository }}?{{ .Values.multicluster.clusterGateway.image.registry }}/{{ .Values.multicluster.clusterGateway.image.repository }}?g' charts/vela-core/templates/cluster-gateway/cluster-gateway.yaml
-sed -i 's?{{ .Values.multicluster.clusterGateway.image.repository }}?{{ .Values.multicluster.clusterGateway.image.registry }}/{{ .Values.multicluster.clusterGateway.image.repository }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
-sed -i 's?{{ .Values.test.app.repository }}?{{ .Values.test.app.registry }}/{{ .Values.test.app.repository }}?g' charts/vela-core/templates/test/test-application.yaml
-sed -i 's?{{ .Values.test.k8s.repository }}?{{ .Values.test.k8s.registry }}/{{ .Values.test.k8s.repository }}?g' charts/vela-core/templates/test/test-application.yaml
+# add global images
+originGlobalRepository=$(yq ".vela-core.image.repository" values.yaml)
+originGlobalTag=$(yq ".vela-core.image.tag" values.yaml)
+yq -i "
+  .vela-core.global.imageRegistry=\"docker.m.daocloud.io\" |
+  .vela-core.global.repository=\"${originGlobalRepository}\" |
+  .vela-core.global.tag=\"${originGlobalTag}\"
+" values.yaml
 
-sed -i 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-createSecret.yaml
-sed -i 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
-sed -i 's?{{ .Values.admissionWebhooks.patch.image.repository }}?{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
+# remove test
+rm -rf charts/vela-core/templates/test
 
-sed -i 's?fluxcd/helm-controller:v0.11.1?{{ .Values.fluxcd.helm_controller.image.registry }}/{{ .Values.fluxcd.helm_controller.image.repository }}:{{ .Values.fluxcd.helm_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
-sed -i 's?fluxcd/image-automation-controller:v0.14.0?{{ .Values.fluxcd.image_automation_controller.image.registry }}/{{ .Values.fluxcd.image_automation_controller.image.repository }}:{{ .Values.fluxcd.image_automation_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
-sed -i 's?fluxcd/image-reflector-controller:v0.11.0?{{ .Values.fluxcd.image_reflector_controller.image.registry }}/{{ .Values.fluxcd.image_reflector_controller.image.repository }}:{{ .Values.fluxcd.image_reflector_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
-sed -i 's?fluxcd/kustomize-controller:v0.13.1?{{ .Values.fluxcd.kustomize_controller.image.registry }}/{{ .Values.fluxcd.kustomize_controller.image.repository }}:{{ .Values.fluxcd.kustomize_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
-sed -i 's?fluxcd/fluxcd/source-controller:v0.15.3?{{ .Values.fluxcd.source_controller.image.registry }}/{{ .Values.fluxcd.source_controller.image.repository }}:{{ .Values.fluxcd.source_controller.image.tag }}?g' charts/vela-core/templates/addon/fluxcd.yaml
+if [ $os == "Darwin" ];then
+  sed -i "" 's?{{ .Values.imageRegistry }}{{ .Values.image.repository }}:{{ .Values.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}?g' charts/vela-core/templates/kubevela-controller.yaml
+  sed -i "" 's?{{ .Values.imageRegistry }}{{ .Values.multicluster.clusterGateway.image.repository }}:{{ .Values.multicluster.clusterGateway.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.multicluster.clusterGateway.image "global" .Values.global ) }}?g' charts/vela-core/templates/cluster-gateway/cluster-gateway.yaml
+  sed -i "" 's?{{ .Values.imageRegistry }}{{ .Values.multicluster.clusterGateway.image.repository }}:{{ .Values.multicluster.clusterGateway.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.multicluster.clusterGateway.image "global" .Values.global ) }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
+  sed -i "" 's?{{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.admissionWebhooks.patch.image "global" .Values.global ) }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
+  sed -i "" 's?{{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.admissionWebhooks.patch.image "global" .Values.global ) }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-createSecret.yaml
+  sed -i "" 's?{{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.admissionWebhooks.patch.image "global" .Values.global ) }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
+elif [ $os == "Linux" ];then
+  sed -i 's?{{ .Values.imageRegistry }}{{ .Values.image.repository }}:{{ .Values.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}?g' charts/vela-core/templates/kubevela-controller.yaml
+  sed -i 's?{{ .Values.imageRegistry }}{{ .Values.multicluster.clusterGateway.image.repository }}:{{ .Values.multicluster.clusterGateway.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.multicluster.clusterGateway.image "global" .Values.global ) }}?g' charts/vela-core/templates/cluster-gateway/cluster-gateway.yaml
+  sed -i 's?{{ .Values.imageRegistry }}{{ .Values.multicluster.clusterGateway.image.repository }}:{{ .Values.multicluster.clusterGateway.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.multicluster.clusterGateway.image "global" .Values.global ) }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
+  sed -i 's?{{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.admissionWebhooks.patch.image "global" .Values.global ) }}?g' charts/vela-core/templates/cluster-gateway/job-patch.yaml
+  sed -i 's?{{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.admissionWebhooks.patch.image "global" .Values.global ) }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-createSecret.yaml
+  sed -i 's?{{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.admissionWebhooks.patch.image "global" .Values.global ) }}?g' charts/vela-core/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
+fi

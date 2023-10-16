@@ -11,21 +11,6 @@ metadata:
   {{- end }}
 {{- end }}
 
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: {{ include "kubevela.fullname" . }}:manager-rolebinding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: {{ if .Values.authentication.enabled }} {{ include "kubevela.fullname" . }}:manager {{ else }} "cluster-admin" {{ end }}
-subjects:
-  - kind: ServiceAccount
-    name: {{ include "kubevela.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace }}
-
 {{ if .Values.authentication.enabled }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -66,8 +51,40 @@ rules:
   - apiGroups: ["authorization.k8s.io"]
     resources: ["subjectaccessreviews"]
     verbs: ["*"]
-{{ end }}
 
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "kubevela.fullname" . }}:manager-authentication-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "kubevela.fullname" . }}:manager
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "kubevela.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+
+{{ else }}
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "kubevela.fullname" . }}:manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: "cluster-admin"
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "kubevela.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+
+{{ end }}
 ---
 # permissions to do leader election.
 apiVersion: rbac.authorization.k8s.io/v1
@@ -255,6 +272,9 @@ spec:
             - "--feature-gates=ZstdResourceTracker={{- .Values.featureGates.zstdResourceTracker | toString -}}"
             - "--feature-gates=ApplyOnce={{- .Values.featureGates.applyOnce | toString -}}"
             - "--feature-gates=MultiStageComponentApply= {{- .Values.featureGates.multiStageComponentApply | toString -}}"
+            - "--feature-gates=GzipApplicationRevision={{- .Values.featureGates.gzipApplicationRevision | toString -}}"
+            - "--feature-gates=ZstdApplicationRevision={{- .Values.featureGates.zstdApplicationRevision | toString -}}"
+            - "--feature-gates=PreDispatchDryRun={{- .Values.featureGates.preDispatchDryRun | toString -}}"
             {{ if .Values.authentication.enabled }}
             {{ if .Values.authentication.withUser }}
             - "--authentication-with-user"
@@ -262,7 +282,7 @@ spec:
             - "--authentication-default-user={{ .Values.authentication.defaultUser }}"
             - "--authentication-group-pattern={{ .Values.authentication.groupPattern }}"
             {{ end }}
-          image: {{ .Values.imageRegistry }}{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+          image: {{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}
           imagePullPolicy: {{ quote .Values.image.pullPolicy }}
           resources:
           {{- toYaml .Values.resources | nindent 12 }}
