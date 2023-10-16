@@ -80,7 +80,7 @@ spec:
       {{- end }}
       containers:
       - name: create
-        image: {{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.registry }}/{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.admissionWebhooks.patch.image "global" .Values.global ) }}
         imagePullPolicy: {{ .Values.admissionWebhooks.patch.image.pullPolicy }}
         args:
           - create
@@ -125,7 +125,7 @@ spec:
       {{- end }}
       containers:
       - name: patch
-        image: {{ .Values.imageRegistry }}{{ .Values.multicluster.clusterGateway.image.registry }}/{{ .Values.multicluster.clusterGateway.image.repository }}:{{ .Values.multicluster.clusterGateway.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.multicluster.clusterGateway.image "global" .Values.global ) }}
         imagePullPolicy: {{ .Values.multicluster.clusterGateway.image.pullPolicy }}
         command:
           - /patch

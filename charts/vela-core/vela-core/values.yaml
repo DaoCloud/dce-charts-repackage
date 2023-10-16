@@ -9,9 +9,9 @@ vela-core:
   ## @param systemDefinitionNamespace System definition namespace, if unspecified, will use built-in variable `.Release.Namespace`.
   systemDefinitionNamespace:
   ## @param applicationRevisionLimit Application revision limit
-  applicationRevisionLimit: 10
+  applicationRevisionLimit: 2
   ## @param definitionRevisionLimit Definition revision limit
-  definitionRevisionLimit: 20
+  definitionRevisionLimit: 2
   ## @param concurrentReconciles concurrentReconciles is the concurrent reconcile number of the controller
   concurrentReconciles: 4
   ## @param controllerArgs.reSyncPeriod The period for resync the applications
@@ -21,8 +21,6 @@ vela-core:
   OAMSpecVer: "v0.3"
   ## @param disableCaps Disable capability
   disableCaps: "rollout"
-  ## @param enableFluxcdAddon Whether to enable fluxcd addon
-  enableFluxcdAddon: false
   ## @param dependCheckWait dependCheckWait is the time to wait for ApplicationConfiguration's dependent-resource ready
   dependCheckWait: 30s
   ## @section KubeVela workflow parameters
@@ -50,7 +48,7 @@ vela-core:
   ## @param image.pullPolicy Image pull policy
   image:
     repository: oamdev/vela-core
-    tag: v1.6.7
+    tag: v1.7.7
     pullPolicy: Always
     registry: docker.m.daocloud.io
   ## @param resources.limits.cpu KubeVela controller's cpu limit
@@ -88,23 +86,30 @@ vela-core:
     resourceTrackerListOp: true
     controllerReconcileLoopReduction: false
     markWithProb: 0.1
-    disableComponentRevision: false
+    disableComponentRevision: true
     disableApplicationRevision: false
     disableWorkflowRecorder: false
     enableInMemoryWorkflowContext: false
     disableResourceApplyDoubleCheck: false
     enableResourceTrackerDeleteOnlyTrigger: true
   ##@param featureGates.enableLegacyComponentRevision if disabled, only component with rollout trait will create component revisions
-  ##@param featureGates.gzipResourceTracker if enabled, resourceTracker will be compressed using gzip before being stored
-  ##@param featureGates.zstdResourceTracker if enabled, resourceTracker will be compressed using zstd before being stored. It is much faster and more efficient than gzip. If both gzip and zstd are enabled, zstd will be used.
+  ##@param featureGates.gzipResourceTracker compress ResourceTracker using gzip (good) before being stored. This is reduces network throughput when dealing with huge ResourceTrackers.
+  ##@param featureGates.zstdResourceTracker compress ResourceTracker using zstd (fast and good) before being stored. This is reduces network throughput when dealing with huge ResourceTrackers. Note that zstd will be prioritized if you enable other compression options.
   ##@param featureGates.applyOnce if enabled, the apply-once feature will be applied to all applications, no state-keep and no resource data storage in ResourceTracker
   ##@param featureGates.multiStageComponentApply if enabled, the multiStageComponentApply feature will be combined with the stage field in TraitDefinition to complete the multi-stage apply.
+  ##@param featureGates.gzipApplicationRevision compress apprev using gzip (good) before being stored. This is reduces network throughput when dealing with huge apprevs.
+  ##@param featureGates.zstdApplicationRevision compress apprev using zstd (fast and good) before being stored. This is reduces network throughput when dealing with huge apprevs. Note that zstd will be prioritized if you enable other compression options.
+  ##@param featureGates.preDispatchDryRun enable dryrun before dispatching resources. Enable this flag can help prevent unsuccessful dispatch resources entering resourcetracker and improve the user experiences of gc but at the cost of increasing network requests.
+  ##@param
   featureGates:
     enableLegacyComponentRevision: false
     gzipResourceTracker: false
-    zstdResourceTracker: false
+    zstdResourceTracker: true
     applyOnce: false
     multiStageComponentApply: false
+    gzipApplicationRevision: false
+    zstdApplicationRevision: true
+    preDispatchDryRun: true
   ## @section MultiCluster parameters
 
   ## @param multicluster.enabled Whether to enable multi-cluster
@@ -128,7 +133,7 @@ vela-core:
       port: 9443
       image:
         repository: oamdev/cluster-gateway
-        tag: v1.4.0
+        tag: v1.7.0
         pullPolicy: IfNotPresent
         registry: docker.m.daocloud.io
       resources:
@@ -223,43 +228,21 @@ vela-core:
     certManager:
       enabled: false
       revisionHistoryLimit: 3
-  ## @param kubeClient.qps The qps for reconcile clients, default is 50
-  ## @param kubeClient.burst The burst for reconcile clients, default is 100
+  ## @param kubeClient.qps The qps for reconcile clients, default is 100
+  ## @param kubeClient.burst The burst for reconcile clients, default is 200
   kubeClient:
-    qps: 50
-    burst: 100
+    qps: 100
+    burst: 200
   ## @param authentication.enabled Enable authentication for application
   ## @param authentication.withUser Application authentication will impersonate as the request User
   ## @param authentication.defaultUser Application authentication will impersonate as the User if no user provided in Application
   ## @param authentication.groupPattern Application authentication will impersonate as the request Group that matches the pattern
   authentication:
     enabled: false
-    withUser: false
+    withUser: true
     defaultUser: kubevela:vela-core
     groupPattern: kubevela:*
-  fluxcd:
-    helm_controller:
-      image:
-        registry: fluxcd
-        repository: helm-controller
-        tag: v0.11.1
-    image_automation_controller:
-      image:
-        registry: fluxcd
-        repository: image-automation-controller
-        tag: v0.14.0
-    image_reflector_controller:
-      image:
-        registry: fluxcd
-        repository: image-reflector-controller
-        tag: v0.11.0
-    kustomize_controller:
-      image:
-        registry: fluxcd
-        repository: kustomize-controller
-        tag: v0.13.1
-    source_controller:
-      image:
-        registry: fluxcd
-        repository: source-controller
-        tag: v0.15.3
+  global:
+    imageRegistry: docker.m.daocloud.io
+    repository: oamdev/vela-core
+    tag: v1.7.7

@@ -1,9 +1,8 @@
-{{- if not (lookup "v1" "ConfigMap" (include "systemDefinitionNamespace" .) "component-pod-view") }}
 apiVersion: v1
 data:
   template: |
       import (
-      "vela/ql"
+        "vela/ql"
       )
 
       parameter: {
@@ -56,9 +55,15 @@ data:
               phase: pod.object.status.phase
               // refer to https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
               if phase != "Pending" && phase != "Unknown" {
-                podIP:    pod.object.status.podIP
-                hostIP:   pod.object.status.hostIP
-                nodeName: pod.object.spec.nodeName
+                if pod.object.podIP != _|_ {
+                  podIP: pod.object.status.podIP
+                }
+                if pod.object.hostIP != _|_ {
+                  hostIP: pod.object.status.hostIP
+                }
+                if pod.object.nodeName != _|_ {
+                  nodeName: pod.object.spec.nodeName
+                }
               }
             }
           }]
@@ -74,4 +79,3 @@ kind: ConfigMap
 metadata:
   name: component-pod-view
   namespace: {{ include "systemDefinitionNamespace" . }}
-{{- end }}

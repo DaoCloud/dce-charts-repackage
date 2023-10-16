@@ -77,3 +77,30 @@ systemDefinitionNamespace value defaulter
     {{ .Release.Namespace }}
 {{- end -}}
 {{- end -}}
+{{- define "global.images.image" -}}
+{{- $registryName := .imageRoot.registry -}}
+{{- $repositoryName := .imageRoot.repository -}}
+{{- $tag := .imageRoot.tag | toString -}}
+{{- if .global }}
+    {{- if .global.imageRegistry }}
+     {{- $registryName = .global.imageRegistry -}}
+    {{- end -}}
+    {{- if and .global.repository (eq $repositoryName "") }}
+     {{- $repositoryName = .global.repository -}}
+    {{- end -}}
+    {{- if and .global.tag (eq $tag "")}}
+     {{- $tag = .global.tag -}}
+    {{- end -}}
+{{- end -}}
+{{- if .tag }}
+    {{- if .tag.imageTag }}
+     {{- $tag = .tag.imageTag -}}
+    {{- end -}}
+{{- end -}}
+{{- if $registryName }}
+{{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
+{{- else -}}
+{{- printf "%s:%s" $repositoryName $tag -}}
+{{- end -}}
+{{- end -}}
+

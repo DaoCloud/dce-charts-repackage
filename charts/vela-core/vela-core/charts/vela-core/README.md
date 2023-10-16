@@ -41,15 +41,13 @@ helm install --create-namespace -n vela-system kubevela kubevela/vela-core --wai
 | Name                          | Description                                                                                   | Value     |
 | ----------------------------- | --------------------------------------------------------------------------------------------- | --------- |
 | `systemDefinitionNamespace`   | System definition namespace, if unspecified, will use built-in variable `.Release.Namespace`. | `nil`     |
-| `applicationRevisionLimit`    | Application revision limit                                                                    | `10`      |
-| `definitionRevisionLimit`     | Definition revision limit                                                                     | `20`      |
+| `applicationRevisionLimit`    | Application revision limit                                                                    | `2`       |
+| `definitionRevisionLimit`     | Definition revision limit                                                                     | `2`       |
 | `concurrentReconciles`        | concurrentReconciles is the concurrent reconcile number of the controller                     | `4`       |
 | `controllerArgs.reSyncPeriod` | The period for resync the applications                                                        | `5m`      |
 | `OAMSpecVer`                  | OAMSpecVer is the oam spec version controller want to setup                                   | `v0.3`    |
 | `disableCaps`                 | Disable capability                                                                            | `rollout` |
-| `enableFluxcdAddon`           | Whether to enable fluxcd addon                                                                | `false`   |
 | `dependCheckWait`             | dependCheckWait is the time to wait for ApplicationConfiguration's dependent-resource ready   | `30s`     |
-
 
 ### KubeVela workflow parameters
 
@@ -59,7 +57,6 @@ helm install --create-namespace -n vela-system kubevela kubevela/vela-core --wai
 | `workflow.backoff.maxTime.waitState`   | The max backoff time of workflow in a wait condition   | `60`    |
 | `workflow.backoff.maxTime.failedState` | The max backoff time of workflow in a failed condition | `300`   |
 | `workflow.step.errorRetryTimes`        | The max retry times of a failed workflow step          | `10`    |
-
 
 ### KubeVela controller parameters
 
@@ -78,27 +75,28 @@ helm install --create-namespace -n vela-system kubevela kubevela/vela-core --wai
 | `webhookService.port`       | KubeVela webhook service port        | `9443`             |
 | `healthCheck.port`          | KubeVela health check port           | `9440`             |
 
-
 ### KubeVela controller optimization parameters
 
-| Name                                              | Description                                                                                                                                                                          | Value   |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
-| `optimize.cachedGvks`                             | Optimize types of resources to be cached.                                                                                                                                            | `""`    |
-| `optimize.resourceTrackerListOp`                  | Optimize ResourceTracker List Op by adding index.                                                                                                                                    | `true`  |
-| `optimize.controllerReconcileLoopReduction`       | Optimize ApplicationController reconcile by reducing the number of loops to reconcile application.                                                                                   | `false` |
-| `optimize.markWithProb`                           | Optimize ResourceTracker GC by only run mark with probability. Side effect: outdated ResourceTracker might not be able to be removed immediately.                                    | `0.1`   |
-| `optimize.disableComponentRevision`               | Optimize componentRevision by disabling the creation and gc                                                                                                                          | `false` |
-| `optimize.disableApplicationRevision`             | Optimize ApplicationRevision by disabling the creation and gc.                                                                                                                       | `false` |
-| `optimize.disableWorkflowRecorder`                | Optimize workflow recorder by disabling the creation and gc.                                                                                                                         | `false` |
-| `optimize.enableInMemoryWorkflowContext`          | Optimize workflow by use in-memory context.                                                                                                                                          | `false` |
-| `optimize.disableResourceApplyDoubleCheck`        | Optimize workflow by ignoring resource double check after apply.                                                                                                                     | `false` |
-| `optimize.enableResourceTrackerDeleteOnlyTrigger` | Optimize resourcetracker by only trigger reconcile when resourcetracker is deleted.                                                                                                  | `true`  |
-| `featureGates.enableLegacyComponentRevision`      | if disabled, only component with rollout trait will create component revisions                                                                                                       | `false` |
-| `featureGates.gzipResourceTracker`                | if enabled, resourceTracker will be compressed using gzip before being stored                                                                                                        | `false` |
-| `featureGates.zstdResourceTracker`                | if enabled, resourceTracker will be compressed using zstd before being stored. It is much faster and more efficient than gzip. If both gzip and zstd are enabled, zstd will be used. | `false` |
-| `featureGates.applyOnce`                          | if enabled, the apply-once feature will be applied to all applications, no state-keep and no resource data storage in ResourceTracker                                                | `false` |
-| `featureGates.multiStageComponentApply`           | if enabled, the multiStageComponentApply feature will be combined with the stage field in TraitDefinition to complete the multi-stage apply.                                         | `false` |
-
+| Name                                              | Description                                                                                                                                                                                                                      | Value   |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `optimize.cachedGvks`                             | Optimize types of resources to be cached.                                                                                                                                                                                        | `""`    |
+| `optimize.resourceTrackerListOp`                  | Optimize ResourceTracker List Op by adding index.                                                                                                                                                                                | `true`  |
+| `optimize.controllerReconcileLoopReduction`       | Optimize ApplicationController reconcile by reducing the number of loops to reconcile application.                                                                                                                               | `false` |
+| `optimize.markWithProb`                           | Optimize ResourceTracker GC by only run mark with probability. Side effect: outdated ResourceTracker might not be able to be removed immediately.                                                                                | `0.1`   |
+| `optimize.disableComponentRevision`               | Optimize componentRevision by disabling the creation and gc                                                                                                                                                                      | `true`  |
+| `optimize.disableApplicationRevision`             | Optimize ApplicationRevision by disabling the creation and gc.                                                                                                                                                                   | `false` |
+| `optimize.disableWorkflowRecorder`                | Optimize workflow recorder by disabling the creation and gc.                                                                                                                                                                     | `false` |
+| `optimize.enableInMemoryWorkflowContext`          | Optimize workflow by use in-memory context.                                                                                                                                                                                      | `false` |
+| `optimize.disableResourceApplyDoubleCheck`        | Optimize workflow by ignoring resource double check after apply.                                                                                                                                                                 | `false` |
+| `optimize.enableResourceTrackerDeleteOnlyTrigger` | Optimize resourcetracker by only trigger reconcile when resourcetracker is deleted.                                                                                                                                              | `true`  |
+| `featureGates.enableLegacyComponentRevision`      | if disabled, only component with rollout trait will create component revisions                                                                                                                                                   | `false` |
+| `featureGates.gzipResourceTracker`                | compress ResourceTracker using gzip (good) before being stored. This is reduces network throughput when dealing with huge ResourceTrackers.                                                                                      | `false` |
+| `featureGates.zstdResourceTracker`                | compress ResourceTracker using zstd (fast and good) before being stored. This is reduces network throughput when dealing with huge ResourceTrackers. Note that zstd will be prioritized if you enable other compression options. | `true`  |
+| `featureGates.applyOnce`                          | if enabled, the apply-once feature will be applied to all applications, no state-keep and no resource data storage in ResourceTracker                                                                                            | `false` |
+| `featureGates.multiStageComponentApply`           | if enabled, the multiStageComponentApply feature will be combined with the stage field in TraitDefinition to complete the multi-stage apply.                                                                                     | `false` |
+| `featureGates.gzipApplicationRevision`            | compress apprev using gzip (good) before being stored. This is reduces network throughput when dealing with huge apprevs.                                                                                                        | `false` |
+| `featureGates.zstdApplicationRevision`            | compress apprev using zstd (fast and good) before being stored. This is reduces network throughput when dealing with huge apprevs. Note that zstd will be prioritized if you enable other compression options.                   | `true`  |
+| `featureGates.preDispatchDryRun`                  | enable dryrun before dispatching resources. Enable this flag can help prevent unsuccessful dispatch resources entering resourcetracker and improve the user experiences of gc but at the cost of increasing network requests.    | `true`  |
 
 ### MultiCluster parameters
 
@@ -109,14 +107,13 @@ helm install --create-namespace -n vela-system kubevela kubevela/vela-core --wai
 | `multicluster.clusterGateway.replicaCount`                  | ClusterGateway replica count                    | `1`                              |
 | `multicluster.clusterGateway.port`                          | ClusterGateway port                             | `9443`                           |
 | `multicluster.clusterGateway.image.repository`              | ClusterGateway image repository                 | `oamdev/cluster-gateway`         |
-| `multicluster.clusterGateway.image.tag`                     | ClusterGateway image tag                        | `v1.4.0`                         |
+| `multicluster.clusterGateway.image.tag`                     | ClusterGateway image tag                        | `v1.7.0`                         |
 | `multicluster.clusterGateway.image.pullPolicy`              | ClusterGateway image pull policy                | `IfNotPresent`                   |
 | `multicluster.clusterGateway.resources.limits.cpu`          | ClusterGateway cpu limit                        | `100m`                           |
 | `multicluster.clusterGateway.resources.limits.memory`       | ClusterGateway memory limit                     | `200Mi`                          |
 | `multicluster.clusterGateway.secureTLS.enabled`             | Whether to enable secure TLS                    | `true`                           |
 | `multicluster.clusterGateway.secureTLS.certPath`            | Path to the certificate file                    | `/etc/k8s-cluster-gateway-certs` |
 | `multicluster.clusterGateway.secureTLS.certManager.enabled` | Whether to enable cert-manager                  | `false`                          |
-
 
 ### Test parameters
 
@@ -126,7 +123,6 @@ helm install --create-namespace -n vela-system kubevela kubevela/vela-core --wai
 | `test.app.tag`        | Test app tag        | `v1`                 |
 | `test.k8s.repository` | Test k8s repository | `oamdev/alpine-k8s`  |
 | `test.k8s.tag`        | Test k8s tag        | `1.18.2`             |
-
 
 ### Common parameters
 
@@ -145,10 +141,10 @@ helm install --create-namespace -n vela-system kubevela kubevela/vela-core --wai
 | `logDebug`                    | Enable debug logs for development purpose                                                                                  | `false`              |
 | `logFilePath`                 | If non-empty, write log files in this path                                                                                 | `""`                 |
 | `logFileMaxSize`              | Defines the maximum size a log file can grow to. Unit is megabytes. If the value is 0, the maximum file size is unlimited. | `1024`               |
-| `kubeClient.qps`              | The qps for reconcile clients, default is 50                                                                               | `50`                 |
-| `kubeClient.burst`            | The burst for reconcile clients, default is 100                                                                            | `100`                |
+| `kubeClient.qps`              | The qps for reconcile clients, default is 100                                                                              | `100`                |
+| `kubeClient.burst`            | The burst for reconcile clients, default is 200                                                                            | `200`                |
 | `authentication.enabled`      | Enable authentication for application                                                                                      | `false`              |
-| `authentication.withUser`     | Application authentication will impersonate as the request User                                                            | `false`              |
+| `authentication.withUser`     | Application authentication will impersonate as the request User                                                            | `true`               |
 | `authentication.defaultUser`  | Application authentication will impersonate as the User if no user provided in Application                                 | `kubevela:vela-core` |
 | `authentication.groupPattern` | Application authentication will impersonate as the request Group that matches the pattern                                  | `kubevela:*`         |
 
