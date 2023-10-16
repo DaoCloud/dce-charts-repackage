@@ -15,7 +15,7 @@ spec:
 {{ toYaml .Values.tolerations | indent 4 }}
   containers:
   - name: "{{ .Release.Name }}-service-test"
-    image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+    image: {{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}
     command:
       - sh
       - -c

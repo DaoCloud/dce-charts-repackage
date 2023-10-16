@@ -44,7 +44,7 @@ spec:
       serviceAccountName: {{ include "argo-cd.notificationsServiceAccountName" . }}
       containers:
         - name: {{ .Values.notifications.name }}
-          image: {{ default (include "global.image.repository" .) .Values.notifications.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.notifications.image.tag }}
+          image: {{ include "global.images.image" (dict "imageRoot" .Values.notifications.image "global" .Values.global ) }}
           imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.notifications.image.imagePullPolicy }}
           command:
             - argocd-notifications

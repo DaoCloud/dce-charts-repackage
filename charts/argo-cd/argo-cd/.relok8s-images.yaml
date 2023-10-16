@@ -1,4 +1,4 @@
-- "{{ .argo-cd.global.image.registry }}/{{ .argo-cd.global.image.repository}}:{{ .argo-cd.global.image.tag }}"
+- "{{ .argo-cd.global.imageRegistry }}/{{ .argo-cd.global.repository}}:{{ .argo-cd.global.tag }}"
 - "{{ .argo-cd.dex.image.registry }}/{{ .argo-cd.dex.image.repository }}:{{ .argo-cd.dex.image.tag }}"
 - "{{ .argo-cd.redis.image.registry }}/{{ .argo-cd.redis.image.repository }}:{{ .argo-cd.redis.image.tag }}"
 - "{{ .argo-cd.redis.metrics.image.registry }}/{{ .argo-cd.redis.metrics.image.repository }}:{{ .argo-cd.redis.metrics.image.tag }}"

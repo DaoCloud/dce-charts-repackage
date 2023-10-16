@@ -96,7 +96,7 @@ spec:
       {{- end }}
       initContainers:
       - name: config-init
-        image: {{ .Values.haproxy.image.registry }}/{{ .Values.haproxy.image.repository }}:{{ .Values.haproxy.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.haproxy.image "global" .Values.global ) }}
         imagePullPolicy: {{ .Values.haproxy.image.pullPolicy }}
         resources:
 {{ toYaml .Values.haproxy.init.resources | indent 10 }}
@@ -116,7 +116,7 @@ spec:
       {{- end }}
       containers:
       - name: haproxy
-        image: {{ .Values.haproxy.image.registry }}/{{ .Values.haproxy.image.repository }}:{{ .Values.haproxy.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.haproxy.image "global" .Values.global ) }}
         imagePullPolicy: {{ .Values.haproxy.image.pullPolicy }}
         securityContext: {{ toYaml .Values.haproxy.containerSecurityContext | nindent 10 }}
     {{- if or .Values.auth .Values.sentinel.auth}}

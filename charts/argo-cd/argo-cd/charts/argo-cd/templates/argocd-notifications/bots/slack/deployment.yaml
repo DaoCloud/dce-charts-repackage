@@ -35,7 +35,7 @@ spec:
       serviceAccountName: {{ include "argo-cd.notificationsBotsSlackServiceAccountName" . }}
       containers:
         - name: {{ include "argo-cd.notifications.fullname" . }}-bot
-          image: {{ default (include "global.image.repository" .) .Values.notifications.bots.slack.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.notifications.bots.slack.image.tag }}
+          image: {{ include "global.images.image" (dict "imageRoot" .Values.notifications.bots.slack.image "global" .Values.global ) }}
           imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.notifications.bots.slack.image.pullPolicy }}
           command:
             - argocd-notifications

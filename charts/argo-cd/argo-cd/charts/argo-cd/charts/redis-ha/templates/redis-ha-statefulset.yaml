@@ -124,7 +124,7 @@ spec:
       {{- end }}
 {{- if and .Values.hostPath.path .Values.hostPath.chown }}
       - name: hostpath-chown
-        image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}
         securityContext: {{ toYaml .Values.containerSecurityContext | nindent 10 }}        
         command:
         - chown
@@ -135,7 +135,7 @@ spec:
           mountPath: /data
 {{- end }}
       - name: config-init
-        image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         resources:
 {{ toYaml .Values.init.resources | indent 10 }}
@@ -248,7 +248,7 @@ spec:
 {{- end }}
       containers:
       - name: redis
-        image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
         - redis-server
@@ -318,7 +318,7 @@ spec:
         lifecycle:
 {{ toYaml .Values.redis.lifecycle | indent 10 }}
       - name: sentinel
-        image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - redis-sentinel
@@ -399,7 +399,7 @@ spec:
 {{ toYaml .Values.sentinel.lifecycle | indent 10 }}
 
       - name: split-brain-fix
-        image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
           - sh
@@ -449,7 +449,7 @@ spec:
 
 {{- if .Values.exporter.enabled }}
       - name: redis-exporter
-        image: "{{ .Values.exporter.image.registry }}/{{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag }}"
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.exporter.image "global" .Values.global ) }}
         imagePullPolicy: {{ .Values.exporter.pullPolicy }}
         args:
         {{- range $key, $value := .Values.exporter.extraArgs }}

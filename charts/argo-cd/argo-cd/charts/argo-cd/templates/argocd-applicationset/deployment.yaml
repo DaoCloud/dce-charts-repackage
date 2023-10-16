@@ -46,7 +46,7 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Values.applicationSet.name }}
-          image: {{ default (include "global.image.repository" .) .Values.applicationSet.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.applicationSet.image.tag }}
+          image: {{ include "global.images.image" (dict "imageRoot" .Values.applicationSet.image "global" .Values.global ) }}
           imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.applicationSet.image.imagePullPolicy }}
           command:
             - entrypoint.sh

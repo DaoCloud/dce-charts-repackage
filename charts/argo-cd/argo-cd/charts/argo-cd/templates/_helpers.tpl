@@ -219,11 +219,30 @@ Merge Argo Params Configuration with Preset Configuration
 {{- end }}
 {{- end -}}
 
-{{- define "global.image.repository" -}}
-{{- if and .Values.global.image.repository .Values.global.image.registry -}}
-    {{- printf "%s/%s" .Values.global.image.registry  .Values.global.image.repository -}}
+{{- define "global.images.image" -}}
+{{- $registryName := .imageRoot.registry -}}
+{{- $repositoryName := .imageRoot.repository -}}
+{{- $tag := .imageRoot.tag | toString -}}
+{{- if .global }}
+    {{- if .global.imageRegistry }}
+     {{- $registryName = .global.imageRegistry -}}
+    {{- end -}}
+    {{- if and .global.repository (eq $repositoryName "") }}
+     {{- $repositoryName = .global.repository -}}
+    {{- end -}}
+    {{- if and .global.tag (eq $tag "")}}
+     {{- $tag = .global.tag -}}
+    {{- end -}}
+{{- end -}}
+{{- if .tag }}
+    {{- if .tag.imageTag }}
+     {{- $tag = .tag.imageTag -}}
+    {{- end -}}
+{{- end -}}
+{{- if $registryName }}
+{{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
 {{- else -}}
-    {{- printf "%s" .Values.controller.image.repository -}}
+{{- printf "%s:%s" $repositoryName $tag -}}
 {{- end -}}
 {{- end -}}
 

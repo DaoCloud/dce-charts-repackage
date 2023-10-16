@@ -47,7 +47,7 @@ spec:
       {{- end }}
       containers:
       - name: {{ .Values.redis.name }}
-        image: {{ .Values.redis.image.registry }}/{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.redis.image "global" .Values.global ) }}
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.redis.image.imagePullPolicy }}
         args:
         - --save
@@ -79,7 +79,7 @@ spec:
         {{- end }}
       {{- if .Values.redis.metrics.enabled }}
       - name: metrics
-        image: {{ .Values.redis.metrics.image.registry }}/{{ .Values.redis.metrics.image.repository }}:{{ .Values.redis.metrics.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.redis.metrics.image "global" .Values.global ) }}
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.redis.metrics.image.imagePullPolicy }}
         env:
         - name: REDIS_ADDR

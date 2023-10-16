@@ -85,7 +85,7 @@ spec:
         {{- with .Values.controller.extraArgs }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
-        image: {{ default (include "global.image.repository" .) .Values.controller.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.controller.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.controller.image "global" .Values.global ) }}
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.controller.image.imagePullPolicy }}
         name: {{ .Values.controller.name }}
         env:
