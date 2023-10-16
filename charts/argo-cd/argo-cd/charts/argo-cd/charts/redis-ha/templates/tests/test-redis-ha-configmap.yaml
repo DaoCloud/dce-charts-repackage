@@ -12,7 +12,7 @@ spec:
   tolerations: {{ toYaml .Values.tolerations | nindent 4 }}
   containers:
   - name: check-init
-    image: {{ .Values.configmapTest.image.registry }}/{{ .Values.configmapTest.image.repository }}:{{ .Values.configmapTest.image.tag }}
+    image: {{ include "global.images.image" (dict "imageRoot" .Values.configmapTest.image "global" .Values.global ) }}
     args:
     - --shell=sh
     - /readonly-config/init.sh

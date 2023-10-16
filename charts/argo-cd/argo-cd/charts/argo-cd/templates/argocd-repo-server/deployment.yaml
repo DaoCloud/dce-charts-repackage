@@ -47,7 +47,7 @@ spec:
       {{- end }}
       containers:
       - name: {{ .Values.repoServer.name }}
-        image: {{ default (include "global.image.repository" .) .Values.repoServer.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.repoServer.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.repoServer.image "global" .Values.global ) }}
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.repoServer.image.imagePullPolicy }}
         command:
         - entrypoint.sh
@@ -334,7 +334,7 @@ spec:
         - -n
         - /usr/local/bin/argocd
         - /var/run/argocd/argocd-cmp-server
-        image: {{ default (include "global.image.repository" .) .Values.repoServer.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.repoServer.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.repoServer.image "global" .Values.global ) }}
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.repoServer.image.imagePullPolicy }}
         name: copyutil
         {{- with .Values.repoServer.resources }}

@@ -43,7 +43,7 @@ spec:
       {{- end }}
       containers:
       - name: {{ .Values.server.name }}
-        image: {{ default (include "global.image.repository" .) .Values.server.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.server.image.tag }}
+        image: {{ include "global.images.image" (dict "imageRoot" .Values.server.image "global" .Values.global ) }}
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.server.image.imagePullPolicy }}
         command:
         - argocd-server
