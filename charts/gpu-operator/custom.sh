@@ -107,12 +107,14 @@ yq -i '
 # set serviceMonitor
 yq -i '
     .gpu-operator.dcgmExporter.serviceMonitor.enabled=true |
-    .gpu-operator.dcgmExporter.serviceMonitor.relabelings=[{"action":"replace","sourceLabels":["__meta_kubernetes_endpoint_node_name"],"targetLabel":"node"}]
+    .gpu-operator.dcgmExporter.serviceMonitor.relabelings=[{"action":"replace","sourceLabels":["__meta_kubernetes_endpoint_node_name"],"targetLabel":"node"}] |
+    .gpu-operator.dcgmExporter.serviceMonitor.additionalLabels={"operator.insight.io/managed-by": "insight"} 
 ' values.yaml
 
 yq -i '
     .dcgmExporter.serviceMonitor.enabled=true |
-    .dcgmExporter.serviceMonitor.relabelings=[{"action":"replace","sourceLabels":["__meta_kubernetes_endpoint_node_name"],"targetLabel":"node"}]
+    .dcgmExporter.serviceMonitor.relabelings=[{"action":"replace","sourceLabels":["__meta_kubernetes_endpoint_node_name"],"targetLabel":"node"}] |
+    .dcgmExporter.serviceMonitor.additionalLabels={"operator.insight.io/managed-by": "insight"} 
 ' charts/gpu-operator/values.yaml
 
 # reset image registry and repository
@@ -135,6 +137,7 @@ yq -i '
   .gpu-operator.dcgm.image="nvidia/cloud-native/dcgm" |
   .gpu-operator.dcgmExporter.repository="nvcr.io" |
   .gpu-operator.dcgmExporter.image="nvidia/k8s/dcgm-exporter" |
+  .gpu-operator.dcgmExporter.config.name="metrics-config" |
   .gpu-operator.gfd.repository="nvcr.io" |
   .gpu-operator.gfd.image="nvidia/gpu-feature-discovery" |
   .gpu-operator.migManager.repository="nvcr.io" |
@@ -174,6 +177,7 @@ yq -i '
   .dcgm.image="nvidia/cloud-native/dcgm" |
   .dcgmExporter.repository="nvcr.io" |
   .dcgmExporter.image="nvidia/k8s/dcgm-exporter" |
+  .dcgmExporter.config.name="metrics-config" |
   .gfd.repository="nvcr.io" |
   .gfd.image="nvidia/gpu-feature-discovery" |
   .migManager.repository="nvcr.io" |
@@ -193,3 +197,10 @@ yq -i '
   .ccManager.repository="nvcr.io" |
   .ccManager.image="nvidia/cloud-native/k8s-cc-manager"
 ' charts/gpu-operator/values.yaml
+
+# delete old dcgm Exporter metrics config
+yq eval 'del(.dcgmExporter.env[] | select(.name == "DCGM_EXPORTER_COLLECTORS"))' values.yaml -i
+yq eval 'del(.dcgmExporter.env[] | select(.name == "DCGM_EXPORTER_COLLECTORS"))' charts/gpu-operator/values.yaml -i
+
+yq eval '(.keywords[] | select(. == "monitoring")) |= "infra"' Chart.yaml -i
+yq eval '(.keywords[] | select(. == "monitoring")) |= "infra"' charts/gpu-operator/Chart.yaml -i

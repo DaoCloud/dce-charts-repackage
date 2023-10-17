@@ -284,14 +284,13 @@ dcgmExporter:
       value: ":9400"
     - name: DCGM_EXPORTER_KUBERNETES
       value: "true"
-    - name: DCGM_EXPORTER_COLLECTORS
-      value: "/etc/dcgm-exporter/dcp-metrics-included.csv"
   resources: {}
   serviceMonitor:
     enabled: true
     interval: 15s
     honorLabels: false
-    additionalLabels: {}
+    additionalLabels:
+      operator.insight.io/managed-by: insight
     relabelings:
       - action: replace
         sourceLabels:
@@ -303,6 +302,8 @@ dcgmExporter:
         #   target_label: instance
         #   replacement: $1
         #   action: replace
+  config:
+    name: metrics-config
 gfd:
   enabled: true
   repository: nvcr.io
