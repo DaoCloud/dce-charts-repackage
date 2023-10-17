@@ -292,7 +292,8 @@ gpu-operator:
       enabled: true
       interval: 15s
       honorLabels: false
-      additionalLabels: {}
+      additionalLabels:
+        operator.insight.io/managed-by: insight
       relabelings:
         - action: replace
           sourceLabels:
@@ -304,6 +305,8 @@ gpu-operator:
           #   target_label: instance
           #   replacement: $1
           #   action: replace
+    config:
+      name: metrics-config
   gfd:
     enabled: true
     repository: nvcr.io

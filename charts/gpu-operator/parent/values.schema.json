@@ -22,6 +22,12 @@
                         "image": {
                             "type": "string"
                         },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        },
                         "repoConfig": {
                             "type": "object",
                             "properties": {
@@ -29,20 +35,6 @@
                                     "type": "string"
                                 }
                             }
-                        },
-                        "repository": {
-                            "type": "string"
-                        },
-                        "version": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "mig": {
-                    "type": "object",
-                    "properties": {
-                        "strategy": {
-                            "type": "string"
                         }
                     }
                 },
@@ -62,6 +54,18 @@
                         },
                         "enabled": {
                             "type": "boolean"
+                        }
+                    }
+                },
+                "mig": {
+                    "type": "object",
+                    "properties": {
+                        "strategy": {
+                            "type": "string",
+                            "enum": [
+                                "single",
+                                "mixed"
+                            ]
                         }
                     }
                 },
