@@ -1,2 +1,3 @@
+- "{{ .argo-rollouts.global.imageRegistry }}/{{ .argo-rollouts.global.repository }}:{{ .argo-rollouts.global.tag }}"
 - "{{ .argo-rollouts.controller.image.registry }}/{{ .argo-rollouts.controller.image.repository }}:{{ .argo-rollouts.controller.image.tag }}"
 - "{{ .argo-rollouts.dashboard.image.registry }}/{{ .argo-rollouts.dashboard.image.repository }}:{{ .argo-rollouts.dashboard.image.tag }}"
