@@ -159,9 +159,9 @@ originGlobalRepository=$(yq ".argo-cd.global.image.repository" values.yaml)
 originGlobalTag=$(yq ".argo-cd.global.image.tag" values.yaml)
 
 yq -i "
-  .argo-cd.global.imageRegistry=\"${originGlobalRegistry}\" |
-  .argo-cd.global.repository=\"${originGlobalRepository}\" |
-  .argo-cd.global.tag=\"${originGlobalTag}\"
+  .argo-cd.global.imageRegistry=\"\" |
+  .argo-cd.global.repository=\"\" |
+  .argo-cd.global.tag=\"\"
 " values.yaml
 
 
@@ -172,13 +172,27 @@ echo '
 {{- $tag := .imageRoot.tag | toString -}}
 {{- if .global }}
     {{- if .global.imageRegistry }}
-     {{- $registryName = .global.imageRegistry -}}
+        {{- $registryName = .global.imageRegistry -}}
+    {{ else if .imageRoot.registry }}
+        {{- $registryName = .imageRoot.registry -}}
+    {{ else if .global.image.registry }}
+        {{- $registryName = .global.image.registry -}}
     {{- end -}}
-    {{- if and .global.repository (eq $repositoryName "") }}
-     {{- $repositoryName = .global.repository -}}
+
+    {{- if and .global.repository }}
+        {{- $repositoryName = .global.repository -}}
+    {{- else if .imageRoot.repository }}
+        {{- $repositoryName = .imageRoot.repository -}}
+    {{- else if .global.image.repository }}
+        {{- $repositoryName = .global.image.repository -}}
     {{- end -}}
-    {{- if and .global.tag (eq $tag "")}}
-     {{- $tag = .global.tag -}}
+
+    {{- if and .global.tag }}
+        {{- $tag = .global.tag -}}
+    {{- else if .imageRoot.tag }}
+        {{- $tag = .imageRoot.tag -}}
+    {{- else if .global.image.tag }}
+        {{- $tag = .global.image.tag -}}
     {{- end -}}
 {{- end -}}
 {{- if .tag }}
