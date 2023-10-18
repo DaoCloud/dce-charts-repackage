@@ -129,9 +129,9 @@ argo-cd:
     #   maxSurge: 25%
     #   maxUnavailable: 25%
 
-    imageRegistry: quay.m.daocloud.io
-    repository: argoproj/argocd
-    tag: v2.7.3
+    imageRegistry: ""
+    repository: ""
+    tag: ""
   ## Argo Configs
   configs:
     # General Argo CD configuration
