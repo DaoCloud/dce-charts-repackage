@@ -51,7 +51,7 @@ spec:
       serviceAccountName: {{ include "argo-cd.redisServiceAccountName" . }}
       containers:
       - name: {{ .Values.redis.name }}
-        image: {{ include "global.images.image" (dict "imageRoot" .Values.redis.image "global" .Values.global ) }}
+        image: {{ .Values.redis.image.registry }}/{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.redis.image.imagePullPolicy }}
         args:
         - --save
