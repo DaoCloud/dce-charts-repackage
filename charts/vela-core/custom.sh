@@ -83,6 +83,11 @@ yq -i "
   .vela-core.global.tag=\"${originGlobalTag}\"
 " values.yaml
 
+# set default values
+yq -i "
+  .vela-core.applicationRevisionLimit=10
+" values.yaml
+
 # remove test
 rm -rf charts/vela-core/templates/test
 

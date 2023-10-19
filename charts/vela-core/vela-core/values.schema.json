@@ -59,6 +59,9 @@
                                         "pullPolicy": {
                                             "type": "string"
                                         },
+                                        "registry": {
+                                            "type": "string"
+                                        },
                                         "repository": {
                                             "type": "string"
                                         },
@@ -120,9 +123,6 @@
                 "disableCaps": {
                     "type": "string"
                 },
-                "enableFluxcdAddon": {
-                    "type": "boolean"
-                },
                 "featureGates": {
                     "type": "object",
                     "properties": {
@@ -132,10 +132,19 @@
                         "enableLegacyComponentRevision": {
                             "type": "boolean"
                         },
+                        "gzipApplicationRevision": {
+                            "type": "boolean"
+                        },
                         "gzipResourceTracker": {
                             "type": "boolean"
                         },
                         "multiStageComponentApply": {
+                            "type": "boolean"
+                        },
+                        "preDispatchDryRun": {
+                            "type": "boolean"
+                        },
+                        "zstdApplicationRevision": {
                             "type": "boolean"
                         },
                         "zstdResourceTracker": {
@@ -145,6 +154,20 @@
                 },
                 "fullnameOverride": {
                     "type": "string"
+                },
+                "global": {
+                    "type": "object",
+                    "properties": {
+                        "imageRegistry": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
                 },
                 "healthCheck": {
                     "type": "object",
@@ -158,6 +181,9 @@
                     "type": "object",
                     "properties": {
                         "pullPolicy": {
+                            "type": "string"
+                        },
+                        "registry": {
                             "type": "string"
                         },
                         "repository": {
@@ -204,6 +230,9 @@
                                     "type": "object",
                                     "properties": {
                                         "pullPolicy": {
+                                            "type": "string"
+                                        },
+                                        "registry": {
                                             "type": "string"
                                         },
                                         "repository": {
@@ -378,6 +407,9 @@
                         "app": {
                             "type": "object",
                             "properties": {
+                                "registry": {
+                                    "type": "string"
+                                },
                                 "repository": {
                                     "type": "string"
                                 },
@@ -389,6 +421,9 @@
                         "k8s": {
                             "type": "object",
                             "properties": {
+                                "registry": {
+                                    "type": "string"
+                                },
                                 "repository": {
                                     "type": "string"
                                 },

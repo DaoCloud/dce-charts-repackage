@@ -9,7 +9,7 @@ vela-core:
   ## @param systemDefinitionNamespace System definition namespace, if unspecified, will use built-in variable `.Release.Namespace`.
   systemDefinitionNamespace:
   ## @param applicationRevisionLimit Application revision limit
-  applicationRevisionLimit: 2
+  applicationRevisionLimit: 10
   ## @param definitionRevisionLimit Definition revision limit
   definitionRevisionLimit: 2
   ## @param concurrentReconciles concurrentReconciles is the concurrent reconcile number of the controller

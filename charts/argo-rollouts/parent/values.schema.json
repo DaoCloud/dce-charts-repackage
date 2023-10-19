@@ -28,8 +28,22 @@
                         "component": {
                             "type": "string"
                         },
+                        "containerPorts": {
+                            "type": "object",
+                            "properties": {
+                                "healthz": {
+                                    "type": "integer"
+                                },
+                                "metrics": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
                         "createClusterRole": {
                             "type": "boolean"
+                        },
+                        "deploymentAnnotations": {
+                            "type": "object"
                         },
                         "extraArgs": {
                             "type": "array"
@@ -91,11 +105,28 @@
                                 }
                             }
                         },
+                        "metricProviderPlugins": {
+                            "type": "object"
+                        },
                         "metrics": {
                             "type": "object",
                             "properties": {
                                 "enabled": {
                                     "type": "boolean"
+                                },
+                                "service": {
+                                    "type": "object",
+                                    "properties": {
+                                        "annotations": {
+                                            "type": "object"
+                                        },
+                                        "port": {
+                                            "type": "integer"
+                                        },
+                                        "portName": {
+                                            "type": "string"
+                                        }
+                                    }
                                 },
                                 "serviceMonitor": {
                                     "type": "object",
@@ -108,6 +139,15 @@
                                         },
                                         "enabled": {
                                             "type": "boolean"
+                                        },
+                                        "metricRelabelings": {
+                                            "type": "array"
+                                        },
+                                        "namespace": {
+                                            "type": "string"
+                                        },
+                                        "relabelings": {
+                                            "type": "array"
                                         }
                                     }
                                 }
@@ -135,6 +175,9 @@
                                     "type": "null"
                                 }
                             }
+                        },
+                        "podAnnotations": {
+                            "type": "object"
                         },
                         "priorityClassName": {
                             "type": "string"
@@ -178,6 +221,18 @@
                         },
                         "tolerations": {
                             "type": "array"
+                        },
+                        "topologySpreadConstraints": {
+                            "type": "array"
+                        },
+                        "trafficRouterPlugins": {
+                            "type": "object"
+                        },
+                        "volumeMounts": {
+                            "type": "array"
+                        },
+                        "volumes": {
+                            "type": "array"
                         }
                     }
                 },
@@ -201,6 +256,9 @@
                         },
                         "createClusterRole": {
                             "type": "boolean"
+                        },
+                        "deploymentAnnotations": {
+                            "type": "object"
                         },
                         "enabled": {
                             "type": "boolean"
@@ -286,6 +344,9 @@
                                 }
                             }
                         },
+                        "podAnnotations": {
+                            "type": "object"
+                        },
                         "podSecurityContext": {
                             "type": "object",
                             "properties": {
@@ -357,6 +418,15 @@
                         },
                         "tolerations": {
                             "type": "array"
+                        },
+                        "topologySpreadConstraints": {
+                            "type": "array"
+                        },
+                        "volumeMounts": {
+                            "type": "array"
+                        },
+                        "volumes": {
+                            "type": "array"
                         }
                     }
                 },
@@ -365,6 +435,23 @@
                 },
                 "fullnameOverride": {
                     "type": "null"
+                },
+                "global": {
+                    "type": "object",
+                    "properties": {
+                        "deploymentAnnotations": {
+                            "type": "object"
+                        },
+                        "imageRegistry": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
                 },
                 "imagePullSecrets": {
                     "type": "array"
@@ -417,6 +504,40 @@
                     "properties": {
                         "runAsNonRoot": {
                             "type": "boolean"
+                        }
+                    }
+                },
+                "providerRBAC": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "providers": {
+                            "type": "object",
+                            "properties": {
+                                "ambassador": {
+                                    "type": "boolean"
+                                },
+                                "apisix": {
+                                    "type": "boolean"
+                                },
+                                "awsAppMesh": {
+                                    "type": "boolean"
+                                },
+                                "awsLoadBalancerController": {
+                                    "type": "boolean"
+                                },
+                                "istio": {
+                                    "type": "boolean"
+                                },
+                                "smi": {
+                                    "type": "boolean"
+                                },
+                                "traefik": {
+                                    "type": "boolean"
+                                }
+                            }
                         }
                     }
                 },
