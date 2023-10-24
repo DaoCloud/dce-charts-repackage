@@ -41,19 +41,16 @@
                 "migManager": {
                     "type": "object",
                     "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
                         "config": {
                             "type": "object",
                             "properties": {
-                                "default": {
-                                    "type": "string"
-                                },
                                 "name": {
                                     "type": "string"
                                 }
                             }
-                        },
-                        "enabled": {
-                            "type": "boolean"
                         }
                     }
                 },

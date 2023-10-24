@@ -94,7 +94,7 @@ data:
     # DCGM_FI_PROF_PIPE_FP16_ACTIVE,   gauge, Ratio of cycles the fp16 pipes are active (in %).
     DCGM_FI_PROF_PCIE_TX_BYTES,      gauge, The rate of data transmitted over the PCIe bus - including both protocol headers and data payloads - in bytes per second.
     DCGM_FI_PROF_PCIE_RX_BYTES,      gauge, The rate of data received over the PCIe bus - including both protocol headers and data payloads - in bytes per second.
-    DCGM_FI_DEV_MIG_MODE,  counter, MIG mode for the device Boolean: 0 is disabled, 1 is enabled
+    DCGM_FI_DEV_MIG_MODE,  counter, MIG mode for the device Boolean: 0 is disabled 1 is enabled
     DCGM_FI_DEV_FB_TOTAL,gauge, Total Frame Buffer of the GPU in MB
     DCGM_FI_DEV_COUNT,gauge,Number of Devices on the node
     DCGM_FI_DEV_CLOCK_THROTTLE_REASONS,gauge,Current clock throttle reasons (bitmask of DCGM_CLOCKS_THROTTLE_REASON_*)
