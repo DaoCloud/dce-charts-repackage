@@ -34,6 +34,7 @@ spec:
       serviceAccountName: {{ include "4pd-vgpu.device-plugin" . }}
       priorityClassName: system-node-critical
       hostPID: true
+      hostNetwork: true
       containers:
         - name: device-plugin
           image: "{{ .Values.devicePlugin.registry }}/{{ .Values.devicePlugin.repository }}:{{ .Values.version }}"
@@ -42,7 +43,7 @@ spec:
             postStart:
               exec:
                 command: ["/bin/sh","-c","cp -f /k8s-vgpu/lib/nvidia/* /usr/local/vgpu/"]
-          #command:
+          command:
           #  - sleep
           #  - infinity
           command:
@@ -50,13 +51,14 @@ spec:
             - --resource-name={{ .Values.resourceName }}
             - --mig-strategy={{ .Values.devicePlugin.migStrategy }}
             - --device-memory-scaling={{ .Values.devicePlugin.deviceMemoryScaling }}
+            - --device-cores-scaling={{ .Values.devicePlugin.deviceCoreScaling }}
             - --device-split-count={{ .Values.devicePlugin.deviceSplitCount }}
             - --disable-core-limit={{ .Values.devicePlugin.disablecorelimit }}
             {{- range .Values.devicePlugin.extraArgs }}
             - {{ . }}
             {{- end }}
           env:
-            - name: NODE_NAME
+            - name: NodeName
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
@@ -75,9 +77,6 @@ spec:
               mountPath: /var/lib/kubelet/device-plugins
             - name: lib
               mountPath: /usr/local/vgpu
-            - name: sock
-              #mountPath: /var/lib/vgpu
-              mountPath: {{ .Values.devicePlugin.sockPath }}
             - name: usrbin
               mountPath: /usrbin
             - name: deviceconfig
@@ -142,10 +141,6 @@ spec:
         - name: deviceconfig
           configMap:
             name: {{ template "4pd-vgpu.device-plugin" . }}
-        - name: sock
-          hostPath:
-            #path: /var/lib/vgpu
-            path: {{ .Values.devicePlugin.sockPath }}
       {{- if .Values.devicePlugin.nvidianodeSelector }}
       nodeSelector: {{ toYaml .Values.devicePlugin.nvidianodeSelector | nindent 8 }}
       {{- end }}
