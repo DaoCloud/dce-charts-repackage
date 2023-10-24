@@ -42,6 +42,19 @@
                             }
                         }
                     }
+                },
+                "scheduler": {
+                    "type": "object",
+                    "properties": {
+                        "serviceMonitor": {
+                            "type": "object",
+                            "properties": {
+                                "enable": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -305,3 +305,7 @@ yq -i '
 
 # rm daemonsethygon.yaml file
 rm -rf charts/vgpu/templates/device-plugin/daemonsethygon.yaml
+
+yq -i '.scheduler.serviceMonitor.enable=false' charts/vgpu/values.yaml
+
+yq -i '.vgpu.scheduler.serviceMonitor.enable=false' values.yaml

@@ -76,6 +76,8 @@ scheduler:
     monitorPort: 31993
     labels: {}
     annotations: {}
+  serviceMonitor:
+    enable: false
 devicePlugin:
   registry: docker.m.daocloud.io
   repository: 4pdosc/k8s-vdevice
