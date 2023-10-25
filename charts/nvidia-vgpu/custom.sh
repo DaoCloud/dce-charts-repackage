@@ -262,10 +262,12 @@ fi
 
 # update nvidianodeSelector values
 yq -i '
-    .vgpu.devicePlugin.nvidianodeSelector={"nvidia.com/gpu.deploy.device-plugin":"true"}
+    .vgpu.devicePlugin.nvidianodeSelector={"nvidia.com/gpu.deploy.device-plugin":"true"} |
+    .vgpu.scheduler.nodeSelector={"nvidia.com/gpu.deploy.device-plugin":"true"}
 ' values.yaml
 yq -i '
-    .devicePlugin.nvidianodeSelector={"nvidia.com/gpu.deploy.device-plugin":"true"}
+    .devicePlugin.nvidianodeSelector={"nvidia.com/gpu.deploy.device-plugin":"true"} |
+    .scheduler.nodeSelector={"nvidia.com/gpu.deploy.device-plugin":"true"}
 ' charts/vgpu/values.yaml
 
 # add hygonImageRepository and hygonImageTag
