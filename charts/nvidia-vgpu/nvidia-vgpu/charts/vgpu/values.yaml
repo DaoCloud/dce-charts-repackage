@@ -76,6 +76,8 @@ scheduler:
     monitorPort: 31993
     labels: {}
     annotations: {}
+  nodeSelector:
+    nvidia.com/gpu.deploy.device-plugin: "true"
   serviceMonitor:
     enable: false
 devicePlugin:
