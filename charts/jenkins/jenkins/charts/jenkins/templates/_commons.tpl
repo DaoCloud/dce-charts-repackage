@@ -72,5 +72,5 @@ Shortcut to return image for builders
 {{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Base "root" .) }}
 */}}
 {{- define "builder.image" }}
-  {{- include "jenkins.images.image" (dict "imageRoot" .builder "global" .root.Values.global "root" .root.Values.image) -}}
+  {{- include "jenkins.images.image" (dict "imageRoot" .builder "global" .root.Values.global "root" .root.Values.image) -}}{{ template "jenkins.agent.variant" .root }}
 {{- end -}}
