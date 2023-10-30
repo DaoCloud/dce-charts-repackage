@@ -1,3 +1,4 @@
+- "{{ .vela-core.image.registry }}/{{ .vela-core.image.repository }}:{{ .vela-core.image.tag }}"
 - "{{ .vela-core.global.imageRegistry }}/{{ .vela-core.global.repository }}:{{ .vela-core.global.tag }}"
 - "{{ .vela-core.multicluster.clusterGateway.image.registry }}/{{ .vela-core.multicluster.clusterGateway.image.repository }}:{{ .vela-core.multicluster.clusterGateway.image.tag }}"
 - "{{ .vela-core.test.app.registry }}/{{ .vela-core.test.app.repository }}:{{ .vela-core.test.app.tag }}"
