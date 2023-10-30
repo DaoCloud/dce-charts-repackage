@@ -1,7 +1,0 @@
-# spiderdoctor
-
-## Introduction
-
-## Features
-
-## Parameters
