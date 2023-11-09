@@ -53,6 +53,9 @@ spec:
       {{- with .Values.server.priorityClassName | default .Values.global.priorityClassName }}
       priorityClassName: {{ . }}
       {{- end }}
+      {{- if .Values.server.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.server.terminationGracePeriodSeconds }}
+      {{- end }}
       serviceAccountName: {{ include "argo-cd.serverServiceAccountName" . }}
       containers:
       - name: {{ .Values.server.name }}
@@ -74,7 +77,7 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
         env:
-          {{- with .Values.server.env }}
+          {{- with (concat .Values.global.env .Values.server.env) }}
             {{- toYaml . | nindent 10 }}
           {{- end }}
           - name: ARGOCD_SERVER_INSECURE
@@ -262,6 +265,18 @@ spec:
               configMapKeyRef:
                 name: argocd-cmd-params-cm
                 key: server.http.cookie.maxnumber
+                optional: true
+          - name: ARGOCD_SERVER_LISTEN_ADDRESS
+            valueFrom:
+              configMapKeyRef:
+                name: argocd-cmd-params-cm
+                key: server.listen.address
+                optional: true
+          - name: ARGOCD_SERVER_METRICS_LISTEN_ADDRESS
+            valueFrom:
+              configMapKeyRef:
+                name: argocd-cmd-params-cm
+                key: server.metrics.listen.address
                 optional: true
           - name: ARGOCD_SERVER_OTLP_ADDRESS
             valueFrom:
