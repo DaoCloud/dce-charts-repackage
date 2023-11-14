@@ -1,4 +1,4 @@
-{{- if and .Values.server.metrics.enabled .Values.server.metrics.serviceMonitor.enabled }}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.server.metrics.enabled .Values.server.metrics.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -12,10 +12,10 @@ metadata:
     {{- with .Values.server.metrics.serviceMonitor.additionalLabels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
+  {{- with .Values.server.metrics.serviceMonitor.annotations }}
   annotations:
-    {{- range $key, $value := .Values.server.metrics.serviceMonitor.annotations }}
-    {{ $key }}: {{ $value | quote }}
-    {{- end }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   endpoints:
     - port: {{ .Values.server.metrics.service.portName }}
