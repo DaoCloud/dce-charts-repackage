@@ -75,6 +75,12 @@
                         }
                     }
                 },
+                "podDisruptionBudget": {
+                    "type": "object"
+                },
+                "priorityClassName": {
+                    "type": "string"
+                },
                 "rbac": {
                     "type": "object",
                     "properties": {
@@ -84,7 +90,7 @@
                     }
                 },
                 "replicaCount": {
-                    "type": "integer"
+                    "type": "null"
                 },
                 "resources": {
                     "type": "object",
@@ -131,6 +137,12 @@
                         "externalTrafficPolicy": {
                             "type": "string"
                         },
+                        "ipFamilies": {
+                            "type": "array"
+                        },
+                        "ipFamilyPolicy": {
+                            "type": "string"
+                        },
                         "loadBalancerIP": {
                             "type": "string"
                         },
@@ -175,6 +187,9 @@
                             "type": "string"
                         }
                     }
+                },
+                "terminationGracePeriodSeconds": {
+                    "type": "integer"
                 },
                 "tolerations": {
                     "type": "array"

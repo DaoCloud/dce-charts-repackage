@@ -9,7 +9,9 @@ metadata:
     {{- .Values.annotations | toYaml | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  {{- with .Values.replicaCount }}
+  replicas: {{ . }}
+  {{- end }}
   {{- end }}
   selector:
     matchLabels:
@@ -25,7 +27,7 @@ spec:
         {{- with .Values.revision }}
         istio.io/rev: {{ . }}
         {{- end }}
-        {{- include "gateway.selectorLabels" . | nindent 8 }}
+        {{- include "gateway.podLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -104,4 +106,8 @@ spec:
       {{- with .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ $.Values.terminationGracePeriodSeconds }}
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . }}
       {{- end }}
