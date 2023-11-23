@@ -2,7 +2,6 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  creationTimestamp: null
   name: {{ include "project.name" . }}
 rules:
 - apiGroups:
@@ -12,6 +11,7 @@ rules:
   - namespaces
   - nodes
   - pods
+  - services
   verbs:
   - get
   - list
@@ -29,6 +29,19 @@ rules:
   - update
   - watch
 - apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  - validatingwebhookconfigurations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - coordination.k8s.io
   resources:
   - leases
@@ -37,11 +50,9 @@ rules:
   - get
   - update
 - apiGroups:
-  - egressgateway.spidernet.io
+  - crd.projectcalico.org
   resources:
-  - egressgatewaypolicies
-  - egressgateways
-  - egressnodes
+  - ippools
   verbs:
   - create
   - delete
@@ -53,9 +64,29 @@ rules:
 - apiGroups:
   - egressgateway.spidernet.io
   resources:
-  - egressgatewaypolicies/status
+  - egressclusterendpointslices
+  - egressclusterinfos
+  - egressclusterpolicies
+  - egressendpointslices
+  - egressgateways
+  - egresspolicies
+  - egresstunnels
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - egressgateway.spidernet.io
+  resources:
+  - egressclusterinfos/status
+  - egressclusterpolicies/status
   - egressgateways/status
-  - egressnodes/status
+  - egresspolicies/status
+  - egresstunnels/status
   verbs:
   - get
   - patch
