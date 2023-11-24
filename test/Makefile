@@ -84,7 +84,7 @@ init-kind: checkBin clean
 	@echo "========================================================"
 	echo "install registry and chart museum"
 	helm repo add twuni https://helm.twun.io --force-update  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add registry repo"; exit 1 ; }
-	helm upgrade --debug --install --create-namespace --cleanup-on-fail --namespace registry-system  --set nodeSelector."kubernetes\\.io/hostname=network-chart-worker" --set service.type=NodePort  --set service.nodePort=30080 --set image.repository="docker.m.daocloud.io/library/registry"  registry twuni/docker-registry --wait --version  2.2.2 --kubeconfig $(KIND_KUBECONFIG) || \
+	helm upgrade --debug --install --create-namespace --cleanup-on-fail --namespace registry-system  --set nodeSelector."kubernetes\\.io/hostname=network-chart-worker" --set service.type=NodePort  --set service.nodePort=30080 --set image.repository="docker.io/library/registry"  registry twuni/docker-registry --wait --version  2.2.2 --kubeconfig $(KIND_KUBECONFIG) || \
 	{ echo "error, failed to deploy registry"; exit 1 ; }
 	helm repo add chartmuseum https://chartmuseum.github.io/charts --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add chartmuseum repo"; exit 1 ; }
 	helm upgrade --debug --install --create-namespace --cleanup-on-fail --namespace chartmuseum-system --set nodeSelector."kubernetes\\.io/hostname=network-chart-worker" --set service.type=NodePort  --set service.nodePort=30081 --set env.open.DISABLE_API=false  chartmuseum chartmuseum/chartmuseum --wait --version 3.9.2 --kubeconfig $(KIND_KUBECONFIG) || \

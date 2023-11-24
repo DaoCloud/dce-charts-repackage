@@ -19,11 +19,6 @@
               "default": false,
               "description": "Turn on this option to enable dual-stack egress network, but note that the Pod network must be dual-stack for this to work properly."
             },
-            "startRouteTable": {
-              "type": "integer",
-              "title": "Route table",
-              "default": 50
-            },
             "tunnelIpv4Subnet": {
               "type": "string",
               "title": "Tunnel IPv4 subnet",
@@ -36,16 +31,6 @@
               "default": "fd11::/112",
               "description": "If the option EnableIPv6 is turned on, you need to enter the tunnel subnet for IPv6, which must not overlap with the CIDR in the cluster."
             },
-            "forwardMethod": {
-              "type": "string",
-              "title": "Forward method",
-              "enum": [
-                "active-passive",
-                "active-active"
-              ],
-              "default": "active-passive",
-              "description": "Tunnel base on which interface, active-active require kernel >=4.4, default is active-passive."
-            },
             "vxlan": {
               "type": "object",
               "properties": {
@@ -55,19 +40,14 @@
                   "title": "VXLAN name"
                 },
                 "port": {
-                  "type": "string",
-                  "default": "7789",
+                  "type": "integer",
+                  "default": 7789,
                   "title": "VXLAN port"
                 },
                 "id": {
-                  "type": "string",
+                  "type": "integer",
                   "title": "VXLAN ID",
-                  "default": "100"
-                },
-                "disableChecksumOffload": {
-                  "type": "boolean",
-                  "title": "Disable checksum offload",
-                  "default": true
+                  "default": 100
                 }
               },
               "title": "VXLAN setting",
@@ -80,11 +60,11 @@
                 "backendMode": {
                   "type": "string",
                   "enum": [
-                    "",
+                    "auto",
                     "nft",
                     "legacy"
                   ],
-                  "default": "",
+                  "default": "auto",
                   "title": "Backend mode",
                   "description": "You can check the current mode of iptables by running “iptables –version” on the cluster host."
                 }
@@ -94,7 +74,7 @@
           },
           "title": "Feature"
         },
-        "egressgatewayController": {
+        "controller": {
           "type": "object",
           "properties": {
             "image": {
@@ -148,7 +128,7 @@
           },
           "title": "Controller setting"
         },
-        "egressgatewayAgent": {
+        "agent": {
           "type": "object",
           "properties": {
             "image": {

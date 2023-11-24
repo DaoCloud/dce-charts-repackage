@@ -4,39 +4,45 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
-  creationTimestamp: null
-  name: egressnodes.egressgateway.spidernet.io
+  name: egresstunnels.egressgateway.spidernet.io
 spec:
   group: egressgateway.spidernet.io
   names:
     categories:
-    - egressnode
-    kind: EgressNode
-    listKind: EgressNodeList
-    plural: egressnodes
-    singular: egressnode
+    - egresstunnel
+    kind: EgressTunnel
+    listKind: EgressTunnelList
+    plural: egresstunnels
+    shortNames:
+    - egt
+    singular: egresstunnel
   scope: Cluster
   versions:
   - additionalPrinterColumns:
     - description: tunnelMac
-      jsonPath: .status.tunnelMac
+      jsonPath: .status.tunnel.mac
       name: tunnelMac
       type: string
     - description: tunnelIPv4
-      jsonPath: .status.vxlanIPv4
+      jsonPath: .status.tunnel.ipv4
       name: tunnelIPv4
       type: string
     - description: tunnelIPv6
-      jsonPath: .status.vxlanIPv6
+      jsonPath: .status.tunnel.ipv6
       name: tunnelIPv6
+      type: string
+    - description: mark
+      jsonPath: .status.mark
+      name: mark
       type: string
     - description: phase
       jsonPath: .status.phase
       name: phase
       type: string
-    name: v1
+    name: v1beta1
     schema:
       openAPIV3Schema:
+        description: EgressTunnel represents an egress tunnel
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -54,26 +60,38 @@ spec:
             type: object
           status:
             properties:
+              lastHeartbeatTime:
+                format: date-time
+                type: string
+              mark:
+                type: string
               phase:
                 enum:
                 - Pending
                 - Init
                 - Failed
-                - Succeeded
-                - ""
+                - Ready
+                - HeartbeatTimeout
+                - NodeNotReady
                 type: string
-              physicalInterface:
-                type: string
-              physicalInterfaceIPv4:
-                type: string
-              physicalInterfaceIPv6:
-                type: string
-              tunnelMac:
-                type: string
-              vxlanIPv4:
-                type: string
-              vxlanIPv6:
-                type: string
+              tunnel:
+                properties:
+                  ipv4:
+                    type: string
+                  ipv6:
+                    type: string
+                  mac:
+                    type: string
+                  parent:
+                    properties:
+                      ipv4:
+                        type: string
+                      ipv6:
+                        type: string
+                      name:
+                        type: string
+                    type: object
+                type: object
             type: object
         required:
         - metadata

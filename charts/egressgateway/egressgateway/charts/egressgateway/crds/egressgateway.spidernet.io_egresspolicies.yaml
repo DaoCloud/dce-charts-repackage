@@ -4,53 +4,41 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
-  name: egressgateways.egressgateway.spidernet.io
+  name: egresspolicies.egressgateway.spidernet.io
 spec:
   group: egressgateway.spidernet.io
   names:
     categories:
-    - egressgateway
-    kind: EgressGateway
-    listKind: EgressGatewayList
-    plural: egressgateways
+    - egresspolicy
+    kind: EgressPolicy
+    listKind: EgressPolicyList
+    plural: egresspolicies
     shortNames:
-    - egw
-    singular: egressgateway
-  scope: Cluster
+    - egp
+    singular: egresspolicy
+  scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - description: ipv4DefaultEIP
-      jsonPath: .spec.ippools.ipv4DefaultEIP
-      name: ipv4DefaultEIP
+    - description: egressGatewayName
+      jsonPath: .spec.egressGatewayName
+      name: gateway
       type: string
-    - description: ipv6DefaultEIP
-      jsonPath: .spec.ippools.ipv6DefaultEIP
-      name: ipv6DefaultEIP
+    - description: ipv4
+      jsonPath: .status.eip.ipv4
+      name: ipv4
       type: string
-    - description: clusterDefault
-      jsonPath: .spec.clusterDefault
-      name: clusterDefault
-      type: boolean
-    - description: ipv4Total
-      jsonPath: .status.ipUsage.ipv4Total
-      name: ipv4Total
-      type: integer
-    - description: ipv4Free
-      jsonPath: .status.ipUsage.ipv4Free
-      name: ipv4Free
-      type: integer
-    - description: ipv6Total
-      jsonPath: .status.ipUsage.ipv6Total
-      name: ipv6Total
-      type: integer
-    - description: ipv6Free
-      jsonPath: .status.ipUsage.ipv6Free
-      name: ipv6Free
-      type: integer
+    - description: ipv6
+      jsonPath: .status.eip.ipv6
+      name: ipv6
+      type: string
+    - description: egressNode
+      jsonPath: .status.node
+      name: egressNode
+      type: string
     name: v1beta1
     schema:
       openAPIV3Schema:
-        description: EgressGateway egress gateway
+        description: EgressPolicy represents a single egress gateway policy
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -66,28 +54,9 @@ spec:
             type: object
           spec:
             properties:
-              clusterDefault:
-                type: boolean
-              ippools:
+              appliedTo:
                 properties:
-                  ipv4:
-                    items:
-                      type: string
-                    type: array
-                  ipv4DefaultEIP:
-                    type: string
-                  ipv6:
-                    items:
-                      type: string
-                    type: array
-                  ipv6DefaultEIP:
-                    type: string
-                type: object
-              nodeSelector:
-                properties:
-                  policy:
-                    type: string
-                  selector:
+                  podSelector:
                     description: A label selector is a label query over a set of resources.
                       The result of matchLabels and matchExpressions are ANDed. An
                       empty label selector matches all objects. A null label selector
@@ -135,48 +104,50 @@ spec:
                         type: object
                     type: object
                     x-kubernetes-map-type: atomic
+                  podSubnet:
+                    items:
+                      type: string
+                    type: array
                 type: object
+              destSubnet:
+                items:
+                  type: string
+                type: array
+              egressGatewayName:
+                type: string
+              egressIP:
+                default:
+                  allocatorPolicy: default
+                  useNodeIP: false
+                properties:
+                  allocatorPolicy:
+                    default: default
+                    type: string
+                  ipv4:
+                    type: string
+                  ipv6:
+                    type: string
+                  useNodeIP:
+                    default: false
+                    type: boolean
+                type: object
+              priority:
+                format: int64
+                type: integer
+            required:
+            - appliedTo
             type: object
           status:
             properties:
-              ipUsage:
+              eip:
                 properties:
-                  ipv4Free:
-                    type: integer
-                  ipv4Total:
-                    type: integer
-                  ipv6Free:
-                    type: integer
-                  ipv6Total:
-                    type: integer
+                  ipv4:
+                    type: string
+                  ipv6:
+                    type: string
                 type: object
-              nodeList:
-                items:
-                  properties:
-                    eips:
-                      items:
-                        properties:
-                          ipv4:
-                            type: string
-                          ipv6:
-                            type: string
-                          policies:
-                            items:
-                              properties:
-                                name:
-                                  type: string
-                                namespace:
-                                  type: string
-                              type: object
-                            type: array
-                        type: object
-                      type: array
-                    name:
-                      type: string
-                    status:
-                      type: string
-                  type: object
-                type: array
+              node:
+                type: string
             type: object
         required:
         - metadata

@@ -29,10 +29,10 @@ fi
 export CHART_VERSION=$(helm show chart charts/egressgateway | grep '^version' |grep -E '[0-9].*.[0-9]' | awk -F ':' '{print $2}' | tr -d ' ')
 
 yq -i '
-   .egressgateway.egressgatewayAgent.image.registry="ghcr.m.daocloud.io" |
-   .egressgateway.egressgatewayController.image.registry="ghcr.m.daocloud.io" |
-   .egressgateway.egressgatewayAgent.prometheus.serviceMonitor.labels."operator.insight.io/managed-by"="insight" |
-   .egressgateway.egressgatewayController.prometheus.serviceMonitor.labels."operator.insight.io/managed-by"="insight"
+   .egressgateway.agent.image.registry="ghcr.m.daocloud.io" |
+   .egressgateway.controller.image.registry="ghcr.m.daocloud.io" |
+   .egressgateway.agent.prometheus.serviceMonitor.labels."operator.insight.io/managed-by"="insight" |
+   .egressgateway.controller.prometheus.serviceMonitor.labels."operator.insight.io/managed-by"="insight"
 ' values.yaml
 
 yq -i '.version=strenv(CHART_VERSION)' Chart.yaml
