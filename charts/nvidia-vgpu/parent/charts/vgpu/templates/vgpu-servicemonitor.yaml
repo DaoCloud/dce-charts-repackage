@@ -11,6 +11,11 @@ spec:
   - bearerTokenSecret:
       key: ""
     interval: 15s
+    metricRelabelings:
+    - action: replace
+      sourceLabels:
+      - podname
+      targetLabel: exported_pod
     path: /metrics
     port: monitor
     relabelings:
