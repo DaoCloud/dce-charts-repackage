@@ -4,9 +4,9 @@ apiVersion: core.oam.dev/v1beta1
 kind: WorkflowStepDefinition
 metadata:
   annotations:
+    custom.definition.oam.dev/category: CI Integration
     definition.oam.dev/alias: ""
     definition.oam.dev/description: Build and push image from git url
-    definition.oam.dev/example-url: https://raw.githubusercontent.com/kubevela/workflow/main/examples/workflow-run/built-push-image.yaml
   name: build-push-image
   namespace: {{ include "systemDefinitionNamespace" . }}
 spec:

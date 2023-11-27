@@ -4,6 +4,7 @@ apiVersion: core.oam.dev/v1beta1
 kind: WorkflowStepDefinition
 metadata:
   annotations:
+    custom.definition.oam.dev/category: Resource Management
     definition.oam.dev/description: clean applied jobs in the cluster
   name: clean-jobs
   namespace: {{ include "systemDefinitionNamespace" . }}
@@ -19,6 +20,7 @@ spec:
         	labelselector?: {...}
         	namespace: *context.namespace | string
         }
+
         cleanJobs: op.#Delete & {
         	value: {
         		apiVersion: "batch/v1"
@@ -38,6 +40,7 @@ spec:
         		}
         	}
         }
+
         cleanPods: op.#Delete & {
         	value: {
         		apiVersion: "v1"

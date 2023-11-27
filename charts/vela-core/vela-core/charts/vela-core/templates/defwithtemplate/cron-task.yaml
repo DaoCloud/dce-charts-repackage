@@ -12,8 +12,13 @@ spec:
     cue:
       template: |
         output: {
-        	apiVersion: "batch/v1beta1"
-        	kind:       "CronJob"
+        	if context.clusterVersion.minor < 25 {
+        		apiVersion: "batch/v1beta1"
+        	}
+        	if context.clusterVersion.minor >= 25 {
+        		apiVersion: "batch/v1"
+        	}
+        	kind: "CronJob"
         	spec: {
         		schedule:                   parameter.schedule
         		concurrencyPolicy:          parameter.concurrencyPolicy
@@ -142,6 +147,7 @@ spec:
         		}
         	}
         }
+
         parameter: {
         	// +usage=Specify the labels in the workload
         	labels?: [string]: string
@@ -271,6 +277,7 @@ spec:
         	// +usage=Instructions for assessing whether the container is in a suitable state to serve traffic.
         	readinessProbe?: #HealthProbe
         }
+
         #HealthProbe: {
 
         	// +usage=Instructions for assessing container health by executing a command. Either this attribute or the httpGet attribute or the tcpSocket attribute MUST be specified. This attribute is mutually exclusive with both the httpGet attribute and the tcpSocket attribute.
@@ -313,8 +320,5 @@ spec:
         	failureThreshold: *3 | int
         }
   workload:
-    definition:
-      apiVersion: batch/v1beta1
-      kind: CronJob
-    type: cronjobs.batch
+    type: autodetects.core.oam.dev
 

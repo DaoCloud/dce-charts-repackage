@@ -25,7 +25,7 @@ multi-cloud environments. At the mean time, it is highly extensible and programm
 ## TL;DR
 
 ```bash
-helm repo add kubevela https://charts.kubevela.net/core
+helm repo add kubevela https://kubevela.github.io/charts
 helm repo update
 helm install --create-namespace -n vela-system kubevela kubevela/vela-core --wait
 ```
@@ -38,16 +38,13 @@ helm install --create-namespace -n vela-system kubevela kubevela/vela-core --wai
 
 ### KubeVela core parameters
 
-| Name                          | Description                                                                                   | Value     |
-| ----------------------------- | --------------------------------------------------------------------------------------------- | --------- |
-| `systemDefinitionNamespace`   | System definition namespace, if unspecified, will use built-in variable `.Release.Namespace`. | `nil`     |
-| `applicationRevisionLimit`    | Application revision limit                                                                    | `2`       |
-| `definitionRevisionLimit`     | Definition revision limit                                                                     | `2`       |
-| `concurrentReconciles`        | concurrentReconciles is the concurrent reconcile number of the controller                     | `4`       |
-| `controllerArgs.reSyncPeriod` | The period for resync the applications                                                        | `5m`      |
-| `OAMSpecVer`                  | OAMSpecVer is the oam spec version controller want to setup                                   | `v0.3`    |
-| `disableCaps`                 | Disable capability                                                                            | `rollout` |
-| `dependCheckWait`             | dependCheckWait is the time to wait for ApplicationConfiguration's dependent-resource ready   | `30s`     |
+| Name                          | Description                                                                                   | Value |
+| ----------------------------- | --------------------------------------------------------------------------------------------- | ----- |
+| `systemDefinitionNamespace`   | System definition namespace, if unspecified, will use built-in variable `.Release.Namespace`. | `nil` |
+| `applicationRevisionLimit`    | Application revision limit                                                                    | `2`   |
+| `definitionRevisionLimit`     | Definition revision limit                                                                     | `2`   |
+| `concurrentReconciles`        | concurrentReconciles is the concurrent reconcile number of the controller                     | `4`   |
+| `controllerArgs.reSyncPeriod` | The period for resync the applications                                                        | `5m`  |
 
 ### KubeVela workflow parameters
 
@@ -77,43 +74,48 @@ helm install --create-namespace -n vela-system kubevela kubevela/vela-core --wai
 
 ### KubeVela controller optimization parameters
 
-| Name                                              | Description                                                                                                                                                                                                                      | Value   |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `optimize.cachedGvks`                             | Optimize types of resources to be cached.                                                                                                                                                                                        | `""`    |
-| `optimize.resourceTrackerListOp`                  | Optimize ResourceTracker List Op by adding index.                                                                                                                                                                                | `true`  |
-| `optimize.controllerReconcileLoopReduction`       | Optimize ApplicationController reconcile by reducing the number of loops to reconcile application.                                                                                                                               | `false` |
-| `optimize.markWithProb`                           | Optimize ResourceTracker GC by only run mark with probability. Side effect: outdated ResourceTracker might not be able to be removed immediately.                                                                                | `0.1`   |
-| `optimize.disableComponentRevision`               | Optimize componentRevision by disabling the creation and gc                                                                                                                                                                      | `true`  |
-| `optimize.disableApplicationRevision`             | Optimize ApplicationRevision by disabling the creation and gc.                                                                                                                                                                   | `false` |
-| `optimize.disableWorkflowRecorder`                | Optimize workflow recorder by disabling the creation and gc.                                                                                                                                                                     | `false` |
-| `optimize.enableInMemoryWorkflowContext`          | Optimize workflow by use in-memory context.                                                                                                                                                                                      | `false` |
-| `optimize.disableResourceApplyDoubleCheck`        | Optimize workflow by ignoring resource double check after apply.                                                                                                                                                                 | `false` |
-| `optimize.enableResourceTrackerDeleteOnlyTrigger` | Optimize resourcetracker by only trigger reconcile when resourcetracker is deleted.                                                                                                                                              | `true`  |
-| `featureGates.enableLegacyComponentRevision`      | if disabled, only component with rollout trait will create component revisions                                                                                                                                                   | `false` |
-| `featureGates.gzipResourceTracker`                | compress ResourceTracker using gzip (good) before being stored. This is reduces network throughput when dealing with huge ResourceTrackers.                                                                                      | `false` |
-| `featureGates.zstdResourceTracker`                | compress ResourceTracker using zstd (fast and good) before being stored. This is reduces network throughput when dealing with huge ResourceTrackers. Note that zstd will be prioritized if you enable other compression options. | `true`  |
-| `featureGates.applyOnce`                          | if enabled, the apply-once feature will be applied to all applications, no state-keep and no resource data storage in ResourceTracker                                                                                            | `false` |
-| `featureGates.multiStageComponentApply`           | if enabled, the multiStageComponentApply feature will be combined with the stage field in TraitDefinition to complete the multi-stage apply.                                                                                     | `false` |
-| `featureGates.gzipApplicationRevision`            | compress apprev using gzip (good) before being stored. This is reduces network throughput when dealing with huge apprevs.                                                                                                        | `false` |
-| `featureGates.zstdApplicationRevision`            | compress apprev using zstd (fast and good) before being stored. This is reduces network throughput when dealing with huge apprevs. Note that zstd will be prioritized if you enable other compression options.                   | `true`  |
-| `featureGates.preDispatchDryRun`                  | enable dryrun before dispatching resources. Enable this flag can help prevent unsuccessful dispatch resources entering resourcetracker and improve the user experiences of gc but at the cost of increasing network requests.    | `true`  |
+| Name                                                         | Description                                                                                                                                                                                                                      | Value   |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `optimize.cachedGvks`                                        | Optimize types of resources to be cached.                                                                                                                                                                                        | `""`    |
+| `optimize.markWithProb`                                      | Optimize ResourceTracker GC by only run mark with probability. Side effect: outdated ResourceTracker might not be able to be removed immediately.                                                                                | `0.1`   |
+| `optimize.disableComponentRevision`                          | Optimize componentRevision by disabling the creation and gc                                                                                                                                                                      | `true`  |
+| `optimize.disableApplicationRevision`                        | Optimize ApplicationRevision by disabling the creation and gc.                                                                                                                                                                   | `false` |
+| `optimize.enableInMemoryWorkflowContext`                     | Optimize workflow by use in-memory context.                                                                                                                                                                                      | `false` |
+| `optimize.disableResourceApplyDoubleCheck`                   | Optimize workflow by ignoring resource double check after apply.                                                                                                                                                                 | `false` |
+| `optimize.enableResourceTrackerDeleteOnlyTrigger`            | Optimize resourcetracker by only trigger reconcile when resourcetracker is deleted.                                                                                                                                              | `true`  |
+| `featureGates.gzipResourceTracker`                           | compress ResourceTracker using gzip (good) before being stored. This is reduces network throughput when dealing with huge ResourceTrackers.                                                                                      | `false` |
+| `featureGates.zstdResourceTracker`                           | compress ResourceTracker using zstd (fast and good) before being stored. This is reduces network throughput when dealing with huge ResourceTrackers. Note that zstd will be prioritized if you enable other compression options. | `true`  |
+| `featureGates.applyOnce`                                     | if enabled, the apply-once feature will be applied to all applications, no state-keep and no resource data storage in ResourceTracker                                                                                            | `false` |
+| `featureGates.multiStageComponentApply`                      | if enabled, the multiStageComponentApply feature will be combined with the stage field in TraitDefinition to complete the multi-stage apply.                                                                                     | `true`  |
+| `featureGates.gzipApplicationRevision`                       | compress apprev using gzip (good) before being stored. This is reduces network throughput when dealing with huge apprevs.                                                                                                        | `false` |
+| `featureGates.zstdApplicationRevision`                       | compress apprev using zstd (fast and good) before being stored. This is reduces network throughput when dealing with huge apprevs. Note that zstd will be prioritized if you enable other compression options.                   | `true`  |
+| `featureGates.preDispatchDryRun`                             | enable dryrun before dispatching resources. Enable this flag can help prevent unsuccessful dispatch resources entering resourcetracker and improve the user experiences of gc but at the cost of increasing network requests.    | `true`  |
+| `featureGates.validateComponentWhenSharding`                 | enable component validation in webhook when sharding mode enabled                                                                                                                                                                | `false` |
+| `featureGates.disableWebhookAutoSchedule`                    | disable auto schedule for application mutating webhook when sharding enabled                                                                                                                                                     | `false` |
+| `featureGates.disableBootstrapClusterInfo`                   | disable the cluster info bootstrap at the starting of the controller                                                                                                                                                             | `false` |
+| `featureGates.informerCacheFilterUnnecessaryFields`          | filter unnecessary fields for informer cache                                                                                                                                                                                     | `true`  |
+| `featureGates.sharedDefinitionStorageForApplicationRevision` | use definition cache to reduce duplicated definition storage for application revision, must be used with InformerCacheFilterUnnecessaryFields                                                                                    | `true`  |
+| `featureGates.disableWorkflowContextConfigMapCache`          | disable the workflow context's configmap informer cache                                                                                                                                                                          | `true`  |
 
 ### MultiCluster parameters
 
-| Name                                                        | Description                                     | Value                            |
-| ----------------------------------------------------------- | ----------------------------------------------- | -------------------------------- |
-| `multicluster.enabled`                                      | Whether to enable multi-cluster                 | `true`                           |
-| `multicluster.metrics.enabled`                              | Whether to enable multi-cluster metrics collect | `false`                          |
-| `multicluster.clusterGateway.replicaCount`                  | ClusterGateway replica count                    | `1`                              |
-| `multicluster.clusterGateway.port`                          | ClusterGateway port                             | `9443`                           |
-| `multicluster.clusterGateway.image.repository`              | ClusterGateway image repository                 | `oamdev/cluster-gateway`         |
-| `multicluster.clusterGateway.image.tag`                     | ClusterGateway image tag                        | `v1.7.0`                         |
-| `multicluster.clusterGateway.image.pullPolicy`              | ClusterGateway image pull policy                | `IfNotPresent`                   |
-| `multicluster.clusterGateway.resources.limits.cpu`          | ClusterGateway cpu limit                        | `100m`                           |
-| `multicluster.clusterGateway.resources.limits.memory`       | ClusterGateway memory limit                     | `200Mi`                          |
-| `multicluster.clusterGateway.secureTLS.enabled`             | Whether to enable secure TLS                    | `true`                           |
-| `multicluster.clusterGateway.secureTLS.certPath`            | Path to the certificate file                    | `/etc/k8s-cluster-gateway-certs` |
-| `multicluster.clusterGateway.secureTLS.certManager.enabled` | Whether to enable cert-manager                  | `false`                          |
+| Name                                                        | Description                                                                                 | Value                            |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------- |
+| `multicluster.enabled`                                      | Whether to enable multi-cluster                                                             | `true`                           |
+| `multicluster.metrics.enabled`                              | Whether to enable multi-cluster metrics collect                                             | `false`                          |
+| `multicluster.clusterGateway.direct`                        | controller will connect to ClusterGateway directly instead of going to Kubernetes APIServer | `true`                           |
+| `multicluster.clusterGateway.replicaCount`                  | ClusterGateway replica count                                                                | `1`                              |
+| `multicluster.clusterGateway.port`                          | ClusterGateway port                                                                         | `9443`                           |
+| `multicluster.clusterGateway.image.repository`              | ClusterGateway image repository                                                             | `oamdev/cluster-gateway`         |
+| `multicluster.clusterGateway.image.tag`                     | ClusterGateway image tag                                                                    | `v1.9.0-alpha.2`                 |
+| `multicluster.clusterGateway.image.pullPolicy`              | ClusterGateway image pull policy                                                            | `IfNotPresent`                   |
+| `multicluster.clusterGateway.resources.requests.cpu`        | ClusterGateway cpu request                                                                  | `50m`                            |
+| `multicluster.clusterGateway.resources.requests.memory`     | ClusterGateway memory request                                                               | `20Mi`                           |
+| `multicluster.clusterGateway.resources.limits.cpu`          | ClusterGateway cpu limit                                                                    | `500m`                           |
+| `multicluster.clusterGateway.resources.limits.memory`       | ClusterGateway memory limit                                                                 | `200Mi`                          |
+| `multicluster.clusterGateway.secureTLS.enabled`             | Whether to enable secure TLS                                                                | `true`                           |
+| `multicluster.clusterGateway.secureTLS.certPath`            | Path to the certificate file                                                                | `/etc/k8s-cluster-gateway-certs` |
+| `multicluster.clusterGateway.secureTLS.certManager.enabled` | Whether to enable cert-manager                                                              | `false`                          |
 
 ### Test parameters
 
@@ -126,27 +128,29 @@ helm install --create-namespace -n vela-system kubevela kubevela/vela-core --wai
 
 ### Common parameters
 
-| Name                          | Description                                                                                                                | Value                |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------- |
-| `imagePullSecrets`            | Image pull secrets                                                                                                         | `[]`                 |
-| `nameOverride`                | Override name                                                                                                              | `""`                 |
-| `fullnameOverride`            | Fullname override                                                                                                          | `""`                 |
-| `serviceAccount.create`       | Specifies whether a service account should be created                                                                      | `true`               |
-| `serviceAccount.annotations`  | Annotations to add to the service account                                                                                  | `{}`                 |
-| `serviceAccount.name`         | The name of the service account to use. If not set and create is true, a name is generated using the fullname template     | `nil`                |
-| `nodeSelector`                | Node selector                                                                                                              | `{}`                 |
-| `tolerations`                 | Tolerations                                                                                                                | `[]`                 |
-| `affinity`                    | Affinity                                                                                                                   | `{}`                 |
-| `rbac.create`                 | Specifies whether a RBAC role should be created                                                                            | `true`               |
-| `logDebug`                    | Enable debug logs for development purpose                                                                                  | `false`              |
-| `logFilePath`                 | If non-empty, write log files in this path                                                                                 | `""`                 |
-| `logFileMaxSize`              | Defines the maximum size a log file can grow to. Unit is megabytes. If the value is 0, the maximum file size is unlimited. | `1024`               |
-| `kubeClient.qps`              | The qps for reconcile clients, default is 100                                                                              | `100`                |
-| `kubeClient.burst`            | The burst for reconcile clients, default is 200                                                                            | `200`                |
-| `authentication.enabled`      | Enable authentication for application                                                                                      | `false`              |
-| `authentication.withUser`     | Application authentication will impersonate as the request User                                                            | `true`               |
-| `authentication.defaultUser`  | Application authentication will impersonate as the User if no user provided in Application                                 | `kubevela:vela-core` |
-| `authentication.groupPattern` | Application authentication will impersonate as the request Group that matches the pattern                                  | `kubevela:*`         |
+| Name                          | Description                                                                                                                                                        | Value                |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------- |
+| `imagePullSecrets`            | Image pull secrets                                                                                                                                                 | `[]`                 |
+| `nameOverride`                | Override name                                                                                                                                                      | `""`                 |
+| `fullnameOverride`            | Fullname override                                                                                                                                                  | `""`                 |
+| `serviceAccount.create`       | Specifies whether a service account should be created                                                                                                              | `true`               |
+| `serviceAccount.annotations`  | Annotations to add to the service account                                                                                                                          | `{}`                 |
+| `serviceAccount.name`         | The name of the service account to use. If not set and create is true, a name is generated using the fullname template                                             | `nil`                |
+| `nodeSelector`                | Node selector                                                                                                                                                      | `{}`                 |
+| `tolerations`                 | Tolerations                                                                                                                                                        | `[]`                 |
+| `affinity`                    | Affinity                                                                                                                                                           | `{}`                 |
+| `rbac.create`                 | Specifies whether a RBAC role should be created                                                                                                                    | `true`               |
+| `logDebug`                    | Enable debug logs for development purpose                                                                                                                          | `false`              |
+| `logFilePath`                 | If non-empty, write log files in this path                                                                                                                         | `""`                 |
+| `logFileMaxSize`              | Defines the maximum size a log file can grow to. Unit is megabytes. If the value is 0, the maximum file size is unlimited.                                         | `1024`               |
+| `kubeClient.qps`              | The qps for reconcile clients                                                                                                                                      | `400`                |
+| `kubeClient.burst`            | The burst for reconcile clients                                                                                                                                    | `600`                |
+| `authentication.enabled`      | Enable authentication for application                                                                                                                              | `false`              |
+| `authentication.withUser`     | Application authentication will impersonate as the request User                                                                                                    | `true`               |
+| `authentication.defaultUser`  | Application authentication will impersonate as the User if no user provided in Application                                                                         | `kubevela:vela-core` |
+| `authentication.groupPattern` | Application authentication will impersonate as the request Group that matches the pattern                                                                          | `kubevela:*`         |
+| `sharding.enabled`            | When sharding enabled, the controller will run as master mode. Refer to https://github.com/kubevela/kubevela/blob/master/design/vela-core/sharding.md for details. | `false`              |
+| `sharding.schedulableShards`  | The shards available for scheduling. If empty, dynamic discovery will be used.                                                                                     | `""`                 |
 
 
 ## Uninstallation

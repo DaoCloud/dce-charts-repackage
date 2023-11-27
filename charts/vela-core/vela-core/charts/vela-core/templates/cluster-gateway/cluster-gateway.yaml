@@ -13,6 +13,11 @@ spec:
     {{- include "kubevela-cluster-gateway.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9443"
+        prometheus.io/scrape: "true"
+        prometheus.io/scheme: "https"
       labels:
       {{- include "kubevela-cluster-gateway.selectorLabels" . | nindent 8 }}
     spec:
@@ -37,6 +42,7 @@ spec:
             - "--tls-cert-file={{ .Values.multicluster.clusterGateway.secureTLS.certPath }}/tls.crt"
             - "--tls-private-key-file={{ .Values.multicluster.clusterGateway.secureTLS.certPath }}/tls.key"
             {{- end }}
+            - "--authorization-always-allow-paths=/healthz,/readyz,/livez,/metrics"
           image: {{ include "global.images.image" (dict "imageRoot" .Values.multicluster.clusterGateway.image "global" .Values.global ) }}
           imagePullPolicy: {{ .Values.multicluster.clusterGateway.image.pullPolicy }}
           resources:
@@ -66,10 +72,19 @@ spec:
       nodeSelector:
       {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
       affinity:
-      {{- toYaml . | nindent 8 }}
-      {{- end }}
+      {{ if .Values.affinity }}
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{ else }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "kubevela-cluster-gateway.selectorLabels" . | nindent 20 }}
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+      {{ end }}
       {{- with .Values.tolerations }}
       tolerations:
       {{- toYaml . | nindent 8 }}
