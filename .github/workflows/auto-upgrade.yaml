@@ -144,6 +144,12 @@ jobs:
                       --title "${FINAL_TITLE}" \
                       --label "${LABEL}" \
                       --assignee "${UPGRADE_REVIWER}"
+                  if  (( $? != 0 )) ; then
+                      MSG="error, failed to create PR for project ${PROJECT} for LATEST_VERSION=$LATEST_VERSION"
+                      FAILED_MESSAGE+="${MSG} \n"
+                      git reset --hard HEAD || true
+                      continue
+                  fi
                   SUCCEED_PROJECT+=" new ${PROJECT} commits to issue \n"
                   continue
               else
@@ -193,6 +199,12 @@ jobs:
                       --label "${LABEL}" \
                       --body "I am robot, upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
                       --base main
+                  if (( $? != 0 )) ; then
+                      MSG="error, failed to create PR for project ${PROJECT} for LATEST_VERSION=$LATEST_VERSION"
+                      FAILED_MESSAGE+="${MSG} \n"
+                      git reset --hard HEAD || true
+                      continue
+                  fi
                   SUCCEED_PROJECT+=" new ${PROJECT} commits to pr\n"
                   echo "succeeded to upgrade project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}"
               fi
