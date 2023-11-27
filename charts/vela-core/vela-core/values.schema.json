@@ -5,9 +5,6 @@
         "vela-core": {
             "type": "object",
             "properties": {
-                "OAMSpecVer": {
-                    "type": "string"
-                },
                 "admissionWebhooks": {
                     "type": "object",
                     "properties": {
@@ -117,19 +114,19 @@
                 "definitionRevisionLimit": {
                     "type": "integer"
                 },
-                "dependCheckWait": {
-                    "type": "string"
-                },
-                "disableCaps": {
-                    "type": "string"
-                },
                 "featureGates": {
                     "type": "object",
                     "properties": {
                         "applyOnce": {
                             "type": "boolean"
                         },
-                        "enableLegacyComponentRevision": {
+                        "disableBootstrapClusterInfo": {
+                            "type": "boolean"
+                        },
+                        "disableWebhookAutoSchedule": {
+                            "type": "boolean"
+                        },
+                        "disableWorkflowContextConfigMapCache": {
                             "type": "boolean"
                         },
                         "gzipApplicationRevision": {
@@ -138,10 +135,19 @@
                         "gzipResourceTracker": {
                             "type": "boolean"
                         },
+                        "informerCacheFilterUnnecessaryFields": {
+                            "type": "boolean"
+                        },
                         "multiStageComponentApply": {
                             "type": "boolean"
                         },
                         "preDispatchDryRun": {
+                            "type": "boolean"
+                        },
+                        "sharedDefinitionStorageForApplicationRevision": {
+                            "type": "boolean"
+                        },
+                        "validateComponentWhenSharding": {
                             "type": "boolean"
                         },
                         "zstdApplicationRevision": {
@@ -211,6 +217,26 @@
                         }
                     }
                 },
+                "livenessProbe": {
+                    "type": "object",
+                    "properties": {
+                        "failureThreshold": {
+                            "type": "integer"
+                        },
+                        "initialDelaySeconds": {
+                            "type": "integer"
+                        },
+                        "periodSeconds": {
+                            "type": "integer"
+                        },
+                        "successThreshold": {
+                            "type": "integer"
+                        },
+                        "timeoutSeconds": {
+                            "type": "integer"
+                        }
+                    }
+                },
                 "logDebug": {
                     "type": "boolean"
                 },
@@ -226,6 +252,9 @@
                         "clusterGateway": {
                             "type": "object",
                             "properties": {
+                                "direct": {
+                                    "type": "boolean"
+                                },
                                 "image": {
                                     "type": "object",
                                     "properties": {
@@ -253,6 +282,17 @@
                                     "type": "object",
                                     "properties": {
                                         "limits": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "requests": {
                                             "type": "object",
                                             "properties": {
                                                 "cpu": {
@@ -311,9 +351,6 @@
                         "cachedGvks": {
                             "type": "string"
                         },
-                        "controllerReconcileLoopReduction": {
-                            "type": "boolean"
-                        },
                         "disableApplicationRevision": {
                             "type": "boolean"
                         },
@@ -321,9 +358,6 @@
                             "type": "boolean"
                         },
                         "disableResourceApplyDoubleCheck": {
-                            "type": "boolean"
-                        },
-                        "disableWorkflowRecorder": {
                             "type": "boolean"
                         },
                         "enableInMemoryWorkflowContext": {
@@ -334,9 +368,6 @@
                         },
                         "markWithProb": {
                             "type": "number"
-                        },
-                        "resourceTrackerListOp": {
-                            "type": "boolean"
                         }
                     }
                 },
@@ -348,6 +379,26 @@
                     "properties": {
                         "create": {
                             "type": "boolean"
+                        }
+                    }
+                },
+                "readinessProbe": {
+                    "type": "object",
+                    "properties": {
+                        "failureThreshold": {
+                            "type": "integer"
+                        },
+                        "initialDelaySeconds": {
+                            "type": "integer"
+                        },
+                        "periodSeconds": {
+                            "type": "integer"
+                        },
+                        "successThreshold": {
+                            "type": "integer"
+                        },
+                        "timeoutSeconds": {
+                            "type": "integer"
                         }
                     }
                 },
@@ -395,6 +446,17 @@
                         },
                         "name": {
                             "type": "null"
+                        }
+                    }
+                },
+                "sharding": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "schedulableShards": {
+                            "type": "string"
                         }
                     }
                 },

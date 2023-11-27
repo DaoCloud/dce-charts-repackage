@@ -4,6 +4,7 @@ apiVersion: core.oam.dev/v1beta1
 kind: WorkflowStepDefinition
 metadata:
   annotations:
+    custom.definition.oam.dev/category: Application Delivery
     definition.oam.dev/description: Collect service endpoints for the application.
   name: collect-service-endpoints
   namespace: {{ include "systemDefinitionNamespace" . }}
@@ -34,6 +35,7 @@ spec:
         		}
         	}
         } @step(1)
+
         outputs: {
         	eps_port_name_filtered: *[] | [...]
         	if parameter.portName == _|_ {
@@ -68,9 +70,11 @@ spec:
         		endpoints: eps_port_filtered
         	}
         }
+
         wait: op.#ConditionalWait & {
         	continue: len(outputs.endpoints) > 0
         } @step(2)
+
         value: {
         	if len(outputs.endpoints) > 0 {
         		endpoint: outputs.endpoints[0].endpoint
@@ -78,6 +82,7 @@ spec:
         		url:      "\(parameter.protocal)://\(endpoint.host):\(_portStr)"
         	}
         }
+
         parameter: {
         	// +usage=Specify the name of the application
         	name?: string
