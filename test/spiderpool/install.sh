@@ -31,9 +31,13 @@ set -x
 # deploy the spiderpool
 helm install spiderpool chart-museum/spiderpool  ${HELM_MUST_OPTION} \
   --namespace kube-system \
+  --set spiderpool.global.imageRegistryOverride=ghcr.io \
   --set spiderpool.spiderpoolController.tls.method=auto \
   --set spiderpool.ipam.enableSpiderSubnet=true \
   --set spiderpool.multus.multusCNI.defaultCNIName=kindnet \
+  --set spiderpool.sriov.install=true \
+  --set rdma.rdmaSharedDevicePlugin.install=true \
+  --set plugins.installCNI=true --set plugins.installRdmaCNI=true --set plugins.installOvsCNI=true \
   --set spiderpool.ipam.enableIPv4=true --set spiderpool.ipam.enableIPv6=true \
   --set spiderpool.clusterDefaultPool.installIPv4IPPool=true  --set spiderpool.clusterDefaultPool.installIPv6IPPool=true  \
   --set spiderpool.clusterDefaultPool.ipv4Subnet=${Ipv4Subnet} --set spiderpool.clusterDefaultPool.ipv4IPRanges={${Ipv4Range}} --set spiderpool.clusterDefaultPool.ipv4Gateway=${Ipv4GW}\

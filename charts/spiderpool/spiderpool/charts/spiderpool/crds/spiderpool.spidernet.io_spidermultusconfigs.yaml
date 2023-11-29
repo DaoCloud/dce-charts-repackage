@@ -4,7 +4,6 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
-  creationTimestamp: null
   name: spidermultusconfigs.spiderpool.spidernet.io
 spec:
   group: spiderpool.spidernet.io
@@ -74,6 +73,7 @@ spec:
                       not be required, which could be merged from SpiderCoordinator
                       CR but in SpiderCoordinator CRD, podCIDRType should be required
                     enum:
+                    - auto
                     - cluster
                     - calico
                     - cilium
@@ -90,6 +90,9 @@ spec:
                 description: OtherCniTypeConfig only used for CniType custom, valid
                   json format, can be empty
                 type: string
+              disableIPAM:
+                default: false
+                type: boolean
               enableCoordinator:
                 default: true
                 type: boolean
@@ -222,6 +225,9 @@ spec:
                 type: object
               sriov:
                 properties:
+                  enableRdma:
+                    default: false
+                    type: boolean
                   ippools:
                     description: SpiderpoolPools could specify the IPAM spiderpool
                       CNI configuration default IPv4&IPv6 pools.
