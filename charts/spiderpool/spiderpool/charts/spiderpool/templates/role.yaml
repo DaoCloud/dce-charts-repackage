@@ -2,7 +2,6 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  creationTimestamp: null
   name: spiderpool-admin
 rules:
 - apiGroups:
@@ -13,9 +12,13 @@ rules:
   - namespaces
   - nodes
   - pods
+  - pods/status
   verbs:
+  - delete
+  - deletecollection
   - get
   - list
+  - patch
   - update
   - watch
 - apiGroups:
@@ -80,6 +83,20 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - kubevirt.io
+  resources:
+  - virtualmachineinstances
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - kubevirt.io
+  resources:
+  - virtualmachines
+  verbs:
+  - get
+  - list
 - apiGroups:
   - spiderpool.spidernet.io
   resources:

@@ -37,9 +37,9 @@ yq -i '
     .spiderpool.ipam.enableIPv4=true |
     .spiderpool.ipam.enableIPv6=false |
     .spiderpool.ipam.enableSpiderSubnet=true |
-    .spiderpool.coordinator.hijackCIDR = ["169.254.0.0/16"] + .spiderpool.coordinator.hijackCIDR |
+    .spiderpool.coordinator.detectGateway = true |
+    .spiderpool.coordinator.detectIPConflict = true | 
     .spiderpool.multus.multusCNI.uninstall=true |
-    .spiderpool.multus.multusCNI.defaultCniCRName="" |
     .spiderpool.multus.multusCNI.defaultCniCRName="" |
     .spiderpool.multus.multusCNI.image.registry="ghcr.m.daocloud.io" |
     .spiderpool.clusterDefaultPool.installIPv4IPPool=true |
@@ -51,12 +51,18 @@ yq -i '
     .spiderpool.clusterDefaultPool.ipv6Gateway="fd00::1" |
     .spiderpool.clusterDefaultPool.ipv4IPRanges = ["192.168.0.10-192.168.0.100"] + .spiderpool.clusterDefaultPool.ipv4IPRanges |
     .spiderpool.clusterDefaultPool.ipv6IPRanges = ["fd00::10-fd00::100"] + .spiderpool.clusterDefaultPool.ipv6IPRanges |
+    .spiderpool.spiderpoolAgent.image.registry="ghcr.m.daocloud.io" |
     .spiderpool.spiderpoolAgent.resources.requests.cpu=strenv(CUSTOM_SPIDERPOOL_AGENT_CPU) |
     .spiderpool.spiderpoolAgent.resources.requests.memory=strenv(CUSTOM_SPIDERPOOL_AGENT_MEMORY) |
+    .spiderpool.spiderpoolController.image.registry="ghcr.m.daocloud.io" |
     .spiderpool.spiderpoolController.resources.requests.cpu=strenv(CUSTOM_SPIDERPOOL_CONTROLLER_CPU) |
     .spiderpool.spiderpoolController.resources.requests.memory=strenv(CUSTOM_SPIDERPOOL_CONTROLLER_MEMORY) |
+    .spiderpool.spiderpoolController.tolerations[0].effect = "NoSchedule" |
+    .spiderpool.spiderpoolInit.image.registry="ghcr.m.daocloud.io" | 
     .spiderpool.spiderpoolInit.resources.requests.cpu=strenv(CUSTOM_SPIDERPOOL_INIT_CPU) |
-    .spiderpool.spiderpoolInit.resources.requests.memory=strenv(CUSTOM_SPIDERPOOL_INIT_MEMORY)
+    .spiderpool.spiderpoolInit.resources.requests.memory=strenv(CUSTOM_SPIDERPOOL_INIT_MEMORY) | 
+    .spiderpool.plugins.image.registry="ghcr.m.daocloud.io" |
+    .spiderpool.rdma.rdmaSharedDevicePlugin.image.registry="ghcr.m.daocloud.io" 
 ' values.yaml
 
 if ! grep "keywords:" Chart.yaml &>/dev/null ; then
