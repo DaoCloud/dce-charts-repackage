@@ -14,7 +14,7 @@ server:
   podAnnotations: {}
   image:
     ## @param kdoctorAgent.image.registry the image registry of kdoctorAgent
-    registry: ghcr.io
+    registry: ghcr.m.daocloud.io
     ## @param kdoctorAgent.image.repository the image repository of kdoctorAgent
     repository: kdoctor-io/kdoctor-agent
     ## @param kdoctorAgent.image.pullPolicy the image pullPolicy of kdoctorAgent
@@ -22,7 +22,7 @@ server:
     ## @param kdoctorAgent.image.digest the image digest of kdoctorAgent, which takes preference over tag
     digest: ""
     ## @param kdoctorAgent.image.tag the image tag of kdoctorAgent, overrides the image tag whose default is the chart appVersion.
-    tag: "v0.2.0"
+    tag: "v0.2.1"
     ## @param kdoctorAgent.image.imagePullSecrets the image imagePullSecrets of kdoctorAgent
     imagePullSecrets: []
     # - name: "image-pull-secret"
@@ -69,6 +69,12 @@ server:
     ## @param kdoctorAgent.grpcServer.port the Port for grpc server
     port: 3000
   resources:
+    limits:
+      cpu: 500m
+      memory: 1024Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
   #limits:
   #  cpu: 500m
   #  memory: 1024Mi
@@ -98,5 +104,3 @@ server:
     host: "kdoctor.io"
     ingressClass:
     targetPath: "/"
-image:
-  registry: ghcr.m.daocloud.io
