@@ -110,7 +110,9 @@
           "required": [
             "enableIPv4",
             "enableIPv6",
-            "nethttp_defaultRequest_MaxQps",
+            "netReachRequestMaxQPS",
+            "appHttpHealthyRequestMaxQPS",
+            "netDnsRequestMaxQPS",
             "crdMaxHistory",
             "aggregateReport"
           ],
@@ -125,10 +127,20 @@
               "default": false,
               "title": "Enable IPv6"
             },
-            "nethttp_defaultRequest_MaxQps": {
+            "netReachRequestMaxQPS": {
+              "type": "integer",
+              "default": 20,
+              "title": "NetReach Max Qps"
+            },
+            "appHttpHealthyRequestMaxQPS": {
               "type": "integer",
               "default": 100,
-              "title": "Nethttp Max Qps"
+              "title": "AppHttpHealthy Max Qps"
+            },
+            "netDnsRequestMaxQPS": {
+              "type": "integer",
+              "default": 100,
+              "title": "NetDns Max Qps"
             },
             "crdMaxHistory": {
               "type": "integer",
