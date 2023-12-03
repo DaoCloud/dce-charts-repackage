@@ -20,6 +20,9 @@ metadata:
     {{- end }}
 spec:
   replicas: 1
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   strategy:
     type: Recreate
   selector:
@@ -42,8 +45,10 @@ spec:
       {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.metrics.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
+      {{- if and (.Values.metrics.enabled) (not .Values.metrics.serviceMonitor.enabled) }}
+        {{- with .Values.metrics.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- end }}
     {{- end }}
     spec:
@@ -142,6 +147,9 @@ spec:
             {{- with .terminatingResourceTimeout }}
             - --terminating-resource-timeout={{ . }}
             {{- end }}
+            {{- with .defaultSnapshotMoveData }}
+            - --default-snapshot-move-data={{ . }}
+            {{- end }}
             ### Global Flags
             {{- with .features }}
             - --features={{ . }}
@@ -153,6 +161,14 @@ spec:
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.metrics.enabled }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- end }}
           {{- with .Values.containerSecurityContext }}
           securityContext:
