@@ -1,3 +1,8 @@
+{{/*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{/* vim: set filetype=mustache: */}}
 
 {{- define "mariadb.primary.fullname" -}}
@@ -145,5 +150,15 @@ Compile all warnings into a single message, and call fail.
 mariadb: architecture
     Invalid architecture selected. Valid values are "standalone" and
     "replication". Please set a valid architecture (--set architecture="xxxx")
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get existing password to access MariaDB
+*/}}
+{{- define "mariadb.secret.existPassword" -}}
+{{- $secret := (lookup "v1" "Secret" .Release.Namespace (include "mariadb.secretName" .)).data -}}
+{{- if hasKey $secret "mariadb-password" }}
+    {{- true -}}
 {{- end -}}
 {{- end -}}
