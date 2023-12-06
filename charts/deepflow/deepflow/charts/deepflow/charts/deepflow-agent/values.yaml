@@ -1,0 +1,138 @@
+# Default values for deepflow-agent.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  podAntiAffinityLabelSelector: []
+  podAntiAffinityTermLabelSelector: []
+  podAffinityLabelSelector: []
+  podAffinityTermLabelSelector: []
+  nodeAffinityLabelSelector: []
+  nodeAffinityTermLabelSelector: []
+
+deployComponent: 
+- "daemonset"
+# - "watcher"
+# 
+tke_sidecar: false
+
+image:
+  repository: registry.cn-hongkong.aliyuncs.com/deepflow-ce/deepflow-agent
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: v6.4.3
+
+imagePullSecrets: []
+nameOverride: ""
+agentFullnameOverride: "deepflow-agent"
+
+podAnnotations: {}
+## Pod Labels
+podLabels: {}
+podSecurityContext: {}
+  # fsGroup: 2000
+hostNetwork: "false"
+
+## Mount the netns hostPath directory read-only 
+netns:
+  mount: false
+  
+securityContext: 
+  # privileged: true
+  capabilities:
+    add:
+    - SYS_ADMIN ## Permission required for collecting K8s information and eBPF data
+    - SYS_RESOURCE ## Permissions required to collect eBPF data
+    - SYS_PTRACE ## Permission required for collecting K8s information
+    - NET_ADMIN ## Indicates the permission for collecting AF_PACKET traffic
+    - NET_RAW ## Indicates the permission for collecting AF_PACKET traffic
+    - IPC_LOCK ## optional MAP_LOCKED MAP_NORESERVE: Indicates the permission for collecting AF_PACKET traffic, It can significantly degrade performance when not available
+    - SYSLOG
+    #- BPF      ## Optionally, eBPF does not require SYS_ADMIN in kernel Linux 5.8+ and uses a combination of BPF and PERFMON instead
+    #- PERFMON  ## Optionally, eBPF does not require SYS_ADMIN in kernel Linux 5.8+ and uses a combination of BPF and PERFMON instead
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+
+timezone: "Asia/Shanghai"
+
+## File read and write permissions required for collecting eBPF data (Optional. If you do not have the permission and the content does not meet expectations, the performance will be significantly reduced. You can set the content in advance.)
+## sysctl -w net.core.bpf_jit_enable=1
+sysctlInitContainer:
+  enabled: true
+
+extraVolumeMounts: []
+service:
+  ## Configuration for Clickhouse service
+  ##
+  annotations: {}
+  labels: {}
+  clusterIP: ""
+
+  ## Port for Clickhouse Service to listen on
+  ##
+
+  ports:
+  - name: receive
+    port: 80
+    targetPort: receive
+    nodePort: 
+    protocol: TCP
+
+  ## Additional ports to open for server service
+  additionalPorts: []
+
+  externalIPs: []
+  loadBalancerIP: ""
+  loadBalancerSourceRanges: []
+
+  ## Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
+  externalTrafficPolicy: Cluster
+
+  ## Service type
+  ##
+  type: ClusterIP
+
+deepflowServerNodeIPS:
+- deepflow-server
+deepflowK8sClusterID:
+agentGroupID:
+controllerPort:
+clusterNAME:
+## This command takes effect when agent-group-config external_agent_http_proxy_enabled=1 is configured using deepflow-ctl
+## Set the port to the agent-group-config port
+externalAgentHttpProxyPort: 38086
+
+deepflowAgentConfig: 
+  deepflow-agent.yaml: |
+    {{- nindent 4 "controller-ips:" -}}
+    {{- tpl (toYaml $.Values.deepflowServerNodeIPS ) .| nindent 4 -}}
+    {{- if .Values.agentGroupID }}{{ nindent 4 "vtap-group-id-request:" }} {{ .Values.agentGroupID }}{{ end -}}
+    {{- if .Values.deepflowK8sClusterID }}{{ nindent 4 "kubernetes-cluster-id:" }} {{ .Values.deepflowK8sClusterID }}{{ end -}}
+    {{- if .Values.controllerPort }}{{ nindent 4 "controller-port:" }} {{ .Values.controllerPort }}{{ end -}}
+    {{- if .Values.clusterNAME }}{{ nindent 4 "kubernetes-cluster-name:" }} {{ .Values.clusterNAME }}{{ end -}}
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 768Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+
+nodeSelector: {}
+
+tolerations: []
+# - key: "key1"
+#   operator: "Equal"
+#   value: "value1"
+#   effect: "NoSchedule"
+
+podAntiAffinityLabelSelector: []
+podAntiAffinityTermLabelSelector: []
+podAffinityLabelSelector: []
+podAffinityTermLabelSelector: []
+nodeAffinityLabelSelector: []
+nodeAffinityTermLabelSelector: []
+

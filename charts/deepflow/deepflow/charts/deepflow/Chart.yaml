@@ -1,0 +1,33 @@
+apiVersion: v2
+appVersion: 6.4.3
+dependencies:
+- condition: clickhouse.enabled
+  name: clickhouse
+  repository: ""
+  version: '*.*.*'
+- condition: mysql.enabled
+  name: mysql
+  repository: ""
+  version: '*.*.*'
+- condition: deepflow-agent.enabled
+  name: deepflow-agent
+  repository: ""
+  version: '*.*.*'
+- condition: grafana.enabled
+  name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 7.*.*
+description: An automated observability platform for cloud-native developers.
+home: https://github.com/deepflowio/deepflow
+icon: https://raw.githubusercontent.com/deepflowio/deepflow-charts/main/deepflow.svg
+keywords:
+- deepflow
+kubeVersion: '>=1.16.0-0'
+maintainers:
+- name: deepflow
+  url: https://github.com/deepflowio/deepflow
+name: deepflow
+sources:
+- https://github.com/deepflowio/deepflow
+type: application
+version: 6.4.004

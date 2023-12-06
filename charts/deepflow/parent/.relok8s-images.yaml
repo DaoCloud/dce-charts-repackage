@@ -1,0 +1,15 @@
+# server
+- "{{ .deepflow.image.server.registry }}/{{ .deepflow.image.server.repository }}:{{ .deepflow.image.server.tag }}"
+# app
+- "{{ .deepflow.image.app.registry }}/{{ .deepflow.image.app.repository }}:{{ .deepflow.image.app.tag }}"
+# clickhouse
+- "{{ .deepflow.clickhouse.image.registry }}/{{ .deepflow.clickhouse.image.repository }}:{{ .deepflow.clickhouse.image.tag }}"
+# mysql
+- "{{ .deepflow.mysql.image.registry }}/{{ .deepflow.mysql.image.repository }}:{{ .deepflow.mysql.image.tag }}"
+# deepflow-agent
+- "{{ .deepflow.deepflow-agent.image.registry }}/{{ .deepflow.deepflow-agent.image.repository }}:{{ .deepflow.deepflow-agent.image.tag }}"
+# grafana
+- "{{ .deepflow.grafana.image.registry }}/{{ .deepflow.grafana.image.repository }}:{{ .deepflow.grafana.image.tag }}"
+- "{{ .global.grafanaInitContainer.initCustomPlugins.image.registry }}/{{ .global.grafanaInitContainer.initCustomPlugins.image.repository }}:{{ .global.grafanaInitContainer.initCustomPlugins.image.tag }}"
+- "{{ .global.grafanaInitContainer.initGrafanaDsDh.image.registry }}/{{ .global.grafanaInitContainer.initGrafanaDsDh.image.repository }}:{{ .global.grafanaInitContainer.initGrafanaDsDh.image.tag }}"
+- "{{ .deepflow.grafana.testFramework.image.registry }}/{{ .deepflow.grafana.testFramework.image.repository }}:{{ .deepflow.grafana.testFramework.image.tag }}"
