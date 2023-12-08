@@ -119,7 +119,7 @@ if [ -d "${PROJECT_SRC_DIR}/parent" ] ;then
     cp -rf ${PROJECT_SRC_DIR}/parent/. ${CHART_BUILD_DIR}
 fi
 
-if [ ${SKIP_SCHEMA} != "true" ] && [ ! -f ${CHART_BUILD_DIR}/values.schema.json ] ; then
+if [ ${SKIP_SCHEMA-"false"} != "true" ] && [ ! -f ${CHART_BUILD_DIR}/values.schema.json ] ; then
     echo "auto generate values.schema.json"
     if ! helm schema-gen -h &>/dev/null ; then
         echo "install helm-schema-gen "
