@@ -114,6 +114,8 @@
 
 * NO_TRIVY: （可选）true 表示让 CI 不要扫描本 chart 的漏洞
 
+* SKIP_SCHEMA: （可选）true 表示让 CI 跳过 values.schema.json 文件的检测且工程代码也不会自动生成它
+
 ### 方案: 自己写做包脚本
 
 准备好 /charts/${PROJECT}/config ：
