@@ -193,6 +193,8 @@ jobs:
           BASE=$PWD
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
               CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
+              # skip schema check
+              source ${BASE}/charts/${PROJECT}/config && [ "${SKIP_SCHEMA}" == "true" ] && echo "ignore schema check" && continue
               [ -f "${CHART_PATH}/${{ env.SCHEMA_FILE_NAME }}" ] \
                   || { echo "error, miss ${{ env.SCHEMA_FILE_NAME }} file in chart ${PROJECT} " ; exit 1 ; }
           done
