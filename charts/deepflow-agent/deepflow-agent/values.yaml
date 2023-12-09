@@ -1,0 +1,17 @@
+global: {}
+
+deepflow-agent:
+  image:
+    registry: "docker.m.daocloud.io"
+    repository: "deepflowce/deepflow-agent"
+    pullPolicy: Always
+    tag: v6.4.3
+  deployComponent:
+    - "daemonset"
+  timezone: "Asia/Shanghai"
+  deepflowServerNodeIPS:
+    - deepflow-server
+  deepflowK8sClusterID: ""
+  agentGroupID: ""
+  controllerPort: ""
+  clusterNAME: ""

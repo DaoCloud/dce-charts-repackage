@@ -1,0 +1,175 @@
+{{- if has "daemonset"  $.Values.deployComponent }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "deepflow-agent.fullname" . }}
+  labels:
+    {{- include "deepflow-agent.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "deepflow-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/customConfig: {{ sha256sum (print .Values.deepflowAgentConfig) }}
+        container.apparmor.security.beta.kubernetes.io/deepflow-agent: unconfined
+        {{- if .Values.tke_sidecar }}
+        eks.tke.cloud.tencent.com/ds-injection: "true"
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "deepflow-agent.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: {{ tpl .Values.hostNetwork . }}
+      hostPID: true
+      imagePullSecrets:
+      {{- with .Values.global.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "deepflow-agent.fullname" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.sysctlInitContainer.enabled }}
+      initContainers:
+      - name: configure-sysctl
+        securityContext:
+          runAsUser: 0
+          privileged: true
+        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
+        command: ["/bin/bash", "-c", "sysctl -w net.core.bpf_jit_enable=1 || true"]
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ tpl .Values.image.pullPolicy . }}
+          {{- if .Values.tke_sidecar }}
+          command: 
+          - /usr/bin/deepflow-agent
+          args:
+          - --sidecar
+          - -f
+          - /etc/deepflow-agent/deepflow-agent.yaml
+          {{- end }}
+          ports:
+            - name: receive
+              containerPort: {{ tpl (toString .Values.externalAgentHttpProxyPort) . }}
+              protocol: TCP
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: otel
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 10
+          # readinessProbe:
+          #   tcpSocket:
+          #     port: otel
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 10
+          env:
+          - name: TZ
+            value: {{ tpl .Values.timezone . }}
+          - name: K8S_NODE_IP_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+          - name: K8S_NODE_NAME_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: K8S_POD_NAME_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          {{- if .Values.tke_sidecar }}
+          - name: CTRL_NETWORK_INTERFACE
+            value: "eth0"
+          {{- end }}
+          - name: K8S_POD_IP_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+              {{- if .Values.tke_sidecar }}
+                fieldPath: status.hostIP 
+              {{- else }}
+                fieldPath: status.podIP
+              {{- end }}
+          - name: K8S_MEM_LIMIT_FOR_DEEPFLOW
+            valueFrom:
+              resourceFieldRef:
+                divisor: 1Mi
+                resource: limits.memory
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: sys-kernel-debug
+              mountPath: /sys/kernel/debug
+              readOnly: true
+            - name: deepflow-agent-conf
+              mountPath: /etc/deepflow-agent
+            {{- if .Values.netns.mount }}
+            - name: netns # required to access net namespace info
+              mountPath: /var/run/netns
+              readOnly: true
+              mountPropagation: HostToContainer
+           {{- end }}
+          {{- range .Values.extraVolumeMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+              subPath: {{ .subPath | default "" }}
+              readOnly: {{ .readOnly }}
+          {{- end }}
+      volumes:
+        {{- if .Values.netns.mount }}
+        - name: netns
+          hostPath:
+            path: /var/run/netns
+            type: DirectoryOrCreate
+        {{- end }}
+        - name: sys-kernel-debug
+          hostPath:
+            path: /sys/kernel/debug
+        - name: deepflow-agent-conf
+          configMap:
+            name: {{ include "deepflow-agent.fullname" . }}
+      {{- range .Values.extraVolumeMounts }}
+        - name: {{ .name }}
+          {{- if .existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .existingClaim }}
+          {{- else if .hostPath }}
+          hostPath:
+            path: {{ .hostPath }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+      {{- include "nodeaffinity" . | indent 6 }}
+      {{- include "podAffinity" . | indent 6 }}
+      {{- include "podAntiAffinity" . | indent 6 }}
+      {{- if or .Values.global.tolerations .Values.tolerations }}
+      tolerations:
+      {{- if .Values.global.tolerations }}
+      {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- end }}
+{{- end }}
