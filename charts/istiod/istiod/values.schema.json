@@ -168,9 +168,6 @@
                                 "excludeOutboundPorts": {
                                     "type": "string"
                                 },
-                                "holdApplicationUntilProxyStarts": {
-                                    "type": "boolean"
-                                },
                                 "image": {
                                     "type": "string"
                                 },
@@ -225,6 +222,17 @@
                                         }
                                     }
                                 },
+                                "startupProbe": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "failureThreshold": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
                                 "statusPort": {
                                     "type": "integer"
                                 },
@@ -268,58 +276,6 @@
                         "tag": {
                             "type": "string"
                         },
-                        "tracer": {
-                            "type": "object",
-                            "properties": {
-                                "datadog": {
-                                    "type": "object",
-                                    "properties": {
-                                        "address": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "lightstep": {
-                                    "type": "object",
-                                    "properties": {
-                                        "accessToken": {
-                                            "type": "string"
-                                        },
-                                        "address": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "stackdriver": {
-                                    "type": "object",
-                                    "properties": {
-                                        "debug": {
-                                            "type": "boolean"
-                                        },
-                                        "maxNumberOfAnnotations": {
-                                            "type": "integer"
-                                        },
-                                        "maxNumberOfAttributes": {
-                                            "type": "integer"
-                                        },
-                                        "maxNumberOfMessageEvents": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "zipkin": {
-                                    "type": "object",
-                                    "properties": {
-                                        "address": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "useMCP": {
-                            "type": "boolean"
-                        },
                         "variant": {
                             "type": "string"
                         }
@@ -336,6 +292,17 @@
                         },
                         "tag": {
                             "type": "string"
+                        }
+                    }
+                },
+                "istio_cni": {
+                    "type": "object",
+                    "properties": {
+                        "chained": {
+                            "type": "boolean"
+                        },
+                        "enabled": {
+                            "type": "boolean"
                         }
                     }
                 },
@@ -364,6 +331,9 @@
                 "pilot": {
                     "type": "object",
                     "properties": {
+                        "autoscaleBehavior": {
+                            "type": "object"
+                        },
                         "autoscaleEnabled": {
                             "type": "boolean"
                         },
@@ -395,19 +365,22 @@
                         "deploymentLabels": {
                             "type": "object"
                         },
-                        "enableProtocolSniffingForInbound": {
-                            "type": "boolean"
-                        },
-                        "enableProtocolSniffingForOutbound": {
-                            "type": "boolean"
-                        },
                         "env": {
                             "type": "object"
+                        },
+                        "extraContainerArgs": {
+                            "type": "array"
                         },
                         "hub": {
                             "type": "string"
                         },
                         "image": {
+                            "type": "string"
+                        },
+                        "ipFamilies": {
+                            "type": "array"
+                        },
+                        "ipFamilyPolicy": {
                             "type": "string"
                         },
                         "jwksResolverExtraRootCA": {
@@ -462,11 +435,20 @@
                         "tag": {
                             "type": "string"
                         },
+                        "topologySpreadConstraints": {
+                            "type": "array"
+                        },
                         "traceSampling": {
                             "type": "number"
                         },
                         "variant": {
                             "type": "string"
+                        },
+                        "volumeMounts": {
+                            "type": "array"
+                        },
+                        "volumes": {
+                            "type": "array"
                         }
                     }
                 },
@@ -493,6 +475,9 @@
                         },
                         "neverInjectSelector": {
                             "type": "array"
+                        },
+                        "reinvocationPolicy": {
+                            "type": "string"
                         },
                         "rewriteAppHTTPProbe": {
                             "type": "boolean"
