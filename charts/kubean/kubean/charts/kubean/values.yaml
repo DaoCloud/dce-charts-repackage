@@ -7,6 +7,7 @@ kubeanOperator:
   replicaCount: 1
   nameOverride: ""
   fullnameOverride: ""
+  operationsBackendLimit: 5
   podAnnotations: {}
   podSecurityContext: {}
   # fsGroup: 2000
@@ -34,7 +35,7 @@ kubeanOperator:
     # -- kubean-operator image registry
     repository: kubean-io/kubean-operator
     # -- the image tag whose default is the chart appVersion
-    tag: "v0.4.3"
+    tag: "v0.10.0"
     # -- Pull policy of image
     pullPolicy: IfNotPresent
     # -- Pull secrets of image
@@ -56,7 +57,28 @@ kubeanOperator:
 
   nodeSelector: {}
   tolerations: []
-  affinity: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - kubean
+            topologyKey: kubernetes.io/hostname
+kubeanAdmission:
+  replicaCount: 1
+  ## define admission image
+  image:
+    # -- spray-job image registry
+    registry: ghcr.io
+    # -- spray-job image registry
+    repository: kubean-io/kubean-admission
+    # -- the image tag whose default is the chart appVersion
+    tag: "v0.10.0"
 ## define spray-job configuration
 sprayJob:
   ## define spray-job image
@@ -66,4 +88,4 @@ sprayJob:
     # -- spray-job image registry
     repository: kubean-io/spray-job
     # -- the image tag whose default is the chart appVersion
-    tag: "v0.4.3"
+    tag: "v0.10.0"
