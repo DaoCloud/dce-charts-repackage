@@ -38,7 +38,7 @@ argo-rollouts:
     deploymentAnnotations: {}
     imageRegistry: quay.m.daocloud.io
     repository: argoproj/argo-rollouts
-    tag: v1.6.0
+    tag: v1.6.3
   controller:
     # -- Value of label `app.kubernetes.io/component`
     component: rollouts-controller
@@ -70,7 +70,7 @@ argo-rollouts:
       # -- Repository to use
       repository: argoproj/argo-rollouts
       # -- Overrides the image tag (default is the chart appVersion)
-      tag: "v1.6.0"
+      tag: "v1.6.3"
       # -- Image pull policy
       pullPolicy: IfNotPresent
     # -- Additional command line arguments to pass to rollouts-controller.  A list of flags.
@@ -242,6 +242,8 @@ argo-rollouts:
       traefik: true
       # -- Adds RBAC rules for the Apisix provider
       apisix: true
+      # -- Adds RBAC rules for the Contour provider, see `https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-contour/blob/main/README.md`
+      contour: true
   dashboard:
     # -- Deploy dashboard server
     enabled: false
@@ -279,7 +281,7 @@ argo-rollouts:
       # --  Repository to use
       repository: argoproj/kubectl-argo-rollouts
       # -- Overrides the image tag (default is the chart appVersion)
-      tag: "v1.6.0"
+      tag: "v1.6.3"
       # -- Image pull policy
       pullPolicy: IfNotPresent
     # -- Additional command line arguments to pass to rollouts-dashboard. A list of flags.
