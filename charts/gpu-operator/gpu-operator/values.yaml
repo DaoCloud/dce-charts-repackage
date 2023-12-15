@@ -39,7 +39,7 @@ gpu-operator:
     repository: nvcr.io
     image: nvidia/cloud-native/gpu-operator-validator
     # If version is not specified, then default is to use chart.AppVersion
-    version: "v23.6.1"
+    version: "v23.9.1"
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     env: []
@@ -53,7 +53,7 @@ gpu-operator:
     repository: nvcr.io
     image: nvidia/gpu-operator
     # If version is not specified, then default is to use chart.AppVersion
-    version: "v23.6.1"
+    version: "v23.9.1"
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     priorityClassName: system-node-critical
@@ -68,7 +68,7 @@ gpu-operator:
     initContainer:
       image: nvidia/cuda
       repository: nvcr.io
-      version: 12.2.0-base-ubi8
+      version: 12.3.1-base-ubi8
       imagePullPolicy: IfNotPresent
     tolerations:
       - key: "node-role.kubernetes.io/master"
@@ -115,6 +115,12 @@ gpu-operator:
     strategy: single
   driver:
     enabled: true
+    nvidiaDriverCRD:
+      enabled: false
+      deployDefaultCR: true
+      driverType: gpu
+      nodeSelector: {}
+    useOpenKernelModules: false
     # use pre-compiled packages for NVIDIA driver installation.
     # only supported for as a tech-preview feature on ubuntu22.04 kernels.
     usePrecompiled: false
@@ -168,7 +174,7 @@ gpu-operator:
     manager:
       image: nvidia/cloud-native/k8s-driver-manager
       repository: nvcr.io
-      version: v0.6.2
+      version: v0.6.5
       imagePullPolicy: IfNotPresent
       env:
         - name: ENABLE_GPU_POD_EVICTION
@@ -194,7 +200,7 @@ gpu-operator:
     # vGPU licensing configuration
     licensingConfig:
       configMapName: ""
-      nlsEnabled: false
+      nlsEnabled: true
     # vGPU topology daemon configuration
     virtualTopology:
       config: ""
@@ -215,7 +221,7 @@ gpu-operator:
     enabled: false
     repository: nvcr.io
     image: nvidia/k8s-device-plugin
-    version: v0.14.1-ubi8
+    version: v0.14.3-ubi8
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     args: []
@@ -268,7 +274,7 @@ gpu-operator:
     enabled: false
     repository: nvcr.io
     image: nvidia/cloud-native/dcgm
-    version: 3.1.8-1-ubuntu20.04
+    version: 3.3.0-1-ubuntu22.04
     imagePullPolicy: IfNotPresent
     hostPort: 5555
     args: []
@@ -278,7 +284,7 @@ gpu-operator:
     enabled: true
     repository: nvcr.io
     image: nvidia/k8s/dcgm-exporter
-    version: 3.1.8-3.1.5-ubuntu20.04
+    version: 3.3.0-3.2.0-ubuntu22.04
     imagePullPolicy: IfNotPresent
     env:
       - name: DCGM_EXPORTER_LISTEN
@@ -309,7 +315,7 @@ gpu-operator:
     enabled: true
     repository: nvcr.io
     image: nvidia/gpu-feature-discovery
-    version: v0.8.1-ubi8
+    version: v0.8.2-ubi8
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     env:
@@ -322,7 +328,7 @@ gpu-operator:
     enabled: false
     repository: nvcr.io
     image: nvidia/cloud-native/k8s-mig-manager
-    version: v0.5.3-ubuntu20.04
+    version: v0.5.5-ubuntu20.04
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     env:
@@ -339,7 +345,7 @@ gpu-operator:
     repository: nvcr.io
     image: nvidia/cloud-native/gpu-operator-validator
     # If version is not specified, then default is to use chart.AppVersion
-    version: "v23.6.1"
+    version: "v23.9.1"
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     resources: {}
@@ -364,7 +370,7 @@ gpu-operator:
     driverManager:
       image: k8s-driver-manager
       repository: nvcr.io/nvidia/cloud-native
-      version: v0.6.2
+      version: v0.6.4
       imagePullPolicy: IfNotPresent
       env:
         - name: ENABLE_GPU_POD_EVICTION
@@ -375,7 +381,7 @@ gpu-operator:
     enabled: false
     repository: nvcr.io
     image: nvidia/cloud-native/vgpu-device-manager
-    version: "v0.2.3"
+    version: "v0.2.4"
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     env: []
@@ -386,7 +392,7 @@ gpu-operator:
     enabled: false
     repository: nvcr.io
     image: nvidia/cuda
-    version: 12.2.0-base-ubi8
+    version: 12.3.1-base-ubi8
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     env: []
@@ -419,7 +425,7 @@ gpu-operator:
             pullSecret: ""
     repository: nvcr.io
     image: nvidia/cloud-native/k8s-kata-manager
-    version: v0.1.1
+    version: v0.1.2
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     env: []
@@ -428,7 +434,7 @@ gpu-operator:
     enabled: false
     repository: nvcr.io
     image: nvidia/kubevirt-gpu-device-plugin
-    version: v1.2.2
+    version: v1.2.4
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     args: []
@@ -439,7 +445,7 @@ gpu-operator:
     defaultMode: "off"
     repository: nvcr.io
     image: nvidia/cloud-native/k8s-cc-manager
-    version: v0.1.0
+    version: v0.1.1
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     env:
@@ -448,6 +454,12 @@ gpu-operator:
     resources: {}
   node-feature-discovery:
     enableNodeFeatureApi: true
+    gc:
+      enable: true
+      replicaCount: 1
+      serviceAccount:
+        name: node-feature-discovery
+        create: false
     worker:
       serviceAccount:
         name: node-feature-discovery
@@ -489,4 +501,4 @@ gpu-operator:
     image:
       registry: k8s.m.daocloud.io
       repository: nfd/node-feature-discovery
-      tag: v0.13.1
+      tag: v0.14.2

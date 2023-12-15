@@ -35,12 +35,10 @@ yq e '.image.tag=env(nfdVersion)' -i ./charts/gpu-operator/charts/node-feature-d
 if [ $os == "Darwin" ];then
    sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/master.yaml
    sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/worker.yaml
-   sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/topology-gc.yaml
    sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/topologyupdater.yaml
 elif [ $os == "Linux" ]; then
    sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/master.yaml
    sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/worker.yaml
-   sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/topology-gc.yaml
    sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/topologyupdater.yaml
 fi
 
