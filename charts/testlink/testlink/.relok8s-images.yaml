@@ -1,0 +1,7 @@
+- "{{ .testlink.global.imageRegistry }}/{{ .testlink.certificates.image.repository }}:{{ .testlink.certificates.image.tag }}"
+- "{{ .testlink.global.imageRegistry }}/{{ .testlink.metrics.image.repository }}:{{ .testlink.metrics.image.tag }}"
+- "{{ .testlink.global.imageRegistry }}/{{ .testlink.mariadb.metrics.image.repository }}:{{ .testlink.mariadb.metrics.image.tag }}"
+- "{{ .testlink.global.imageRegistry }}/{{ .testlink.volumePermissions.image.repository }}:{{ .testlink.volumePermissions.image.tag }}"
+- "{{ .testlink.global.imageRegistry }}/{{ .testlink.mariadb.volumePermissions.image.repository }}:{{ .testlink.mariadb.volumePermissions.image.tag }}"
+- "{{ .testlink.global.imageRegistry }}/{{ .testlink.image.repository }}:{{ .testlink.image.tag }}"
+- "{{ .testlink.global.imageRegistry }}/{{ .testlink.mariadb.image.repository }}:{{ .testlink.mariadb.image.tag }}"
