@@ -1,3 +1,8 @@
+{{/*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{/* vim: set filetype=mustache: */}}
 {{/*
 Generate secret name.
@@ -72,7 +77,7 @@ Params:
   - strong - Boolean - Optional - Whether to add symbols to the generated random password.
   - chartName - String - Optional - Name of the chart used when said chart is deployed as a subchart.
   - context - Context - Required - Parent context.
-
+  - failOnNew - Boolean - Optional - Default to true. If set to false, skip errors adding new keys to existing secrets.
 The order in which this function returns a secret password:
   1. Already existing 'Secret' resource
      (If a 'Secret' resource is found under the name provided to the 'secret' parameter to this function and that 'Secret' resource contains a key with the name passed as the 'key' parameter to this function then the value of this existing secret password will be returned)
@@ -94,8 +99,10 @@ The order in which this function returns a secret password:
 {{- if $secretData }}
   {{- if hasKey $secretData .key }}
     {{- $password = index $secretData .key | quote }}
-  {{- else }}
+  {{- else if not (eq .failOnNew false) }}
     {{- printf "\nPASSWORDS ERROR: The secret \"%s\" does not contain the key \"%s\"\n" .secret .key | fail -}}
+  {{- else if $providedPasswordValue }}
+    {{- $password = $providedPasswordValue | toString | b64enc | quote }}
   {{- end -}}
 {{- else if $providedPasswordValue }}
   {{- $password = $providedPasswordValue | toString | b64enc | quote }}
@@ -137,14 +144,15 @@ Params:
 */}}
 {{- define "common.secrets.lookup" -}}
 {{- $value := "" -}}
-{{- $defaultValue := required "\n'common.secrets.lookup': Argument 'defaultValue' missing or empty" .defaultValue -}}
 {{- $secretData := (lookup "v1" "Secret" (include "common.names.namespace" .context) .secret).data -}}
 {{- if and $secretData (hasKey $secretData .key) -}}
   {{- $value = index $secretData .key -}}
-{{- else -}}
-  {{- $value = $defaultValue | toString | b64enc -}}
+{{- else if .defaultValue -}}
+  {{- $value = .defaultValue | toString | b64enc -}}
 {{- end -}}
+{{- if $value -}}
 {{- printf "%s" $value -}}
+{{- end -}}
 {{- end -}}
 
 {{/*

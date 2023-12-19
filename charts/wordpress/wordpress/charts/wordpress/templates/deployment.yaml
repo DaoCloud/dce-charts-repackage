@@ -1,18 +1,21 @@
+{{- /*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
 kind: Deployment
 metadata:
   name: {{ include "common.names.fullname" . }}
   namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "common.labels.standard" . | nindent 4 }}
-    {{- if .Values.commonLabels }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
-    {{- end }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
   {{- if .Values.commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.podLabels .Values.commonLabels ) "context" . ) }}
   selector:
-    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
   {{- if .Values.updateStrategy }}
   strategy: {{- toYaml .Values.updateStrategy | nindent 4 }}
   {{- end }}
@@ -21,10 +24,7 @@ spec:
   {{- end }}
   template:
     metadata:
-      labels: {{- include "common.labels.standard" . | nindent 8 }}
-        {{- if .Values.podLabels }}
-        {{- include "common.tplvalues.render" (dict "value" .Values.podLabels "context" $) | nindent 8 }}
-        {{- end }}
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
       {{- if or .Values.podAnnotations .Values.metrics.enabled (include "wordpress.createConfigSecret" .) }}
       annotations:
         {{- if .Values.podAnnotations }}
@@ -48,8 +48,8 @@ spec:
       affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
       {{- else }}
       affinity:
-        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.podAffinityPreset "context" $) | nindent 10 }}
-        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.podAntiAffinityPreset "context" $) | nindent 10 }}
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.podAffinityPreset "customLabels" $podLabels "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.podAntiAffinityPreset "customLabels" $podLabels "context" $) | nindent 10 }}
         nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.nodeAffinityPreset.type "key" .Values.nodeAffinityPreset.key "values" .Values.nodeAffinityPreset.values) | nindent 10 }}
       {{- end }}
       {{- if .Values.nodeSelector }}
@@ -68,6 +68,9 @@ spec:
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "wordpress.serviceAccountName" .}}
+      {{- if .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- end }}
       {{- if .Values.topologySpreadConstraints }}
       topologySpreadConstraints: {{- include "common.tplvalues.render" (dict "value" .Values.topologySpreadConstraints "context" .) | nindent 8 }}
       {{- end }}
@@ -127,6 +130,14 @@ spec:
               value: {{ ternary "true" "false" (or .Values.image.debug .Values.diagnosticMode.enabled) | quote }}
             - name: ALLOW_EMPTY_PASSWORD
               value: {{ ternary "yes" "no" .Values.allowEmptyPassword | quote }}
+            - name: WORDPRESS_SKIP_BOOTSTRAP
+              value: {{ ternary "yes" "no" .Values.wordpressSkipInstall | quote }}
+            {{- if or .Values.wordpressConfiguration .Values.existingWordPressConfigurationSecret }}
+            # Override the default data to persist omiting wp-config.php from the list since
+            # it is mounted as a read-only file from a Secret
+            - name: WORDPRESS_DATA_TO_PERSIST
+              value: "wp-content"
+            {{- else }}
             - name: MARIADB_HOST
               value: {{ include "wordpress.databaseHost" . | quote }}
             - name: MARIADB_PORT_NUMBER
@@ -159,8 +170,6 @@ spec:
               value: {{ ternary "yes" "no" .Values.htaccessPersistenceEnabled | quote }}
             - name: WORDPRESS_BLOG_NAME
               value: {{ .Values.wordpressBlogName | quote }}
-            - name: WORDPRESS_SKIP_BOOTSTRAP
-              value: {{ ternary "yes" "no" .Values.wordpressSkipInstall | quote }}
             - name: WORDPRESS_TABLE_PREFIX
               value: {{ .Values.wordpressTablePrefix | quote }}
             - name: WORDPRESS_SCHEME
@@ -169,13 +178,8 @@ spec:
               value: {{ .Values.wordpressExtraConfigContent | quote }}
             - name: WORDPRESS_PLUGINS
               value: {{ join "," .Values.wordpressPlugins | quote }}
-            - name: APACHE_HTTP_PORT_NUMBER
-              value: {{ .Values.containerPorts.http | quote }}
-            - name: APACHE_HTTPS_PORT_NUMBER
-              value: {{ .Values.containerPorts.https | quote }}
-            {{- if .Values.overrideDatabaseSettings }}
             - name: WORDPRESS_OVERRIDE_DATABASE_SETTINGS
-              value: "yes"
+              value: {{ ternary "yes" "no" .Values.overrideDatabaseSettings | quote }}
             {{- end }}
             {{- if .Values.multisite.enable }}
             - name: WORDPRESS_ENABLE_MULTISITE
@@ -214,6 +218,10 @@ spec:
             - name: SMTP_PROTOCOL
               value: {{ .Values.smtpProtocol | quote }}
             {{- end }}
+            - name: APACHE_HTTP_PORT_NUMBER
+              value: {{ .Values.containerPorts.http | quote }}
+            - name: APACHE_HTTPS_PORT_NUMBER
+              value: {{ .Values.containerPorts.https | quote }}
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
@@ -327,6 +335,9 @@ spec:
           {{- end }}
           {{- if .Values.metrics.resources }}
           resources: {{- toYaml .Values.metrics.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.metrics.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.metrics.containerSecurityContext "enabled" | toYaml | nindent 12 }}
           {{- end }}
         {{- end }}
         {{- if .Values.sidecars }}
