@@ -86,6 +86,9 @@
                                 },
                                 "locked": {
                                     "type": "boolean"
+                                },
+                                "secret": {
+                                    "type": "string"
                                 }
                             }
                         }
@@ -102,6 +105,28 @@
                                     "properties": {
                                         "enabled": {
                                             "type": "boolean"
+                                        },
+                                        "secretName": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "indexer": {
+                            "type": "object",
+                            "properties": {
+                                "internalApi": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "gitlabUrl": {
+                                            "type": "string"
+                                        },
+                                        "secretKey": {
+                                            "type": "string"
                                         },
                                         "secretName": {
                                             "type": "string"
@@ -1595,6 +1620,14 @@
                                             "type": "object"
                                         }
                                     }
+                                },
+                                "indexer": {
+                                    "type": "object",
+                                    "properties": {
+                                        "internalApi": {
+                                            "type": "object"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -2034,6 +2067,9 @@
                         },
                         "enabled": {
                             "type": "boolean"
+                        },
+                        "externalIpTpl": {
+                            "type": "string"
                         },
                         "rbac": {
                             "type": "object",
