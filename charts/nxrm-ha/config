@@ -1,0 +1,13 @@
+export USE_OPENSOURCE_CHART=false
+# must
+export REPO_URL=https://sonatype.github.io/helm3-charts/
+export REPO_NAME=sonartype
+export CHART_NAME=nxrm-ha
+export VERSION=63.0.0
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=community
+export CUSTOM_SHELL=custom.sh
+export NO_TRIVY=true
+# pr, issue, none
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=huoyinghao
