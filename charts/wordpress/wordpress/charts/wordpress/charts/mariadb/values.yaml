@@ -1,3 +1,6 @@
+# Copyright VMware, Inc.
+# SPDX-License-Identifier: APACHE-2.0
+
 ## @section Global parameters
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
@@ -65,14 +68,20 @@ diagnosticMode:
   args:
     - infinity
 
+## @param serviceBindings.enabled Create secret for service binding (Experimental)
+## Ref: https://servicebinding.io/service-provider/
+##
+serviceBindings:
+  enabled: false
+
 ## @section MariaDB common parameters
 ##
 
 ## Bitnami MariaDB image
 ## ref: https://hub.docker.com/r/bitnami/mariadb/tags/
-## @param image.registry MariaDB image registry
-## @param image.repository MariaDB image repository
-## @param image.tag MariaDB image tag (immutable tags are recommended)
+## @param image.registry [default: REGISTRY_NAME] MariaDB image registry
+## @param image.repository [default: REPOSITORY_NAME/mariadb] MariaDB image repository
+## @skip image.tag MariaDB image tag (immutable tags are recommended)
 ## @param image.digest MariaDB image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
 ## @param image.pullPolicy MariaDB image pull policy
 ## @param image.pullSecrets Specify docker-registry secret names as an array
@@ -81,7 +90,7 @@ diagnosticMode:
 image:
   registry: docker.m.daocloud.io
   repository: bitnami/mariadb
-  tag: 10.6.12-debian-11-r0
+  tag: 11.2.2-debian-11-r0
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -188,6 +197,7 @@ primary:
     skip-name-resolve
     explicit_defaults_for_timestamp
     basedir=/opt/bitnami/mariadb
+    datadir=/bitnami/mariadb/data
     plugin_dir=/opt/bitnami/mariadb/plugin
     port=3306
     socket=/opt/bitnami/mariadb/tmp/mysql.sock
@@ -199,7 +209,6 @@ primary:
     character-set-server=UTF8
     collation-server=utf8_general_ci
     slow_query_log=0
-    slow_query_log_file=/opt/bitnami/mariadb/logs/mysqld.log
     long_query_time=10.0
 
     [client]
@@ -316,6 +325,8 @@ primary:
   ## @param primary.containerSecurityContext.runAsNonRoot Set primary container's Security Context runAsNonRoot
   ## @param primary.containerSecurityContext.privileged Set primary container's Security Context privileged
   ## @param primary.containerSecurityContext.allowPrivilegeEscalation Set primary container's Security Context allowPrivilegeEscalation
+  ## @param primary.containerSecurityContext.capabilities.drop List of capabilities to be dropped
+  ## @param primary.containerSecurityContext.seccompProfile.type Set container's Security Context seccomp profile
   ##
   containerSecurityContext:
     enabled: true
@@ -323,6 +334,10 @@ primary:
     runAsNonRoot: true
     privileged: false
     allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
   ## MariaDB primary container's resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ## We usually recommend not to specify default resources and to leave this as a conscious
@@ -452,6 +467,9 @@ primary:
     ##   GKE, AWS & OpenStack)
     ##
     storageClass: ""
+    ## @param primary.persistence.labels Labels for the PVC
+    ##
+    labels: {}
     ## @param primary.persistence.annotations MariaDB primary persistent volume claim annotations
     ##
     annotations: {}
@@ -583,6 +601,7 @@ secondary:
     skip-name-resolve
     explicit_defaults_for_timestamp
     basedir=/opt/bitnami/mariadb
+    datadir=/bitnami/mariadb/data
     port=3306
     socket=/opt/bitnami/mariadb/tmp/mysql.sock
     tmpdir=/opt/bitnami/mariadb/tmp
@@ -593,7 +612,6 @@ secondary:
     character-set-server=UTF8
     collation-server=utf8_general_ci
     slow_query_log=0
-    slow_query_log_file=/opt/bitnami/mariadb/logs/mysqld.log
     long_query_time=10.0
 
     [client]
@@ -709,6 +727,8 @@ secondary:
   ## @param secondary.containerSecurityContext.runAsNonRoot Set secondary container's Security Context runAsNonRoot
   ## @param secondary.containerSecurityContext.privileged Set secondary container's Security Context privileged
   ## @param secondary.containerSecurityContext.allowPrivilegeEscalation Set secondary container's Security Context allowPrivilegeEscalation
+  ## @param secondary.containerSecurityContext.capabilities.drop List of capabilities to be dropped
+  ## @param secondary.containerSecurityContext.seccompProfile.type Set container's Security Context seccomp profile
   ##
   containerSecurityContext:
     enabled: true
@@ -716,6 +736,10 @@ secondary:
     runAsNonRoot: true
     privileged: false
     allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
   ## MariaDB secondary container's resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ## We usually recommend not to specify default resources and to leave this as a conscious
@@ -841,6 +865,9 @@ secondary:
     ##   GKE, AWS & OpenStack)
     ##
     storageClass: ""
+    ## @param secondary.persistence.labels Labels for the PVC
+    ##
+    labels: {}
     ## @param secondary.persistence.annotations MariaDB secondary persistent volume claim annotations
     ##
     annotations: {}
@@ -979,17 +1006,17 @@ volumePermissions:
   ## @param volumePermissions.enabled Enable init container that changes the owner and group of the persistent volume(s) mountpoint to `runAsUser:fsGroup`
   ##
   enabled: false
-  ## @param volumePermissions.image.registry Init container volume-permissions image registry
-  ## @param volumePermissions.image.repository Init container volume-permissions image repository
-  ## @param volumePermissions.image.tag Init container volume-permissions image tag (immutable tags are recommended)
+  ## @param volumePermissions.image.registry [default: REGISTRY_NAME] Init container volume-permissions image registry
+  ## @param volumePermissions.image.repository [default: REPOSITORY_NAME/os-shell] Init container volume-permissions image repository
+  ## @skip volumePermissions.image.tag Init container volume-permissions image tag (immutable tags are recommended)
   ## @param volumePermissions.image.digest Init container volume-permissions image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
   ## @param volumePermissions.image.pullPolicy Init container volume-permissions image pull policy
   ## @param volumePermissions.image.pullSecrets Specify docker-registry secret names as an array
   ##
   image:
     registry: docker.m.daocloud.io
-    repository: bitnami/bitnami-shell
-    tag: 11-debian-11-r80
+    repository: bitnami/os-shell
+    tag: 11-debian-11-r92
     digest: ""
     pullPolicy: IfNotPresent
     ## Optionally specify an array of imagePullSecrets (secrets must be manually created in the namespace)
@@ -1015,9 +1042,9 @@ metrics:
   ## @param metrics.enabled Start a side-car prometheus exporter
   ##
   enabled: false
-  ## @param metrics.image.registry Exporter image registry
-  ## @param metrics.image.repository Exporter image repository
-  ## @param metrics.image.tag Exporter image tag (immutable tags are recommended)
+  ## @param metrics.image.registry [default: REGISTRY_NAME] Exporter image registry
+  ## @param metrics.image.repository [default: REPOSITORY_NAME/mysqld-exporter] Exporter image repository
+  ## @skip metrics.image.tag Exporter image tag (immutable tags are recommended)
   ## @param metrics.image.digest Exporter image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
   ## @param metrics.image.pullPolicy Exporter image pull policy
   ## @param metrics.image.pullSecrets Specify docker-registry secret names as an array
@@ -1025,7 +1052,7 @@ metrics:
   image:
     registry: docker.m.daocloud.io
     repository: bitnami/mysqld-exporter
-    tag: 0.14.0-debian-11-r86
+    tag: 0.15.1-debian-11-r0
     digest: ""
     pullPolicy: IfNotPresent
     ## Optionally specify an array of imagePullSecrets (secrets must be manually created in the namespace)
@@ -1089,8 +1116,12 @@ metrics:
   ## MariaDB metrics container Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   ## @param metrics.containerSecurityContext.enabled Enable security context for MariaDB metrics container
+  ## @param metrics.containerSecurityContext.runAsUser User ID for the MariaDB metrics container
+  ## @param metrics.containerSecurityContext.runAsNonRoot Set metrics container's Security Context runAsNonRoot
   ## @param metrics.containerSecurityContext.privileged Set metrics container's Security Context privileged
   ## @param metrics.containerSecurityContext.allowPrivilegeEscalation Set metrics container's Security Context allowPrivilegeEscalation
+  ## @param metrics.containerSecurityContext.capabilities.drop List of capabilities to be dropped
+  ## @param metrics.containerSecurityContext.seccompProfile.type Set container's Security Context seccomp profile
   ## Example:
   ##   containerSecurityContext:
   ##     enabled: true
@@ -1101,7 +1132,13 @@ metrics:
   containerSecurityContext:
     enabled: false
     privileged: false
+    runAsNonRoot: true
+    runAsUser: 1001
     allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
   ## Mysqld Prometheus exporter resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ## We usually recommend not to specify default resources and to leave this as a conscious
@@ -1251,11 +1288,11 @@ networkPolicy:
   ## @param networkPolicy.ingressRules.primaryAccessOnlyFrom.enabled Enable ingress rule that makes primary mariadb nodes only accessible from a particular origin.
   ## @param networkPolicy.ingressRules.primaryAccessOnlyFrom.namespaceSelector [object] Namespace selector label that is allowed to access the primary node. This label will be used to identified the allowed namespace(s).
   ## @param networkPolicy.ingressRules.primaryAccessOnlyFrom.podSelector [object] Pods selector label that is allowed to access the primary node. This label will be used to identified the allowed pod(s).
-  ## @param networkPolicy.ingressRules.primaryAccessOnlyFrom.customRules [object] Custom network policy for the primary node.
+  ## @param networkPolicy.ingressRules.primaryAccessOnlyFrom.customRules Custom network policy for the primary node.
   ## @param networkPolicy.ingressRules.secondaryAccessOnlyFrom.enabled Enable ingress rule that makes primary mariadb nodes only accessible from a particular origin.
   ## @param networkPolicy.ingressRules.secondaryAccessOnlyFrom.namespaceSelector [object] Namespace selector label that is allowed to acces the secondary nodes. This label will be used to identified the allowed namespace(s).
   ## @param networkPolicy.ingressRules.secondaryAccessOnlyFrom.podSelector [object] Pods selector label that is allowed to access the secondary nodes. This label will be used to identified the allowed pod(s).
-  ## @param networkPolicy.ingressRules.secondaryAccessOnlyFrom.customRules [object] Custom network policy for the secondary nodes.
+  ## @param networkPolicy.ingressRules.secondaryAccessOnlyFrom.customRules Custom network policy for the secondary nodes.
   ##
   ingressRules:
     ## Allow access to the primary node only from the indicated:
@@ -1280,7 +1317,7 @@ networkPolicy:
       ##           matchLabels:
       ##             label: example
       ##
-      customRules: {}
+      customRules: []
 
     ## Allow access to the secondary node only from the indicated:
     ##
@@ -1304,10 +1341,10 @@ networkPolicy:
       ##           matchLabels:
       ##             label: example
       ##
-      customRules: {}
+      customRules: []
 
   ## @param networkPolicy.egressRules.denyConnectionsToExternal Enable egress rule that denies outgoing traffic outside the cluster, except for DNS (port 53).
-  ## @param networkPolicy.egressRules.customRules [object] Custom network policy rule
+  ## @param networkPolicy.egressRules.customRules Custom network policy rule
   ##
   egressRules:
     # Deny connections to external. This is not compatible with an external database.
