@@ -96,7 +96,7 @@ https://github.com/helm/charts/issues/5167#issuecomment-619137759
 {{- end -}}
 
 {{- define "jenkins.event.receiver" -}}
-    {{- $defaultReceiver := "http://amamba-devops-server.%s:80/apis/internel.amamba.io/devops/pipeline/v1alpha1/webhooks/jenkins" -}}
+    {{- $defaultReceiver := "http://amamba-devops-server.amamba-system:80/apis/internel.amamba.io/devops/pipeline/v1alpha1/webhooks/jenkins" -}}
     {{- $sidecarReceiver := "http://localhost:9090/event" -}}
     {{- $target := "" -}}
     {{- if and .Values.eventProxy .Values.eventProxy.enabled -}}
@@ -105,7 +105,7 @@ https://github.com/helm/charts/issues/5167#issuecomment-619137759
         {{- if and .Values.plugins .Values.plugins.eventDispatcher .Values.plugins.eventDispatcher.receiver -}}
             {{- $target = .Values.plugins.eventDispatcher.receiver -}}
         {{- else -}}
-            {{- $target = printf $defaultReceiver .Release.Namespace -}}
+            {{- $target = $defaultReceiver -}}
         {{- end -}}
     {{- end -}}
     {{ print $target }}

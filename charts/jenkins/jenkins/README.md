@@ -108,6 +108,26 @@ The following tables list the configurable parameters of the Jenkins chart and t
 | `prometheus.prometheusRule.alertRules` | Append these alert rules to prometheus rule     | `[]`                                                                                                 |
 
 
+### Event Dispatcher Config
+
+| Parameter                                    | Description                                       | Default                                                                                            |
+|----------------------------------------------|---------------------------------------------------|----------------------------------------------------------------------------------------------------|
+| `plugins.eventDispatcher.receiver`           |                                                   | `""`                                                                                               |
+| `eventProxy.enabled`                         | enable eventProxy                                 | `false`                                                                                            |
+| `eventProxy.configMap.eventProxy.host`       | host of event receiver                            | `amamba-devops-server.amamba-system:80`                                                            |
+| `eventProxy.configMap.eventProxy.proto`      | proto of event receiver,must be 'http' or 'https' | `http`                                                                                             |
+| `eventProxy.configMap.eventProxy.webhookUrl` | url of event receiver                             | `/apis/internel.amamba.io/devops/pipeline/v1alpha1/webhooks/jenkins` |
+| `eventProxy.configMap.eventProxy.token`      | token to visit receiver                           | ``                                                                                                 |
+
+generic-event-plugin is a plugin of jenkins, it can send event(job/build) to a receiver(configuration by `eventDispatcher.Receiver` in CASC), and the receiver will handle the event. now we support two mode to send event to receiver:
+- direct mode: jenkins will send event to receiver directly.
+- proxy mode: jenkins will send event to a eventProxy, and the proxy will send event to receiver.
+
+parameters related to eventDispatcher:
+- if `eventProxy.enabled` is `true`, the `plugins.eventDispatcher.receiver` will be set to `http://localhost:9090/event`.
+- if `eventProxy.enabled` is `false`, and `plugins.eventDispatcher.receiver` is not empty, the `plugins.eventDispatcher.receiver` will be used.
+- if `eventProxy.enabled` is `false`, and `plugins.eventDispatcher.receiver` is empty, the default value is `http://amamba-devops-server.amamba-system:80/apis/internel.amamba.io/devops/pipeline/v1alpha1/webhooks/jenkins`.
+
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
