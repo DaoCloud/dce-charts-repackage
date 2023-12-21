@@ -7,11 +7,30 @@ metadata:
   labels:
     {{- include "kube-state-metrics.labels" . | indent 4 }}
   {{- with .Values.prometheus.monitor.additionalLabels }}
-    {{- toYaml . | nindent 4 }}
+    {{- tpl (toYaml . | nindent 4) $ }}
+  {{- end }}
+  {{- with .Values.prometheus.monitor.annotations }}
+  annotations:
+    {{- tpl (toYaml . | nindent 4) $ }}
   {{- end }}
 spec:
   jobLabel: {{ default "app.kubernetes.io/name" .Values.prometheus.monitor.jobLabel }}
+  {{- with .Values.prometheus.monitor.targetLabels }}
+  targetLabels:
+    {{- toYaml . | trim | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.monitor.podTargetLabels }}
+  podTargetLabels:
+    {{- toYaml . | trim | nindent 4 }}
+  {{- end }}
   {{- include "servicemonitor.scrapeLimits" .Values.prometheus.monitor | indent 2 }}
+  {{- if .Values.prometheus.monitor.namespaceSelector }}
+  namespaceSelector:
+    matchNames:
+    {{- with .Values.prometheus.monitor.namespaceSelector }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- end }}
   selector:
     matchLabels:
     {{- with .Values.prometheus.monitor.selectorOverride }}
@@ -30,6 +49,9 @@ spec:
     {{- if .Values.prometheus.monitor.proxyUrl }}
       proxyUrl: {{ .Values.prometheus.monitor.proxyUrl}}
     {{- end }}
+    {{- if .Values.prometheus.monitor.enableHttp2 }}
+      enableHttp2: {{ .Values.prometheus.monitor.enableHttp2}}
+    {{- end }}
     {{- if .Values.prometheus.monitor.honorLabels }}
       honorLabels: true
     {{- end }}
@@ -47,6 +69,13 @@ spec:
     {{- if .Values.prometheus.monitor.tlsConfig }}
       tlsConfig:
         {{- toYaml .Values.prometheus.monitor.tlsConfig | nindent 8 }}
+    {{- end }}
+    {{- if .Values.prometheus.monitor.bearerTokenFile }}
+      bearerTokenFile: {{ .Values.prometheus.monitor.bearerTokenFile }}
+    {{- end }}
+    {{- with .Values.prometheus.monitor.bearerTokenSecret }}
+      bearerTokenSecret:
+        {{- toYaml . | nindent 8 }}
     {{- end }}
   {{- if .Values.selfMonitor.enabled }}
     - port: metrics
@@ -59,6 +88,9 @@ spec:
     {{- if .Values.prometheus.monitor.proxyUrl }}
       proxyUrl: {{ .Values.prometheus.monitor.proxyUrl}}
     {{- end }}
+    {{- if .Values.prometheus.monitor.enableHttp2 }}
+      enableHttp2: {{ .Values.prometheus.monitor.enableHttp2}}
+    {{- end }}
     {{- if .Values.prometheus.monitor.honorLabels }}
       honorLabels: true
     {{- end }}
@@ -76,6 +108,13 @@ spec:
     {{- if .Values.prometheus.monitor.tlsConfig }}
       tlsConfig:
         {{- toYaml .Values.prometheus.monitor.tlsConfig | nindent 8 }}
+    {{- end }}
+    {{- if .Values.prometheus.monitor.bearerTokenFile }}
+      bearerTokenFile: {{ .Values.prometheus.monitor.bearerTokenFile }}
+    {{- end }}
+    {{- with .Values.prometheus.monitor.bearerTokenSecret }}
+      bearerTokenSecret:
+        {{- toYaml . | nindent 8 }}
     {{- end }}
   {{- end }}
 {{- end }}
