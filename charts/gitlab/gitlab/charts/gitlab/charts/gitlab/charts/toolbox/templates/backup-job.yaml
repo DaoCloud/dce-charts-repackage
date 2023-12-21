@@ -63,7 +63,7 @@ spec:
               {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 14 }}
               env:
                 {{- include "gitlab.extraEnv" $ | nindent 16 }}
-                {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" (dict)) | nindent 16 }}
+                {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 16 }}
               volumeMounts:
                 {{- include "gitlab.extraVolumeMounts" . | nindent 16 }}
                 {{- include "gitlab.psql.ssl.volumeMount" . | nindent 16 }}
@@ -96,7 +96,7 @@ spec:
               {{- include "gitlab.image.pullPolicy" $imageCfg | indent 14 }}
               env:
                 {{- include "gitlab.extraEnv" $ | nindent 16 }}
-                {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" (dict)) | nindent 16 }}
+                {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 16 }}
                 - name: ARTIFACTS_BUCKET_NAME
                   value: {{ .Values.global.appConfig.artifacts.bucket }}
                 - name: REGISTRY_BUCKET_NAME
@@ -193,6 +193,13 @@ spec:
                 {{- include "gitlab.redis.secrets" (dict "globalContext" $) | nindent 16 }}
                 {{- range $.Values.local.psql }}
                 {{- include "gitlab.psql.secret" . | nindent 16 }}
+                {{- end }}
+                {{- if include "gitlab.geo.secondary" $ }}
+                - secret:
+                    name: {{ template "gitlab.geo.psql.password.secret" . }}
+                    items:
+                      - key: {{ template "gitlab.geo.psql.password.key" . }}
+                        path: postgres/geo-psql-password
                 {{- end }}
                 - secret:
                     name: {{ template "gitlab.registry.certificate.secret" . }}

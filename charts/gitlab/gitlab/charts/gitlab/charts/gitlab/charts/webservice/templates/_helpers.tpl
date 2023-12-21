@@ -22,7 +22,8 @@ It expects a dictionary with two entries:
 {{- define "webservice.tlsSecret" -}}
 {{- $defaultName := (dict "secretName" "") -}}
 {{- if .root.Values.global.ingress.configureCertmanager -}}
-{{-   $_ := set $defaultName "secretName" (printf "%s-gitlab-tls" .root.Release.Name) -}}
+{{-   $postfix := .certmanagerPostfix | default "" }}
+{{-   $_ := set $defaultName "secretName" (printf "%s-gitlab-tls%s" .root.Release.Name $postfix) -}}
 {{- else -}}
 {{-   $_ := set $defaultName "secretName" (include "gitlab.wildcard-self-signed-cert-name" .root) -}}
 {{- end -}}

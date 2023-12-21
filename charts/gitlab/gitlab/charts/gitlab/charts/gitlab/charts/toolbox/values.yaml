@@ -18,6 +18,7 @@ init:
 # Tolerations for pod scheduling
 tolerations: []
 extraEnv: {}
+extraEnvFrom: {}
 antiAffinityLabels:
   matchLabels: {}
 affinity:

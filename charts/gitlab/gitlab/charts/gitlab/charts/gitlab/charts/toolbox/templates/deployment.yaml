@@ -53,7 +53,7 @@ spec:
           {{- include "gitlab.init.containerSecurityContext" . | indent 10 }}
           env:
           {{- include "gitlab.extraEnv" . | nindent 10 }}
-          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" (dict)) | nindent 10 }}
+          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
           volumeMounts:
           {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
           {{- include "gitlab.psql.ssl.volumeMount" . | nindent 10 }}
@@ -153,7 +153,7 @@ spec:
               value: '/etc/gitlab/objectstorage/azure_config'
             {{- end }}
             {{- include "gitlab.extraEnv" . | nindent 12 }}
-            {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" (dict)) | nindent 12 }}
+            {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 12 }}
           volumeMounts:
             {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
             - name: toolbox-config

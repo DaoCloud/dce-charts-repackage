@@ -51,7 +51,7 @@ global:
   edition: ee
 
   ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-  gitlabVersion: "16.5.0"
+  gitlabVersion: "16.7.0"
 
   ## https://docs.gitlab.com/charts/charts/globals#application-resource
   application:
@@ -143,6 +143,22 @@ global:
     # applicationName:
     # preparedStatements: false
     # databaseTasks: true
+    main: {}
+      # host: postgresql.hostedsomewhere.else
+      # port: 123
+      # username: gitlab
+      # database: gitlabhq_production
+      # applicationName:
+      # preparedStatements: false
+      # databaseTasks: true
+    ci: {}
+      # host: postgresql.hostedsomewhere.else
+      # port: 123
+      # username: gitlab
+      # database: gitlabhq_production_ci
+      # applicationName:
+      # preparedStatements: false
+      # databaseTasks: false
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-redis-settings
   redis:
@@ -812,6 +828,8 @@ global:
   zoekt:
     gateway:
       basicAuth: {}
+    indexer:
+      internalApi: {}
 
   ## https://docs.gitlab.com/charts/charts/globals
   extraEnv: {}
@@ -960,6 +978,8 @@ nginx-ingress-geo:
     ingressClassResource:
       name: '{{ include "gitlab.geo.ingress.class.name" $ | quote }}'
       controllerValue: 'k8s.io/nginx-ingress-geo'
+  # A pre-defined/static external IP can be configured with global.hosts.externalGeoIP.
+  externalIpTpl: '{{ .Values.global.hosts.externalGeoIP }}'
 
 haproxy:
   install: false
@@ -1220,6 +1240,9 @@ gitlab-runner:
     create: true
   runners:
     locked: false
+    # Set secret to an arbitrary value because the runner chart renders the gitlab-runner.secret template only if it is not empty.
+    # The parent/GitLab chart overrides the template to render the actual secret name.
+    secret: "nonempty"
     config: |
       [[runners]]
         [runners.kubernetes]
@@ -1284,3 +1307,9 @@ gitlab-zoekt:
     basicAuth:
       enabled: true
       secretName: '{{ include "gitlab.zoekt.gateway.basicAuth.secretName" $ }}'
+  indexer:
+    internalApi:
+      enabled: false
+      secretName: '{{ include "gitlab.zoekt.indexer.internalApi.secretName" $ }}'
+      secretKey: '{{ include "gitlab.zoekt.indexer.internalApi.secretKey" $ }}'
+      gitlabUrl: '{{ include "gitlab.zoekt.indexer.internalApi.gitlabUrl" $ }}'
