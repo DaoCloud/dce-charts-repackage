@@ -5,6 +5,7 @@ pilot:
   autoscaleEnabled: true
   autoscaleMin: 1
   autoscaleMax: 5
+  autoscaleBehavior: {}
   replicaCount: 1
   rollingMaxSurge: 100%
   rollingMaxUnavailable: 25%
@@ -26,19 +27,25 @@ pilot:
   # Set to `type: RuntimeDefault` to use the default profile if available.
   seccompProfile: {}
 
+  # Additional container arguments
+  extraContainerArgs: []
+
   env: {}
 
   cpu:
     targetAverageUtilization: 80
 
-  # if protocol sniffing is enabled for outbound
-  enableProtocolSniffingForOutbound: true
-  # if protocol sniffing is enabled for inbound
-  enableProtocolSniffingForInbound: true
+  # Additional volumeMounts to the istiod container
+  volumeMounts: []
+
+  # Additional volumes to the istiod pod
+  volumes: []
 
   nodeSelector: {}
   podAnnotations: {}
   serviceAnnotations: {}
+
+  topologySpreadConstraints: []
 
   # You can use jwksResolverExtraRootCA to provide a root certificate
   # in PEM format. This will then be trusted by pilot when resolving
@@ -70,6 +77,10 @@ pilot:
   # Additional labels to apply on the pod level for monitoring and logging configuration.
   podLabels: {}
 
+  # Setup how istiod Service is configured. See https://kubernetes.io/docs/concepts/services-networking/dual-stack/#services
+  ipFamilyPolicy: ""
+  ipFamilies: []
+
 sidecarInjectorWebhook:
   # You can use the field called alwaysInjectSelector and neverInjectSelector which will always inject the sidecar or
   # always skip the injection on pods that match that label selector, regardless of the global policy.
@@ -95,6 +106,11 @@ sidecarInjectorWebhook:
   # with the exception of namespaces with "istio-injection:disabled" annotation
   # Only one environment should have this enabled.
   enableNamespacesByDefault: false
+
+  # Mutations that occur after the sidecar injector are not handled by default, as the Istio sidecar injector is only run
+  # once. For example, an OPA sidecar injected after the Istio sidecar will not have it's liveness/readiness probes rewritten.
+  # Setting this to `IfNeeded` will result in the sidecar injector being run again if additional mutations occur.
+  reinvocationPolicy: Never
 
   rewriteAppHTTPProbe: true
 
@@ -219,7 +235,7 @@ global:
   # Dev builds from prow are on gcr.io
   hub: docker.io/istio
   # Default tag for Istio images.
-  tag: 1.17.1
+  tag: 1.20.1
   # Variant of the image to use.
   # Currently supported are: [debug, distroless]
   variant: ""
@@ -322,13 +338,26 @@ global:
     privileged: false
 
     # The number of successive failed probes before indicating readiness failure.
-    readinessFailureThreshold: 30
+    readinessFailureThreshold: 4
 
     # The initial delay for readiness probes in seconds.
-    readinessInitialDelaySeconds: 1
+    readinessInitialDelaySeconds: 0
 
     # The period between readiness probes.
-    readinessPeriodSeconds: 2
+    readinessPeriodSeconds: 15
+
+    # Enables or disables a startup probe.
+    # For optimal startup times, changing this should be tied to the readiness probe values.
+    #
+    # If the probe is enabled, it is recommended to have delay=0s,period=15s,failureThreshold=4.
+    # This ensures the pod is marked ready immediately after the startup probe passes (which has a 1s poll interval),
+    # and doesn't spam the readiness endpoint too much
+    #
+    # If the probe is disabled, it is recommended to have delay=1s,period=2s,failureThreshold=30.
+    # This ensures the startup is reasonable fast (polling every 2s). 1s delay is used since the startup is not often ready instantly.
+    startupProbe:
+      enabled: true
+      failureThreshold: 600 # 10 minutes
 
     # Resources for the sidecar.
     resources:
@@ -345,9 +374,6 @@ global:
     # Specify which tracer to use. One of: zipkin, lightstep, datadog, stackdriver.
     # If using stackdriver tracer outside GCP, set env GOOGLE_APPLICATION_CREDENTIALS to the GCP credential file.
     tracer: "zipkin"
-
-    # Controls if sidecar is injected at the front of the container list and blocks the start of the other containers until the proxy is ready
-    holdApplicationUntilProxyStarts: false
 
   proxy_init:
     # Base name for the proxy_init container, used to configure iptables.
@@ -465,36 +491,6 @@ global:
     # Setting this port to a non-zero value enables STS server.
     servicePort: 0
 
-  # Configuration for each of the supported tracers
-  tracer:
-    # Configuration for envoy to send trace data to LightStep.
-    # Disabled by default.
-    # address: the <host>:<port> of the satellite pool
-    # accessToken: required for sending data to the pool
-    #
-    datadog:
-      # Host:Port for submitting traces to the Datadog agent.
-      address: "$(HOST_IP):8126"
-    lightstep:
-      address: "" # example: lightstep-satellite:443
-      accessToken: "" # example: abcdefg1234567
-    stackdriver:
-      # enables trace output to stdout.
-      debug: false
-      # The global default max number of message events per span.
-      maxNumberOfMessageEvents: 200
-      # The global default max number of annotation events per span.
-      maxNumberOfAnnotations: 200
-      # The global default max number of attributes per span.
-      maxNumberOfAttributes: 200
-    zipkin:
-      # Host:Port for reporting trace data in zipkin format. If not specified, will default to
-      # zipkin service (port 9411) in the same namespace as the other istio components.
-      address: ""
-
-  # Use the Mesh Control Protocol (MCP) for configuring Istiod. Requires an MCP source.
-  useMCP: false
-
   # The name of the CA for workload certificates.
   # For example, when caName=GkeWorkloadCertificate, GKE workload certificates
   # will be used as the certificates for workloads.
@@ -516,3 +512,8 @@ base:
   # it works to have multiple redundant validations, this adds complexity and operational risks.
   # Users should consider enabling this if they want full gateway-api validation but don't have other validation servers.
   validateGateway: false
+
+# keep in sync with settings used when installing the Istio CNI chart
+istio_cni:
+  enabled: false
+  chained: true
