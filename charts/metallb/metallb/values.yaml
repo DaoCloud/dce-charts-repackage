@@ -171,7 +171,7 @@ metallb:
     # webhookMode: enabled
     image:
       repository: metallb/controller
-      tag: v0.13.10
+      tag: v0.13.12
       pullPolicy:
       registry: quay.m.daocloud.io
     ## @param controller.updateStrategy.type Metallb controller deployment strategy type.
@@ -244,7 +244,7 @@ metallb:
       enabled: true
     image:
       repository: metallb/speaker
-      tag: v0.13.10
+      tag: v0.13.12
       pullPolicy:
       registry: quay.m.daocloud.io
     ## @param speaker.updateStrategy.type Speaker daemonset strategy type
@@ -308,7 +308,7 @@ metallb:
       enabled: true
       image:
         repository: frrouting/frr
-        tag: 8.4.2
+        tag: 8.5.2
         pullPolicy:
         registry: quay.m.daocloud.io
       metricsPort: 7473
