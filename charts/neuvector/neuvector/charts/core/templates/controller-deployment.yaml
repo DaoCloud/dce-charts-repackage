@@ -11,7 +11,7 @@ metadata:
   labels:
     chart: {{ template "neuvector.chart" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    heritage: Helm
 {{- with .Values.controller.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
@@ -32,9 +32,20 @@ spec:
         {{- with .Values.controller.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- with .Values.controller.podAnnotations }}
+      {{- if or .Values.controller.secret.enabled .Values.controller.configmap.enabled .Values.controller.podAnnotations .Values.autoGenerateCert }}
       annotations:
-      {{- toYaml . | nindent 8 }}
+        {{- if .Values.controller.secret.enabled }}
+        checksum/init-secret: {{ include (print $.Template.BasePath "/init-secret.yaml") . | sha256sum }}
+        {{- end }}
+        {{- if .Values.controller.configmap.enabled }}
+        checksum/init-configmap: {{ include (print $.Template.BasePath "/init-configmap.yaml") . | sha256sum }}
+        {{- end }}
+        {{- if .Values.autoGenerateCert }}
+        checksum/controller-secret: {{ include (print $.Template.BasePath "/controller-secret.yaml") . | sha256sum }}
+        {{- end }}
+        {{- if .Values.controller.podAnnotations }}
+        {{- toYaml .Values.controller.podAnnotations | nindent 8 }}
+        {{- end }}
       {{- end }}
     spec:
       {{- if .Values.controller.affinity }}
@@ -59,10 +70,18 @@ spec:
       {{- if .Values.controller.priorityClassName }}
       priorityClassName: {{ .Values.controller.priorityClassName }}
       {{- end }}
+      {{- if .Values.leastPrivilege }}
+      serviceAccountName: controller
+      serviceAccount: controller
+      {{- else }}
       serviceAccountName: {{ .Values.serviceAccount }}
       serviceAccount: {{ .Values.serviceAccount }}
+      {{- end }}
       containers:
         - name: neuvector-controller-pod
+          {{- if .Values.global.azure.enabled }}
+          image: "{{ .Values.global.azure.images.controller.registry }}/{{ .Values.global.azure.images.controller.image }}@{{ .Values.global.azure.images.controller.digest }}"
+          {{- else }}
           {{- if eq .Values.registry "registry.neuvector.com" }}
           {{- if .Values.oem }}
           image: "{{ .Values.registry }}/{{ .Values.oem }}/controller:{{ .Values.tag }}"
@@ -74,6 +93,7 @@ spec:
           image: "{{ .Values.registry }}/{{ .Values.controller.image.repository }}@{{ .Values.controller.image.hash }}"
           {{- else }}
           image: "{{ .Values.registry }}/{{ .Values.controller.image.repository }}:{{ .Values.tag }}"
+          {{- end }}
           {{- end }}
           {{- end }}
           securityContext:
@@ -112,12 +132,27 @@ spec:
             - name: CTRL_PERSIST_CONFIG
               value: "1"
           {{- end }}
+          {{- if .Values.global.aws.enabled }}
+            - name: CSP_ENV
+              value: "aws"
+          {{- end }}
+          {{- if .Values.global.azure.enabled }}
+            - name: CSP_ENV
+              value: "azure"
+          {{- end }}
+          {{- if or .Values.global.aws.enabled .Values.global.azure.enabled }}
+            - name: NO_DEFAULT_ADMIN
+              value: "1"
+          {{- end }}
           {{- with .Values.controller.env }}
 {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
             - mountPath: /var/neuvector
               name: nv-share
+              readOnly: false
+            - mountPath: /var/nv_debug
+              name: nv-debug
               readOnly: false
           {{- if .Values.containerd.enabled }}
             - mountPath: /var/run/containerd/containerd.sock
@@ -144,14 +179,24 @@ spec:
           {{- if .Values.controller.certificate.secret }}
             - mountPath: /etc/neuvector/certs/ssl-cert.key
               subPath: {{ .Values.controller.certificate.keyFile }}
-              name: cert
+              name: usercert
               readOnly: true
             - mountPath: /etc/neuvector/certs/ssl-cert.pem
               subPath: {{ .Values.controller.certificate.pemFile }}
+              name: usercert
+              readOnly: true
+          {{- else if .Values.autoGenerateCert }}
+            - mountPath: /etc/neuvector/certs/ssl-cert.key
+              subPath: ssl-cert.key
               name: cert
               readOnly: true
+            - mountPath: /etc/neuvector/certs/ssl-cert.pem
+              subPath: ssl-cert.pem
+              name: cert
+              readOnly: true
+          {{- else }}
           {{- end }}
-          {{- if .Values.controller.internal.certificate.secret }}
+          {{- if .Values.internal.certmanager.enabled }}
             - mountPath: /etc/neuvector/certs/internal/cert.key
               subPath: {{ .Values.controller.internal.certificate.keyFile }}
               name: internal-cert
@@ -209,12 +254,20 @@ spec:
               - secret:
                   name: neuvector-init
                   optional: true
-      {{- if .Values.controller.certificate.secret }}
+        - name: nv-debug
+          hostPath:
+            path: /var/nv_debug
+      {{- if .Values.autoGenerateCert }}
         - name: cert
+          secret:
+            secretName: neuvector-controller-secret
+      {{- end }}
+      {{- if .Values.controller.certificate.secret }}
+        - name: usercert
           secret:
             secretName: {{ .Values.controller.certificate.secret }}
       {{- end }}
-      {{- if .Values.controller.internal.certificate.secret }}
+      {{- if .Values.internal.certmanager.enabled }}
         - name: internal-cert
           secret:
             secretName: {{ .Values.controller.internal.certificate.secret }}

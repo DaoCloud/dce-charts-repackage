@@ -10,7 +10,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     chart: {{ template "neuvector.chart" . }}
-    heritage: {{ .Release.Service }}
+    heritage: Helm
     release: {{ .Release.Name }}
 spec:
   updateStrategy: {{- toYaml .Values.enforcer.updateStrategy | nindent 4 }}
@@ -42,10 +42,18 @@ spec:
     {{- if .Values.enforcer.priorityClassName }}
       priorityClassName: {{ .Values.enforcer.priorityClassName }}
     {{- end }}
+    {{- if .Values.leastPrivilege }}
+      serviceAccountName: enforcer
+      serviceAccount: enforcer
+    {{- else }}
       serviceAccountName: {{ .Values.serviceAccount }}
       serviceAccount: {{ .Values.serviceAccount }}
+    {{- end }}
       containers:
         - name: neuvector-enforcer-pod
+          {{- if .Values.global.azure.enabled }}
+          image: "{{ .Values.global.azure.images.enforcer.registry }}/{{ .Values.global.azure.images.enforcer.image }}@{{ .Values.global.azure.images.enforcer.digest }}"
+          {{- else }}
           {{- if eq .Values.registry "registry.neuvector.com" }}
           {{- if .Values.oem }}
           image: "{{ .Values.registry }}/{{ .Values.oem }}/enforcer:{{ .Values.tag }}"
@@ -57,6 +65,7 @@ spec:
           image: "{{ .Values.registry }}/{{ .Values.enforcer.image.repository }}@{{ .Values.enforcer.image.hash }}"
           {{- else }}
           image: "{{ .Values.registry }}/{{ .Values.enforcer.image.repository }}:{{ .Values.tag }}"
+          {{- end }}
           {{- end }}
           {{- end }}
           securityContext:
@@ -78,11 +87,14 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+          {{- with .Values.enforcer.env }}
+{{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
           {{- if .Values.containerd.enabled }}
             - mountPath: /var/run/containerd/containerd.sock
           {{- else if .Values.k3s.enabled }}
-            - mountPath: /var/run/containerd/containerd.sock
+            - mountPath: /run/containerd/containerd.sock
           {{- else if .Values.bottlerocket.enabled }}
             - mountPath: /var/run/containerd/containerd.sock
           {{- else if .Values.crio.enabled }}
@@ -101,7 +113,10 @@ spec:
             - mountPath: /lib/modules
               name: modules-vol
               readOnly: true
-          {{- if .Values.enforcer.internal.certificate.secret }}
+            - mountPath: /var/nv_debug
+              name: nv-debug
+              readOnly: false
+          {{- if .Values.internal.certmanager.enabled }}
             - mountPath: /etc/neuvector/certs/internal/cert.key
               subPath: {{ .Values.enforcer.internal.certificate.keyFile }}
               name: internal-cert
@@ -140,7 +155,10 @@ spec:
         - name: modules-vol
           hostPath:
             path: /lib/modules
-      {{- if .Values.enforcer.internal.certificate.secret }}
+        - name: nv-debug
+          hostPath:
+            path: /var/nv_debug
+      {{- if .Values.internal.certmanager.enabled }}
         - name: internal-cert
           secret:
             secretName: {{ .Values.enforcer.internal.certificate.secret }}

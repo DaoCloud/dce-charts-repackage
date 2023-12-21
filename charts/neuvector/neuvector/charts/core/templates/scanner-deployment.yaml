@@ -10,7 +10,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     chart: {{ template "neuvector.chart" . }}
-    heritage: {{ .Release.Service }}
+    heritage: Helm
     release: {{ .Release.Name }}
 spec:
   strategy:
@@ -50,14 +50,22 @@ spec:
       {{- if .Values.cve.scanner.priorityClassName }}
       priorityClassName: {{ .Values.cve.scanner.priorityClassName }}
       {{- end }}
+      {{- if .Values.leastPrivilege }}
+      serviceAccountName: basic
+      serviceAccount: basic
+      {{- else }}
       serviceAccountName: {{ .Values.serviceAccount }}
       serviceAccount: {{ .Values.serviceAccount }}
+      {{- end }}
       {{- if .Values.cve.scanner.runAsUser }}
       securityContext:
         runAsUser: {{ .Values.cve.scanner.runAsUser }}
       {{- end }}
       containers:
         - name: neuvector-scanner-pod
+          {{- if .Values.global.azure.enabled }}
+          image: "{{ .Values.global.azure.images.scanner.registry }}/{{ .Values.global.azure.images.scanner.image }}@{{ .Values.global.azure.images.scanner.digest }}"
+          {{- else }}
           {{- if eq .Values.registry "registry.neuvector.com" }}
           {{- if .Values.oem }}
           image: "{{ .Values.registry }}/{{ .Values.oem }}/scanner:{{ .Values.cve.scanner.image.tag }}"
@@ -67,8 +75,11 @@ spec:
           {{- else }}
           {{- if .Values.cve.scanner.image.hash }}
           image: "{{ .Values.registry }}/{{ .Values.cve.scanner.image.repository }}@{{ .Values.cve.scanner.image.hash }}"
+          {{- else if .Values.cve.scanner.image.registry }}
+          image: "{{ .Values.cve.scanner.image.registry }}/{{ .Values.cve.scanner.image.repository }}:{{ .Values.cve.scanner.image.tag }}"
           {{- else }}
           image: "{{ .Values.registry }}/{{ .Values.cve.scanner.image.repository }}:{{ .Values.cve.scanner.image.tag }}"
+          {{- end }}
           {{- end }}
           {{- end }}
           imagePullPolicy: Always
@@ -79,9 +90,12 @@ spec:
             - name: SCANNER_DOCKER_URL
               value: {{ .Values.cve.scanner.dockerPath }}
           {{- end }}
+          {{- with .Values.cve.scanner.env }}
+{{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
 {{ toYaml .Values.cve.scanner.resources | indent 12 }}
-          {{- if .Values.cve.scanner.internal.certificate.secret }}
+          {{- if .Values.internal.certmanager.enabled }}
           volumeMounts:
             - mountPath: /etc/neuvector/certs/internal/cert.key
               subPath: {{ .Values.cve.scanner.internal.certificate.keyFile }}
@@ -97,7 +111,7 @@ spec:
               readOnly: true
           {{- end }}
       restartPolicy: Always
-      {{- if .Values.cve.scanner.internal.certificate.secret }}
+      {{- if .Values.internal.certmanager.enabled }}
       volumes:
         - name: internal-cert
           secret:
