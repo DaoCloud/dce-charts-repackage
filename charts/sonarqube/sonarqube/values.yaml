@@ -38,11 +38,19 @@ sonarqube:
   # Set security context for sonarqube container
   containerSecurityContext:
     # Sonarqube dockerfile creates sonarqube user as UID and GID 1000
+    # Those default are used to match pod security standard restricted as least privileged approach
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
     runAsUser: 1000
+    runAsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop: ["ALL"]
   # Settings to configure elasticsearch host requirements
   elasticsearch:
     # DEPRECATED: Use initSysctl.enabled instead
-    configureNode: true
+    configureNode: false
     bootstrapChecks: true
   service:
     type: ClusterIP
@@ -83,13 +91,12 @@ sonarqube:
         # the pathType can be one of the following values: Exact|Prefix|ImplementationSpecific(default)
         # pathType: ImplementationSpecific
     annotations:
-      # kubernetes.io/tls-acme: "true"
-      # This property allows for reports up to a certain size to be uploaded to SonarQube
-      nginx.ingress.kubernetes.io/proxy-body-size: "64m"
-      # Set the ingressClassName on the ingress record
-      # ingressClassName: nginx
-    # Additional labels for Ingress manifest file
+    # kubernetes.io/tls-acme: "true"
 
+    # Set the ingressClassName on the ingress record
+    # ingressClassName: nginx
+
+    # Additional labels for Ingress manifest file
     # labels:
     #  traffic-type: external
     #  traffic-type: internal
@@ -172,10 +179,19 @@ sonarqube:
     # deprecated please use sonarWebContext at the value top level
     # sonarWebContext: /
   initContainers:
-    # image: busybox:1.32
+    # image: busybox:1.36
     # We allow the init containers to have a separate security context declaration because
     # the initContainer may not require the same as SonarQube.
-    # securityContext: {}
+    # Those default are used to match pod security standard restricted as least privileged approach
+    securityContext:
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      runAsUser: 1000
+      runAsGroup: 1000
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop: ["ALL"]
     # We allow the init containers to have a separate resources declaration because
     # the initContainer does not take as much resources.
     resources: {}
@@ -208,19 +224,30 @@ sonarqube:
     fsFileMax: 131072
     nofile: 131072
     nproc: 8192
-    # image: busybox:1.32
+    # image: busybox:1.36
     securityContext:
+      # Compatible with podSecurity standard privileged
       privileged: true
     # resources: {}
 
     registry: docker.m.daocloud.io
     repository: library/busybox
     tag: "1.32"
+  # This should not be required anymore, used to chown/chmod folder created by faulty CSI driver that are not applying properly POSIX fsgroup.
   initFs:
     enabled: true
-    # image: busybox:1.32
+    # Image: busybox:1.36
+    # Compatible with podSecurity standard baseline.
     securityContext:
-      privileged: true
+      privileged: false
+      runAsNonRoot: false
+      runAsUser: 0
+      runAsGroup: 0
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop: ["ALL"]
+        add: ["CHOWN"]
     registry: docker.m.daocloud.io
     repository: library/busybox
     tag: "1.32"
@@ -242,15 +269,14 @@ sonarqube:
     # ceConfig:
     #   rules:
     #     - pattern: ".*"
-    # image: curlimages/curl:8.2.0
+    # image: curlimages/curl:8.2.1
     # For use behind a corporate proxy when downloading prometheus
     # httpProxy: ""
     # httpsProxy: ""
     # noProxy: ""
-    # Setting the security context to the default sonarqube user 1000/1000
-    securityContext:
-      runAsUser: 1000
-      runAsGroup: 1000
+    # Reuse default initcontainers.securityContext that match restricted pod security standard
+    # securityContext: {}
+
     registry: docker.m.daocloud.io
     repository: curlimages/curl
     tag: 8.2.0
@@ -282,7 +308,7 @@ sonarqube:
     # httpsProxy: ""
     # noProxy: ""
 
-    # image: curlimages/curl:8.2.0
+    # image: curlimages/curl:8.2.1
     # resources: {}
 
     # .netrc secret file with a key "netrc" to use basic auth while downloading plugins
@@ -290,9 +316,9 @@ sonarqube:
 
     # Set to true to not validate the server's certificate to download plugin
     noCheckCertificate: false
-    securityContext:
-      runAsUser: 1000
-      runAsGroup: 1000
+    # Reuse default initcontainers.securityContext that match restricted pod security standard
+    # securityContext: {}
+
     registry: docker.m.daocloud.io
     repository: curlimages/curl
     tag: 8.2.0
@@ -348,6 +374,7 @@ sonarqube:
     accessMode: ReadWriteOnce
     size: 5Gi
     uid: 1000
+    guid: 1000
     ## Specify extra volumes. Refer to ".spec.volumes" specification : https://kubernetes.io/fr/docs/concepts/storage/volumes/
     volumes: []
     ## Specify extra mounts. Refer to ".spec.containers.volumeMounts" specification : https://kubernetes.io/fr/docs/concepts/storage/volumes/
@@ -388,7 +415,7 @@ sonarqube:
     # jdbcSecretName: "sonarqube-jdbc"
     ## and the secretValueKey of the password found within that secret
     # jdbcSecretPasswordKey: "jdbc-password"
-  ## Configuration values for postgresql dependency
+  ## (DEPRECATED) Configuration values for postgresql dependency
   ## ref: https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md
   postgresql:
     # Enable to deploy the bitnami PostgreSQL chart
@@ -439,8 +466,14 @@ sonarqube:
       # If using OpenShift, enabled=false for restricted SCC and enabled=true for anyuid/nonroot SCC
       enabled: true
       # runAsUser specification below are not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
-      # postgresql dockerfile sets user as 1001
+      # postgresql dockerfile sets user as 1001, the rest aim at making it compatible with restricted pod security standard.
       runAsUser: 1001
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop: ["ALL"]
     volumePermissions:
       # For standard Kubernetes deployment, set enabled=false
       # For OpenShift, set enabled=true and ensure to set volumepermissions.securitycontext.runAsUser below.
@@ -508,7 +541,8 @@ sonarqube:
   # The above values can be also provided by a secret that contains "password" and "currentPassword" as keys. You can generate such a secret in your cluster
   # using "kubectl create secret generic admin-password-secret-name --from-literal=password=admin --from-literal=currentPassword=admin"
   #   adminPasswordSecretName: ""
-  #   securityContext: {}
+  # # Reuse default initcontainers.securityContext that match restricted pod security standard
+  # #   securityContext: {}
   #   resources:
   #     limits:
   #       cpu: 100m
@@ -516,7 +550,7 @@ sonarqube:
   #     requests:
   #       cpu: 100m
   #       memory: 128Mi
-  # curlContainerImage: curlimages/curl:8.2.0
+  # curlContainerImage: curlimages/curl:8.2.1
   # adminJobAnnotations: {}
   # deprecated please use sonarWebContext at the value top level
   #   sonarWebContext: /
