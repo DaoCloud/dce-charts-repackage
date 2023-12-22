@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/Welcome3",
+  "definitions": {
+    "Welcome3": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "global": {
+          "$ref": "#/definitions/Global"
+        },
+        "deepflow-agent": {
+          "$ref": "#/definitions/DeepflowAgent"
+        }
+      },
+      "required": [
+        "deepflow-agent",
+        "global"
+      ],
+      "title": "Deepflow Agent"
+    },
+    "DeepflowAgent": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "deployComponent": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "daemonset"
+          ]
+        },
+        "timezone": {
+          "type": "string",
+          "default": "Asia/Shanghai"
+        },
+        "deepflowServerNodeIPS": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "deepflow-server"
+          ]
+        },
+        "deepflowK8sClusterID": {
+          "type": "string"
+        },
+        "agentGroupID": {
+          "type": "string"
+        },
+        "controllerPort": {
+          "type": "string"
+        },
+        "clusterNAME": {
+          "type": "string"
+        }
+      },
+      "title": " "
+    },
+    "Global": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": " "
+    }
+  }
+}
