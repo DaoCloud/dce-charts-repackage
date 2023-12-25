@@ -74,7 +74,7 @@ yq -i '
 
 # set default enabled value
 yq -i '
-    .gpu-operator.devicePlugin.enabled=false |
+    .gpu-operator.devicePlugin.enabled=true |
     .gpu-operator.migManager.enabled=false |
     .gpu-operator.vgpuDeviceManager.enabled=false |
     .gpu-operator.vfioManager.enabled=false |
@@ -82,7 +82,7 @@ yq -i '
 ' values.yaml
 
 yq -i '
-    .devicePlugin.enabled=false |
+    .devicePlugin.enabled=true |
     .migManager.enabled=false |
     .vgpuDeviceManager.enabled=false |
     .vfioManager.enabled=false |
@@ -93,13 +93,13 @@ yq -i '
 yq -i '
     .gpu-operator.toolkit.version="v1.13.4-centos7" |
     .gpu-operator.gds.version="2.16.1-ubuntu22.04" |
-    .gpu-operator.driver.version="535.104.05"
+    .gpu-operator.driver.version="535.129.03"
 ' values.yaml
 
 yq -i '
     .toolkit.version="v1.13.4-centos7" |
     .gds.version="2.16.1-ubuntu22.04" |
-    .driver.version="535.104.05"
+    .driver.version="535.129.03"
 ' charts/gpu-operator/values.yaml
 
 # set serviceMonitor

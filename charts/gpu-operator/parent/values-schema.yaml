@@ -4,11 +4,11 @@ gpu-operator:
     enabled: true
     repository: nvcr.io
     image: nvidia/driver
-    version: "535.104.05"
+    version: "535.129.03"
     repoConfig:
       configMapName: ""
   devicePlugin:
-    enabled: false
+    enabled: true
 
   migManager:
     enabled: false
