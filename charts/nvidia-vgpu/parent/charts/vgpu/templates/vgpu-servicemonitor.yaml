@@ -16,10 +16,6 @@ spec:
       sourceLabels:
       - podname
       targetLabel: exported_pod
-    - action: replace
-      sourceLabels:
-      - podnamespace
-      targetLabel: exported_namespace
     path: /metrics
     port: monitor
     relabelings:
