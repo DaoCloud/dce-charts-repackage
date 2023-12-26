@@ -34,10 +34,12 @@ yq e '.image.tag=env(nfdVersion)' -i ./charts/gpu-operator/charts/node-feature-d
 #yq -i '.spec.template.spec.containers[0].image="{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"' -i ./charts/gpu-operator/charts/node-feature-discovery/templates/topologyupdater.yaml
 if [ $os == "Darwin" ];then
    sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/master.yaml
+   sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/nfd-gc.yaml
    sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/worker.yaml
    sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/topologyupdater.yaml
 elif [ $os == "Linux" ]; then
    sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/master.yaml
+      sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/nfd-gc.yaml
    sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/worker.yaml
    sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/topologyupdater.yaml
 fi
@@ -91,15 +93,15 @@ yq -i '
 
 # set image
 yq -i '
-    .gpu-operator.toolkit.version="v1.13.4-centos7" |
+    .gpu-operator.toolkit.version="v1.14.3-centos7" |
     .gpu-operator.gds.version="2.16.1-ubuntu22.04" |
-    .gpu-operator.driver.version="535.129.03"
+    .gpu-operator.driver.version="535.104.12"
 ' values.yaml
 
 yq -i '
-    .toolkit.version="v1.13.4-centos7" |
+    .toolkit.version="v1.14.3-centos7" |
     .gds.version="2.16.1-ubuntu22.04" |
-    .driver.version="535.129.03"
+    .driver.version="535.104.12"
 ' charts/gpu-operator/values.yaml
 
 # set serviceMonitor
