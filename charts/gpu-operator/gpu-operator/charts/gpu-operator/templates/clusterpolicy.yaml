@@ -136,7 +136,6 @@ spec:
   driver:
     enabled: {{ .Values.driver.enabled }}
     useNvidiaDriverCRD: {{ .Values.driver.nvidiaDriverCRD.enabled }}
-    useOpenKernelModules: {{ .Values.driver.useOpenKernelModules }}
     usePrecompiled: {{ .Values.driver.usePrecompiled }}
     {{- if .Values.driver.repository }}
     repository: {{ .Values.driver.repository }}

@@ -4,19 +4,19 @@ gpu-operator:
     initContainer:
       image: nvidia/cuda
       repository: nvcr.io
-      version: 12.3.1-base-ubi8
+      version: 12.2.2-base-ubi8
   driver:
     enabled: true
     repository: nvcr.io
     image: nvidia/driver
-    version: "535.129.03"
+    version: "535.104.12"
     repoConfig:
       configMapName: ""
   toolkit:
     enabled: true
     repository: nvcr.io
     image: nvidia/k8s/container-toolkit
-    version: v1.13.4-centos7
+    version: v1.14.3-centos7
   devicePlugin:
     enabled: true
 

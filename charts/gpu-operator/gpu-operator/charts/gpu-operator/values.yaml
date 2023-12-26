@@ -38,7 +38,7 @@ validator:
   repository: nvcr.io
   image: nvidia/cloud-native/gpu-operator-validator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v23.9.1"
+  version: v23.9.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -52,7 +52,7 @@ operator:
   repository: nvcr.io
   image: nvidia/gpu-operator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v23.9.1"
+  version: v23.9.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   priorityClassName: system-node-critical
@@ -67,7 +67,7 @@ operator:
   initContainer:
     image: nvidia/cuda
     repository: nvcr.io
-    version: 12.3.1-base-ubi8
+    version: 12.2.2-base-ubi8
     imagePullPolicy: IfNotPresent
   tolerations:
     - key: "node-role.kubernetes.io/master"
@@ -119,13 +119,12 @@ driver:
     deployDefaultCR: true
     driverType: gpu
     nodeSelector: {}
-  useOpenKernelModules: false
   # use pre-compiled packages for NVIDIA driver installation.
   # only supported for as a tech-preview feature on ubuntu22.04 kernels.
   usePrecompiled: false
   repository: nvcr.io
   image: nvidia/driver
-  version: "535.129.03"
+  version: "535.104.12"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   startupProbe:
@@ -173,7 +172,7 @@ driver:
   manager:
     image: nvidia/cloud-native/k8s-driver-manager
     repository: nvcr.io
-    version: v0.6.5
+    version: v0.6.4
     imagePullPolicy: IfNotPresent
     env:
       - name: ENABLE_GPU_POD_EVICTION
@@ -210,7 +209,7 @@ toolkit:
   enabled: true
   repository: nvcr.io
   image: nvidia/k8s/container-toolkit
-  version: v1.13.4-centos7
+  version: v1.14.3-centos7
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -220,7 +219,7 @@ devicePlugin:
   enabled: true
   repository: nvcr.io
   image: nvidia/k8s-device-plugin
-  version: v0.14.3-ubi8
+  version: v0.14.2-ubi8
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   args: []
@@ -273,7 +272,7 @@ dcgm:
   enabled: false
   repository: nvcr.io
   image: nvidia/cloud-native/dcgm
-  version: 3.3.0-1-ubuntu22.04
+  version: 3.2.6-1-ubuntu20.04
   imagePullPolicy: IfNotPresent
   hostPort: 5555
   args: []
@@ -283,7 +282,7 @@ dcgmExporter:
   enabled: true
   repository: nvcr.io
   image: nvidia/k8s/dcgm-exporter
-  version: 3.3.0-3.2.0-ubuntu22.04
+  version: 3.2.6-3.1.9-ubuntu20.04
   imagePullPolicy: IfNotPresent
   env:
     - name: DCGM_EXPORTER_LISTEN
@@ -344,7 +343,7 @@ nodeStatusExporter:
   repository: nvcr.io
   image: nvidia/cloud-native/gpu-operator-validator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v23.9.1"
+  version: "v23.9.0"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   resources: {}
@@ -391,7 +390,7 @@ vfioManager:
   enabled: false
   repository: nvcr.io
   image: nvidia/cuda
-  version: 12.3.1-base-ubi8
+  version: 12.2.2-base-ubi8
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -433,7 +432,7 @@ sandboxDevicePlugin:
   enabled: false
   repository: nvcr.io
   image: nvidia/kubevirt-gpu-device-plugin
-  version: v1.2.4
+  version: v1.2.3
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   args: []
