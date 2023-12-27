@@ -57,6 +57,7 @@ yq -i '
    .metallb.speaker.resources.requests.memory="80Mi" |
    .metallb.speaker.resources.limits.cpu="200m" |
    .metallb.speaker.resources.limits.memory="300Mi" |
+   .metallb.speaker.frr.enabled=false |
    .metallb.speaker.frr.image.registry="quay.m.daocloud.io" |
    .metallb.speaker.frr.image.repository="frrouting/frr"
 ' values.yaml

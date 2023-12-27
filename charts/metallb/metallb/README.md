@@ -121,7 +121,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.affinity | object | `{}` |  |
 | metallb.speaker.enabled | bool | `true` |  |
 | metallb.speaker.excludeInterfaces.enabled | bool | `true` |  |
-| metallb.speaker.frr.enabled | bool | `true` |  |
+| metallb.speaker.frr.enabled | bool | `false` |  |
 | metallb.speaker.frr.image.pullPolicy | string | `nil` |  |
 | metallb.speaker.frr.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.speaker.frr.image.repository | string | `"frrouting/frr"` |  |
