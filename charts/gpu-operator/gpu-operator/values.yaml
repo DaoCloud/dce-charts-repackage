@@ -36,7 +36,7 @@ gpu-operator:
       # can be specified either as number or percentage of nodes. Default 1.
       maxUnavailable: "1"
   validator:
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/gpu-operator-validator
     # If version is not specified, then default is to use chart.AppVersion
     version: v23.9.0
@@ -50,7 +50,7 @@ gpu-operator:
         - name: WITH_WORKLOAD
           value: "false"
   operator:
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/gpu-operator
     # If version is not specified, then default is to use chart.AppVersion
     version: v23.9.0
@@ -67,7 +67,7 @@ gpu-operator:
     upgradeCRD: false
     initContainer:
       image: nvidia/cuda
-      repository: nvcr.io
+      repository: nvcr.m.daocloud.io
       version: 12.2.2-base-ubi8
       imagePullPolicy: IfNotPresent
     tolerations:
@@ -123,7 +123,7 @@ gpu-operator:
     # use pre-compiled packages for NVIDIA driver installation.
     # only supported for as a tech-preview feature on ubuntu22.04 kernels.
     usePrecompiled: false
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/driver
     version: "535.104.12"
     imagePullPolicy: IfNotPresent
@@ -172,7 +172,7 @@ gpu-operator:
         deleteEmptyDir: false
     manager:
       image: nvidia/cloud-native/k8s-driver-manager
-      repository: nvcr.io
+      repository: nvcr.m.daocloud.io
       version: v0.6.4
       imagePullPolicy: IfNotPresent
       env:
@@ -208,7 +208,7 @@ gpu-operator:
       name: ""
   toolkit:
     enabled: true
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/k8s/container-toolkit
     version: v1.14.3-centos7
     imagePullPolicy: IfNotPresent
@@ -218,7 +218,7 @@ gpu-operator:
     installDir: "/usr/local/nvidia"
   devicePlugin:
     enabled: true
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/k8s-device-plugin
     version: v0.14.2-ubi8
     imagePullPolicy: IfNotPresent
@@ -271,7 +271,7 @@ gpu-operator:
   dcgm:
     # disabled by default to use embedded nv-hostengine by exporter
     enabled: false
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/dcgm
     version: 3.2.6-1-ubuntu20.04
     imagePullPolicy: IfNotPresent
@@ -281,7 +281,7 @@ gpu-operator:
     resources: {}
   dcgmExporter:
     enabled: true
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/k8s/dcgm-exporter
     version: 3.2.6-3.1.9-ubuntu20.04
     imagePullPolicy: IfNotPresent
@@ -312,7 +312,7 @@ gpu-operator:
       name: metrics-config
   gfd:
     enabled: true
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/gpu-feature-discovery
     version: v0.8.2-ubi8
     imagePullPolicy: IfNotPresent
@@ -325,7 +325,7 @@ gpu-operator:
     resources: {}
   migManager:
     enabled: false
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/k8s-mig-manager
     version: v0.5.5-ubuntu20.04
     imagePullPolicy: IfNotPresent
@@ -341,7 +341,7 @@ gpu-operator:
       name: ""
   nodeStatusExporter:
     enabled: false
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/gpu-operator-validator
     # If version is not specified, then default is to use chart.AppVersion
     version: "v23.9.0"
@@ -350,7 +350,7 @@ gpu-operator:
     resources: {}
   gds:
     enabled: false
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/nvidia-fs
     version: "2.16.1-ubuntu22.04"
     imagePullPolicy: IfNotPresent
@@ -378,7 +378,7 @@ gpu-operator:
           value: "false"
   vgpuDeviceManager:
     enabled: false
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/vgpu-device-manager
     version: "v0.2.4"
     imagePullPolicy: IfNotPresent
@@ -389,7 +389,7 @@ gpu-operator:
       default: "default"
   vfioManager:
     enabled: false
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/cuda
     version: 12.2.2-base-ubi8
     imagePullPolicy: IfNotPresent
@@ -397,8 +397,8 @@ gpu-operator:
     env: []
     resources: {}
     driverManager:
-      image: k8s-driver-manager
-      repository: nvcr.io/nvidia/cloud-native
+      image: nvidia/cloud-native/k8s-driver-manager
+      repository: nvcr.m.daocloud.io
       version: v0.6.2
       imagePullPolicy: IfNotPresent
       env:
@@ -422,7 +422,7 @@ gpu-operator:
           artifacts:
             url: nvcr.io/nvidia/cloud-native/kata-gpu-artifacts:ubuntu22.04-535.86.10-snp
             pullSecret: ""
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/k8s-kata-manager
     version: v0.1.2
     imagePullPolicy: IfNotPresent
@@ -431,7 +431,7 @@ gpu-operator:
     resources: {}
   sandboxDevicePlugin:
     enabled: false
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/kubevirt-gpu-device-plugin
     version: v1.2.3
     imagePullPolicy: IfNotPresent
@@ -442,7 +442,7 @@ gpu-operator:
   ccManager:
     enabled: false
     defaultMode: "off"
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/k8s-cc-manager
     version: v0.1.1
     imagePullPolicy: IfNotPresent
