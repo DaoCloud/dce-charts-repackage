@@ -31,22 +31,14 @@ kdoctor:
     enableIPv6: true
     ## @param feature.netReachRequestMaxQPS qps for kind NetReach
     netReachRequestMaxQPS: 20
-    ## @param feature.netReachMaxConcurrency concurrency  for kind NetReach
-    netReachMaxConcurrency: 10
-    ## @param feature.appHttpHealthyMaxConcurrency concurrency  for kind AppHttpHealthy
-    appHttpHealthyMaxConcurrency: 20
     ## @param feature.appHttpHealthyRequestMaxQPS qps for kind AppHttpHealthy
     appHttpHealthyRequestMaxQPS: 100
     ## @param feature.netHttpDefaultRequestQPS qps for kind NetHttp
     netHttpDefaultRequestQPS: 10
-    ## @param feature.netHttpDefaultMaxIdleConnsPerHost max idle connect for kind NetHttp
-    netHttpDefaultMaxIdleConnsPerHost: 50
     ## @param feature.netHttpDefaultRequestDurationInSecond Duration In Second for kind NetHttp
     netHttpDefaultRequestDurationInSecond: 2
     ## @param feature.netHttpDefaultRequestPerRequestTimeoutInMS PerRequest Timeout In MS for kind NetHttp
     netHttpDefaultRequestPerRequestTimeoutInMS: 500
-    ## @param feature.netDnsMaxConcurrency concurrency  for kind NetDns
-    netDnsMaxConcurrency: 20
     ## @param feature.netDnsRequestMaxQPS qps for kind NetDns
     netDnsRequestMaxQPS: 100
     ## @param feature.agentDefaultTerminationGracePeriodMinutes agent termination after minutes
@@ -105,7 +97,7 @@ kdoctor:
       ## @param kdoctorAgent.image.digest the image digest of kdoctorAgent, which takes preference over tag
       digest: ""
       ## @param kdoctorAgent.image.tag the image tag of kdoctorAgent, overrides the image tag whose default is the chart appVersion.
-      tag: "v0.2.1"
+      tag: "v0.2.2"
       ## @param kdoctorAgent.image.imagePullSecrets the image imagePullSecrets of kdoctorAgent
       imagePullSecrets: []
       # - name: "image-pull-secret"
@@ -252,7 +244,7 @@ kdoctor:
       ## @param kdoctorController.image.digest the image digest of kdoctorController, which takes preference over tag
       digest: ""
       ## @param kdoctorController.image.tag the image tag of kdoctorController, overrides the image tag whose default is the chart appVersion.
-      tag: "v0.2.1"
+      tag: "v0.2.2"
       ## @param kdoctorController.image.imagePullSecrets the image imagePullSecrets of kdoctorController
       imagePullSecrets: []
       # - name: "image-pull-secret"
