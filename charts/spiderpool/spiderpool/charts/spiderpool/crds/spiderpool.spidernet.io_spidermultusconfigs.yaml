@@ -38,11 +38,14 @@ spec:
             description: Spec is the specification of the MultusCNIConfig
             properties:
               cniType:
+                default: custom
                 enum:
                 - macvlan
                 - ipvlan
                 - sriov
                 - ovs
+                - ib-sriov
+                - ipoib
                 - custom
                 type: string
               coordinator:
@@ -85,6 +88,8 @@ spec:
                     type: string
                   tunePodRoutes:
                     type: boolean
+                  txQueueLen:
+                    type: integer
                 type: object
               customCNI:
                 description: OtherCniTypeConfig only used for CniType custom, valid
@@ -95,7 +100,62 @@ spec:
                 type: boolean
               enableCoordinator:
                 default: true
+                description: if CniType was set to custom, we'll mutate this field
+                  to be false
                 type: boolean
+              ibsriov:
+                properties:
+                  ibKubernetesEnabled:
+                    default: false
+                    type: boolean
+                  ippools:
+                    description: SpiderpoolPools could specify the IPAM spiderpool
+                      CNI configuration default IPv4&IPv6 pools.
+                    properties:
+                      ipv4:
+                        items:
+                          type: string
+                        type: array
+                      ipv6:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  linkState:
+                    default: enable
+                    enum:
+                    - auto
+                    - enable
+                    - disable
+                    type: string
+                  pkey:
+                    type: string
+                  rdmaIsolation:
+                    default: true
+                    type: boolean
+                  resourceName:
+                    type: string
+                required:
+                - resourceName
+                type: object
+              ipoib:
+                properties:
+                  ippools:
+                    description: SpiderpoolPools could specify the IPAM spiderpool
+                      CNI configuration default IPv4&IPv6 pools.
+                    properties:
+                      ipv4:
+                        items:
+                          type: string
+                        type: array
+                      ipv6:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  master:
+                    type: string
+                type: object
               ipvlan:
                 properties:
                   bond:
@@ -257,8 +317,6 @@ spec:
                 required:
                 - resourceName
                 type: object
-            required:
-            - cniType
             type: object
         type: object
     served: true
