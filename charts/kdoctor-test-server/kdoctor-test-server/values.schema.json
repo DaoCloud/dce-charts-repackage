@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/schema#",
     "type": "object",
     "properties": {
-        "server": {
+        "kdoctor-test-server": {
             "type": "object",
             "properties": {
                 "affinity": {
@@ -34,6 +34,12 @@
                         },
                         "appDnsUdpPort": {
                             "type": "integer"
+                        },
+                        "coreDNSServiceLabelKey": {
+                            "type": "string"
+                        },
+                        "coreDNSServiceLabelValue": {
+                            "type": "string"
                         }
                     }
                 },
@@ -156,7 +162,31 @@
                     "type": "object"
                 },
                 "resources": {
-                    "type": "null"
+                    "type": "object",
+                    "properties": {
+                        "limits": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "requests": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
                 },
                 "securityContext": {
                     "type": "object"

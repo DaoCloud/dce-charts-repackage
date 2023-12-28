@@ -15,10 +15,10 @@ set -o pipefail
 set -o nounset
 
 
-APP_VERSION=` cat charts/server/Chart.yaml | grep appVersion | awk '{print $2}'`
+APP_VERSION=` cat charts/kdoctor-test-server/Chart.yaml | grep appVersion | awk '{print $2}'`
 sed -iE "s?tag:.*?tag: \"v${APP_VERSION}\"?g" values.yaml
 
-yq -i ' .image.registry = "ghcr.m.daocloud.io" ' values.yaml
+yq -i ' .kdoctor-test-server.image.registry = "ghcr.m.daocloud.io" ' values.yaml
 
 rm -f values.yamlE || true
 
