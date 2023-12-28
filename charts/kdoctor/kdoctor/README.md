@@ -26,14 +26,10 @@
 | `feature.enableIPv4`                                                    | enable ipv4                                                             | `true`                               |
 | `feature.enableIPv6`                                                    | enable ipv6                                                             | `true`                               |
 | `feature.netReachRequestMaxQPS`                                         | qps for kind NetReach                                                   | `20`                                 |
-| `feature.netReachMaxConcurrency`                                        | concurrency  for kind NetReach                                          | `10`                                 |
-| `feature.appHttpHealthyMaxConcurrency`                                  | concurrency  for kind AppHttpHealthy                                    | `20`                                 |
 | `feature.appHttpHealthyRequestMaxQPS`                                   | qps for kind AppHttpHealthy                                             | `100`                                |
 | `feature.netHttpDefaultRequestQPS`                                      | qps for kind NetHttp                                                    | `10`                                 |
-| `feature.netHttpDefaultMaxIdleConnsPerHost`                             | max idle connect for kind NetHttp                                       | `50`                                 |
 | `feature.netHttpDefaultRequestDurationInSecond`                         | Duration In Second for kind NetHttp                                     | `2`                                  |
 | `feature.netHttpDefaultRequestPerRequestTimeoutInMS`                    | PerRequest Timeout In MS for kind NetHttp                               | `500`                                |
-| `feature.netDnsMaxConcurrency`                                          | concurrency  for kind NetDns                                            | `20`                                 |
 | `feature.netDnsRequestMaxQPS`                                           | qps for kind NetDns                                                     | `100`                                |
 | `feature.agentDefaultTerminationGracePeriodMinutes`                     | agent termination after minutes                                         | `60`                                 |
 | `feature.taskPollIntervalInSecond`                                      | the interval to poll the task in controller and agent pod               | `5`                                  |
