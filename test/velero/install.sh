@@ -24,6 +24,7 @@ helm install velero chart-museum/velero  ${HELM_MUST_OPTION}  --namespace velero
   --set velero.configuration.backupStorageLocation[0].bucket=velero \
   --set velero.configuration.volumeSnapshotLocation[0].name=default \
   --set velero.configuration.volumeSnapshotLocation[0].provider=aws \
+  --set velero.veleroPluginForMigration.enabled=true \
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
