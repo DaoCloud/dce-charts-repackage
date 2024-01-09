@@ -50,6 +50,10 @@ velero:
       veleroPluginForAws:
         repository: velero/velero-plugin-for-aws
         tag: v1.8.0
+      veleroPluginForMigration:
+        registry: release.daocloud.io
+        repository: kcoral/velero-plugin-for-migration
+        tag: v0.1.0
   nameOverride: ""
   fullnameOverride: ""
   # Annotations to add to the Velero deployment's. Optional.
@@ -437,7 +441,7 @@ velero:
     # - using workload identity instead of providing the key file. (Azure/GCP only)
     useSecret: true
     # Name of the secret to create if `useSecret` is true and `existingSecret` is empty
-    name:
+    name: velero-s3-credential
     # Name of a pre-existing secret (if any) in the Velero namespace
     # that should be used to get IAM account credentials. Optional.
     existingSecret:
@@ -561,6 +565,15 @@ velero:
   #         runAsUser: 1001
   #         runAsGroup: 999
   configMaps: {}
+  veleroPluginForMigration:
+    enabled: false
+    plugin:
+      - name: velero-plugin-for-migration
+        image: '{{ .Values.image.initContainers.veleroPluginForMigration.registry }}/{{ .Values.image.initContainers.veleroPluginForMigration.repository }}:{{ .Values.image.initContainers.veleroPluginForMigration.tag }}'
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - mountPath: /target
+            name: plugins
 ##
 ## End of additional Velero resource settings.
 ##

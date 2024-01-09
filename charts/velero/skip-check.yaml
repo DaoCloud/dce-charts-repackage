@@ -2,3 +2,6 @@ velero:
   - "image/initContainers"
   - "image/initContainers/veleroPluginForCsi"
   - "image/initContainers/veleroPluginForAws"
+  - "veleroPluginForMigration"
+  - "veleroPluginForMigration/plugin"
+  - "veleroPluginForMigration/enabled"

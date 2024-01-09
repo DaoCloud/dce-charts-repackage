@@ -109,6 +109,16 @@
                             }
                         }
                     }
+                },
+                "veleroPluginForMigration": {
+                  "$id": "#root/velero/veleroPluginForMigration",
+                  "title": "migration plugin configuration",
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    }
+                  }
                 }
             }
         }
