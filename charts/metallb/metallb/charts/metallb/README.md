@@ -1,6 +1,6 @@
 # metallb
 
-![Version: 0.13.10](https://img.shields.io/badge/Version-0.13.10-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.13.10](https://img.shields.io/badge/AppVersion-v0.13.10-informational?style=flat-square)
+![Version: 0.13.12](https://img.shields.io/badge/Version-0.13.12-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.13.12](https://img.shields.io/badge/AppVersion-v0.13.12-informational?style=flat-square)
 
 A network load-balancer implementation for Kubernetes using standard routing protocols
 
@@ -16,7 +16,7 @@ Kubernetes: `>= 1.19.0-0`
 
 | Repository | Name | Version |
 |------------|------|---------|
-|  | crds | 0.13.10 |
+|  | crds | 0.13.12 |
 
 ## Values
 
@@ -114,7 +114,7 @@ Kubernetes: `>= 1.19.0-0`
 | speaker.frr.enabled | bool | `true` |  |
 | speaker.frr.image.pullPolicy | string | `nil` |  |
 | speaker.frr.image.repository | string | `"quay.io/frrouting/frr"` |  |
-| speaker.frr.image.tag | string | `"8.4.2"` |  |
+| speaker.frr.image.tag | string | `"8.5.2"` |  |
 | speaker.frr.metricsPort | int | `7473` |  |
 | speaker.frr.resources | object | `{}` |  |
 | speaker.frrMetrics.resources | object | `{}` |  |

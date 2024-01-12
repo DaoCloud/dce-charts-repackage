@@ -17,9 +17,9 @@ spec:
     - port: {{.Values.Master.ServicePort}}
       name: http
       targetPort: 8080
-      {{if (not (empty (include "svc.nodePort" .) ))}}
+      {{- if (not (empty (include "svc.nodePort" .) ))}}
       nodePort: {{ include "svc.nodePort" . }}
-      {{end}}
+      {{- end}}
   selector:
     component: "{{.Release.Name}}-{{.Values.Master.Component}}"
   type: {{ include "svc.serviceType" . }}

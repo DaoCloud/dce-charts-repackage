@@ -43,6 +43,23 @@ tag1=${arr1[1]}
 yq -i .velero.image.initContainers.veleroPluginForCsi.tag=\"$tag0\"  values.yaml
 yq -i .velero.image.initContainers.veleroPluginForAws.tag=\"$tag1\" values.yaml
 
+# add dce restore plugin
+yq -i '
+  .velero.image.initContainers.veleroPluginForMigration.registry="release.daocloud.io" |
+  .velero.image.initContainers.veleroPluginForMigration.repository = "kcoral/velero-plugin-for-migration" |
+  .velero.image.initContainers.veleroPluginForMigration.tag= "v0.1.0"
+' values.yaml
+
+yq -i '
+  .velero.veleroPluginForMigration.enabled = false |
+  .velero.veleroPluginForMigration.plugin[0].name = "velero-plugin-for-migration" |
+  .velero.veleroPluginForMigration.plugin[0].image = "{{ .Values.image.initContainers.veleroPluginForMigration.registry }}/{{ .Values.image.initContainers.veleroPluginForMigration.repository }}:{{ .Values.image.initContainers.veleroPluginForMigration.tag }}" |
+  .velero.veleroPluginForMigration.plugin[0].imagePullPolicy = "IfNotPresent" |
+  .velero.veleroPluginForMigration.plugin[0].volumeMounts[0].mountPath = "/target" |
+  .velero.veleroPluginForMigration.plugin[0].volumeMounts[0].name = "plugins"
+' values.yaml
+
+
 
 # change image string to go-template,
 sed -i 's/image: velero\/velero-plugin-for-csi:v.*/image: "{{ .Values.image.registry }}\/{{ .Values.image.initContainers.veleroPluginForCsi.repository }}:{{ .Values.image.initContainers.veleroPluginForCsi.tag }}"/' values.yaml
@@ -53,7 +70,7 @@ sed -i  's/{{ .Values.image.repository }}/{{ .Values.image.registry }}\/{{ .Valu
 # update template style
 # reference: https://austindewey.com/2021/02/22/using-the-helm-tpl-function-to-refer-values-in-values-files/
 sed -i 's/toYaml .Values.initContainers/tpl (toYaml .Values.initContainers) ./' charts/velero/templates/deployment.yaml
-
+sed  -i -e '/initContainers:/a\{{ include "velero.plugin.for.migration" .}}' charts/velero/templates/deployment.yaml
 
 yq  -i '.velero.deployNodeAgent=true' values.yaml
 yq  -i '.velero.upgradeCRDs=false' values.yaml
@@ -62,7 +79,7 @@ yq  -i '.velero.cleanUpCRDs=false' values.yaml
 #yq  -i '."velero"."configuration"."provider"="aws"' values.yaml the configuration.provider is deprecated
 yq  -i '.velero.configuration.volumeSnapshotLocation[0].provider="aws"' values.yaml
 yq  -i '.velero.configuration.backupStorageLocation[0].provider="aws"'  values.yaml
-
+yq  -i '.velero.credentials.name="velero-s3-credential"'  values.yaml
 
 
 # to make `helm template test` complains ` Invalid type. Expected: string, given: null`
@@ -85,7 +102,8 @@ yq -i '
 yq  -i 'del(."velero"."kubectl")' values.yaml
 
 yq -i '
-   .annotations["addon.kpanda.io/namespace"]="velero"
+   .annotations["addon.kpanda.io/namespace"]="velero"|
+   .annotations["addon.kpanda.io/release-name"]="velero"
 ' Chart.yaml
 
 if ! grep "keywords:" Chart.yaml &>/dev/null ; then

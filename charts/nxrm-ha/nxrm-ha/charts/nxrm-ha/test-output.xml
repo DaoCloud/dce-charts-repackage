@@ -1,0 +1,127 @@
+<testsuites>
+	<testsuite tests="1" failures="0" time="0.001" name="test nexus properties override">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test nexus properties override" name="should create nexus.properties file" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="1" failures="0" time="0.001" name="test nexus config override">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test nexus config override" name="should create nexus config map" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="1" failures="0" time="0.001" name="test database secret">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test database secret" name="should create db secret when secret.dbSecret.enabled is true and aws.secretmanager.enabled and azure.keyvault.enabled are false" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="1" failures="0" time="0.001" name="test external dns for aws">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test external dns for aws" name="should create external dns objects" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="1" failures="0" time="0.001" name="test fluent bit yaml for aws">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test fluent bit yaml for aws" name="should create fluent bit objects" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="1" failures="0" time="0.001" name="test image pull secret creation">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test image pull secret creation" name="should create image pull secret" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="8" failures="0" time="0.008" name="test ingress">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test ingress" name="should create nexus ingress with no rules" time="0.001"></testcase>
+		<testcase classname="test ingress" name="should create nexus ingress with default HTTP rule" time="0.001"></testcase>
+		<testcase classname="test ingress" name="should create nexus ingress with default HTTP rule which has no host" time="0.001"></testcase>
+		<testcase classname="test ingress" name="nexus ingress should have a HTTP rule which has the host set" time="0.001"></testcase>
+		<testcase classname="test ingress" name="nexus ingress should have additional http rules" time="0.002"></testcase>
+		<testcase classname="test ingress" name="nexus ingress should have a default and docker subdomain routing rules" time="0.001"></testcase>
+		<testcase classname="test ingress" name="should specify tls hosts" time="0.001"></testcase>
+		<testcase classname="test ingress" name="should create docker ingress with a HTTP rule which has its host set" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="1" failures="0" time="0.001" name="test license config map">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test license config map" name="should create license secret" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="3" failures="0" time="0.001" name="test namespaces">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test namespaces" name="should create nexusrepo namespace" time="0.000"></testcase>
+		<testcase classname="test namespaces" name="should create cloudwatch namespace" time="0.000"></testcase>
+		<testcase classname="test namespaces" name="should create external dns namespace" time="0.000"></testcase>
+	</testsuite>
+	<testsuite tests="1" failures="0" time="0.001" name="test admin secret">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test admin secret" name="should create admin secret when secret.nexusAdminSecret.enabled is true and aws.secretmanager.enabled and azure.keyvault.enabled are false" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="2" failures="0" time="0.002" name="test secret provider">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test secret provider" name="should create secret provider class when aws secret manager enabled" time="0.001"></testcase>
+		<testcase classname="test secret provider" name="should create secret provider class for azure keyvault when azure keyvault enabled" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="1" failures="0" time="0.001" name="test serviceaccount">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test serviceaccount" name="should create service account" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="2" failures="0" time="0.002" name="test services">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test services" name="should create nexus service" time="0.001"></testcase>
+		<testcase classname="test services" name="should create docker service" time="0.001"></testcase>
+	</testsuite>
+	<testsuite tests="25" failures="0" time="0.054" name="test statefulset">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test statefulset" name="should set replicas to 1 when clustered is false" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should set specified replicas when clustered is true" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should mount license secret when secret.license.enabled" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should mount db secret when secret.db.enabled is enabled" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should mount secret store volume when aws secret manager enabled" time="0.003"></testcase>
+		<testcase classname="test statefulset" name="should mount secret store volume when azure keyvault enabled" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should not mount secret store volume when aws secret manager and azure keyvault are not enabled" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should set service account name when aws enabled" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should create pod spec" time="0.003"></testcase>
+		<testcase classname="test statefulset" name="should create init container" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should specify node selectors" time="0.003"></testcase>
+		<testcase classname="test statefulset" name="should specify host aliases" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should create image pull secret when enabled" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should use volumeClaimTemplate when enabled" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should use existing claim when volumeClaimTemplate not enabled and existing claim specified" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should use emptyDir when volumeClaimTemplate when not enabled and no existing claim specified" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should set nexus datastore enabled to true when clustered is false" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should create nxrm-app container with dynamic nexusdata volume" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should mount config volume when enabled" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should mount properties volume when override enabled" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should mount additional volume mounts when specified" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should include additional containers when specified" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should create request-log container" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should create audit-log container" time="0.002"></testcase>
+		<testcase classname="test statefulset" name="should create tasks-log container" time="0.002"></testcase>
+	</testsuite>
+	<testsuite tests="1" failures="0" time="0.001" name="test storage class">
+		<properties>
+			<property name="helm-unittest.version" value="1.6"></property>
+		</properties>
+		<testcase classname="test storage class" name="should create storage class" time="0.001"></testcase>
+	</testsuite>
+</testsuites>

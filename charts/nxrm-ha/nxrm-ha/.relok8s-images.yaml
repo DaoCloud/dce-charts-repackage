@@ -1,0 +1,5 @@
+- "{{ .nxrm-ha.statefulset.container.image.registry }}/{{ .nxrm-ha.statefulset.container.image.repository }}:{{ .nxrm-ha.statefulset.container.image.tag }}"
+- "{{ .nxrm-ha.statefulset.requestLogContainer.image.registry }}/{{ .nxrm-ha.statefulset.requestLogContainer.image.repository }}:{{ .nxrm-ha.statefulset.requestLogContainer.image.tag }}"
+- "{{ .nxrm-ha.statefulset.auditLogContainer.image.registry }}/{{ .nxrm-ha.statefulset.auditLogContainer.image.repository }}:{{ .nxrm-ha.statefulset.auditLogContainer.image.tag }}"
+- "{{ .nxrm-ha.statefulset.taskLogContainer.image.registry }}/{{ .nxrm-ha.statefulset.taskLogContainer.image.repository }}:{{ .nxrm-ha.statefulset.taskLogContainer.image.tag }}"
+- "{{ .nxrm-ha.statefulset.initContainer.image.registry }}/{{ .nxrm-ha.statefulset.initContainer.image.repository }}:{{ .nxrm-ha.statefulset.initContainer.image.tag }}"

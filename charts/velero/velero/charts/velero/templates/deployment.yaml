@@ -20,6 +20,9 @@ metadata:
     {{- end }}
 spec:
   replicas: 1
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   strategy:
     type: Recreate
   selector:
@@ -37,13 +40,18 @@ spec:
         {{- if .Values.podLabels }}
           {{- toYaml .Values.podLabels | nindent 8 }}
         {{- end }}
-    {{- if or .Values.podAnnotations .Values.metrics.enabled }}
+    {{- if or .Values.podAnnotations .Values.metrics.enabled (and .Values.credentials.useSecret (not .Values.credentials.existingSecret)) }}
       annotations:
       {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.metrics.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
+      {{- if and (.Values.metrics.enabled) (not .Values.metrics.serviceMonitor.enabled) }}
+        {{- with .Values.metrics.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- if and .Values.credentials.useSecret (not .Values.credentials.existingSecret) }}
+        checksum/secret: {{ template "chart.config-checksum" . }}
       {{- end }}
     {{- end }}
     spec:
@@ -142,6 +150,9 @@ spec:
             {{- with .terminatingResourceTimeout }}
             - --terminating-resource-timeout={{ . }}
             {{- end }}
+            {{- with .defaultSnapshotMoveData }}
+            - --default-snapshot-move-data={{ . }}
+            {{- end }}
             ### Global Flags
             {{- with .features }}
             - --features={{ . }}
@@ -153,6 +164,14 @@ spec:
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.metrics.enabled }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- end }}
           {{- with .Values.containerSecurityContext }}
           securityContext:
@@ -202,7 +221,7 @@ spec:
           {{- with .Values.configuration.extraEnvVars }}
           {{- range $key, $value := . }}
             - name: {{ default "none" $key }}
-              value: {{ default "none" $value | quote }}
+              value: {{ tpl (default "none" $value) $ | quote }}
           {{- end }}
           {{- end }}
           {{- with .Values.credentials.extraEnvVars }}
@@ -220,6 +239,7 @@ spec:
       dnsPolicy: {{ .Values.dnsPolicy }}
 {{- if .Values.initContainers }}
       initContainers:
+{{ include "velero.plugin.for.migration" .}}
         {{- if eq (typeOf .Values.initContainers) "string" }}
         {{- tpl .Values.initContainers . | nindent 8 }}
         {{- else }}

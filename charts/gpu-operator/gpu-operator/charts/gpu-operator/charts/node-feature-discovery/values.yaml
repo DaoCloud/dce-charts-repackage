@@ -6,12 +6,12 @@ image:
   # tag
 
   registry: k8s.m.daocloud.io
-  tag: v0.13.1
+  tag: v0.14.2
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 namespaceOverride: ""
-enableNodeFeatureApi: false
+enableNodeFeatureApi: true
 master:
   config: ### <NFD-MASTER-CONF-START-DO-NOT-REMOVE>
   # noPublish: false
@@ -20,17 +20,43 @@ master:
   # resourceLabels: ["vendor-1.com/feature-1","vendor-2.io/feature-2"]
   # enableTaints: false
   # labelWhiteList: "foo"
+  # resyncPeriod: "2h"
+  # klog:
+  #    addDirHeader: false
+  #    alsologtostderr: false
+  #    logBacktraceAt:
+  #    logtostderr: true
+  #    skipHeaders: false
+  #    stderrthreshold: 2
+  #    v: 0
+  #    vmodule:
+  ##   NOTE: the following options are not dynamically run-time configurable
+  ##         and require a nfd-master restart to take effect after being changed
+  #    logDir:
+  #    logFile:
+  #    logFileMaxSize: 1800
+  #    skipLogHeaders: false
+  # leaderElection:
+  #   leaseDuration: 15s
+  #   # this value has to be lower than leaseDuration and greater than retryPeriod*1.2
+  #   renewDeadline: 10s
+  #   # this value has to be greater than 0
+  #   retryPeriod: 2s
+  # nfdApiParallelism: 10
   ### <NFD-MASTER-CONF-END-DO-NOT-REMOVE>
   # The TCP port that nfd-master listens for incoming requests. Default: 8080
   port: 8080
+  metricsPort: 8081
   instance:
   featureApi:
+  resyncPeriod:
   denyLabelNs: []
   extraLabelNs: []
   resourceLabels: []
   enableTaints: false
   crdController: null
   featureRulesController: null
+  nfdApiParallelism: null
   deploymentAnnotations: {}
   replicaCount: 1
   podSecurityContext: {}
@@ -145,6 +171,7 @@ worker:
   #        - "SSE4"
   #        - "SSE42"
   #        - "SSSE3"
+  #        - "TDX_GUEST"
   #      attributeWhitelist:
   #  kernel:
   #    kconfigFile: "/path/to/kconfig"
@@ -174,7 +201,7 @@ worker:
   #      - "vendor"
   #      - "device"
   #  local:
-  #    hooksEnabled: true
+  #    hooksEnabled: false
   #  custom:
   #    # The following feature demonstrates the capabilities of the matchFeatures
   #    - name: "my custom rule"
@@ -322,6 +349,7 @@ worker:
   #            my.dummy.var: {op: Gt, value: ["0"]}
   #
   ### <NFD-WORKER-CONF-END-DO-NOT-REMOVE>
+  metricsPort: 8081
   daemonsetAnnotations: {}
   podSecurityContext: {}
   # fsGroup: 2000
@@ -377,16 +405,17 @@ topologyUpdater:
   enable: false
   createCRDs: false
   serviceAccount:
-    create: false
+    create: true
     annotations: {}
     name:
   rbac:
     create: true
+  metricsPort: 8081
   kubeletConfigPath:
   kubeletPodResourcesSockPath:
   updateInterval: 60s
   watchNamespace: "*"
-  kubeletStateDir: /host-var/lib/kubelet
+  kubeletStateDir: /var/lib/kubelet
   podSecurityContext: {}
   securityContext:
     allowPrivilegeEscalation: false
@@ -409,9 +438,10 @@ topologyUpdater:
   nodeSelector: {}
   tolerations: []
   annotations: {}
+  daemonsetAnnotations: {}
   affinity: {}
   podSetFingerprint: true
-topologyGC:
+gc:
   enable: true
   replicaCount: 1
   serviceAccount:
@@ -422,12 +452,6 @@ topologyGC:
     create: true
   interval: 1h
   podSecurityContext: {}
-  securityContext:
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop: ["ALL"]
-    readOnlyRootFilesystem: true
-    runAsNonRoot: true
   resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -443,6 +467,7 @@ topologyGC:
   nodeSelector: {}
   tolerations: []
   annotations: {}
+  deploymentAnnotations: {}
   affinity: {}
 # Optionally use encryption for worker <--> master comms
 # TODO: verify hostname is not yet supported
@@ -452,3 +477,6 @@ topologyGC:
 tls:
   enable: false
   certManager: false
+prometheus:
+  enable: false
+  labels: {}

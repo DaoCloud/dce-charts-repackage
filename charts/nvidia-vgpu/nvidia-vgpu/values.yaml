@@ -4,7 +4,7 @@ vgpu:
   nameOverride: ""
   fullnameOverride: ""
   imagePullSecrets: []
-  version: "v2.3.4"
+  version: "v2.3.6"
   #Nvidia GPU Parameters
   resourceName: "nvidia.com/vgpu"
   resourceMem: "nvidia.com/gpumem"
@@ -78,7 +78,7 @@ vgpu:
       labels: {}
       annotations: {}
     nodeSelector:
-      nvidia.com/gpu.deploy.device-plugin: "true"
+      nvidia.com/gpu.deploy.driver: "true"
     serviceMonitor:
       enable: false
   devicePlugin:
@@ -103,7 +103,8 @@ vgpu:
     libPath: /usr/local/vgpu
     podAnnotations: {}
     nvidianodeSelector:
-      nvidia.com/gpu.deploy.device-plugin: "true"
+      nvidia.com/gpu.deploy.driver: "true"
+      nvidia.com/vgpu.deploy.device-plugin: "true"
     mlunodeSelector:
       mlu: "on"
     hygonnodeSelector:

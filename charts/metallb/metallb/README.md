@@ -1,6 +1,6 @@
 # metallb
 
-![Version: 0.13.10](https://img.shields.io/badge/Version-0.13.10-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.13.10](https://img.shields.io/badge/AppVersion-0.13.10-informational?style=flat-square)
+![Version: 0.13.12](https://img.shields.io/badge/Version-0.13.12-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.13.12](https://img.shields.io/badge/AppVersion-0.13.12-informational?style=flat-square)
 
 A network load-balancer implementation for Kubernetes using standard routing protocols
 
@@ -8,7 +8,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://metallb.github.io/metallb | metallb | 0.13.10 |
+| https://metallb.github.io/metallb | metallb | 0.13.12 |
 
 ## Values
 
@@ -32,7 +32,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.image.pullPolicy | string | `nil` |  |
 | metallb.controller.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.controller.image.repository | string | `"metallb/controller"` |  |
-| metallb.controller.image.tag | string | `"v0.13.10"` |  |
+| metallb.controller.image.tag | string | `"v0.13.12"` |  |
 | metallb.controller.labels | object | `{}` |  |
 | metallb.controller.livenessProbe.enabled | bool | `true` |  |
 | metallb.controller.livenessProbe.failureThreshold | int | `3` |  |
@@ -121,18 +121,18 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.affinity | object | `{}` |  |
 | metallb.speaker.enabled | bool | `true` |  |
 | metallb.speaker.excludeInterfaces.enabled | bool | `true` |  |
-| metallb.speaker.frr.enabled | bool | `true` |  |
+| metallb.speaker.frr.enabled | bool | `false` |  |
 | metallb.speaker.frr.image.pullPolicy | string | `nil` |  |
 | metallb.speaker.frr.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.speaker.frr.image.repository | string | `"frrouting/frr"` |  |
-| metallb.speaker.frr.image.tag | string | `"8.4.2"` |  |
+| metallb.speaker.frr.image.tag | string | `"8.5.2"` |  |
 | metallb.speaker.frr.metricsPort | int | `7473` |  |
 | metallb.speaker.frr.resources | object | `{}` |  |
 | metallb.speaker.frrMetrics.resources | object | `{}` |  |
 | metallb.speaker.image.pullPolicy | string | `nil` |  |
 | metallb.speaker.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.speaker.image.repository | string | `"metallb/speaker"` |  |
-| metallb.speaker.image.tag | string | `"v0.13.10"` |  |
+| metallb.speaker.image.tag | string | `"v0.13.12"` |  |
 | metallb.speaker.labels | object | `{}` |  |
 | metallb.speaker.livenessProbe.enabled | bool | `true` |  |
 | metallb.speaker.livenessProbe.failureThreshold | int | `3` |  |

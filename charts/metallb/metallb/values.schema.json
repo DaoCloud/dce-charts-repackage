@@ -48,6 +48,32 @@
                                     "default": "metallb/speaker"
                                 }
                             }
+                        },
+                        "frr": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "title": "Enable FRR",
+                                    "description": "MetalLB provides a deployment mode that uses FRR as a backend for the BGP layer, which provide IPv6 Support for BGP and BFD",
+                                    "default": false
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string",
+                                            "title": "Registry",
+                                            "default": "quay.m.daocloud.io"
+                                        },
+                                        "repository": {
+                                            "type": "string",
+                                            "title": "Repository",
+                                            "default": "frrouting/frr"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 },

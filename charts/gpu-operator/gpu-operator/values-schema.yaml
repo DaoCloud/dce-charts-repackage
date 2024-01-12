@@ -1,14 +1,24 @@
 # child values
 gpu-operator:
+  operator:
+    initContainer:
+      image: nvidia/cuda
+      repository: nvcr.m.daocloud.io
+      version: 12.2.2-base-ubi8
   driver:
     enabled: true
-    repository: nvcr.io
+    repository: nvcr.m.daocloud.io
     image: nvidia/driver
-    version: "535.104.05"
+    version: "535.104.12"
     repoConfig:
       configMapName: ""
+  toolkit:
+    enabled: true
+    repository: nvcr.m.daocloud.io
+    image: nvidia/k8s/container-toolkit
+    version: v1.14.3-centos7
   devicePlugin:
-    enabled: false
+    enabled: true
 
   migManager:
     enabled: false

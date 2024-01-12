@@ -35,10 +35,10 @@ daemonsets:
     # can be specified either as number or percentage of nodes. Default 1.
     maxUnavailable: "1"
 validator:
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/gpu-operator-validator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v23.6.1"
+  version: v23.9.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -49,10 +49,10 @@ validator:
       - name: WITH_WORKLOAD
         value: "false"
 operator:
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/gpu-operator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v23.6.1"
+  version: v23.9.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   priorityClassName: system-node-critical
@@ -66,8 +66,8 @@ operator:
   upgradeCRD: false
   initContainer:
     image: nvidia/cuda
-    repository: nvcr.io
-    version: 12.2.0-base-ubi8
+    repository: nvcr.m.daocloud.io
+    version: 12.2.2-base-ubi8
     imagePullPolicy: IfNotPresent
   tolerations:
     - key: "node-role.kubernetes.io/master"
@@ -114,12 +114,17 @@ mig:
   strategy: single
 driver:
   enabled: true
+  nvidiaDriverCRD:
+    enabled: false
+    deployDefaultCR: true
+    driverType: gpu
+    nodeSelector: {}
   # use pre-compiled packages for NVIDIA driver installation.
   # only supported for as a tech-preview feature on ubuntu22.04 kernels.
   usePrecompiled: false
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/driver
-  version: "535.104.05"
+  version: "535.104.12"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   startupProbe:
@@ -166,8 +171,8 @@ driver:
       deleteEmptyDir: false
   manager:
     image: nvidia/cloud-native/k8s-driver-manager
-    repository: nvcr.io
-    version: v0.6.2
+    repository: nvcr.m.daocloud.io
+    version: v0.6.4
     imagePullPolicy: IfNotPresent
     env:
       - name: ENABLE_GPU_POD_EVICTION
@@ -193,7 +198,7 @@ driver:
   # vGPU licensing configuration
   licensingConfig:
     configMapName: ""
-    nlsEnabled: false
+    nlsEnabled: true
   # vGPU topology daemon configuration
   virtualTopology:
     config: ""
@@ -202,19 +207,19 @@ driver:
     name: ""
 toolkit:
   enabled: true
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/k8s/container-toolkit
-  version: v1.13.4-centos7
+  version: v1.14.3-centos7
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
   resources: {}
   installDir: "/usr/local/nvidia"
 devicePlugin:
-  enabled: false
-  repository: nvcr.io
+  enabled: true
+  repository: nvcr.m.daocloud.io
   image: nvidia/k8s-device-plugin
-  version: v0.14.1-ubi8
+  version: v0.14.2-ubi8
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   args: []
@@ -265,9 +270,9 @@ devicePlugin:
 dcgm:
   # disabled by default to use embedded nv-hostengine by exporter
   enabled: false
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/dcgm
-  version: 3.1.8-1-ubuntu20.04
+  version: 3.2.6-1-ubuntu20.04
   imagePullPolicy: IfNotPresent
   hostPort: 5555
   args: []
@@ -275,9 +280,9 @@ dcgm:
   resources: {}
 dcgmExporter:
   enabled: true
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/k8s/dcgm-exporter
-  version: 3.1.8-3.1.5-ubuntu20.04
+  version: 3.2.6-3.1.9-ubuntu20.04
   imagePullPolicy: IfNotPresent
   env:
     - name: DCGM_EXPORTER_LISTEN
@@ -306,9 +311,9 @@ dcgmExporter:
     name: metrics-config
 gfd:
   enabled: true
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/gpu-feature-discovery
-  version: v0.8.1-ubi8
+  version: v0.8.2-ubi8
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env:
@@ -319,9 +324,9 @@ gfd:
   resources: {}
 migManager:
   enabled: false
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/k8s-mig-manager
-  version: v0.5.3-ubuntu20.04
+  version: v0.5.5-ubuntu20.04
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env:
@@ -335,16 +340,16 @@ migManager:
     name: ""
 nodeStatusExporter:
   enabled: false
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/gpu-operator-validator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v23.6.1"
+  version: "v23.9.0"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   resources: {}
 gds:
   enabled: false
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/nvidia-fs
   version: "2.16.1-ubuntu22.04"
   imagePullPolicy: IfNotPresent
@@ -363,7 +368,7 @@ vgpuManager:
   driverManager:
     image: k8s-driver-manager
     repository: nvcr.io/nvidia/cloud-native
-    version: v0.6.2
+    version: v0.6.4
     imagePullPolicy: IfNotPresent
     env:
       - name: ENABLE_GPU_POD_EVICTION
@@ -372,9 +377,9 @@ vgpuManager:
         value: "false"
 vgpuDeviceManager:
   enabled: false
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/vgpu-device-manager
-  version: "v0.2.3"
+  version: "v0.2.4"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -383,16 +388,16 @@ vgpuDeviceManager:
     default: "default"
 vfioManager:
   enabled: false
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/cuda
-  version: 12.2.0-base-ubi8
+  version: 12.2.2-base-ubi8
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
   resources: {}
   driverManager:
-    image: k8s-driver-manager
-    repository: nvcr.io/nvidia/cloud-native
+    image: nvidia/cloud-native/k8s-driver-manager
+    repository: nvcr.m.daocloud.io
     version: v0.6.2
     imagePullPolicy: IfNotPresent
     env:
@@ -416,18 +421,18 @@ kataManager:
         artifacts:
           url: nvcr.io/nvidia/cloud-native/kata-gpu-artifacts:ubuntu22.04-535.86.10-snp
           pullSecret: ""
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/k8s-kata-manager
-  version: v0.1.1
+  version: v0.1.2
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
   resources: {}
 sandboxDevicePlugin:
   enabled: false
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/kubevirt-gpu-device-plugin
-  version: v1.2.2
+  version: v1.2.3
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   args: []
@@ -436,9 +441,9 @@ sandboxDevicePlugin:
 ccManager:
   enabled: false
   defaultMode: "off"
-  repository: nvcr.io
+  repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/k8s-cc-manager
-  version: v0.1.0
+  version: v0.1.1
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env:
@@ -447,6 +452,12 @@ ccManager:
   resources: {}
 node-feature-discovery:
   enableNodeFeatureApi: true
+  gc:
+    enable: true
+    replicaCount: 1
+    serviceAccount:
+      name: node-feature-discovery
+      create: false
   worker:
     serviceAccount:
       name: node-feature-discovery
@@ -488,4 +499,4 @@ node-feature-discovery:
   image:
     registry: k8s.m.daocloud.io
     repository: nfd/node-feature-discovery
-    tag: v0.13.1
+    tag: v0.14.2
