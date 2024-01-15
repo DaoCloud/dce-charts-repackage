@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: knative-serving-operator-aggregated
+  labels:
+    {{- include "knative-operator.labels" . | nindent 4 }}
+aggregationRule:
+  clusterRoleSelectors:
+    # This (along with escalate below) allows the Operator to pick up any
+    # roles that are provided to the admin of the cluster by knative serving
+    # automatically.
+    - matchExpressions:
+        - {key: serving.knative.dev/release, operator: Exists}
+rules: [] # Rules are automatically filled in by the controller manager.

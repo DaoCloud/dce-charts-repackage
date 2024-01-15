@@ -1,0 +1,22 @@
+{{- if .Values.serving.enable }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.serving.installNamespace }}
+---
+apiVersion: operator.knative.dev/v1beta1
+kind: KnativeServing
+metadata:
+  name: knative-serving
+  namespace: {{ .Values.serving.installNamespace }}
+spec:
+  registry:
+    {{- toYaml .Values.serving.registry | nindent 4 }}
+  ingress:
+    {{- toYaml .Values.serving.ingress | nindent 4 }}
+  config:
+    {{- toYaml .Values.serving.config | nindent 4 }}
+  high-availability:
+    # Due to the hyphen in the key 'high-availability', we must use the 'index' function for proper reference.
+    replicas: {{ index .Values.serving "high-availability" "replicas" }}
+{{- end }}
