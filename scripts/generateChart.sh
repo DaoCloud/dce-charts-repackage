@@ -109,6 +109,15 @@ echo "${CHART_NAME}:" >> ${CHART_BUILD_DIR}/values.yaml
 # add 2 blank for each line
 sed -E 's/(.*)/  \1/g' ${DOWNLOAD_CHART_DIR}/values.yaml >> ${CHART_BUILD_DIR}/values.yaml
 
+# if values.schema.json is copied from child chart, update the outermost properties to align with values.yaml
+# refer to issue: #1716
+if [ -f "${CHART_BUILD_DIR}/values.schema.json" ]; then
+    echo "auto insert parent properties in values.schema.json"
+    PARENT_SCHEMA='{"$schema": "http://json-schema.org/schema#", "required": ["'${CHART_NAME}'"], "type": "object", "properties": {"'${CHART_NAME}'": (.)}}'
+    cat ${CHART_BUILD_DIR}/values.schema.json | jq 'del(.["$schema"])' | jq "${PARENT_SCHEMA}" > ${CHART_BUILD_DIR}/tmp.json
+    mv ${CHART_BUILD_DIR}/tmp.json ${CHART_BUILD_DIR}/values.schema.json
+fi
+
 if [ -n "${APPEND_VALUES_FILE}" ] && [ -s ${PROJECT_SRC_DIR}/${APPEND_VALUES_FILE} ] ; then
     echo "append ${APPEND_VALUES_FILE} to opensource values.yaml"
     cat ${PROJECT_SRC_DIR}/${APPEND_VALUES_FILE} >> ${CHART_BUILD_DIR}/values.yaml
