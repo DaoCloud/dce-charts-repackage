@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: operator-webhook
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "knative-operator.labels" . | nindent 4 }}
