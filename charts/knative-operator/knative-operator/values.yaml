@@ -85,16 +85,3 @@ configLogging:
         "callerEncoder": ""
       }
     }
-## @section magicDNS parameters
-magicDNS:
-  ## @param magicDNS.enable enable magic DNS
-  enable: false
-  image:
-    ## @param magicDNS.image.registry The image registry of operator
-    registry: m.daocloud.io
-    ## @param magicDNS.image.repository The image repository of operator
-    repository: gcr.io/knative-releases/knative.dev/serving/cmd/default-domain
-    ## @param magicDNS.image.tag The image tag of operator, overrides the image tag whose default is the chart appVersion.
-    tag: "v1.12.3"
-    ## @param magicDNS.image.pullPolicy The image pull policy of operator
-    pullPolicy: IfNotPresent
