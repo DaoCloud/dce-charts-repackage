@@ -45,6 +45,9 @@ spec:
       - image: {{ include "global.images.image" (dict "imageRoot" .Values.dashboard.image "global" .Values.global ) }}
         imagePullPolicy: {{ .Values.dashboard.image.pullPolicy }}
         args:
+        - dashboard
+        - "--loglevel={{ .Values.dashboard.logging.level }}"
+        - "--kloglevel={{ .Values.dashboard.logging.kloglevel }}"
         {{- with .Values.dashboard.extraArgs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
