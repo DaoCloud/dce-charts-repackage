@@ -331,6 +331,39 @@
                         "enabled": {
                             "type": "boolean"
                         },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "registry": {
+                                    "type": "string"
+                                },
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "metrics": {
+                            "type": "object",
+                            "properties": {
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
                         "primary": {
                             "type": "object",
                             "properties": {
@@ -356,6 +389,25 @@
                                             "type": "string"
                                         },
                                         "storageClass": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "volumePermissions": {
+                            "type": "object",
+                            "properties": {
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
                                             "type": "string"
                                         }
                                     }
