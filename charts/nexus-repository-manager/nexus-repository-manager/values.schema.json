@@ -1,4 +1,375 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "type": "object"
+  "type": "object",
+  "properties": {
+    "nexus-repository-manager": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "mountPath": {
+              "type": "string"
+            }
+          }
+        },
+        "deployment": {
+          "type": "object",
+          "properties": {
+            "additionalContainers": {
+              "type": "null"
+            },
+            "additionalVolumeMounts": {
+              "type": "null"
+            },
+            "additionalVolumes": {
+              "type": "null"
+            },
+            "annotations": {
+              "type": "object"
+            },
+            "initContainers": {
+              "type": "null"
+            },
+            "postStart": {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "null"
+                }
+              }
+            },
+            "preStart": {
+              "type": "object",
+              "properties": {
+                "command": {
+                  "type": "null"
+                }
+              }
+            },
+            "terminationGracePeriodSeconds": {
+              "type": "integer"
+            }
+          }
+        },
+        "deploymentStrategy": {
+          "type": "string"
+        },
+        "fullnameOverride": {
+          "type": "string"
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "pullPolicy": {
+              "type": "string"
+            },
+            "registry": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            }
+          }
+        },
+        "imagePullSecrets": {
+          "type": "null"
+        },
+        "ingress": {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "type": "object",
+              "properties": {
+                "nginx.ingress.kubernetes.io/proxy-body-size": {
+                  "type": "string"
+                }
+              }
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "hostPath": {
+              "type": "string"
+            },
+            "hostRepo": {
+              "type": "string"
+            },
+            "ingressClassName": {
+              "type": "string"
+            }
+          }
+        },
+        "nameOverride": {
+          "type": "string"
+        },
+        "nexus": {
+          "type": "object",
+          "properties": {
+            "docker": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "env": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "hostAliases": {
+              "type": "array"
+            },
+            "livenessProbe": {
+              "type": "object",
+              "properties": {
+                "failureThreshold": {
+                  "type": "integer"
+                },
+                "initialDelaySeconds": {
+                  "type": "integer"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "periodSeconds": {
+                  "type": "integer"
+                },
+                "timeoutSeconds": {
+                  "type": "integer"
+                }
+              }
+            },
+            "nexusPort": {
+              "type": "integer"
+            },
+            "podAnnotations": {
+              "type": "object"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "nexus.scripts.allowCreation": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "override": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "readinessProbe": {
+              "type": "object",
+              "properties": {
+                "failureThreshold": {
+                  "type": "integer"
+                },
+                "initialDelaySeconds": {
+                  "type": "integer"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "periodSeconds": {
+                  "type": "integer"
+                },
+                "timeoutSeconds": {
+                  "type": "integer"
+                }
+              }
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "integer"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "requests": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "integer"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "securityContext": {
+              "type": "object",
+              "properties": {
+                "fsGroup": {
+                  "type": "integer"
+                },
+                "runAsGroup": {
+                  "type": "integer"
+                },
+                "runAsUser": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "nexusProxyRoute": {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "type": "null"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "labels": {
+              "type": "null"
+            }
+          }
+        },
+        "persistence": {
+          "type": "object",
+          "properties": {
+            "accessMode": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "image": {
+              "type": "object",
+              "properties": {
+                "registry": {
+                  "type": "string"
+                },
+                "repository": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "string"
+                }
+              }
+            },
+            "storageSize": {
+              "type": "string"
+            }
+          }
+        },
+        "route": {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "type": "null"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "labels": {
+              "type": "null"
+            },
+            "name": {
+              "type": "string"
+            },
+            "portName": {
+              "type": "string"
+            }
+          }
+        },
+        "secret": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "mountPath": {
+              "type": "string"
+            },
+            "readOnly": {
+              "type": "boolean"
+            }
+          }
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "type": "object"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "labels": {
+              "type": "object"
+            },
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        "serviceAccount": {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "type": "object"
+            },
+            "create": {
+              "type": "boolean"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "statefulset": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        },
+        "tolerations": {
+          "type": "array"
+        }
+      }
+    }
+  }
 }

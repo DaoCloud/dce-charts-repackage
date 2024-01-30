@@ -51,7 +51,9 @@ yq -i '
   .sonarqube.plugins.tag = "8.2.0" |
   .sonarqube.tests.image.registry="docker.m.daocloud.io" |
   .sonarqube.tests.image.repository = "library/sonarqube" |
-  .sonarqube.tests.image.tag = "10.2.0-community"
+  .sonarqube.tests.image.tag = "10.2.0-community" |
+  .sonarqube.persistence.storageClass = "" |
+  .sonarqube.postgresql.persistence.storageClass = ""
 ' values.yaml
 
 # copy from ingress-nginx and modified

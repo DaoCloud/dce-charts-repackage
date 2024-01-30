@@ -114,6 +114,14 @@
             }
           }
         },
+        "license": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        },
         "namespaces": {
           "type": "object",
           "properties": {
@@ -513,6 +521,25 @@
             "imagePullSecrets": {
               "type": "object"
             },
+            "initContainer": {
+              "type": "object",
+              "properties": {
+                "image": {
+                  "type": "object",
+                  "properties": {
+                    "registry": {
+                      "type": "string"
+                    },
+                    "repository": {
+                      "type": "string"
+                    },
+                    "tag": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
             "initContainers": {
               "type": "array",
               "items": {
@@ -756,14 +783,6 @@
             },
             "volumeBindingMode": {
               "type": "string"
-            }
-          }
-        },
-        "license": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean"
             }
           }
         }

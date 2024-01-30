@@ -344,7 +344,7 @@ sonarqube:
     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
     ##   GKE, AWS & OpenStack)
     ##
-    storageClass:
+    storageClass: ""
     accessMode: ReadWriteOnce
     size: 5Gi
     uid: 1000
@@ -426,7 +426,7 @@ sonarqube:
       enabled: true
       accessMode: ReadWriteOnce
       size: 20Gi
-      storageClass:
+      storageClass: ""
     securityContext:
       # For standard Kubernetes deployment, set enabled=true
       # If using OpenShift, enabled=false for restricted SCC and enabled=true for anyuid/nonroot SCC
