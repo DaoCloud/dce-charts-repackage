@@ -34,6 +34,12 @@
                         "imagePullSecrets": {
                             "type": "array"
                         },
+                        "ipFamilies": {
+                            "type": "array"
+                        },
+                        "ipFamilyPolicy": {
+                            "type": "string"
+                        },
                         "istioNamespace": {
                             "type": "string"
                         },
@@ -44,6 +50,9 @@
                                     "type": "boolean"
                                 }
                             }
+                        },
+                        "platform": {
+                            "type": "string"
                         },
                         "remotePilotAddress": {
                             "type": "string"
