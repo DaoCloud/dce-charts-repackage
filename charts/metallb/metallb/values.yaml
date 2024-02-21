@@ -199,11 +199,11 @@ metallb:
       fsGroup: 65534
     resources:
       requests:
-        cpu: 10m
-        memory: 50Mi
+        cpu: 50m
+        memory: 100Mi
       limits:
-        cpu: 100m
-        memory: 200Mi
+        cpu: 500m
+        memory: 500Mi
     # limits:
     # cpu: 100m
     # memory: 100Mi
