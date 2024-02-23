@@ -42,10 +42,7 @@ spec:
           lifecycle:
             postStart:
               exec:
-                command: ["/bin/sh","-c","cp -f /k8s-vgpu/lib/nvidia/* /usr/local/vgpu/"]
-          command:
-          #  - sleep
-          #  - infinity
+                command: ["/bin/sh","-c", {{ printf "cp -f /k8s-vgpu/lib/nvidia/* %s/vgpu/" .Values.global.gpuHookPath | quote }}]
           command:
             - nvidia-device-plugin
             - --resource-name={{ .Values.resourceName }}
@@ -65,7 +62,7 @@ spec:
             - name: NVIDIA_MIG_MONITOR_DEVICES
               value: all
             - name: HOOK_PATH
-              value: {{ .Values.devicePlugin.libPath }}
+              value: {{ .Values.global.gpuHookPath }}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -76,7 +73,7 @@ spec:
             - name: device-plugin
               mountPath: /var/lib/kubelet/device-plugins
             - name: lib
-              mountPath: /usr/local/vgpu
+              mountPath: {{ printf "%s%s" .Values.global.gpuHookPath "/vgpu" }}
             - name: usrbin
               mountPath: /usrbin
             - name: deviceconfig
@@ -86,7 +83,6 @@ spec:
         - name: vgpu-monitor
           image: "{{ .Values.devicePlugin.registry }}/{{ .Values.devicePlugin.repository }}:{{ .Values.version }}"
           imagePullPolicy: {{ .Values.devicePlugin.imagePullPolicy | quote }}
-          #command: ["sleep","infinity"]
           command: ["vGPUmonitor"]
           securityContext:
             allowPrivilegeEscalation: false
@@ -98,6 +94,8 @@ spec:
               value: "all"
             - name: NVIDIA_MIG_MONITOR_DEVICES
               value: all
+            - name: HOOK_PATH
+              value: {{ .Values.global.gpuHookPath }}/vgpu              
           volumeMounts:
             - name: ctrs
               mountPath: {{ .Values.devicePlugin.monitorctrPath }}
@@ -127,7 +125,6 @@ spec:
             path: {{ .Values.devicePlugin.pluginPath }}
         - name: lib
           hostPath:
-            #path: /usr/local/vgpu
             path: {{ .Values.devicePlugin.libPath }}
         - name: usrbin
           hostPath:

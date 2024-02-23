@@ -1,9 +1,9 @@
 export USE_OPENSOURCE_CHART=false
 
 # must
-export REPO_URL=https://4paradigm.github.io/k8s-vgpu-scheduler
-export REPO_NAME=nvidia-vgpu
-export CHART_NAME=vgpu
+export REPO_URL=https://project-hami.github.io/HAMi/
+export REPO_NAME=hami
+export CHART_NAME=hami
 export VERSION=2.0.0
 
 # pr, issue, none
@@ -17,3 +17,6 @@ export CUSTOM_SHELL=custom.sh
 export DAOCLOUD_REPO_PROJECT=addon
 
 export NO_TRIVY=true
+
+# nvidia-vgpu chart version
+export CUSTOM_VERSION=${VERSION}+1
