@@ -50,10 +50,10 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.readinessProbe.periodSeconds | int | `10` |  |
 | metallb.controller.readinessProbe.successThreshold | int | `1` |  |
 | metallb.controller.readinessProbe.timeoutSeconds | int | `1` |  |
-| metallb.controller.resources.limits.cpu | string | `"100m"` |  |
-| metallb.controller.resources.limits.memory | string | `"200Mi"` |  |
-| metallb.controller.resources.requests.cpu | string | `"10m"` |  |
-| metallb.controller.resources.requests.memory | string | `"50Mi"` |  |
+| metallb.controller.resources.limits.cpu | string | `"500m"` |  |
+| metallb.controller.resources.limits.memory | string | `"500Mi"` |  |
+| metallb.controller.resources.requests.cpu | string | `"50m"` |  |
+| metallb.controller.resources.requests.memory | string | `"100Mi"` |  |
 | metallb.controller.runtimeClassName | string | `""` |  |
 | metallb.controller.securityContext.fsGroup | int | `65534` |  |
 | metallb.controller.securityContext.runAsNonRoot | bool | `true` |  |

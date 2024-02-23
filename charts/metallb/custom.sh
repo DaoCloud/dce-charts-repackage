@@ -46,10 +46,10 @@ yq -i '
    .metallb.controller.image.tag=strenv(IMAGE_VERSION) |
    .metallb.controller.image.registry="quay.m.daocloud.io" |
    .metallb.controller.image.repository="metallb/controller" |
-   .metallb.controller.resources.requests.cpu="10m" |
-   .metallb.controller.resources.requests.memory="50Mi" |
-   .metallb.controller.resources.limits.cpu="100m" |
-   .metallb.controller.resources.limits.memory="200Mi" |
+   .metallb.controller.resources.requests.cpu="50m" |
+   .metallb.controller.resources.requests.memory="100Mi" |
+   .metallb.controller.resources.limits.cpu="500m" |
+   .metallb.controller.resources.limits.memory="500Mi" |
    .metallb.speaker.image.registry="quay.m.daocloud.io" |
    .metallb.speaker.image.repository="metallb/speaker" |
    .metallb.speaker.image.tag=strenv(IMAGE_VERSION) |
