@@ -270,12 +270,12 @@ elif [ $os == "Linux" ];then
 fi
 # update nvidianodeSelector values
 yq -i '
-    .hami.devicePlugin.nvidianodeSelector={"nvidia.com/gpu.deploy.driver":"true", "nvidia.com/vgpu.deploy.device-plugin": "true"} |
-    .hami.scheduler.nodeSelector={"nvidia.com/gpu.deploy.driver":"true"}
+    .hami.devicePlugin.nvidianodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true", "nvidia.com/vgpu.deploy.device-plugin": "true"} |
+    .hami.scheduler.nodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true"}
 ' values.yaml
 yq -i '
-    .devicePlugin.nvidianodeSelector={"nvidia.com/gpu.deploy.driver":"true", "nvidia.com/vgpu.deploy.device-plugin": "true"} |
-    .scheduler.nodeSelector={"nvidia.com/gpu.deploy.driver":"true"}
+    .devicePlugin.nvidianodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true", "nvidia.com/vgpu.deploy.device-plugin": "true"} |
+    .scheduler.nodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true"}
 ' charts/hami/values.yaml
 
 # add hygonImageRepository and hygonImageTag
