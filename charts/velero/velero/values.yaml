@@ -53,7 +53,7 @@ velero:
       veleroPluginForMigration:
         registry: release.daocloud.io
         repository: kcoral/velero-plugin-for-migration
-        tag: v0.1.0
+        tag: v0.2.0
   nameOverride: ""
   fullnameOverride: ""
   # Annotations to add to the Velero deployment's. Optional.
@@ -104,7 +104,6 @@ velero:
     # Extra key/value pairs to be used as environment variables. Optional.
     extraEnvVars: {}
   # Configure the dnsPolicy of the Velero deployment
-  # See: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
   dnsPolicy: ClusterFirst
   # Init containers to add to the Velero deployment's pod spec. At least one plugin provider image is required.
   # If the value is a string then it is evaluated as a template.
@@ -128,7 +127,6 @@ velero:
   # fsGroup: 1337
 
   # Container Level Security Context for the 'velero' container of the Velero deployment. Optional.
-  # See: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext: {}
   # allowPrivilegeEscalation: false
   # capabilities:
@@ -505,7 +503,6 @@ velero:
     # Key/value pairs to be used as environment variables for the node-agent daemonset. Optional.
     extraEnvVars: {}
     # Configure the dnsPolicy of the node-agent daemonset
-    # See: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
     dnsPolicy: ClusterFirst
     # SecurityContext to use for the Velero deployment. Optional.
     # Set fsGroup for `AWS IAM Roles for Service Accounts`
@@ -514,7 +511,6 @@ velero:
       runAsUser: 0
       # fsGroup: 1337
     # Container Level Security Context for the 'node-agent' container of the node-agent daemonset. Optional.
-    # See: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
     containerSecurityContext: {}
     # Container Lifecycle Hooks to use for the node-agent daemonset. Optional.
     lifecycle: {}
@@ -543,28 +539,26 @@ velero:
   schedules: {}
   # Velero ConfigMaps.
   # Eg:
-  # configMaps:
-  # See: https://velero.io/docs/v1.11/file-system-backup/
-  #   fs-restore-action-config:
-  #     labels:
-  #       velero.io/plugin-config: ""
-  #       velero.io/pod-volume-restore: RestoreItemAction
-  #     data:
-  #       image: velero/velero-restore-helper:v1.10.2
-  #       cpuRequest: 200m
-  #       memRequest: 128Mi
-  #       cpuLimit: 200m
-  #       memLimit: 128Mi
-  #       secCtx: |
-  #         capabilities:
-  #           drop:
-  #           - ALL
-  #           add: []
-  #         allowPrivilegeEscalation: false
-  #         readOnlyRootFilesystem: true
-  #         runAsUser: 1001
-  #         runAsGroup: 999
-  configMaps: {}
+  configMaps:
+    fs-restore-action-config:
+      labels:
+        velero.io/plugin-config: ""
+        velero.io/pod-volume-restore: RestoreItemAction
+      data:
+        image: '{{ .Values.veleroRestoreHelper.image.registry }}/{{ .Values.veleroRestoreHelper.image.repository }}:{{ .Values.veleroRestoreHelper.image.tag }}'
+        cpuRequest: 200m
+        memRequest: 128Mi
+        cpuLimit: 200m
+        memLimit: 128Mi
+        secCtx: |
+          capabilities:
+            drop:
+            - ALL
+            add: []
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsUser: 1001
+          runAsGroup: 999
   veleroPluginForMigration:
     enabled: false
     plugin:
@@ -574,6 +568,11 @@ velero:
         volumeMounts:
           - mountPath: /target
             name: plugins
-##
-## End of additional Velero resource settings.
-##
+  veleroRestoreHelper:
+    image:
+      registry: docker.m.daocloud.io
+      repository: velero/velero-restore-helper
+      tag: v1.12.2
+#
+# End of additional Velero resource settings.
+#

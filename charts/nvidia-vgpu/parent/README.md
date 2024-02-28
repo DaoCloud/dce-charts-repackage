@@ -4,6 +4,8 @@ you can customize your vGPU support by setting the following parameters using `-
 
 * `devicePlugin.deviceMemoryScaling:`
 Float type, by default: 1. The ratio for NVIDIA device memory scaling, can be greater than 1 (enable virtual device memory, experimental feature). For NVIDIA GPU with *M* memory, if we set `devicePlugin.deviceMemoryScaling` argument to *S*, vGPUs splitted by this GPU will totally get `S * M` memory in Kubernetes with our device plugin.
+* `devicePlugin.deviceCoreScaling:`
+  Float type, by default: 1. The ratio for NVIDIA device cores scaling, can be greater than 1 (enable virtual device cores, experimental feature). For NVIDIA GPU with *M* cores, if we set `devicePlugin.deviceCoreScaling` argument to *S*, vGPUs splitted by this GPU will totally get `S * M` cores in Kubernetes with our device plugin.
 * `devicePlugin.deviceSplitCount:`
 Integer type, by default: equals 10. Maximum tasks assigned to a simple GPU device.
 * `devicePlugin.migstrategy:`

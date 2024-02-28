@@ -47,7 +47,7 @@ yq -i .velero.image.initContainers.veleroPluginForAws.tag=\"$tag1\" values.yaml
 yq -i '
   .velero.image.initContainers.veleroPluginForMigration.registry="release.daocloud.io" |
   .velero.image.initContainers.veleroPluginForMigration.repository = "kcoral/velero-plugin-for-migration" |
-  .velero.image.initContainers.veleroPluginForMigration.tag= "v0.1.0"
+  .velero.image.initContainers.veleroPluginForMigration.tag= "v0.2.0"
 ' values.yaml
 
 yq -i '
@@ -111,3 +111,23 @@ if ! grep "keywords:" Chart.yaml &>/dev/null ; then
     echo "  - velero" >> Chart.yaml
     echo "  - backup" >> Chart.yaml
 fi
+
+sed -i '/configMaps:/,/runAsGroup: 999/ s/^ *#//' values.yaml
+sed -i 's/ configMaps:/  configMaps:/' values.yaml
+sed -i '/configMaps: {}/d' values.yaml
+sed -i '/See:/d' values.yaml
+
+# add velero-restore-helper image
+tag=$(yq '.velero.image.tag' values.yaml)
+yq -i '
+  .velero.veleroRestoreHelper.image.registry="docker.m.daocloud.io" |
+  .velero.veleroRestoreHelper.image.repository = "velero/velero-restore-helper"
+'  values.yaml
+
+yq -i .velero.veleroRestoreHelper.image.tag=\"$tag\" values.yaml
+
+yq -i '
+  .velero.configMaps.fs-restore-action-config.data.image = "{{ .Values.veleroRestoreHelper.image.registry }}/{{ .Values.veleroRestoreHelper.image.repository }}:{{ .Values.veleroRestoreHelper.image.tag }}"
+' values.yaml
+
+sed -i 's/toYaml $configMap.data/tpl (toYaml $configMap.data) $ /g'  charts/velero/templates/configmaps.yaml

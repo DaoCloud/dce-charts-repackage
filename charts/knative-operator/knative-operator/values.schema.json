@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/schema#",
+  "type": "object",
+  "default": {},
+  "properties": {
+    "serving": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "title": "Enable"
+        },
+        "installNamespace": {
+          "type": "string",
+          "title": "Namespace",
+          "default": "knative-serving"
+        },
+        "high-availability": {
+          "type": "object",
+          "properties": {
+            "replicas": {
+              "type": "integer",
+              "title": "Replicas",
+              "minimum": 1,
+              "default": "2"
+            }
+          },
+          "title": "High Availability"
+        }
+      },
+      "title": "Serving",
+      "required": []
+    },
+    "magicDNS": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "title": "Enable"
+        }
+      },
+      "title": "Magic DNS"
+    }
+  }
+}

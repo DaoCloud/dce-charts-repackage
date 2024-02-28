@@ -1,57 +1,773 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
   "properties": {
-    "replicaCount": {
-      "type": "integer",
-      "enum": [0, 1]
-    },
-    "jvmOpts": {
-      "type": "string",
-      "deprecated": true,
-      "$comment": "(DEPRECATED) Please use SONAR_WEB_JAVAOPTS or sonar.web.javaOpts"
-    },
-    "jvmCeOpts": {
-      "type": "string",
-      "deprecated": true,
-      "$comment": "(DEPRECATED) Please use SONAR_CE_JAVAOPTS or sonar.ce.javaOpts"
-    },
-    "livenessProbe": {
+    "sonarqube": {
       "type": "object",
       "properties": {
+        "OpenShift": {
+          "type": "object",
+          "properties": {
+            "createSCC": {
+              "type": "boolean"
+            },
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        },
+        "affinity": {
+          "type": "object"
+        },
+        "annotations": {
+          "type": "object"
+        },
+        "caCerts": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "image": {
+              "type": "string"
+            },
+            "registry": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "secret": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            }
+          }
+        },
+        "containerSecurityContext": {
+          "type": "object",
+          "properties": {
+            "runAsUser": {
+              "type": "integer"
+            }
+          }
+        },
+        "deploymentStrategy": {
+          "type": "object"
+        },
+        "deploymentType": {
+          "type": "string"
+        },
+        "edition": {
+          "type": "string"
+        },
+        "elasticsearch": {
+          "type": "object",
+          "properties": {
+            "bootstrapChecks": {
+              "type": "boolean"
+            },
+            "configureNode": {
+              "type": "boolean"
+            }
+          }
+        },
+        "emptyDir": {
+          "type": "object"
+        },
+        "extraConfig": {
+          "type": "object",
+          "properties": {
+            "configmaps": {
+              "type": "array"
+            },
+            "secrets": {
+              "type": "array"
+            }
+          }
+        },
+        "extraContainers": {
+          "type": "array"
+        },
+        "extraInitContainers": {
+          "type": "object"
+        },
+        "hostAliases": {
+          "type": "array"
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "pullPolicy": {
+              "type": "string"
+            },
+            "registry": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            }
+          }
+        },
+        "ingress": {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "type": "object",
+              "properties": {
+                "nginx.ingress.kubernetes.io/proxy-body-size": {
+                  "type": "string"
+                }
+              }
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "hosts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "tls": {
+              "type": "array"
+            }
+          }
+        },
+        "ingress-nginx": {
+          "type": "object",
+          "properties": {
+            "controller": {
+              "type": "object",
+              "properties": {
+                "admissionWebhooks": {
+                  "type": "object",
+                  "properties": {
+                    "patch": {
+                      "type": "object",
+                      "properties": {
+                        "image": {
+                          "type": "object",
+                          "properties": {
+                            "registry": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "image": {
+                  "type": "object",
+                  "properties": {
+                    "registry": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "initContainers": {
+          "type": "object",
+          "properties": {
+            "registry": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "resources": {
+              "type": "object"
+            },
+            "tag": {
+              "type": "string"
+            }
+          }
+        },
+        "initFs": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "registry": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "securityContext": {
+              "type": "object",
+              "properties": {
+                "privileged": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "tag": {
+              "type": "string"
+            }
+          }
+        },
+        "initSysctl": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "fsFileMax": {
+              "type": "integer"
+            },
+            "nofile": {
+              "type": "integer"
+            },
+            "nproc": {
+              "type": "integer"
+            },
+            "registry": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "securityContext": {
+              "type": "object",
+              "properties": {
+                "privileged": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "tag": {
+              "type": "string"
+            },
+            "vmMaxMapCount": {
+              "type": "integer"
+            }
+          }
+        },
+        "jdbcOverwrite": {
+          "type": "object",
+          "properties": {
+            "enable": {
+              "type": "boolean"
+            },
+            "jdbcPassword": {
+              "type": "string"
+            },
+            "jdbcUrl": {
+              "type": "string"
+            },
+            "jdbcUsername": {
+              "type": "string"
+            }
+          }
+        },
+        "jvmCeOpts": {
+          "type": "string"
+        },
+        "jvmOpts": {
+          "type": "string"
+        },
+        "livenessProbe": {
+          "type": "object",
+          "properties": {
+            "failureThreshold": {
+              "type": "integer"
+            },
+            "initialDelaySeconds": {
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "type": "integer"
+            },
+            "timeoutSeconds": {
+              "type": "integer"
+            }
+          }
+        },
+        "monitoringPasscode": {
+          "type": "string"
+        },
+        "networkPolicy": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "prometheusNamespace": {
+              "type": "string"
+            }
+          }
+        },
+        "nginx": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        },
+        "nodeSelector": {
+          "type": "object"
+        },
+        "persistence": {
+          "type": "object",
+          "properties": {
+            "accessMode": {
+              "type": "string"
+            },
+            "annotations": {
+              "type": "object"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "mounts": {
+              "type": "array"
+            },
+            "size": {
+              "type": "string"
+            },
+            "storageClass": {
+              "type": "string"
+            },
+            "uid": {
+              "type": "integer"
+            },
+            "volumes": {
+              "type": "array"
+            }
+          }
+        },
+        "plugins": {
+          "type": "object",
+          "properties": {
+            "install": {
+              "type": "array"
+            },
+            "noCheckCertificate": {
+              "type": "boolean"
+            },
+            "registry": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "securityContext": {
+              "type": "object",
+              "properties": {
+                "runAsGroup": {
+                  "type": "integer"
+                },
+                "runAsUser": {
+                  "type": "integer"
+                }
+              }
+            },
+            "tag": {
+              "type": "string"
+            }
+          }
+        },
+        "podLabels": {
+          "type": "object"
+        },
+        "postgresql": {
+          "type": "object",
+          "properties": {
+            "containerSecurityContext": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "runAsUser": {
+                  "type": "integer"
+                }
+              }
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "image": {
+              "type": "object",
+              "properties": {
+                "registry": {
+                  "type": "string"
+                }
+              }
+            },
+            "metrics": {
+              "type": "object",
+              "properties": {
+                "image": {
+                  "type": "object",
+                  "properties": {
+                    "registry": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "persistence": {
+              "type": "object",
+              "properties": {
+                "accessMode": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "size": {
+                  "type": "string"
+                },
+                "storageClass": {
+                  "type": "string"
+                }
+              }
+            },
+            "postgresqlDatabase": {
+              "type": "string"
+            },
+            "postgresqlPassword": {
+              "type": "string"
+            },
+            "postgresqlUsername": {
+              "type": "string"
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "integer"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "requests": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "securityContext": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "fsGroup": {
+                  "type": "integer"
+                }
+              }
+            },
+            "service": {
+              "type": "object",
+              "properties": {
+                "port": {
+                  "type": "integer"
+                }
+              }
+            },
+            "serviceAccount": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "shmVolume": {
+              "type": "object",
+              "properties": {
+                "chmod": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "volumePermissions": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "image": {
+                  "type": "object",
+                  "properties": {
+                    "registry": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "securityContext": {
+                  "type": "object",
+                  "properties": {
+                    "runAsUser": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "prometheusExporter": {
+          "type": "object",
+          "properties": {
+            "ceBeanPort": {
+              "type": "integer"
+            },
+            "config": {
+              "type": "object",
+              "properties": {
+                "rules": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "pattern": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "noCheckCertificate": {
+              "type": "boolean"
+            },
+            "registry": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "securityContext": {
+              "type": "object",
+              "properties": {
+                "runAsGroup": {
+                  "type": "integer"
+                },
+                "runAsUser": {
+                  "type": "integer"
+                }
+              }
+            },
+            "tag": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "webBeanPort": {
+              "type": "integer"
+            }
+          }
+        },
+        "prometheusMonitoring": {
+          "type": "object",
+          "properties": {
+            "podMonitor": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "interval": {
+                  "type": "string"
+                },
+                "namespace": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "readinessProbe": {
+          "type": "object",
+          "properties": {
+            "failureThreshold": {
+              "type": "integer"
+            },
+            "initialDelaySeconds": {
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "type": "integer"
+            },
+            "timeoutSeconds": {
+              "type": "integer"
+            }
+          }
+        },
+        "replicaCount": {
+          "type": "integer"
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              }
+            },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "route": {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "type": "object"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "host": {
+              "type": "string"
+            },
+            "tls": {
+              "type": "object",
+              "properties": {
+                "termination": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "securityContext": {
+          "type": "object",
+          "properties": {
+            "fsGroup": {
+              "type": "integer"
+            }
+          }
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "type": "object"
+            },
+            "externalPort": {
+              "type": "integer"
+            },
+            "internalPort": {
+              "type": "integer"
+            },
+            "labels": {
+              "type": "null"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        "serviceAccount": {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "type": "object"
+            },
+            "create": {
+              "type": "boolean"
+            }
+          }
+        },
         "sonarWebContext": {
-          "type": "string",
-          "deprecated": true,
-          "$comment": "(DEPRECATED) please use sonarWebContext at the value top level"
-        }
-      }
-    },
-    "startupProbe": {
-      "type": "object",
-      "properties": {
-        "sonarWebContext": {
-          "type": "string",
-          "deprecated": true,
-          "$comment": "(DEPRECATED) please use sonarWebContext at the value top level"
-        }
-      }
-    },
-    "readinessProbe": {
-      "type": "object",
-      "properties": {
-        "sonarWebContext": {
-          "type": "string",
-          "deprecated": true,
-          "$comment": "(DEPRECATED) please use sonarWebContext at the value top level"
-        }
-      }
-    },
-    "account": {
-      "type": "object",
-      "properties": {
-        "sonarWebContext": {
-          "type": "string",
-          "deprecated": true,
-          "$comment": "(DEPRECATED) please use sonarWebContext at the value top level"
+          "type": "string"
+        },
+        "sonarqubeFolder": {
+          "type": "string"
+        },
+        "startupProbe": {
+          "type": "object",
+          "properties": {
+            "failureThreshold": {
+              "type": "integer"
+            },
+            "initialDelaySeconds": {
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "type": "integer"
+            },
+            "timeoutSeconds": {
+              "type": "integer"
+            }
+          }
+        },
+        "terminationGracePeriodSeconds": {
+          "type": "integer"
+        },
+        "tests": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "image": {
+              "type": "string"
+            },
+            "resources": {
+              "type": "object"
+            }
+          }
+        },
+        "tolerations": {
+          "type": "array"
         }
       }
     }

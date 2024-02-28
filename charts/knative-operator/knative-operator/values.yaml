@@ -1,0 +1,100 @@
+## @section operator parameters
+operator:
+  image:
+    ## @param operator.image.registry The image registry of operator
+    registry: m.daocloud.io
+    ## @param operator.image.repository The image repository of operator
+    repository: gcr.io/knative-releases/knative.dev/operator/cmd/operator
+    ## @param operator.image.pullPolicy The image pull policy of operator
+    pullPolicy: IfNotPresent
+    ## @param operator.image.digest The image digest of operator, which takes preference over tag
+    digest: ""
+    ## @param operator.image.tag The image tag of operator, overrides the image tag whose default is the chart appVersion.
+    tag: "v1.12.1"
+    ## @param operator.image.imagePullSecrets the image pull secrets of operator
+    imagePullSecrets: []
+## @section operatorWebhook parameters
+operatorWebhook:
+  image:
+    ## @param operatorWebhook.image.registry The image registry of operator-webhook
+    registry: m.daocloud.io
+    ## @param operatorWebhook.image.repository The image repository of operator-webhook
+    repository: gcr.io/knative-releases/knative.dev/operator/cmd/webhook
+    ## @param operatorWebhook.image.pullPolicy The image pull policy of operator-webhook
+    pullPolicy: IfNotPresent
+    ## @param operatorWebhook.image.digest The image digest of operator-webhook, which takes preference over tag
+    digest: ""
+    ## @param operatorWebhook.image.tag The image tag of operator-webhook, overrides the image tag whose default is the chart appVersion.
+    tag: "v1.12.1"
+    ## @param operatorWebhook.image.imagePullSecrets the image pull secrets of operator-webhook
+    imagePullSecrets: []
+## @section serving parameters
+serving:
+  ## @param serving.enable The enabling flag for Knative Serving
+  enable: true
+  ## @param serving.installNamespace The namespace where Knative Serving is installed
+  installNamespace: "knative-serving"
+  registry:
+    override:
+      ## @param serving.registry.override.kourier-gateway The image location for kourier-gateway
+      "kourier-gateway": "docker.m.daocloud.io/envoyproxy/envoy:v1.25-latest"
+      ## @param serving.registry.override.activator The image location for activator
+      "activator": "m.daocloud.io/gcr.io/knative-releases/knative.dev/serving/cmd/activator:v1.12.2"
+      ## @param serving.registry.override.autoscaler The image location for autoscaler
+      "autoscaler": "m.daocloud.io/gcr.io/knative-releases/knative.dev/serving/cmd/autoscaler:v1.12.2"
+      ## @param serving.registry.override.autoscaler-hpa The image location for autoscaler-hpa
+      "autoscaler-hpa": "m.daocloud.io/gcr.io/knative-releases/knative.dev/serving/cmd/autoscaler-hpa:v1.12.2"
+      ## @param serving.registry.override.controller The image location for controller
+      "controller": "m.daocloud.io/gcr.io/knative-releases/knative.dev/serving/cmd/controller:v1.12.2"
+      ## @param serving.registry.override.net-kourier-controller/controller The image location for net-kourier-controller
+      "net-kourier-controller/controller": "m.daocloud.io/gcr.io/knative-releases/knative.dev/net-kourier/cmd/kourier:v1.12.1"
+      ## @param serving.registry.override.webhook The image location for webhook
+      "webhook": "m.daocloud.io/gcr.io/knative-releases/knative.dev/serving/cmd/webhook:v1.12.2"
+  ingress:
+    kourier:
+      ## @param serving.ingress.kourier.enabled The enabling flag for the Kourier ingress
+      enabled: true
+  config:
+    network:
+      ## @param serving.config.network.ingress-class The ingress class used for Knative Serving networking
+      ingress-class: "kourier.ingress.networking.knative.dev"
+  high-availability:
+    ## @param serving.high-availability.replicas The number of replicas that HA parts of the control plane will be scaled to
+    replicas: 2
+## @section configLogging parameters
+configLogging:
+  ## @param configLogging.zap-logger-config [default: {}] The configuration for the zap logger used by Knative operator components
+  zap-logger-config: |
+    {
+      "level": "info",
+      "development": false,
+      "outputPaths": ["stdout"],
+      "errorOutputPaths": ["stderr"],
+      "encoding": "json",
+      "encoderConfig": {
+        "timeKey": "ts",
+        "levelKey": "level",
+        "nameKey": "logger",
+        "callerKey": "caller",
+        "messageKey": "msg",
+        "stacktraceKey": "stacktrace",
+        "lineEnding": "",
+        "levelEncoder": "",
+        "timeEncoder": "iso8601",
+        "durationEncoder": "",
+        "callerEncoder": ""
+      }
+    }
+## @section magicDNS parameters
+magicDNS:
+  ## @param magicDNS.enable enable magic DNS
+  enable: false
+  image:
+    ## @param magicDNS.image.registry The image registry of operator
+    registry: m.daocloud.io
+    ## @param magicDNS.image.repository The image repository of operator
+    repository: gcr.io/knative-releases/knative.dev/serving/cmd/default-domain
+    ## @param magicDNS.image.tag The image tag of operator, overrides the image tag whose default is the chart appVersion.
+    tag: "v1.12.3"
+    ## @param magicDNS.image.pullPolicy The image pull policy of operator
+    pullPolicy: IfNotPresent

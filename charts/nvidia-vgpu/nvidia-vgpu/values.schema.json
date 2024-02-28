@@ -2,14 +2,17 @@
     "$schema": "http://json-schema.org/schema#",
     "type": "object",
     "properties": {
-        "vgpu": {
+        "hami": {
             "type": "object",
             "properties": {
                 "devicePlugin": {
                     "type": "object",
                     "properties": {
+                        "deviceCoreScaling": {
+                            "type": "number"
+                        },
                         "deviceMemoryScaling": {
-                            "type": "integer"
+                            "type": "number"
                         },
                         "deviceSplitCount": {
                             "type": "integer"

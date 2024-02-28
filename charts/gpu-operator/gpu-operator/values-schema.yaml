@@ -17,9 +17,6 @@ gpu-operator:
     repository: nvcr.m.daocloud.io
     image: nvidia/k8s/container-toolkit
     version: v1.14.3-centos7
-  devicePlugin:
-    enabled: true
-
   migManager:
     enabled: false
     config:
