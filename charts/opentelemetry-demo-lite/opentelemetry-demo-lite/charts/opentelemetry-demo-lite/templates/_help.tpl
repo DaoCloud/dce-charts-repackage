@@ -62,7 +62,7 @@ common java nacos opt
 {{- end }}
 
 {{/* metadata k8s */}}
-
+{{- $opt = cat $opt ( printf "-Dspring.cloud.nacos.discovery.metadata.k8s_cluster_id=%s" (lookup "v1" "Namespace" "" "kube-system").metadata.uid ) }}
 {{- $opt = cat $opt "-Dspring.cloud.nacos.discovery.metadata.k8s_namespace_name=$(K8S_NAMESPACE)" -}}
 {{- $opt = cat $opt "-Dspring.cloud.nacos.discovery.metadata.k8s_workload_type=deployment" -}}
 {{- $opt = cat $opt "-Dspring.cloud.nacos.discovery.metadata.k8s_workload_name=$(OTEL_SERVICE_NAME)" -}}
