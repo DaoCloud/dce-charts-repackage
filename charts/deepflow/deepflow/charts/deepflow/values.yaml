@@ -68,12 +68,12 @@ image:
   server:
     registry: "docker.m.daocloud.io"
     repository: "{{ .Values.global.image.repository }}/deepflow-server"
-    tag: v6.4.3
+    tag: v6.4
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
   app:
     registry: "docker.m.daocloud.io"
     repository:  "{{ .Values.global.image.repository }}/deepflow-app"
-    tag: v6.4.3
+    tag: v6.4
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
 
 imagePullSecrets: []
@@ -100,6 +100,7 @@ server:
   replicas: "{{ .Values.global.replicas }}"
   hostNetwork:  "{{ .Values.global.hostNetwork }}"
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
+  nameservers: []
   podManagementPolicy: "{{ .Values.global.podManagementPolicy }}"
   featureFlag: []
   readinessProbe:
@@ -395,8 +396,8 @@ clickhouse:
   dnsPolicy: "{{ .Values.global.dnsPolicy }}"
   podManagementPolicy: "{{ .Values.global.podManagementPolicy }}"
   image:
-    ## ClickHouse Dockerhub Image repository: clickhouse/clickhouse-server
     registry: "docker.m.daocloud.io"
+    ## ClickHouse Dockerhub Image repository: clickhouse/clickhouse-server
     repository: "{{ .Values.global.image.repository }}/clickhouse-server"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
@@ -558,8 +559,8 @@ mysql:
   podAnnotations: {}
 
   image:
-    ## MySQL Dockerhub Image repository: mysql
     registry: "docker.m.daocloud.io"
+    ## MySQL Dockerhub Image repository: mysql
     repository: "{{ .Values.global.image.repository }}/mysql"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
@@ -663,7 +664,7 @@ deepflow-agent:
     repository: "{{ .Values.global.image.repository }}/deepflow-agent"
     pullPolicy: "{{ .Values.global.image.pullPolicy }}"
     # Overrides the image tag whose default is the chart appVersion.
-    tag: v6.4.3
+    tag: v6.4
 
   imagePullSecrets: []
   nameOverride: ""
@@ -800,7 +801,6 @@ grafana:
     tag: ""
     sha: ""
     pullPolicy: Always
-
   testFramework:
     enabled: true
     image:
@@ -809,6 +809,7 @@ grafana:
       tag: "v1.4.1"
     imagePullPolicy: IfNotPresent
     securityContext: {}
+
 
   service:
     enabled: true
@@ -835,7 +836,6 @@ grafana:
       user: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.username}}{{ else }}root{{end}}"
       password: "{{ if $.Values.global.externalMySQL.enabled }}{{$.Values.global.externalMySQL.password}}{{ else }}{{ .Values.global.password.mysql }}{{end}}"
     plugins:
-      allow_loading_unsigned_plugins: deepflow-querier-datasource,deepflow-apptracing-panel,deepflow-topo-panel,deepflowio-tracing-panel,deepflowio-deepflow-datasource,deepflowio-topo-panel
     server:
       root_url: "%(protocol)s://%(domain)s:%(http_port)s/ui/deepflow-grafana"
       serve_from_sub_path: true
@@ -846,10 +846,11 @@ grafana:
       allow_embedding: true
     users:
       default_theme: light
+      allow_loading_unsigned_plugins: deepflow-querier-datasource,deepflow-apptracing-panel,deepflow-topo-panel,deepflowio-tracing-panel,deepflowio-deepflow-datasource,deepflowio-topo-panel
 
   extraInitContainers:
     - name: init-custom-plugins
-      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana:v6.4.3"
+      image: "{{ .Values.global.image.repository }}/deepflowio-init-grafana:v6.4"
       imagePullPolicy: "{{ tpl .Values.global.image.pullPolicy . }}"
       volumeMounts:
       - name: custom-plugins
@@ -922,7 +923,6 @@ grafana:
     tls: []
     #  - secretName: chart-example-tls
     #    hosts:
-    #      - chart-example.local
   resources:
     requests:
       cpu: 100m
@@ -930,3 +930,5 @@ grafana:
     limits:
       cpu: 1000m
       memory: 2Gi
+    #      - chart-example.local
+  assertNoLeakedSecrets: false
