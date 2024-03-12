@@ -49,7 +49,7 @@ sed -i '841a\    users:' ./charts/deepflow/values.yaml
 sed -i '842a\      default_theme: light' ./charts/deepflow/values.yaml
 
 # add deepflow-agent costume value
-sed -i '657a\    registry: "docker.m.daocloud.io"' ./charts/deepflow/values.yaml
+sed -i '658a\    registry: "docker.m.daocloud.io"' ./charts/deepflow/values.yaml
 sed -i '49 c\        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"' ./charts/deepflow/charts/deepflow-agent/templates/daemonset.yaml
 sed -i '57 c\          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"' ./charts/deepflow/charts/deepflow-agent/templates/daemonset.yaml
 sed -i '39 c\          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"' ./charts/deepflow/charts/deepflow-agent/templates/watcher-deployment.yaml
@@ -70,4 +70,4 @@ sed -i '41 c\          image: "{{ .Values.image.app.registry }}/{{ .Values.image
 
 # add server costume value
 sed -i '68a\    registry: "docker.m.daocloud.io"' ./charts/deepflow/values.yaml
-sed -i '47 c\          image: "{{ .Values.image.server.registry }}/{{ .Values.image.server.repository }}:{{ .Values.image.server.tag }}"' ./charts/deepflow/templates/server-deployment.yaml
+sed -i '52 c\          image: "{{ .Values.image.server.registry }}/{{ .Values.image.server.repository }}:{{ .Values.image.server.tag }}"' ./charts/deepflow/templates/server-deployment.yaml
