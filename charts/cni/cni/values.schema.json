@@ -8,6 +8,23 @@
                 "cni": {
                     "type": "object",
                     "properties": {
+                        "affinity": {
+                            "type": "object"
+                        },
+                        "ambient": {
+                            "type": "object",
+                            "properties": {
+                                "configDir": {
+                                    "type": "string"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "redirectMode": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "chained": {
                             "type": "boolean"
                         },
@@ -19,6 +36,9 @@
                         },
                         "cniConfFileName": {
                             "type": "string"
+                        },
+                        "cniNetnsDir": {
+                            "type": "null"
                         },
                         "excludeNamespaces": {
                             "type": "array",
@@ -40,6 +60,9 @@
                         },
                         "privileged": {
                             "type": "boolean"
+                        },
+                        "provider": {
+                            "type": "string"
                         },
                         "psp_cluster_role": {
                             "type": "string"
@@ -69,6 +92,9 @@
                                     "type": "string"
                                 },
                                 "labelPods": {
+                                    "type": "boolean"
+                                },
+                                "repairPods": {
                                     "type": "boolean"
                                 },
                                 "tag": {
@@ -103,19 +129,14 @@
                                 }
                             }
                         },
+                        "rollingMaxUnavailable": {
+                            "type": "integer"
+                        },
                         "seccompProfile": {
                             "type": "object"
                         },
                         "tag": {
                             "type": "string"
-                        },
-                        "taint": {
-                            "type": "object",
-                            "properties": {
-                                "enabled": {
-                                    "type": "boolean"
-                                }
-                            }
                         },
                         "variant": {
                             "type": "string"
