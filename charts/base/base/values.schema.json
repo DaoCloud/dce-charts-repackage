@@ -5,48 +5,62 @@
         "base": {
             "type": "object",
             "properties": {
-                "base": {
+                "defaults": {
                     "type": "object",
                     "properties": {
-                        "enableCRDTemplates": {
-                            "type": "boolean"
-                        },
-                        "enableIstioConfigCRDs": {
-                            "type": "boolean"
-                        },
-                        "validationURL": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "defaultRevision": {
-                    "type": "string"
-                },
-                "global": {
-                    "type": "object",
-                    "properties": {
-                        "configValidation": {
-                            "type": "boolean"
-                        },
-                        "externalIstiod": {
-                            "type": "boolean"
-                        },
-                        "imagePullSecrets": {
-                            "type": "array"
-                        },
-                        "istioNamespace": {
-                            "type": "string"
-                        },
-                        "istiod": {
+                        "base": {
                             "type": "object",
                             "properties": {
-                                "enableAnalysis": {
+                                "enableCRDTemplates": {
                                     "type": "boolean"
+                                },
+                                "enableIstioConfigCRDs": {
+                                    "type": "boolean"
+                                },
+                                "validationURL": {
+                                    "type": "string"
                                 }
                             }
                         },
-                        "remotePilotAddress": {
+                        "defaultRevision": {
                             "type": "string"
+                        },
+                        "global": {
+                            "type": "object",
+                            "properties": {
+                                "configValidation": {
+                                    "type": "boolean"
+                                },
+                                "externalIstiod": {
+                                    "type": "boolean"
+                                },
+                                "imagePullSecrets": {
+                                    "type": "array"
+                                },
+                                "ipFamilies": {
+                                    "type": "array"
+                                },
+                                "ipFamilyPolicy": {
+                                    "type": "string"
+                                },
+                                "istioNamespace": {
+                                    "type": "string"
+                                },
+                                "istiod": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enableAnalysis": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
+                                "platform": {
+                                    "type": "string"
+                                },
+                                "remotePilotAddress": {
+                                    "type": "string"
+                                }
+                            }
                         }
                     }
                 }
