@@ -1,0 +1,25 @@
+{{- if .Values.npuExporter.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: npu-exporter
+    {{- include "ascend-mindxdl.npu-exporter.serviceMonitor.labels" . | nindent 4}}
+  name: npu-exporter
+spec:
+  endpoints:
+    - bearerTokenSecret:
+        key: ''
+      interval: 15s
+      path: /metrics
+      port: npu-metrics
+      relabelings:
+        - action: replace
+          sourceLabels:
+            - __meta_kubernetes_endpoint_node_name
+          targetLabel: node
+  jobLabel: app
+  selector:
+    matchLabels:
+      app: npu-exporter
+{{- end }}
