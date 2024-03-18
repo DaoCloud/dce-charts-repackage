@@ -51,7 +51,10 @@ spec:
       {{- with .Values.notifications.priorityClassName | default .Values.global.priorityClassName }}
       priorityClassName: {{ . }}
       {{- end }}
-      serviceAccountName: {{ include "argo-cd.notificationsServiceAccountName" . }}
+      {{- if .Values.notifications.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.notifications.terminationGracePeriodSeconds }}
+      {{- end }}
+      serviceAccountName: {{ include "argo-cd.notifications.serviceAccountName" . }}
       containers:
         - name: {{ .Values.notifications.name }}
           image: {{ include "global.images.image" (dict "imageRoot" .Values.notifications.image "global" .Values.global ) }}
@@ -63,13 +66,38 @@ spec:
             - --logformat={{ default .Values.global.logging.format .Values.notifications.logFormat }}
             - --namespace={{ .Release.Namespace }}
             - --argocd-repo-server={{ template "argo-cd.repoServer.fullname" . }}:{{ .Values.repoServer.service.port }}
+            - --secret-name={{ .Values.notifications.secret.name }}
             {{- range .Values.notifications.extraArgs }}
             - {{ . | squote }}
             {{- end }}
-          {{- with .Values.notifications.extraEnv }}
           env:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- with (concat .Values.global.env .Values.notifications.extraEnv) }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+            - name: ARGOCD_NOTIFICATIONS_CONTROLLER_LOGLEVEL
+              valueFrom:
+                configMapKeyRef:
+                  key: notificationscontroller.log.level
+                  name: argocd-cmd-params-cm
+                  optional: true
+            - name: ARGOCD_NOTIFICATIONS_CONTROLLER_LOGFORMAT
+              valueFrom:
+                configMapKeyRef:
+                  key: notificationscontroller.log.format
+                  name: argocd-cmd-params-cm
+                  optional: true
+            - name: ARGOCD_APPLICATION_NAMESPACES
+              valueFrom:
+                configMapKeyRef:
+                  key: application.namespaces
+                  name: argocd-cmd-params-cm
+                  optional: true
+            - name: ARGOCD_NOTIFICATION_CONTROLLER_SELF_SERVICE_NOTIFICATION_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  key: notificationscontroller.selfservice.enabled
+                  name: argocd-cmd-params-cm
+                  optional: true
           {{- with .Values.notifications.extraEnvFrom }}
           envFrom:
             {{- toYaml . | nindent 12 }}

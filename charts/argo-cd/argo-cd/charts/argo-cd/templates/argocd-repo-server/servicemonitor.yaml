@@ -1,4 +1,4 @@
-{{- if and .Values.repoServer.metrics.enabled .Values.repoServer.metrics.serviceMonitor.enabled }}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.repoServer.metrics.enabled .Values.repoServer.metrics.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -21,6 +21,9 @@ spec:
     - port: {{ .Values.repoServer.metrics.service.portName }}
       {{- with .Values.repoServer.metrics.serviceMonitor.interval }}
       interval: {{ . }}
+      {{- end }}
+      {{- with .Values.repoServer.metrics.serviceMonitor.scrapeTimeout }}
+      scrapeTimeout: {{ . }}
       {{- end }}
       path: /metrics
       {{- with .Values.repoServer.metrics.serviceMonitor.relabelings }}
