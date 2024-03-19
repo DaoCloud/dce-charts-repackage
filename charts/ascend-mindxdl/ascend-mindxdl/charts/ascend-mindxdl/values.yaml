@@ -1,0 +1,77 @@
+# Default values for ascend-mindxdl.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+podAnnotations: {}
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext: {}
+# capabilities:
+#   drop:
+#   - ALL
+# readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+
+devicePlugin:
+  daemonsets:
+    labels: {}
+    annotations: {}
+    priorityClassName: "system-node-critical"
+    nodeSelector:
+      huawei.com.ascend/Driver: installed
+    tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - key: huawei.com/Ascend310
+        operator: Exists
+        effect: NoSchedule
+      - key: "device-plugin"
+        operator: "Equal"
+        value: "v2"
+        effect: NoSchedule
+    devicePlugin:
+      repository: release.daocloud.io
+      image: ascend/ascend-k8sdeviceplugin
+      version: v5.0.0
+      imagePullPolicy: IfNotPresent
+      resources:
+        limits:
+          cpu: 500m
+          memory: 500Mi
+        requests:
+          cpu: 500m
+          memory: 500Mi
+npuExporter:
+  enabled: true
+  repository: release.daocloud.io
+  image: ascend/npu-exporter
+  version: v5.0.0
+  imagePullPolicy: IfNotPresent
+  nodeSelector:
+    huawei.com.ascend/Driver: installed
+    workerselector: dls-worker-node
+  serviceMonitor:
+    enabled: true
+    labels:
+      operator.insight.io/managed-by: insight
+  resources:
+    limits:
+      cpu: 600m
+      memory: 500Mi
+    requests:
+      cpu: 500m
+      memory: 500Mi
+isVirtualMachine: false

@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ascend-device-plugin-daemonset
+spec:
+  selector:
+    matchLabels:
+      name: ascend-device-plugin-ds
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
+      labels:
+        name: ascend-device-plugin-ds
+    spec:
+     {{- with .Values.devicePlugin.daemonsets.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+     {{- end }}
+      {{- if .Values.devicePlugin.daemonsets.priorityClassName }}
+      priorityClassName: {{ .Values.devicePlugin.daemonsets.priorityClassName }}
+      {{- end }}
+      {{- with .Values.devicePlugin.daemonsets.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "ascend-mindxdl.serviceAccountName" . }}
+      containers:
+      - image: {{ include "devicePlugin.fullimage" . }}
+        name: device-plugin
+        resources: {{ toYaml .Values.devicePlugin.daemonsets.devicePlugin.resources | nindent 12 }}
+        command: [ "/bin/bash", "-c", "--"]
+        args: [ "device-plugin  -useAscendDocker=true
+                 -logFile=/var/log/mindx-dl/devicePlugin/devicePlugin.log -logLevel=0" ]
+        securityContext:
+          privileged: true
+          readOnlyRootFilesystem: true
+        imagePullPolicy: {{ .Values.devicePlugin.daemonsets.devicePlugin.imagePullPolicy }}
+        volumeMounts:
+          - name: device-plugin
+            mountPath: /var/lib/kubelet/device-plugins
+          - name: pod-resource
+            mountPath: /var/lib/kubelet/pod-resources
+          - name: hiai-driver
+            mountPath: /usr/local/Ascend/driver
+            readOnly: true
+          - name: log-path
+            mountPath: /var/log/mindx-dl/devicePlugin
+          - name: tmp
+            mountPath: /tmp
+          {{- if .Values.isVirtualMachine }}
+          - mountPath: /usr/sbin/dmidecode
+            name: dmidecode
+          {{- end }}
+        env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+      volumes:
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/device-plugins
+        - name: pod-resource
+          hostPath:
+            path: /var/lib/kubelet/pod-resources
+        - name: hiai-driver
+          hostPath:
+            path: /usr/local/Ascend/driver
+        - name: log-path
+          hostPath:
+            path: /var/log/mindx-dl/devicePlugin
+            type: Directory
+        - name: tmp
+          hostPath:
+            path: /tmp
+        {{- if .Values.isVirtualMachine }}
+        - name: dmidecode
+          hostPath:
+            path: /usr/sbin/dmidecode
+            type: ""
+        {{- end }}

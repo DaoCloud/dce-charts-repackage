@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "required": [],
+    "properties": {
+        "ascend-mindxdl": {
+            "type": "object",
+            "required": [],
+            "properties": {
+                "devicePlugin": {
+                    "type": "object",
+                    "required": [],
+                    "properties": {
+                        "daemonsets": {
+                            "type": "object",
+                            "required": [],
+                            "properties": {
+                                "devicePlugin": {
+                                    "type": "object",
+                                    "required": [],
+                                    "properties": {
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "image": {
+                                            "type": "string"
+                                        },
+                                        "version": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "npuExporter": {
+                    "type": "object",
+                    "required": [],
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        },
+                        "serviceMonitor": {
+                            "type": "object",
+                            "required": [],
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                },
+                "isVirtualMachine": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}
