@@ -33,7 +33,7 @@ velero:
   # enabling node-agent). Required.
   image:
     repository: velero/velero
-    tag: v1.12.2
+    tag: v1.12.3
     # Digest value example: sha256:d238835e151cec91c6a811fe3a89a66d3231d9f64d09e5f3c49552672d271f38.
     # If used, it will take precedence over the image.tag.
     # digest:
@@ -53,7 +53,7 @@ velero:
       veleroPluginForMigration:
         registry: release.daocloud.io
         repository: kcoral/velero-plugin-for-migration
-        tag: v0.2.0
+        tag: v0.3.0
   nameOverride: ""
   fullnameOverride: ""
   # Annotations to add to the Velero deployment's. Optional.
@@ -454,8 +454,8 @@ velero:
     secretContents:
       cloud: |-
         [default]
-                                                      aws_access_key_id = <modifiy>
-                                                      aws_secret_access_key = <modifiy>
+              aws_access_key_id = <modifiy>
+              aws_secret_access_key = <modifiy>
     #  cloud: |
     #    [default]
     #    aws_access_key_id=<REDACTED>
@@ -572,7 +572,7 @@ velero:
     image:
       registry: docker.m.daocloud.io
       repository: velero/velero-restore-helper
-      tag: v1.12.2
+      tag: v1.12.3
 #
 # End of additional Velero resource settings.
 #
