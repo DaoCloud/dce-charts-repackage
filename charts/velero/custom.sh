@@ -47,7 +47,7 @@ yq -i .velero.image.initContainers.veleroPluginForAws.tag=\"$tag1\" values.yaml
 yq -i '
   .velero.image.initContainers.veleroPluginForMigration.registry="release.daocloud.io" |
   .velero.image.initContainers.veleroPluginForMigration.repository = "kcoral/velero-plugin-for-migration" |
-  .velero.image.initContainers.veleroPluginForMigration.tag= "v0.2.0"
+  .velero.image.initContainers.veleroPluginForMigration.tag= "v0.3.0"
 ' values.yaml
 
 yq -i '
@@ -71,6 +71,7 @@ sed -i  's/{{ .Values.image.repository }}/{{ .Values.image.registry }}\/{{ .Valu
 # reference: https://austindewey.com/2021/02/22/using-the-helm-tpl-function-to-refer-values-in-values-files/
 sed -i 's/toYaml .Values.initContainers/tpl (toYaml .Values.initContainers) ./' charts/velero/templates/deployment.yaml
 sed  -i -e '/initContainers:/a\{{ include "velero.plugin.for.migration" .}}' charts/velero/templates/deployment.yaml
+sed -i 's/- server/&\n            - --disable-informer-cache=true/' charts/velero/templates/deployment.yaml
 
 yq  -i '.velero.deployNodeAgent=true' values.yaml
 yq  -i '.velero.upgradeCRDs=false' values.yaml
@@ -93,8 +94,8 @@ yq -i '
   .velero.configuration.backupStorageLocation[0].config.s3ForcePathStyle = true |
   .velero.configuration.backupStorageLocation[0].config.s3Url = "" |
   .velero.credentials.secretContents.cloud = "[default]
-                                              aws_access_key_id = <modifiy>
-                                              aws_secret_access_key = <modifiy>"
+      aws_access_key_id = <modifiy>
+      aws_secret_access_key = <modifiy>"
 ' values.yaml
 
 

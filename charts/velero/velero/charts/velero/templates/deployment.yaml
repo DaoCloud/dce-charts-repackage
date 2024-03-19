@@ -84,6 +84,7 @@ spec:
             - /velero
           args:
             - server
+            - --disable-informer-cache=true
             ### Flags
           {{- with .Values.configuration }}
             - --uploader-type={{ default "restic" .uploaderType }}
