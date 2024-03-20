@@ -1,0 +1,7 @@
+- "{{ .volcano.controller.image.registry }}/{{ .volcano.controller.image.repository }}:{{ .volcano.controller.image.tag }}"
+- "{{ .volcano.scheduler.image.registry }}/{{ .volcano.scheduler.image.repository }}:{{ .volcano.scheduler.image.tag }}"
+- "{{ .volcano.admission.image.registry }}/{{ .volcano.admission.image.repository }}:{{ .volcano.admission.image.tag }}"
+- "{{ .volcano.grafana.image.registry }}/{{ .volcano.grafana.image.repository }}:{{ .volcano.grafana.image.tag }}"
+- "{{ .volcano.prometheus.image.registry }}/{{ .volcano.prometheus.image.repository }}:{{ .volcano.prometheus.image.tag }}"
+- "{{ .volcano.kubeStateMetrics.image.registry }}/{{ .volcano.kubeStateMetrics.image.repository }}:{{ .volcano.kubeStateMetrics.image.tag }}"
+

@@ -1,0 +1,153 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "volcano": {
+            "type": "object",
+            "properties": {
+                "basic": {
+                    "type": "object",
+                    "properties": {
+                        "admission_config_file": {
+                            "type": "string"
+                        },
+                        "admission_image_name": {
+                            "type": "string"
+                        },
+                        "admission_port": {
+                            "type": "integer"
+                        },
+                        "admission_secret_name": {
+                            "type": "string"
+                        },
+                        "controller_image_name": {
+                            "type": "string"
+                        },
+                        "image_pull_policy": {
+                            "type": "string"
+                        },
+                        "image_pull_secret": {
+                            "type": "string"
+                        },
+                        "image_tag_version": {
+                            "type": "string"
+                        },
+                        "scheduler_config_file": {
+                            "type": "string"
+                        },
+                        "scheduler_image_name": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "custom": {
+                    "type": "object",
+                    "properties": {
+                        "admission_affinity": {
+                            "type": "null"
+                        },
+                        "admission_enable": {
+                            "type": "boolean"
+                        },
+                        "admission_labels": {
+                            "type": "null"
+                        },
+                        "admission_ns": {
+                            "type": "null"
+                        },
+                        "admission_podLabels": {
+                            "type": "null"
+                        },
+                        "admission_replicas": {
+                            "type": "integer"
+                        },
+                        "admission_resources": {
+                            "type": "null"
+                        },
+                        "admission_sc": {
+                            "type": "null"
+                        },
+                        "admission_tolerations": {
+                            "type": "null"
+                        },
+                        "controller_affinity": {
+                            "type": "null"
+                        },
+                        "controller_enable": {
+                            "type": "boolean"
+                        },
+                        "controller_labels": {
+                            "type": "null"
+                        },
+                        "controller_ns": {
+                            "type": "null"
+                        },
+                        "controller_podLabels": {
+                            "type": "null"
+                        },
+                        "controller_replicas": {
+                            "type": "integer"
+                        },
+                        "controller_resources": {
+                            "type": "null"
+                        },
+                        "controller_sc": {
+                            "type": "null"
+                        },
+                        "controller_tolerations": {
+                            "type": "null"
+                        },
+                        "default_affinity": {
+                            "type": "null"
+                        },
+                        "default_ns": {
+                            "type": "null"
+                        },
+                        "default_sc": {
+                            "type": "null"
+                        },
+                        "default_tolerations": {
+                            "type": "null"
+                        },
+                        "enabled_admissions": {
+                            "type": "string"
+                        },
+                        "leader_elect_enable": {
+                            "type": "boolean"
+                        },
+                        "metrics_enable": {
+                            "type": "boolean"
+                        },
+                        "scheduler_affinity": {
+                            "type": "null"
+                        },
+                        "scheduler_enable": {
+                            "type": "boolean"
+                        },
+                        "scheduler_labels": {
+                            "type": "null"
+                        },
+                        "scheduler_ns": {
+                            "type": "null"
+                        },
+                        "scheduler_podLabels": {
+                            "type": "null"
+                        },
+                        "scheduler_replicas": {
+                            "type": "integer"
+                        },
+                        "scheduler_resources": {
+                            "type": "null"
+                        },
+                        "scheduler_sc": {
+                            "type": "null"
+                        },
+                        "scheduler_tolerations": {
+                            "type": "null"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
