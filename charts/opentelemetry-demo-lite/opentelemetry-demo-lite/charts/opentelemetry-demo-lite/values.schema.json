@@ -2,144 +2,138 @@
     "$schema": "http://json-schema.org/schema#",
     "type": "object",
     "properties": {
-        "opentelemetry-demo-lite": {
+        "global": {
             "type": "object",
             "title": "Opentelemetry demo lite",
             "description": "The Opentelemetry demo lite is a microservice-based distributed system. This demo aims to help users quickly and easily trial the features of DaoCloud Enterprise.",
             "properties": {
-                "global": {
+                "observability": {
                     "type": "object",
-                    "title": " ",
+                    "title": "Observability",
                     "properties": {
-                        "observability": {
+                        "adServiceJVMEnable": {
+                            "type": "boolean",
+                            "title": "Enable JVM monitor",
+                            "description": "Enable JVM monitoring for adservice service only.",
+                            "default": true
+                        }
+                    }
+                },
+                "opentelemetryDemo": {
+                    "type": "object",
+                    "title": "Service Mesh",
+                    "properties": {
+                        "istioSidecar": {
                             "type": "object",
-                            "title": "Observability",
+                            "title": " ",
                             "properties": {
-                                "adServiceJVMEnable": {
+                                "enabled": {
                                     "type": "boolean",
-                                    "title": "Enable JVM monitor",
-                                    "description": "Enable JVM monitoring for adservice service only.",
-                                    "default": true
+                                    "title": "Enable Service Mesh",
+                                    "description": "Please ensure that the cluster has enabled the Istio plugin. The sidecar will be injected for all services by default.",
+                                    "default": false
                                 }
                             }
-                        },
-                        "opentelemetryDemo": {
+                        }
+                    }
+                },
+                "microservices": {
+                    "type": "object",
+                    "title": "Microservices",
+                    "description": "Please ensure there are available registry instances. In case the parameters are incorrectly filled in, the services would fail to run properly. By default, only adservice and dataservice would be integrated into the Registry and Sentinel governance would be enabled.",
+                    "properties": {
+                        "nacos": {
                             "type": "object",
-                            "title": "Service Mesh",
+                            "title": "nacos settings",
+                            "required": [
+                                "registryName",
+                                "registryEndpoint",
+                                "registryServiceGroup",
+                                "registryInstanceGroup"
+                            ],
                             "properties": {
-                                "istioSidecar": {
-                                    "type": "object",
-                                    "title": " ",
-                                    "properties": {
-                                        "enabled": {
-                                            "type": "boolean",
-                                            "title": "Enable Service Mesh",
-                                            "description": "Please ensure that the cluster has enabled the Istio plugin. The sidecar will be injected for all services by default.",
-                                            "default": false
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "microservices": {
-                            "type": "object",
-                            "title": "Microservices",
-                            "description": "Please ensure there are available registry instances. In case the parameters are incorrectly filled in, the services would fail to run properly. By default, only adservice and dataservice would be integrated into the Registry and Sentinel governance would be enabled.",
-                            "properties": {
-                                "nacos": {
-                                    "type": "object",
-                                    "title": "nacos settings",
-                                    "required": [
-                                        "registryName",
-                                        "registryEndpoint",
-                                        "registryServiceGroup",
-                                        "registryInstanceGroup"
-                                    ],
-                                    "properties": {
-                                        "enabled": {
-                                            "type": "boolean",
-                                            "title": "Enable Nacos",
-                                            "description": "If enabled, The Chart will deploy two extra services: dataservice and mysql. The adservice will call dataservice which uses mysql to store Ad data to get Ad data.",
-                                            "default": false
-                                        },
-                                        "registryName": {
-                                            "type": "string",
-                                            "title": "Registry name",
-                                            "default": "nacos"
-                                        },
-                                        "registryEndpoint": {
-                                            "type": "string",
-                                            "title": "Registry endpoint",
-                                            "default": "nacos:8848"
-                                        },
-                                        "registryNamespace": {
-                                            "type": "string",
-                                            "title": "Registry namespace",
-                                            "default": ""
-                                        },
-                                        "registryServiceGroup": {
-                                            "type": "string",
-                                            "title": "Registry service group",
-                                            "default": "DEFAULT_GROUP"
-                                        },
-                                        "registryInstanceGroup": {
-                                            "type": "string",
-                                            "title": "Registry instance group",
-                                            "default": "DEFAULT"
-                                        },
-                                        "username": {
-                                            "type": "string",
-                                            "title": "Username",
-                                            "default": ""
-                                        },
-                                        "password": {
-                                            "type": "string",
-                                            "title": "Password",
-                                            "default": ""
-                                        }
-                                    }
+                                "enabled": {
+                                    "type": "boolean",
+                                    "title": "Enable Nacos",
+                                    "description": "If enabled, The Chart will deploy two extra services: dataservice and mysql. The adservice will call dataservice which uses mysql to store Ad data to get Ad data.",
+                                    "default": false
                                 },
-                                "sentinel": {
-                                    "type": "object",
-                                    "title": "Sentinel settings",
-                                    "required": [
-                                        "endpoint"
-                                    ],
-                                    "properties": {
-                                        "enabled": {
-                                            "type": "boolean",
-                                            "title": "Enable sentinel",
-                                            "description": "please ensure Nacos is enabled and that the parameters above are filled in correctly for the Registry. Meanwhile, Please ensure that Sentinel governance has been enabled in the same Registry.",
-                                            "default": false
-                                        },
-                                        "endpoint": {
-                                            "type": "string",
-                                            "title": "Endpoint",
-                                            "default": "sentinel:8080"
-                                        }
-                                    }
+                                "registryName": {
+                                    "type": "string",
+                                    "title": "Registry name",
+                                    "default": "nacos"
+                                },
+                                "registryEndpoint": {
+                                    "type": "string",
+                                    "title": "Registry endpoint",
+                                    "default": "nacos:8848"
+                                },
+                                "registryNamespace": {
+                                    "type": "string",
+                                    "title": "Registry namespace",
+                                    "default": ""
+                                },
+                                "registryServiceGroup": {
+                                    "type": "string",
+                                    "title": "Registry service group",
+                                    "default": "DEFAULT_GROUP"
+                                },
+                                "registryInstanceGroup": {
+                                    "type": "string",
+                                    "title": "Registry instance group",
+                                    "default": "DEFAULT"
+                                },
+                                "username": {
+                                    "type": "string",
+                                    "title": "Username",
+                                    "default": ""
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "title": "Password",
+                                    "default": ""
                                 }
                             }
                         },
-                        "middleware": {
+                        "sentinel": {
                             "type": "object",
-                            "title": "Middleware",
+                            "title": "Sentinel settings",
+                            "required": [
+                                "endpoint"
+                            ],
                             "properties": {
-                                "redis": {
-                                    "type": "object",
-                                    "title": "redis settings",
-                                    "properties": {
-                                        "deployBy": {
-                                            "type": "string",
-                                            "title": "redis deploy way",
-                                            "description": "Use built-in redis by default. If you want to use a redis create by redis operater, Please chooise redisCR and make sure redis operator is ready.",
-                                            "default": "builtin",
-                                            "enum": [
-                                                "builtin",
-                                                "redisCR"
-                                            ]
-                                        }
-                                    }
+                                "enabled": {
+                                    "type": "boolean",
+                                    "title": "Enable sentinel",
+                                    "description": "please ensure Nacos is enabled and that the parameters above are filled in correctly for the Registry. Meanwhile, Please ensure that Sentinel governance has been enabled in the same Registry.",
+                                    "default": false
+                                },
+                                "endpoint": {
+                                    "type": "string",
+                                    "title": "Endpoint",
+                                    "default": "sentinel:8080"
+                                }
+                            }
+                        }
+                    }
+                },
+                "middleware": {
+                    "type": "object",
+                    "title": "Middleware",
+                    "properties": {
+                        "redis": {
+                            "type": "object",
+                            "title": "redis settings",
+                            "properties": {
+                                "deployBy": {
+                                    "type": "string",
+                                    "title": "redis deploy way",
+                                    "description": "Use built-in redis by default. If you want to use a redis create by redis operater, Please chooise redisCR and make sure redis operator is ready.",
+                                    "default": "builtin",
+                                    "enum": [
+                                        "builtin",
+                                        "redisCR"
+                                    ]
                                 }
                             }
                         }

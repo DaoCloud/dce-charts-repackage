@@ -1,37 +1,37 @@
+global:
+  opentelemetryDemo:
+    image:
+      registry: ghcr.m.daocloud.io
+      repository: openinsight-proj/demo
+    busyboxImage:
+      registry: docker.m.daocloud.io
+      repository: library/busybox
+      tag: "1.34.1"
+    istioSidecar:
+      enabled: false
+  observability:
+    adServiceJVMEnable: true
+  microservices:
+    nacos:
+      enabled: false
+      registryName: "nacos"
+      registryEndpoint: "nacos:8848"
+      registryNamespace: ""
+      registryServiceGroup: "DEFAULT_GROUP"
+      registryInstanceGroup: "DEFAULT"
+      username: ""
+      password: ""
+    sentinel:
+      enabled: false
+      endpoint: "sentinel:8080"
+
+  middleware:
+    redis:
+      # enum: builtin or redisCR
+      deployBy: "builtin"
+
 # child values
 opentelemetry-demo-lite:
-  global:
-    opentelemetryDemo:
-      image:
-        registry: ghcr.m.daocloud.io
-        repository: openinsight-proj/demo
-      busyboxImage:
-        registry: docker.m.daocloud.io
-        repository: library/busybox
-        tag: "1.34.1"
-      istioSidecar:
-        enabled: false
-    observability:
-      adServiceJVMEnable: true
-    microservices:
-      nacos:
-        enabled: false
-        registryName: "nacos"
-        registryEndpoint: "nacos:8848"
-        registryNamespace: ""
-        registryServiceGroup: "DEFAULT_GROUP"
-        registryInstanceGroup: "DEFAULT"
-        username: ""
-        password: ""
-      sentinel:
-        enabled: false
-        endpoint: "sentinel:8080"
-  
-    middleware:
-      redis:
-        # enum: builtin or redisCR
-        deployBy: "builtin"
-  
   extensions:
     springCloudGateway:
       enabled: false
@@ -182,6 +182,5 @@ opentelemetry-demo-lite:
         insight.opentelemetry.io/metric-scrape: "true"
         insight.opentelemetry.io/metric-path: "/"
         insight.opentelemetry.io/metric-port: "12345"
-  
   opentelemetry-demo:
     enabled: true

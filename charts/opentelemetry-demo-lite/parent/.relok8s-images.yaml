@@ -11,11 +11,11 @@
 
 
 # opentelemetry-demo component
-- "{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.registry }}/{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.checkoutService.imageOverride.tag }}"
-- "{{ .opentelemetry-demo-lite.global.opentelemetryDemo.busyboxImage.registry }}/{{ .opentelemetry-demo-lite.global.opentelemetryDemo.busyboxImage.repository }}:{{ .opentelemetry-demo-lite.global.opentelemetryDemo.busyboxImage.tag }}"
-- "{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.registry }}/{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.frontend.imageOverride.tag }}"
-- "{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.registry }}/{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.loadgenerator.imageOverride.tag }}"
-- "{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.registry }}/{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.paymentService.imageOverride.tag }}"
-- "{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.registry }}/{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.productCatalogService.imageOverride.tag }}"
-- "{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.registry }}/{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.quoteService.imageOverride.tag }}"
-- "{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.registry }}/{{ .opentelemetry-demo-lite.global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.shippingService.imageOverride.tag }}"
+- "{{ .global.opentelemetryDemo.image.registry }}/{{ .global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.checkoutService.imageOverride.tag }}"
+- "{{ .global.opentelemetryDemo.busyboxImage.registry }}/{{ .global.opentelemetryDemo.busyboxImage.repository }}:{{ .opentelemetry-demo-lite.global.opentelemetryDemo.busyboxImage.tag }}"
+- "{{ .global.opentelemetryDemo.image.registry }}/{{ .global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.frontend.imageOverride.tag }}"
+- "{{ .global.opentelemetryDemo.image.registry }}/{{ .global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.loadgenerator.imageOverride.tag }}"
+- "{{ .global.opentelemetryDemo.image.registry }}/{{ .global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.paymentService.imageOverride.tag }}"
+- "{{ .global.opentelemetryDemo.image.registry }}/{{ .global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.productCatalogService.imageOverride.tag }}"
+- "{{ .global.opentelemetryDemo.image.registry }}/{{ .global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.quoteService.imageOverride.tag }}"
+- "{{ .global.opentelemetryDemo.image.registry }}/{{ .global.opentelemetryDemo.image.repository }}:{{ .opentelemetry-demo-lite.opentelemetry-demo.components.shippingService.imageOverride.tag }}"
