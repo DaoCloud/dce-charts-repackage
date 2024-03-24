@@ -1,9 +1,9 @@
-# Default values for 4pd-vgpu.
+# Default values for hami-vgpu.
 
 nameOverride: ""
 fullnameOverride: ""
 imagePullSecrets: []
-version: "v2.3.8"
+version: "v2.3.9"
 #Nvidia GPU Parameters
 resourceName: "nvidia.com/vgpu"
 resourceMem: "nvidia.com/gpumem"
@@ -17,7 +17,11 @@ mluResourceMem: "cambricon.com/mlumem"
 dcuResourceName: "hygon.com/dcunum"
 dcuResourceMem: "hygon.com/dcumem"
 dcuResourceCores: "hygon.com/dcucores"
-schedulerName: "4pd-scheduler"
+#Iluvatar GPU Parameters
+iluvatarResourceName: "iluvatar.ai/vgpu"
+iluvatarResourceMem: "iluvatar.ai/vcuda-memory"
+iluvatarResourceCore: "iluvatar.ai/vcuda-core"
+schedulerName: "hami-scheduler"
 podSecurityPolicy:
   enabled: false
 global:
@@ -31,8 +35,11 @@ scheduler:
   nodeName: ""
   defaultMem: 0
   defaultCores: 0
+  defaultGPUNum: 1
   metricsBindAddress: ":9395"
   kubeScheduler:
+    # @param enabled indicate whether to run kube-scheduler container in the scheduler pod, it's true by default.
+    enabled: true
     imageTag: "v1.24.0"
     registry: k8s-gcr.m.daocloud.io
     repository: kube-scheduler
@@ -55,7 +62,7 @@ scheduler:
   #nodeSelector: 
   #  gpu: "on"
   tolerations: []
-  #serviceAccountName: "4pd-vgpu-scheduler-sa"
+  #serviceAccountName: "hami-vgpu-scheduler-sa"
   customWebhook:
     enabled: false
     # must be an endpoint using https.

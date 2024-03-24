@@ -16,6 +16,10 @@ spec:
       sourceLabels:
       - podname
       targetLabel: exported_pod
+    - action: replace
+      sourceLabels:
+      - podnamespace
+      targetLabel: exported_namespace
     path: /metrics
     port: monitor
     relabelings:
@@ -48,5 +52,5 @@ spec:
     - {{ .Release.Namespace | quote }}
   selector:
     matchLabels:
-      app.kubernetes.io/component: 4pd-scheduler
+      app.kubernetes.io/component: hami-scheduler
 {{- end }}
