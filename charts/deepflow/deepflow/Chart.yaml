@@ -1,20 +1,21 @@
 apiVersion: v2
-appVersion: 6.4.3
 description: An automated observability platform for cloud-native developers.
+name: deepflow
+engine: gotpl
+type: application
+version: 6.4.012
+appVersion: "6.4.9"
+kubeVersion: ">=1.16.0-0"
+sources:
+  - https://github.com/deepflowio/deepflow
 home: https://github.com/deepflowio/deepflow
-icon: https://raw.githubusercontent.com/deepflowio/deepflow-charts/main/deepflow.svg
 keywords:
   - deepflow
-kubeVersion: '>=1.16.0-0'
+icon: https://raw.githubusercontent.com/deepflowio/deepflow-charts/main/deepflow.svg
 maintainers:
   - name: deepflow
     url: https://github.com/deepflowio/deepflow
-name: deepflow
-sources:
-  - https://github.com/deepflowio/deepflow
-type: application
-version: 6.4.004
 dependencies:
   - name: deepflow
-    version: "v6.4.004"
+    version: "v6.4.012"
     repository: "https://deepflowio.github.io/deepflow"
