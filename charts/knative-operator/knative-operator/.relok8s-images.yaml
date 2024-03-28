@@ -7,4 +7,5 @@
 - "{{ .serving.registry.override.controller }}"
 - "{{ .serving.registry.override.net-kourier-controller/controller }}"
 - "{{ .serving.registry.override.webhook }}"
+- "{{ .serving.registry.override.migrate }}"
 - "{{ .magicDNS.image.registry }}/{{ .magicDNS.image.repository }}:{{ .magicDNS.image.tag }}"
