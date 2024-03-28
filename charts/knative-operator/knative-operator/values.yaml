@@ -50,6 +50,8 @@ serving:
       "net-kourier-controller/controller": "m.daocloud.io/gcr.io/knative-releases/knative.dev/net-kourier/cmd/kourier:v1.12.1"
       ## @param serving.registry.override.webhook The image location for webhook
       "webhook": "m.daocloud.io/gcr.io/knative-releases/knative.dev/serving/cmd/webhook:v1.12.2"
+      ## @param serving.registry.override.migrate The image location for migrate
+      "migrate": "m.daocloud.io/gcr.io/knative-releases/knative.dev/pkg/apiextensions/storageversion/cmd/migrate@sha256:5b8e6519a1a7f14555bbdf33f7621883624bf9aaad940c88319258a949274d18"
   ingress:
     kourier:
       ## @param serving.ingress.kourier.enabled The enabling flag for the Kourier ingress
@@ -85,16 +87,3 @@ configLogging:
         "callerEncoder": ""
       }
     }
-## @section magicDNS parameters
-magicDNS:
-  ## @param magicDNS.enable enable magic DNS
-  enable: false
-  image:
-    ## @param magicDNS.image.registry The image registry of operator
-    registry: m.daocloud.io
-    ## @param magicDNS.image.repository The image repository of operator
-    repository: gcr.io/knative-releases/knative.dev/serving/cmd/default-domain
-    ## @param magicDNS.image.tag The image tag of operator, overrides the image tag whose default is the chart appVersion.
-    tag: "v1.12.3"
-    ## @param magicDNS.image.pullPolicy The image pull policy of operator
-    pullPolicy: IfNotPresent
