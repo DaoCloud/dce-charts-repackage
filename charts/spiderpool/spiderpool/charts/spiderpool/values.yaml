@@ -67,12 +67,15 @@ ipam:
       ## @param ipam.gc.gcAll.intervalInSecond the gc all interval duration
       intervalInSecond: 600
 
-    GcDeletingTimeOutPod:
-      ## @param ipam.gc.GcDeletingTimeOutPod.enabled enable retrieve IP for the pod who times out of deleting graceful period
-      enabled: true
+    statelessPod:
+      ## @param ipam.gc.statelessPod.zombieOnReadyNode enable reclaim IP for the stateless pod who is over deleting graceful period on a ready node
+      zombieOnReadyNode: true
 
-      ## @param ipam.gc.GcDeletingTimeOutPod.delay the gc delay seconds after the pod times out of deleting graceful period
-      delay: 0
+      ## @param ipam.gc.statelessPod.zombieOnNotReadyNode enable reclaim IP for the stateless pod who is over deleting graceful period on a not-ready node
+      zombieOnNotReadyNode: true
+
+    ## @param ipam.gc.gcDeletingTimeOutPodDelay the gc delay seconds after the pod times out of deleting graceful period
+    gcDeletingTimeOutPodDelay: 0
 
 ## @section grafanaDashboard parameters
 ##
@@ -357,7 +360,7 @@ spiderpoolAgent:
     digest: ""
 
     ## @param spiderpoolAgent.image.tag the image tag of spiderpoolAgent, overrides the image tag whose default is the chart appVersion.
-    tag: v0.9.1
+    tag: v0.9.2
 
     ## @param spiderpoolAgent.image.imagePullSecrets the image imagePullSecrets of spiderpoolAgent
     imagePullSecrets: []
@@ -541,7 +544,7 @@ spiderpoolController:
     digest: ""
 
     ## @param spiderpoolController.image.tag the image tag of spiderpoolController, overrides the image tag whose default is the chart appVersion.
-    tag: v0.9.1
+    tag: v0.9.2
 
     ## @param spiderpoolController.image.imagePullSecrets the image imagePullSecrets of spiderpoolController
     imagePullSecrets: []
@@ -772,7 +775,7 @@ spiderpoolInit:
     digest: ""
 
     ## @param spiderpoolInit.image.tag the image tag of spiderpoolInit, overrides the image tag whose default is the chart appVersion.
-    tag: v0.9.1
+    tag: v0.9.2
 
     ## @param spiderpoolInit.image.imagePullSecrets the image imagePullSecrets of spiderpoolInit
     imagePullSecrets: []
