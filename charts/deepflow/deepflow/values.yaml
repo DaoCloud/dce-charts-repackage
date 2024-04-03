@@ -1,15 +1,4 @@
-# Default values for deepflow-server.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
 global:
-  image:
-    ## ghcr Image repository address: ghcr.io/deepflowys/deepflow-ce
-    ## Dockerhub Image repository address: deepflowce
-    ## AliyunYun Image repository address: registry.cn-beijing.aliyuncs.com/deepflow-ce
-    registry: docker.m.daocloud.io
-    repository: deepflowce
-    pullPolicy: Always
-    imagePullSecrets: []
   hostNetwork: false
   dnsPolicy: ClusterFirst
   password:
@@ -70,12 +59,12 @@ global:
       image:
         registry: docker.m.daocloud.io
         repository: deepflowce/deepflowio-init-grafana
-        tag: v6.4.3
+        tag: v6.4
     initGrafanaDsDh:
       image:
         registry: docker.m.daocloud.io
         repository: deepflowce/deepflowio-init-grafana-ds-dh
-        tag: v6.4.3
+        tag: v6.4
   ghippoProxy:
     enabled: true
 
@@ -84,12 +73,12 @@ deepflow:
     server:
       registry: "docker.m.daocloud.io"
       repository: "deepflowce/deepflow-server"
-      tag: v6.4.3
+      tag: v6.4
       pullPolicy: "{{ .Values.global.image.pullPolicy }}"
     app:
       registry:  "docker.m.daocloud.io"
       repository: "deepflowce/deepflow-app"
-      tag: v6.4.3
+      tag: v6.4
       pullPolicy: "{{ .Values.global.image.pullPolicy }}"
 
   imagePullSecrets: []
@@ -116,6 +105,7 @@ deepflow:
     replicas: "{{ .Values.global.replicas }}"
     hostNetwork:  "{{ .Values.global.hostNetwork }}"
     dnsPolicy: "{{ .Values.global.dnsPolicy }}"
+    nameservers: []
     podManagementPolicy: "{{ .Values.global.podManagementPolicy }}"
     featureFlag: []
     readinessProbe:
@@ -673,7 +663,7 @@ deepflow:
       repository: "deepflowce/deepflow-agent"
       pullPolicy: "{{ .Values.global.image.pullPolicy }}"
       # Overrides the image tag whose default is the chart appVersion.
-      tag: v6.4.3
+      tag: v6.4
 
     imagePullSecrets: []
     nameOverride: ""
@@ -758,12 +748,12 @@ deepflow:
     externalAgentHttpProxyPort: 38086
 
     resources:
+      limits:
+        cpu: 1000m
+        memory: 768Mi
       requests:
         cpu: 100m
         memory: 128Mi
-      limits:
-        cpu: 1000m
-        memory: 2Gi
 
 
     nodeSelector: {}
@@ -807,7 +797,7 @@ deepflow:
       ## Grafana aliyun Image repository: registry.cn-beijing.aliyuncs.com/deepflow-ce/grafana
       repository: deepflowce/grafana
       # Overrides the Grafana image tag whose default is the chart appVersion
-      tag: "10.2.2"
+      tag: "10.2.3"
       sha: ""
       pullPolicy: Always
 
@@ -941,3 +931,5 @@ deepflow:
       limits:
         cpu: 1000m
         memory: 2Gi
+
+    assertNoLeakedSecrets: false
