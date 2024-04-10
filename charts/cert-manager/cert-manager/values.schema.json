@@ -72,7 +72,8 @@
                 "enabled": {
                   "type": "boolean",
                   "title": "Install",
-                  "description": "install serviceMonitor CR for cert-manager. Notice: It is required to install Prometheus CRDs firstly"
+                  "description": "install serviceMonitor CR for cert-manager. Notice: It is required to install Prometheus CRDs firstly",
+                  "default": false
                 }
               },
               "required": []

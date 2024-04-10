@@ -60,7 +60,7 @@ yq -i '
    .cert-manager.startupapicheck.resources.limits.cpu="10m" |
    .cert-manager.startupapicheck.resources.limits.memory="32Mi" |
    .cert-manager.prometheus.enabled=true |
-   .cert-manager.prometheus.servicemonitor.enabled=true
+   .cert-manager.prometheus.servicemonitor.enabled=false
 ' values.yaml
 
 yq -i '.appVersion=strenv(CHART_VERSION)' Chart.yaml

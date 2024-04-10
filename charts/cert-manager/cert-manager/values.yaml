@@ -187,7 +187,7 @@ cert-manager:
   prometheus:
     enabled: true
     servicemonitor:
-      enabled: true
+      enabled: false
       prometheusInstance: default
       targetPort: 9402
       path: /metrics
