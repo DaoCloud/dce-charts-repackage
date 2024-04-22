@@ -945,6 +945,7 @@ stella-agent-ce:
   podAnnotations: {}
 
   image:
+    registry: "docker.m.daocloud.io"
     repository: "{{ .Values.global.image.repository }}/deepflowio-stella-agent-ce"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
@@ -977,7 +978,6 @@ stella-agent-ce:
       port: 20831
       targetPort: 20831
       nodePort: 
-      registry: "docker.m.daocloud.io"
       protocol: TCP
     ## Additional ports to open for server service
     additionalPorts: []
