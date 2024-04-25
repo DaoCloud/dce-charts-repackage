@@ -3,19 +3,19 @@ description: An automated observability platform for cloud-native developers.
 name: deepflow-agent
 engine: gotpl
 type: application
-version: 6.4.012
-appVersion: "6.4.9"
+version: 6.5.007
+appVersion: "6.5.4"
 kubeVersion: ">=1.16.0-0"
 sources:
   - https://github.com/deepflowio/deepflow
 home: https://github.com/deepflowio/deepflow
 keywords:
-  - deepflow
+  - monitoring
 icon: https://raw.githubusercontent.com/deepflowio/deepflow-charts/main/deepflow.svg
 maintainers:
   - name: deepflow
     url: https://github.com/deepflowio/deepflow
 dependencies:
   - name: deepflow-agent
-    version: "v6.4.012"
+    version: "v6.5.007"
     repository: "https://deepflowio.github.io/deepflow"
