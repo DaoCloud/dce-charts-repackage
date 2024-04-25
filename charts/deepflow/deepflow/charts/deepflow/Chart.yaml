@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: 6.4.9
+appVersion: 6.5.4
 dependencies:
 - condition: clickhouse.enabled
   name: clickhouse
@@ -17,6 +17,10 @@ dependencies:
   name: grafana
   repository: https://grafana.github.io/helm-charts
   version: 7.*.*
+- condition: stella-agent-ce.enabled
+  name: stella-agent-ce
+  repository: ""
+  version: '*.*.*'
 description: An automated observability platform for cloud-native developers.
 home: https://github.com/deepflowio/deepflow
 icon: https://raw.githubusercontent.com/deepflowio/deepflow-charts/main/deepflow.svg
@@ -30,4 +34,4 @@ name: deepflow
 sources:
 - https://github.com/deepflowio/deepflow
 type: application
-version: 6.4.012
+version: 6.5.007

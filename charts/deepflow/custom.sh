@@ -16,6 +16,10 @@ set -o nounset
 
 #==============================
 
+# add stella-agent-ce costume value
+sed -i '916a\    registry: "docker.m.daocloud.io"' ./charts/deepflow/values.yaml
+sed -i '40 c\          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"' ./charts/deepflow/charts/stella-agent-ce/templates/deployment.yaml
+
 # add grafana resources config
 sed -i '901a\  resources:' ./charts/deepflow/values.yaml
 sed -i '902a\    requests:' ./charts/deepflow/values.yaml

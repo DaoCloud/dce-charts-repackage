@@ -13,3 +13,5 @@
 - "{{ .global.grafanaInitContainer.initCustomPlugins.image.registry }}/{{ .global.grafanaInitContainer.initCustomPlugins.image.repository }}:{{ .global.grafanaInitContainer.initCustomPlugins.image.tag }}"
 - "{{ .global.grafanaInitContainer.initGrafanaDsDh.image.registry }}/{{ .global.grafanaInitContainer.initGrafanaDsDh.image.repository }}:{{ .global.grafanaInitContainer.initGrafanaDsDh.image.tag }}"
 - "{{ .deepflow.grafana.testFramework.image.registry }}/{{ .deepflow.grafana.testFramework.image.repository }}:{{ .deepflow.grafana.testFramework.image.tag }}"
+# stella-agent-ce
+- "{{ .deepflow.stella-agent-ce.image.registry }}/{{ .deepflow.stella-agent-ce.image.repository }}:{{ .deepflow.stella-agent-ce.image.tag }}"
