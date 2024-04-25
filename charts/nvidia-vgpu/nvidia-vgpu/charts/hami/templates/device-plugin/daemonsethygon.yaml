@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: {{ include "hami-vgpu.device-plugin" . }}-mlu
+  name: {{ include "hami-vgpu.device-plugin" . }}-hygon
   labels:
-    app.kubernetes.io/component: hami-device-plugin-mlu
+    app.kubernetes.io/component: hami-device-plugin-hygon
     {{- include "hami-vgpu.labels" . | nindent 4 }}
     {{- with .Values.global.labels }}
     {{- toYaml . | nindent 4 }}
@@ -14,12 +14,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/component: hami-device-plugin-mlu
+      app.kubernetes.io/component: hami-device-plugin-hygon
       {{- include "hami-vgpu.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/component: hami-device-plugin-mlu
+        app.kubernetes.io/component: hami-device-plugin-hygon
         hami.io/webhook: ignore
         {{- include "hami-vgpu.selectorLabels" . | nindent 8 }}
       {{- if .Values.devicePlugin.podAnnotations }}
@@ -32,22 +32,10 @@ spec:
       hostPID: true
       hostNetwork: true
       containers:
-        - name: cambricon-device-plugin-ctr
-          image: "{{ .Values.devicePlugin.registry }}/{{ .Values.devicePlugin.repository }}:{{ .Values.version }}"
+        - name: dcu-device-plugin-ctr
+          image: "{{ .Values.devicePlugin.registry }}/{{ .Values.devicePlugin.hygonImageRepository }}:{{ .Values.devicePlugin.hygonImageTag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.devicePlugin.imagePullPolicy | quote }}
-          lifecycle:
-            postStart:
-              exec:
-                command: ["/bin/sh","-c","cp -f /k8s-vgpu/lib/mlu/smlu-containerd /usr/local/vgpu/"]
-          command:
-            - mlu-device-plugin
-            - --mode=env-share #device plugin mode: default, sriov, env-share, mlu-share or topology-aware
-            - --virtualization-num=10 #  virtualization number for each MLU, used only in sriov mode or env-share mode
-            - --mlulink-policy=best-effort # MLULink topology policy: best-effort, guaranteed or restricted, used only in topology-aware mode
-            - --cnmon-path=/usr/bin/cnmon # host machine cnmon path, must be absolute path. comment out this line to avoid mounting cnmon.
-            #- --enable-console #uncomment to enable UART console device(/dev/ttyMS) in container
-            #- --disable-health-check #uncomment to disable health check
-            #- --enable-device-type #uncomment to enable device registration with type info
+          command: ["/hygon","-logtostderr=true","-stderrthreshold=INFO","-v=5"]
           env:
             - name: NODE_NAME
               valueFrom:
@@ -55,6 +43,8 @@ spec:
                   fieldPath: spec.nodeName
             - name: HOOK_PATH
               value: {{ .Values.devicePlugin.libPath }}
+            - name: HYGONPATH
+              value: {{ .Values.devicePlugin.hygondriver }}
           securityContext:
             privileged: true
             allowPrivilegeEscalation: true
@@ -68,9 +58,13 @@ spec:
             - name: deviceconfig
               mountPath: /config
             - name: sysinfo
-              mountPath: /sysinfo
+              mountPath: /sys
             - name: lib
               mountPath: /usr/local/vgpu
+            - name: hwpath
+              mountPath: /usr/share/hwdata
+            - name: hygonloc
+              mountPath: /opt/hygondriver/
       volumes:
         - name: device-plugin
           hostPath:
@@ -84,8 +78,14 @@ spec:
         - name: lib
           hostPath:
             path: {{ .Values.devicePlugin.libPath }}
-      {{- if .Values.devicePlugin.mlunodeSelector }}
-      nodeSelector: {{ toYaml .Values.devicePlugin.mlunodeSelector | nindent 8 }}
+        - name: hwpath
+          hostPath:
+            path: /usr/share/hwdata
+        - name: hygonloc
+          hostPath:
+            path: {{ .Values.devicePlugin.hygondriver }}
+      {{- if .Values.devicePlugin.hygonnodeSelector }}
+      nodeSelector: {{ toYaml .Values.devicePlugin.hygonnodeSelector | nindent 8 }}
       {{- end }}
       {{- if .Values.devicePlugin.tolerations }}
       tolerations: {{ toYaml .Values.devicePlugin.tolerations | nindent 8 }}
