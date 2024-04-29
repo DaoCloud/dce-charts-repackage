@@ -475,3 +475,22 @@ return the sriov webhook image
 {{- end -}}
 
 #========================================
+{{/*
+return the netermarial image
+*/}}
+{{- define "netmaterial.image" -}}
+{{- $registryName := .Values.netmaterial.image.registry -}}
+{{- $repositoryName := .Values.netmaterial.image.repository -}}
+{{- if .Values.global.imageRegistryOverride }}
+    {{- printf "%s/%s" .Values.global.imageRegistryOverride $repositoryName -}}
+{{ else if $registryName }}
+    {{- printf "%s/%s" $registryName $repositoryName -}}
+{{- else -}}
+    {{- printf "%s" $repositoryName -}}
+{{- end -}}
+{{- if .Values.netmaterial.image.tag -}}
+    {{- printf ":%s" .Values.netmaterial.image.tag -}}
+{{- else -}}
+    {{- printf ":%s" "latest" -}}
+{{- end -}}
+{{- end -}}

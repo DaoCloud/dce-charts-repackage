@@ -1,0 +1,17 @@
+      - hostPath:
+          path: /lib/modules
+        name: lib-modules
+      - hostPath:
+          path: /etc/os-release
+          type: File
+        name: os-release
+      - hostPath:
+          path: /usr/lib
+        name: library
+      - hostPath:
+          path: /usr/lib64
+        name: library64
+      - hostPath:
+          path: /usr/bin
+          type: Directory
+        name: ofed

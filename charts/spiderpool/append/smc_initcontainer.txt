@@ -1,0 +1,20 @@
+        {{- if .Values.dra.enabled }}
+        - name: smc
+          imagePullPolicy: {{ .Values.netmaterial.image.pullPolicy }}
+          image: {{ include "netmaterial.image" . | quote }}
+          securityContext:
+            privileged: true
+          volumeMounts:
+          - mountPath: /lib/modules
+            name: lib-modules
+            readOnly: true
+          - mountPath: /host/etc/os-release
+            name: os-release
+            readOnly: true
+          - mountPath: /usr/lib
+            name: library
+          - mountPath: /usr/lib64
+            name: library64
+          - mountPath: /host/usr/bin/
+            name: ofed
+        {{- end }}
