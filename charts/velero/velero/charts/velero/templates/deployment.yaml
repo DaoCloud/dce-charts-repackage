@@ -84,7 +84,8 @@ spec:
             - /velero
           args:
             - server
-            - --disable-informer-cache=true
+            - --disable-informer-cache=true 
+            - --default-backup-storage-location=default-backup-storage-location
             ### Flags
           {{- with .Values.configuration }}
             - --uploader-type={{ default "restic" .uploaderType }}
@@ -108,6 +109,9 @@ spec:
             {{- end }}
             {{- with .defaultBackupTTL }}
             - --default-backup-ttl={{ . }}
+            {{- end }}
+            {{- with .defaultItemOperationTimeout }}
+            - --default-item-operation-timeout={{ . }}
             {{- end }}
             {{- with .defaultVolumeSnapshotLocations }}
             - --default-volume-snapshot-locations={{ . }}
