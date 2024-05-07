@@ -19,9 +19,6 @@ set -x
 
 # deploy velero
 helm install velero chart-museum/velero  ${HELM_MUST_OPTION}  --namespace velero --create-namespace \
-  --set velero.configuration.backupStorageLocation[0].name=default \
-  --set velero.configuration.backupStorageLocation[0].provider=aws \
-  --set velero.configuration.backupStorageLocation[0].bucket=velero \
   --set velero.configuration.volumeSnapshotLocation[0].name=default \
   --set velero.configuration.volumeSnapshotLocation[0].provider=aws \
   --set velero.veleroPluginForMigration.enabled=true \
