@@ -11,3 +11,4 @@
 - "{{ .spiderpool.global.imageRegistryOverride }}/{{ .spiderpool.sriov.image.sriovDevicePlugin.repository }}:{{ .spiderpool.sriov.image.sriovDevicePlugin.tag }}"
 - "{{ .spiderpool.global.imageRegistryOverride }}/{{ .spiderpool.sriov.image.resourcesInjector.repository }}:{{ .spiderpool.sriov.image.resourcesInjector.tag }}"
 - "{{ .spiderpool.global.imageRegistryOverride }}/{{ .spiderpool.sriov.image.webhook.repository }}:{{ .spiderpool.sriov.image.webhook.tag }}"
+- "{{ .spiderpool.global.imageRegistryOverride }}/{{ .spiderpool.netmaterial.image.repository }}:{{ .spiderpool.netmaterial.image.tag }}"

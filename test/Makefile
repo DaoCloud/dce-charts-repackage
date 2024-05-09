@@ -30,14 +30,15 @@ e2e:
             	echo "the project $${ITEM}  needs a standby kind cluster" ; \
 				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
             fi ; \
+			VERSION=`yq ".version"  $(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT)/Chart.yaml ` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
             if ( unset NO_IMAGE ;  source $(ROOT_DIR)/charts/$${ITEM}/config && [ "$${NO_IMAGE}" == "true" ] ) ; then \
               	echo "ignore sync project $${ITEM}"; \
             else \
 				echo "sync project $${ITEM}"; \
-				make sync -e PROJECT=$${ITEM} || { echo "error, failed to sync $${ITEM}" ; FAILED_PROJECT+=" $${ITEM} " ; continue ; } ; \
+				make sync -e PROJECT=$${ITEM} -e VERSION=$${VERSION} || { echo "error, failed to sync $${ITEM}" ; FAILED_PROJECT+=" $${ITEM} " ; continue ; } ; \
             fi ; \
 			echo "deploy project $${ITEM}"; \
-			make deploy -e INSTALL_PATH=$${INSTALL_PATH}  -e PROJECT=$${ITEM} || { echo "error, failed to deploy $${ITEM}" ;FAILED_PROJECT+=" $${ITEM} " ;  ./clean.sh "$(KIND_KUBECONFIG)" || true ; continue ; } ; \
+			make deploy -e INSTALL_PATH=$${INSTALL_PATH} -e PROJECT=$${ITEM} -e VERSION=$${VERSION} || { echo "error, failed to deploy $${ITEM}" ;FAILED_PROJECT+=" $${ITEM} " ;  ./clean.sh "$(KIND_KUBECONFIG)" || true ; continue ; } ; \
 			./clean.sh "$(KIND_KUBECONFIG)" || true ; \
 			SUCCEED_PROJECT+=" $${ITEM} " ; \
 	  	done ; \
@@ -93,10 +94,10 @@ init-kind: checkBin clean
 
 .PHONY: sync
 sync: PROJECT=
+sync: VERSION=
 sync: checkBin
 	@ echo "sync $(PROJECT) charts and images to local registry"
 	set -x ; CHART_PATH=$(ROOT_DIR)/charts/$(PROJECT) ; \
-	VERSION=`yq ".version"  $(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT)/Chart.yaml ` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
 	echo "chart move $(PROJECT) $${VERSION}" ; \
 	mkdir -p _tmp && DIR=_tmp ;\
     relok8s chart move $${CHART_PATH}/$(PROJECT) --to-intermediate-bundle $${DIR}/$(PROJECT)_$${VERSION}.bundle.tar -y --retries 3 || { echo "error, failed to save charts and images to local" ; exit 1 ; } ; \
@@ -110,17 +111,18 @@ target:  \n \
          url: http://127.0.0.1:30081"; \
      echo -e "$${CONFIG}" > $${DIR}/config.yaml ; \
      charts-syncer sync --config $${DIR}/config.yaml --insecure true || { echo "error, failed to sync charts and images to local registry" ; exit 1 ; } ; \
-	 make checkImages -e PROJECT=$${PROJECT} || { echo "error, failed to check $${PROJECT} images registry" ; exit 1 ; } ; \
+	 make checkImages -e PROJECT=$${PROJECT} -e VERSION=$${VERSION} || { echo "error, failed to check $${PROJECT} images registry" ; exit 1 ; } ; \
      rm -rf $${DIR} ;
 
 .PHONY: checkImages
 checkImages: PROJECT=
+checkImages: VERSION=
 checkImages: checkBin
 	@ echo "check $(PROJECT) images registry"
 	set -x ; helm repo update chart-museum  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to update helm chart-museum repo " ; exit 1 ; } ; \
-	helm search repo chart-museum  --kubeconfig $(KIND_KUBECONFIG) ; \
-	helm template test chart-museum/$${PROJECT} | grep " image: " ; \
-    IMAGE_LIST=` helm template test chart-museum/$${PROJECT}  | grep " image: " | tr -d "'" | tr -d '"' | tr -d '-' | grep -v " image: {{ "| awk '{print $$2}' | uniq ` ;\
+	helm search repo chart-museum --devel -l --kubeconfig $(KIND_KUBECONFIG) ; \
+	helm template test chart-museum/$${PROJECT} --version $${VERSION} --kubeconfig $(KIND_KUBECONFIG) | grep " image: " ; \
+    IMAGE_LIST=` helm template test chart-museum/$${PROJECT} --version $${VERSION} | grep " image: " | tr -d "'" | tr -d '"' | tr -d '-' | grep -v " image: {{ "| awk '{print $$2}' | uniq ` ;\
 	if [ -z "$${IMAGE_LIST}" ] ; then \
 		echo "error, failed to find image from chart template for $(PROJECT)" ; exit 1 ; \
 	else \
@@ -143,6 +145,7 @@ checkImages: checkBin
 .PHONY: deploy
 deploy: INSTALL_PATH=
 deploy: PROJECT=
+deploy: VERSION=
 deploy: TRY_LOAD_LOCAL_IMAGE ?= false
 deploy: checkBin
 	@ echo "helm install for $(PROJECT) with $(INSTALL_PATH)"
@@ -168,7 +171,7 @@ deploy: checkBin
             fi ; \
 		fi  ;\
 		chmod +x $(INSTALL_PATH) ; \
-		if $(INSTALL_PATH) "$(KIND_KUBECONFIG)" "$(KIND_CLUSTER_NAME)" ; then \
+		if $(INSTALL_PATH) "$(KIND_KUBECONFIG)" "$(KIND_CLUSTER_NAME)" "$(VERSION)" ; then \
 			echo "succeeded to deploy $(PROJECT)" ; \
 			exit 0 ; \
 		else  \

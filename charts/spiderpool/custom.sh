@@ -3,9 +3,11 @@
 CHART_DIRECTORY=$1
 [ ! -d "$CHART_DIRECTORY" ] && echo "custom shell: error, miss CHART_DIRECTORY $CHART_DIRECTORY " && exit 1
 
-cd $CHART_DIRECTORY
+CURRENT_DIR_PATH=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
+
 echo "custom shell: CHART_DIRECTORY $CHART_DIRECTORY"
 echo "CHART_DIRECTORY $(ls)"
+echo "CURRENT_DIR_PATH: " $CURRENT_DIR_PATH
 
 #========================= add your customize bellow ====================
 #===============================
@@ -23,6 +25,12 @@ if ! which yq &>/dev/null ; then
      mv /tmp/${YQ_BINARY} /usr/bin/yq
 fi
 
+OS=$(uname -s | tr 'A-Z' 'a-z')
+SED_COMMAND="sed"
+if [ "${OS}" == "darwin" ]; then
+    SED_COMMAND="gsed"
+fi
+
 #==============================
 echo "insert custom resources"
 export CUSTOM_SPIDERPOOL_AGENT_CPU='10m'
@@ -36,7 +44,7 @@ yq -i '
     .spiderpool.global.imageRegistryOverride="ghcr.m.daocloud.io" |
     .spiderpool.ipam.enableIPv4=true |
     .spiderpool.ipam.enableIPv6=false |
-    .spiderpool.ipam.enableSpiderSubnet=true |
+    .spiderpool.ipam.spidersubnet.enable=true |
     .spiderpool.coordinator.detectGateway = true |
     .spiderpool.coordinator.detectIPConflict = true | 
     .spiderpool.multus.multusCNI.uninstall=true |
@@ -62,15 +70,50 @@ yq -i '
     .spiderpool.spiderpoolInit.resources.requests.cpu=strenv(CUSTOM_SPIDERPOOL_INIT_CPU) |
     .spiderpool.spiderpoolInit.resources.requests.memory=strenv(CUSTOM_SPIDERPOOL_INIT_MEMORY) | 
     .spiderpool.plugins.image.registry="ghcr.m.daocloud.io" |
-    .spiderpool.rdma.rdmaSharedDevicePlugin.image.registry="ghcr.m.daocloud.io" 
-' values.yaml
+    .spiderpool.rdma.rdmaSharedDevicePlugin.image.registry="ghcr.m.daocloud.io" |
+    .spiderpool.dra.hostDevicePath="/usr/lib/libsmc-preload.so" |
+    .spiderpool.netmaterial.image.registry="ghcr.m.daocloud.io" | 
+    .spiderpool.netmaterial.image.repository="daocloud/netmaterial" |
+    .spiderpool.netmaterial.image.tag="latest" |
+    .spiderpool.netmaterial.image.pullPolicy="IfNotPresent" 
+' ${CHART_DIRECTORY}/values.yaml
 
-if ! grep "keywords:" Chart.yaml &>/dev/null ; then
-    echo "keywords:" >> Chart.yaml
-    echo "  - networking" >> Chart.yaml
-    echo "  - ipam" >> Chart.yaml
+if ! grep "keywords:" ${CHART_DIRECTORY}/Chart.yaml &>/dev/null ; then
+    echo "keywords:" >> ${CHART_DIRECTORY}/Chart.yaml
+    echo "  - networking" >> ${CHART_DIRECTORY}/Chart.yaml
+    echo "  - ipam" >> ${CHART_DIRECTORY}/Chart.yaml
 fi
 
-rm -f values.yaml-E || true
+# dra smc related
+echo "insert dra smc config"
+${SED_COMMAND} -i -e "/initContainers:/r ${CURRENT_DIR_PATH}/append/smc_initcontainer.txt" ${CHART_DIRECTORY}/charts/spiderpool/templates/daemonset.yaml
+
+matched_line=$(${SED_COMMAND} -n '/Values.dra.enabled/=' ${CHART_DIRECTORY}/charts/spiderpool/templates/daemonset.yaml |${SED_COMMAND} -n "$"p )
+[ -z "$matched_line" ] && echo "unexpected empty matched_line, exit 1" && exit 1
+
+echo "matched volume line is: " $matched_line
+${SED_COMMAND} -i -e "${matched_line}r ${CURRENT_DIR_PATH}/append/smc_volumes.txt" ${CHART_DIRECTORY}/charts/spiderpool/templates/daemonset.yaml
+
+echo '{{/*
+return the netermarial image
+*/}}
+{{- define "netmaterial.image" -}}
+{{- $registryName := .Values.netmaterial.image.registry -}}
+{{- $repositoryName := .Values.netmaterial.image.repository -}}
+{{- if .Values.global.imageRegistryOverride }}
+    {{- printf "%s/%s" .Values.global.imageRegistryOverride $repositoryName -}}
+{{ else if $registryName }}
+    {{- printf "%s/%s" $registryName $repositoryName -}}
+{{- else -}}
+    {{- printf "%s" $repositoryName -}}
+{{- end -}}
+{{- if .Values.netmaterial.image.tag -}}
+    {{- printf ":%s" .Values.netmaterial.image.tag -}}
+{{- else -}}
+    {{- printf ":%s" "latest" -}}
+{{- end -}}
+{{- end -}}' >> ${CHART_DIRECTORY}/charts/spiderpool/templates/_helpers.tpl
+
+rm -f ${CHART_DIRECTORY}/values.yaml-E || true
 
 exit 0
