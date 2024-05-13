@@ -18,7 +18,7 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 set -x
 
 # deploy the metrics-server
-helm install metrics-server chart-museum/metrics-server  ${HELM_MUST_OPTION}  --namespace kube-system
+helm install metrics-server chart-museum/metrics-server  ${HELM_MUST_OPTION} --set metrics-server.addonResizer.enabled=true --namespace kube-system
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"

@@ -1,10 +1,16 @@
 annotations:
   artifacthub.io/changes: |
-    - kind: changed
-      description: "Changed the image registry location to registry.k8s.io."
+    - kind: fixed
+      description: "Fixed auth-reader role binding namespace to always use kube-system."
+    - kind: fixed
+      description: "Fixed addon resizer configuration."
+    - kind: added
+      description: "Added support for running under PodSecurity restricted."
+    - kind: fixed
+      description: "Fixed container port default not having been updated to 10250."
   addon.kpanda.io/required: "true"
 apiVersion: v2
-appVersion: 0.6.2
+appVersion: 0.6.3
 description: Metrics Server is a scalable, efficient source of container resource metrics for Kubernetes built-in autoscaling pipelines.
 home: https://github.com/kubernetes-sigs/metrics-server
 icon: https://avatars.githubusercontent.com/u/36015203?s=400&v=4
@@ -23,8 +29,8 @@ name: metrics-server
 sources:
   - https://github.com/kubernetes-sigs/metrics-server
 type: application
-version: 3.8.4
+version: 3.10.0
 dependencies:
   - name: metrics-server
-    version: "3.8.4"
+    version: "3.10.0"
     repository: "https://kubernetes-sigs.github.io/metrics-server"

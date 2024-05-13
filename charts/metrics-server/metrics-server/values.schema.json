@@ -5,6 +5,78 @@
         "metrics-server": {
             "type": "object",
             "properties": {
+                "addonResizer": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "nanny": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "extraCpu": {
+                                    "type": "string"
+                                },
+                                "extraMemory": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                },
+                                "minClusterSize": {
+                                    "type": "integer"
+                                },
+                                "pollPeriod": {
+                                    "type": "integer"
+                                },
+                                "threshold": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "resources": {
+                            "type": "object",
+                            "properties": {
+                                "limits": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "requests": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "affinity": {
                     "type": "object"
                 },
@@ -64,9 +136,6 @@
                     "type": "object",
                     "properties": {
                         "pullPolicy": {
-                            "type": "string"
-                        },
-                        "registry": {
                             "type": "string"
                         },
                         "repository": {
@@ -202,6 +271,17 @@
                         "allowPrivilegeEscalation": {
                             "type": "boolean"
                         },
+                        "capabilities": {
+                            "type": "object",
+                            "properties": {
+                                "drop": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
                         "readOnlyRootFilesystem": {
                             "type": "boolean"
                         },
@@ -210,6 +290,14 @@
                         },
                         "runAsUser": {
                             "type": "integer"
+                        },
+                        "seccompProfile": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                }
+                            }
                         }
                     }
                 },
