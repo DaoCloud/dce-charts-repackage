@@ -23,13 +23,8 @@ rules:
   - argoproj.io
   resources:
   - applications
-  {{- if .Values.applicationSet.enabled }}
   - applicationsets
-  {{- end }}
   - appprojects
-  {{- if .Values.server.extensions.enabled }}
-  - argocdextensions
-  {{- end }}
   verbs:
   - create
   - get
@@ -45,7 +40,7 @@ rules:
   verbs:
   - create
   - list
-{{- if eq (toString (index (coalesce .Values.server.config .Values.configs.cm) "exec.enabled")) "true" }}
+{{- if eq (toString (index .Values.configs.cm "exec.enabled")) "true" }}
 - apiGroups:
   - ""
   resources:
