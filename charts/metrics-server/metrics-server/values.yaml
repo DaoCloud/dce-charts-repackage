@@ -4,11 +4,11 @@ metrics-server:
   # This is a YAML-formatted file.
   # Declare variables to be passed into your templates.
   image:
-    registry: k8s-gcr.m.daocloud.io
     repository: metrics-server/metrics-server
     # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
-    tag: "v0.6.2"
+    tag: "v0.6.3"
     pullPolicy: IfNotPresent
+    registry: k8s.m.daocloud.io
   imagePullSecrets: []
   # - name: registrySecretName
 
@@ -51,8 +51,13 @@ metrics-server:
     readOnlyRootFilesystem: true
     runAsNonRoot: true
     runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
   priorityClassName: system-cluster-critical
-  containerPort: 4443
+  containerPort: 10250
   hostNetwork:
     # Specifies if metrics-server should be started in hostNetwork mode.
     #
@@ -103,6 +108,27 @@ metrics-server:
     #  Add these labels to have metrics-server show up in `kubectl cluster-info`
     #  kubernetes.io/cluster-service: "true"
     #  kubernetes.io/name: "Metrics-server"
+  addonResizer:
+    enabled: false
+    image:
+      repository: autoscaling/addon-resizer
+      tag: 1.8.14
+      registry: k8s.m.daocloud.io
+    resources:
+      limits:
+        cpu: 40m
+        memory: 25Mi
+      requests:
+        cpu: 40m
+        memory: 25Mi
+    nanny:
+      cpu: 20m
+      extraCpu: 1m
+      extraMemory: 2Mi
+      memory: 15Mi
+      minClusterSize: 10
+      pollPeriod: 300000
+      threshold: 5
   metrics:
     enabled: false
   serviceMonitor:

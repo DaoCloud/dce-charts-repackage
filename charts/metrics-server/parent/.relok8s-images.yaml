@@ -1,1 +1,2 @@
 - "{{ .metrics-server.image.registry }}/{{ .metrics-server.image.repository }}:{{ .metrics-server.image.tag }}"
+- "{{ .metrics-server.addonResizer.image.registry }}/{{ .metrics-server.addonResizer.image.repository }}:{{ .metrics-server.addonResizer.image.tag }}"
