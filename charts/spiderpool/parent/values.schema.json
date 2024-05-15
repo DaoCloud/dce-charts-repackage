@@ -23,7 +23,7 @@
                         }
                     }
                 },
-                 "grafanaDashboard": {
+                "grafanaDashboard": {
                     "title": "GrafanaDashboard Setting",
                     "type": "object",
                     "required": [
@@ -88,32 +88,6 @@
                                     "title": "repository",
                                     "type": "string",
                                     "default": "spidernet-io/spiderpool/spiderpool-controller"
-                                }
-                            }
-                        }
-                    }
-                },
-                "dra": {
-                    "type": "object",
-                    "description": "Dra Configuration",
-                    "properties": {
-                        "enabled": {
-                            "type": "boolean",
-                            "description": "Enable dra"
-                        }
-                    }
-                },
-                "netmaterial": {
-                    "type": "object",
-                    "description": "Netmaterial Image Configuration",
-                    "properties": {
-                        "image": {
-                            "type": "object",
-                            "properties": {
-                                "repository": {
-                                    "title": "repository",
-                                    "type": "string",
-                                    "default": "daocloud/netmaterial"
                                 }
                             }
                         }

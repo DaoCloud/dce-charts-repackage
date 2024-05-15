@@ -141,6 +141,11 @@ jobs:
           FAILED_CHART=""
           SUCCEED_CHART=""
           for ITEM in ${{ steps.package.outputs.project_list }} ; do
+              NO_PUSH_PROJECT=` grep "NO_PUSH_TO_DAOCLOUD" ${ROOT_DIR}/charts/${ITEM}/config | awk -F= '{print $2}' | tr -d ' ' `
+              if [ "${NO_PUSH_PROJECT}" == "true" ]; then
+                echo "skip push ${ITEM} to daocloud"
+                continue
+              fi
               DAO_PROJECT=` grep "DAOCLOUD_REPO_PROJECT" ${ROOT_DIR}/charts/${ITEM}/config | awk -F= '{print $2}' | tr -d ' ' `
               [ -z "$DAO_PROJECT" ] && echo "error, failed to find DAOCLOUD_REPO_PROJECT config in charts/${ITEM}/config " && exit 1
               CHART_FILE=` ls | grep -o -E "^${ITEM}-[0-9]+.[0-9]+.[0-9]+.*.tgz" `

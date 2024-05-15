@@ -30,7 +30,7 @@ e2e:
             	echo "the project $${ITEM}  needs a standby kind cluster" ; \
 				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
             fi ; \
-			VERSION=`yq ".version"  $(ROOT_DIR)/charts/$(PROJECT)/$(PROJECT)/Chart.yaml ` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
+			VERSION=`yq ".version"  $(ROOT_DIR)/charts/$${ITEM}/$${ITEM}/Chart.yaml ` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
             if ( unset NO_IMAGE ;  source $(ROOT_DIR)/charts/$${ITEM}/config && [ "$${NO_IMAGE}" == "true" ] ) ; then \
               	echo "ignore sync project $${ITEM}"; \
             else \
