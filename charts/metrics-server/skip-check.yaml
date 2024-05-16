@@ -1,3 +1,6 @@
 metrics-server:
   - "image/registry"
   - "addonResizer/image/registry"
+  - "resources/limits/cpu"
+  - "resources/limits/memory"
+  - "resources/limits"
