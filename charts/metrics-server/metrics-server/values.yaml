@@ -6,7 +6,7 @@ metrics-server:
   image:
     repository: metrics-server/metrics-server
     # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
-    tag: "v0.6.3"
+    tag: "v0.6.4"
     pullPolicy: IfNotPresent
     registry: k8s.m.daocloud.io
   imagePullSecrets: []
@@ -112,21 +112,21 @@ metrics-server:
     enabled: false
     image:
       repository: autoscaling/addon-resizer
-      tag: 1.8.14
+      tag: 1.8.19
       registry: k8s.m.daocloud.io
     resources:
-      limits:
-        cpu: 40m
-        memory: 25Mi
       requests:
         cpu: 40m
         memory: 25Mi
+      limits:
+        cpu: 40m
+        memory: 25Mi
     nanny:
-      cpu: 20m
+      cpu: 0m
       extraCpu: 1m
+      memory: 0Mi
       extraMemory: 2Mi
-      memory: 15Mi
-      minClusterSize: 10
+      minClusterSize: 100
       pollPeriod: 300000
       threshold: 5
   metrics:
@@ -140,12 +140,15 @@ metrics-server:
     relabelings: []
   # See https://github.com/kubernetes-sigs/metrics-server#scaling
   resources:
-    limits:
-      cpu: 500m
-      memory: 512Mi
     requests:
       cpu: 20m
       memory: 150Mi
+      # limits:
+      #   cpu:
+      #   memory:
+    limits:
+      cpu: 500m
+      memory: 512Mi
   extraVolumeMounts: []
   extraVolumes: []
   nodeSelector: {}
