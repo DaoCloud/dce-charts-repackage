@@ -53,7 +53,8 @@
                             "type": "object",
                             "properties": {
                                 "enable": {
-                                    "type": "boolean"
+                                    "type": "boolean",
+                                    "description": "Ensure the insight-agent is installed and running to enable this feature; otherwise, the nvidia-vgpu installation may fail."
                                 }
                             }
                         }

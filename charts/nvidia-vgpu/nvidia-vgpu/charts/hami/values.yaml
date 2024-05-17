@@ -22,6 +22,9 @@ dcuResourceCores: "hygon.com/dcucores"
 iluvatarResourceName: "iluvatar.ai/vgpu"
 iluvatarResourceMem: "iluvatar.ai/vcuda-memory"
 iluvatarResourceCore: "iluvatar.ai/vcuda-core"
+#Ascend 910B Parameters
+ascendResourceName: "huawei.com/Ascend910"
+ascendResourceMem: "huawei.com/Ascend910-memory"
 schedulerName: "hami-scheduler"
 podSecurityPolicy:
   enabled: false
@@ -37,6 +40,9 @@ scheduler:
   defaultMem: 0
   defaultCores: 0
   defaultGPUNum: 1
+  defaultSchedulerPolicy:
+    nodeSchedulerPolicy: binpack
+    gpuSchedulerPolicy: spread
   metricsBindAddress: ":9395"
   leaderElect: true
   kubeScheduler:
