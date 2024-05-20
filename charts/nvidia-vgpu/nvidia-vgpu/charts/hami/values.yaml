@@ -3,7 +3,7 @@
 nameOverride: ""
 fullnameOverride: ""
 imagePullSecrets: []
-version: "v2.3.10"
+version: "v2.3.11"
 #Nvidia GPU Parameters
 resourceName: "nvidia.com/vgpu"
 resourceMem: "nvidia.com/gpumem"
@@ -108,7 +108,6 @@ devicePlugin:
   monitorctrPath: /usr/local/vgpu/containers
   imagePullPolicy: IfNotPresent
   deviceSplitCount: 10
-  deviceCoresScaling: 1.0
   deviceMemoryScaling: 1.0
   deviceCoreScaling: 1.0
   runtimeClassName: ""
