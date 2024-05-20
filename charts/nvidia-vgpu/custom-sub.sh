@@ -138,18 +138,6 @@ elif [ $os == "Linux" ];then
           " charts/hami/values.yaml
 fi
 
-# add device-cores-scaling config key
-line=$(sed -n -e '/deviceMemoryScaling: 1/=' charts/hami/values.yaml  | head -n 1)
-if [ $os == "Darwin" ];then
-    sed -i "" "$((line)) i\\
-  deviceCoresScaling: 1.0
-    " charts/hami/values.yaml
-elif [ $os == "Linux" ];then
-    sed -i "$((line)) i\\
-  deviceCoresScaling: 1.0
-    " charts/hami/values.yaml
-fi
-
 # add resources config key
 cat >> charts/hami/values.yaml << EOL
 resources:

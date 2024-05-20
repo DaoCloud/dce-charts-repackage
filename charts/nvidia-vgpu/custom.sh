@@ -328,6 +328,6 @@ yq -i '.devicePlugin.deviceMemoryScaling=1.0' charts/hami/values.yaml
 
 yq -i '.hami.devicePlugin.deviceMemoryScaling=1.0' values.yaml
 
-# fix version to 2.3.10
-yq -i '.hami.version="v2.3.10"' values.yaml
-yq -i '.version="v2.3.10"' charts/hami/values.yaml
+# fix version to 2.3.11
+yq -i '.hami.version="v2.3.11"' values.yaml
+yq -i '.version="v2.3.11"' charts/hami/values.yaml
