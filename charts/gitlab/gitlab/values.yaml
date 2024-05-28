@@ -714,7 +714,7 @@ gitlab:
         # pullSecrets: []
 
         registry: m.daocloud.io/registry.gitlab.com
-        tag: master
+        tag: v16.5.0
       customCAs: []
       # - secret: custom-CA
       # - secret: more-custom-CAs
@@ -747,7 +747,7 @@ gitlab:
         # pullSecrets: []
 
         registry: m.daocloud.io/registry.gitlab.com
-        tag: master
+        tag: v16.5.0
     ## https://docs.gitlab.com/charts/charts/globals#service-accounts
     serviceAccount:
       enabled: false
@@ -1200,7 +1200,7 @@ gitlab:
       image:
         registry: m.daocloud.io/registry.gitlab.com
         repository: gitlab-org/build/cng/gitlab-toolbox-ce
-        tag: master
+        tag: v16.5.0
     ## https://docs.gitlab.com/charts/charts/gitlab/migrations
     #   migrations:
     #     enabled: false
@@ -1226,37 +1226,37 @@ gitlab:
       image:
         registry: m.daocloud.io/registry.gitlab.com
         repository: gitlab-org/build/cng/gitaly
-        tag: master
+        tag: v16.5.0
     gitlab-shell:
       image:
         registry: m.daocloud.io/registry.gitlab.com
         repository: gitlab-org/build/cng/gitlab-shell
-        tag: master
+        tag: v16.5.0
     kas:
       image:
         registry: m.daocloud.io/registry.gitlab.com
         repository: gitlab-org/build/cng/gitlab-kas
-        tag: master
+        tag: v16.5.0
     migrations:
       image:
         registry: m.daocloud.io/registry.gitlab.com
         repository: gitlab-org/build/cng/gitlab-toolbox-ce
-        tag: master
+        tag: v16.5.0
     webservice:
       image:
         registry: m.daocloud.io/registry.gitlab.com
         repository: gitlab-org/build/cng/gitlab-webservice-ce
-        tag: master
+        tag: v16.5.0
       workhorse:
         image:
           registry: m.daocloud.io/registry.gitlab.com
           repository: gitlab-org/build/cng/gitlab-workhorse-ce
-          tag: master
+          tag: v16.5.0
     sidekiq:
       image:
         registry: m.daocloud.io/registry.gitlab.com
         repository: gitlab-org/build/cng/gitlab-sidekiq-ce
-        tag: master
+        tag: v16.5.0
   ## Installation & configuration of gitlab/gitlab-zoekt
   gitlab-zoekt:
     install: false
@@ -1272,4 +1272,4 @@ gitlab:
     image:
       registry: m.daocloud.io/registry.gitlab.com
       repository: gitlab-org/build/cng/kubectl
-      tag: master
+      tag: v16.5.0
