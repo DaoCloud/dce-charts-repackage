@@ -36,22 +36,37 @@ argo-rollouts:
   global:
     # -- Annotations for all deployed Deployments
     deploymentAnnotations: {}
+    # -- Labels for all deployed Deployments
+    deploymentLabels: {}
+    # -- Number of old deployment ReplicaSets to retain. The rest will be garbage collected.
+    revisionHistoryLimit: 10
     imageRegistry: quay.m.daocloud.io
     repository: argoproj/argo-rollouts
-    tag: v1.6.0
+    tag: v1.6.6
   controller:
     # -- Value of label `app.kubernetes.io/component`
     component: rollouts-controller
     # -- Annotations to be added to the controller deployment
     deploymentAnnotations: {}
+    # -- Labels to be added to the controller deployment
+    deploymentLabels: {}
     # -- Annotations to be added to application controller pods
     podAnnotations: {}
+    # -- Labels to be added to the application controller pods
+    podLabels: {}
     # -- [Node selector]
     nodeSelector: {}
     # -- [Tolerations] for use with node taints
     tolerations: []
     # -- Assign custom [affinity] rules to the deployment
     affinity: {}
+    logging:
+      # -- Set the logging level (one of: `debug`, `info`, `warn`, `error`)
+      level: info
+      # -- Set the klog logging level
+      kloglevel: "0"
+      # -- Set the logging format (one of: `text`, `json`)
+      format: "text"
     # -- Assign custom [TopologySpreadConstraints] rules to the controller
     ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     ## If labelSelector is left out, it will default to the labelSelector configuration of the deployment
@@ -70,7 +85,7 @@ argo-rollouts:
       # -- Repository to use
       repository: argoproj/argo-rollouts
       # -- Overrides the image tag (default is the chart appVersion)
-      tag: "v1.6.0"
+      tag: "v1.6.6"
       # -- Image pull policy
       pullPolicy: IfNotPresent
     # -- Additional command line arguments to pass to rollouts-controller.  A list of flags.
@@ -242,6 +257,14 @@ argo-rollouts:
       traefik: true
       # -- Adds RBAC rules for the Apisix provider
       apisix: true
+      # -- Adds RBAC rules for the Contour provider, see `https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-contour/blob/main/README.md`
+      contour: true
+      # -- Adds RBAC rules for the Gloo Platform provider, see `https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-glooplatform/blob/main/README.md`
+      glooPlatform: true
+      # -- Adds RBAC rules for the Gateway API provider
+      gatewayAPI: true
+    # -- Additional RBAC rules for others providers
+    additionalRules: []
   dashboard:
     # -- Deploy dashboard server
     enabled: false
@@ -251,14 +274,23 @@ argo-rollouts:
     component: rollouts-dashboard
     # -- Annotations to be added to the dashboard deployment
     deploymentAnnotations: {}
+    # -- Labels to be added to the dashboard deployment
+    deploymentLabels: {}
     # -- Annotations to be added to application dashboard pods
     podAnnotations: {}
+    # -- Labels to be added to the application dashboard pods
+    podLabels: {}
     # -- [Node selector]
     nodeSelector: {}
     # -- [Tolerations] for use with node taints
     tolerations: []
     # -- Assign custom [affinity] rules to the deployment
     affinity: {}
+    logging:
+      # -- Set the logging level (one of: `debug`, `info`, `warn`, `error`)
+      level: info
+      # -- Set the klog logging level
+      kloglevel: "0"
     # -- Assign custom [TopologySpreadConstraints] rules to the dashboard server
     ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     ## If labelSelector is left out, it will default to the labelSelector configuration of the deployment
@@ -279,7 +311,7 @@ argo-rollouts:
       # --  Repository to use
       repository: argoproj/kubectl-argo-rollouts
       # -- Overrides the image tag (default is the chart appVersion)
-      tag: "v1.6.0"
+      tag: "v1.6.6"
       # -- Image pull policy
       pullPolicy: IfNotPresent
     # -- Additional command line arguments to pass to rollouts-dashboard. A list of flags.
