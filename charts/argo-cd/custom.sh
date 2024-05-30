@@ -75,7 +75,8 @@ yq -i '
   .argo-cd.redis-ha.sysctlImage.image.registry = "docker.m.daocloud.io" |
   .argo-cd.redis-ha.sysctlImage.image.repository = "library/busybox" |
   .argo-cd.redis-ha.exporter.image.registry = "docker.m.daocloud.io" |
-  .argo-cd.redis-ha.exporter.image.repository = "oliver006/redis_exporter"
+  .argo-cd.redis-ha.exporter.image.repository = "oliver006/redis_exporter" |
+  .argo-cd.redisSecretInit.image.registry = "quay.m.daocloud.io"
 ' values.yaml
 
 
@@ -95,6 +96,20 @@ yq -i "
   .redis-ha.exporter.image.repository = \"oliver006/redis_exporter\" |
   .redis-ha.exporter.image.tag = \"${exporterImageTag}\"
 " charts/argo-cd/values.yaml
+
+
+yq -i "
+  .redisSecretInit.image.registry = \"quay.m.daocloud.io\" |
+  .redisSecretInit.image.repository = \"argoproj/argocd\" |
+  .redisSecretInit.image.tag = \"${globalImageTag}\"
+" charts/argo-cd/values.yaml
+
+yq -i "
+  .argo-cd.redisSecretInit.image.registry = \"quay.m.daocloud.io\" |
+  .argo-cd.redisSecretInit.image.repository = \"argoproj/argocd\" |
+  .argo-cd.redisSecretInit.image.tag = \"${globalImageTag}\"
+" values.yaml
+
 
 yq -i "
   .argo-cd.global.image.tag = \"${globalImageTag}\" |
@@ -143,7 +158,11 @@ yq -i '
   .argo-cd.redis-ha.exporter.resources.requests.cpu = "100m" |
   .argo-cd.redis-ha.exporter.resources.requests.memory = "256Mi" |
   .argo-cd.redis-ha.exporter.resources.limits.cpu = "1000m" |
-  .argo-cd.redis-ha.exporter.resources.limits.memory = "1024Mi"
+  .argo-cd.redis-ha.exporter.resources.limits.memory = "1024Mi" |
+  .argo-cd.redisSecretInit.resources.requests.cpu = "100m" |
+  .argo-cd.redisSecretInit.resources.requests.memory = "256Mi" |
+  .argo-cd.redisSecretInit.resources.limits.cpu = "1000m" |
+  .argo-cd.redisSecretInit.resources.limits.memory = "1024Mi"
 ' values.yaml
 
 # replace amamba rbac
@@ -226,6 +245,7 @@ if [ $os == "Darwin" ];then
   sed -i "" 's?{{ .Values.configmapTest.image.repository }}:{{ .Values.configmapTest.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.configmapTest.image "global" .Values.global ) }}?g' charts/argo-cd/charts/redis-ha/templates/tests/test-redis-ha-configmap.yaml
   sed -i "" 's?.Values.sysctlImage.registry?.Values.sysctlImage.image.registry?g' charts/argo-cd/charts/redis-ha/templates/_helpers.tpl
   sed -i "" 's?.Values.sysctlImage.repository?.Values.sysctlImage.image.repository?g' charts/argo-cd/charts/redis-ha/templates/_helpers.tpl
+  sed -i "" 's?{{ default .Values.global.image.repository .Values.redisSecretInit.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.redisSecretInit.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.redisSecretInit.image "global" .Values.global ) }}?g' charts/argo-cd/templates/redis-secret-init/job.yaml
 elif [ $os == "Linux" ];then
   sed -i 's?{{ default .Values.global.image.repository .Values.controller.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.controller.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.controller.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-application-controller/statefulset.yaml
   sed -i 's?{{ default .Values.global.image.repository .Values.applicationSet.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.applicationSet.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.applicationSet.image "global" .Values.global ) }}?g' charts/argo-cd/templates/argocd-applicationset/deployment.yaml
@@ -244,4 +264,5 @@ elif [ $os == "Linux" ];then
   sed -i 's?{{ .Values.configmapTest.image.repository }}:{{ .Values.configmapTest.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.configmapTest.image "global" .Values.global ) }}?g' charts/argo-cd/charts/redis-ha/templates/tests/test-redis-ha-configmap.yaml
   sed -i 's?.Values.sysctlImage.registry?.Values.sysctlImage.image.registry?g' charts/argo-cd/charts/redis-ha/templates/_helpers.tpl
   sed -i 's?.Values.sysctlImage.repository?.Values.sysctlImage.image.repository?g' charts/argo-cd/charts/redis-ha/templates/_helpers.tpl
+  sed -i 's?{{ default .Values.global.image.repository .Values.redisSecretInit.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.redisSecretInit.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.redisSecretInit.image "global" .Values.global ) }}?g' charts/argo-cd/templates/redis-secret-init/job.yaml
 fi
