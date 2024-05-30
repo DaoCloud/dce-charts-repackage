@@ -10,6 +10,9 @@ metadata:
   name: {{ include "argo-rollouts.fullname" . }}
   namespace: {{ .Release.Namespace | quote }}
   labels:
+  {{- range $key, $value := (mergeOverwrite (deepCopy .Values.global.deploymentLabels) .Values.controller.deploymentLabels) }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
     app.kubernetes.io/component: {{ .Values.controller.component }}
     {{- include "argo-rollouts.labels" . | nindent 4 }}
 spec:
@@ -20,6 +23,7 @@ spec:
   strategy:
     type: Recreate
   replicas: {{ .Values.controller.replicas }}
+  revisionHistoryLimit: {{ .Values.global.revisionHistoryLimit }}
   template:
     metadata:
       {{- with (mergeOverwrite (deepCopy .Values.podAnnotations) .Values.controller.podAnnotations) }}
@@ -31,7 +35,7 @@ spec:
       labels:
         {{- include "argo-rollouts.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: {{ .Values.controller.component }}
-        {{- range $key, $value := .Values.podLabels }}
+        {{- range $key, $value := (mergeOverwrite (deepCopy .Values.podLabels) .Values.controller.podLabels) }}
         {{ $key }}: {{ $value | quote }}
         {{- end }}
     spec:
@@ -45,10 +49,13 @@ spec:
         args:
         - --healthzPort={{ .Values.controller.containerPorts.healthz }}
         - --metricsport={{ .Values.controller.containerPorts.metrics }}
+        - "--loglevel={{ .Values.controller.logging.level }}"
+        - "--logformat={{ .Values.controller.logging.format }}"
+        - "--kloglevel={{ .Values.controller.logging.kloglevel }}"
         {{- if not .Values.clusterInstall }}
         - --namespaced
         {{- end }}
-        {{- if gt .Values.controller.replicas 1.0 }}
+        {{- if gt (int .Values.controller.replicas) 1 }}
         - --leader-elect
         {{- end }}
         {{- with .Values.controller.extraArgs }}

@@ -45,6 +45,9 @@
                         "deploymentAnnotations": {
                             "type": "object"
                         },
+                        "deploymentLabels": {
+                            "type": "object"
+                        },
                         "extraArgs": {
                             "type": "array"
                         },
@@ -102,6 +105,20 @@
                                 },
                                 "timeoutSeconds": {
                                     "type": "integer"
+                                }
+                            }
+                        },
+                        "logging": {
+                            "type": "object",
+                            "properties": {
+                                "format": {
+                                    "type": "string"
+                                },
+                                "kloglevel": {
+                                    "type": "string"
+                                },
+                                "level": {
+                                    "type": "string"
                                 }
                             }
                         },
@@ -177,6 +194,9 @@
                             }
                         },
                         "podAnnotations": {
+                            "type": "object"
+                        },
+                        "podLabels": {
                             "type": "object"
                         },
                         "priorityClassName": {
@@ -260,6 +280,9 @@
                         "deploymentAnnotations": {
                             "type": "object"
                         },
+                        "deploymentLabels": {
+                            "type": "object"
+                        },
                         "enabled": {
                             "type": "boolean"
                         },
@@ -321,6 +344,17 @@
                                 }
                             }
                         },
+                        "logging": {
+                            "type": "object",
+                            "properties": {
+                                "kloglevel": {
+                                    "type": "string"
+                                },
+                                "level": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "nodeSelector": {
                             "type": "object"
                         },
@@ -345,6 +379,9 @@
                             }
                         },
                         "podAnnotations": {
+                            "type": "object"
+                        },
+                        "podLabels": {
                             "type": "object"
                         },
                         "podSecurityContext": {
@@ -442,11 +479,17 @@
                         "deploymentAnnotations": {
                             "type": "object"
                         },
+                        "deploymentLabels": {
+                            "type": "object"
+                        },
                         "imageRegistry": {
                             "type": "string"
                         },
                         "repository": {
                             "type": "string"
+                        },
+                        "revisionHistoryLimit": {
+                            "type": "integer"
                         },
                         "tag": {
                             "type": "string"
@@ -510,6 +553,9 @@
                 "providerRBAC": {
                     "type": "object",
                     "properties": {
+                        "additionalRules": {
+                            "type": "array"
+                        },
                         "enabled": {
                             "type": "boolean"
                         },
@@ -526,6 +572,15 @@
                                     "type": "boolean"
                                 },
                                 "awsLoadBalancerController": {
+                                    "type": "boolean"
+                                },
+                                "contour": {
+                                    "type": "boolean"
+                                },
+                                "gatewayAPI": {
+                                    "type": "boolean"
+                                },
+                                "glooPlatform": {
                                     "type": "boolean"
                                 },
                                 "istio": {
