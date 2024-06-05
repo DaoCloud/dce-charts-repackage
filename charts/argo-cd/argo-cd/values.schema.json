@@ -1530,6 +1530,17 @@
                         "domain": {
                             "type": "string"
                         },
+                        "dualStack": {
+                            "type": "object",
+                            "properties": {
+                                "ipFamilies": {
+                                    "type": "array"
+                                },
+                                "ipFamilyPolicy": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "env": {
                             "type": "array"
                         },

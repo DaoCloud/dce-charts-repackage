@@ -246,6 +246,18 @@ Allows overriding it for multi-namespace deployments in combined charts.
 {{- default .Release.Namespace .Values.namespaceOverride | trunc 63 | trimSuffix "-" -}}
 {{- end }}
 
+{{/*
+Dual stack definition
+*/}}
+{{- define "argo-cd.dualStack" -}}
+{{- with .Values.global.dualStack.ipFamilyPolicy }}
+ipFamilyPolicy: {{ . }}
+{{- end }}
+{{- with .Values.global.dualStack.ipFamilies }}
+ipFamilies: {{ toYaml . | nindent 4 }}
+{{- end }}
+{{- end }}
+
 {{- define "global.images.image" -}}
 {{- $registryName := .imageRoot.registry -}}
 {{- $repositoryName := .imageRoot.repository -}}
