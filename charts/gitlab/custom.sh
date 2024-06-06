@@ -40,37 +40,39 @@ rm -rf ./charts/gitlab/requirements.lock
 rm -rf ./charts/gitlab/CHANGELOG.md
 rm -rf ./charts/gitlab/templates/NOTES.txt
 
+TARGET_VERSION=$APP_VERSION
+
 # modify father values
 yq -i '
   .gitlab.minio.minioMc.registry = "docker.m.daocloud.io" |
   .gitlab.minio.registry = "docker.m.daocloud.io" |
   .gitlab.gitlab.gitaly.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.gitlab.gitaly.image.repository = "gitlab-org/build/cng/gitaly" |
-  .gitlab.gitlab.gitaly.image.tag = "master" |
+  .gitlab.gitlab.gitaly.image.tag = "'$TARGET_VERSION'" |
   .gitlab.gitlab.gitlab-shell.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.gitlab.gitlab-shell.image.repository = "gitlab-org/build/cng/gitlab-shell" |
-  .gitlab.gitlab.gitlab-shell.image.tag = "master" |
+  .gitlab.gitlab.gitlab-shell.image.tag = "'$TARGET_VERSION'" |
   .gitlab.gitlab.kas.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.gitlab.kas.image.repository = "gitlab-org/build/cng/gitlab-kas" |
-  .gitlab.gitlab.kas.image.tag = "master" |
+  .gitlab.gitlab.kas.image.tag = "'$TARGET_VERSION'" |
   .gitlab.gitlab.migrations.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.gitlab.migrations.image.repository = "gitlab-org/build/cng/gitlab-toolbox-ce" |
-  .gitlab.gitlab.migrations.image.tag = "master" |
+  .gitlab.gitlab.migrations.image.tag = "'$TARGET_VERSION'" |
   .gitlab.gitlab.toolbox.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.gitlab.toolbox.image.repository = "gitlab-org/build/cng/gitlab-toolbox-ce" |
-  .gitlab.gitlab.toolbox.image.tag = "master" |
+  .gitlab.gitlab.toolbox.image.tag = "'$TARGET_VERSION'" |
   .gitlab.gitlab.webservice.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.gitlab.webservice.image.repository = "gitlab-org/build/cng/gitlab-webservice-ce" |
-  .gitlab.gitlab.webservice.image.tag = "master" |
+  .gitlab.gitlab.webservice.image.tag = "'$TARGET_VERSION'" |
   .gitlab.gitlab.webservice.workhorse.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.gitlab.webservice.workhorse.image.repository = "gitlab-org/build/cng/gitlab-workhorse-ce" |
-  .gitlab.gitlab.webservice.workhorse.image.tag = "master" |
+  .gitlab.gitlab.webservice.workhorse.image.tag = "'$TARGET_VERSION'" |
   .gitlab.gitlab.sidekiq.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.gitlab.sidekiq.image.repository = "gitlab-org/build/cng/gitlab-sidekiq-ce" |
-  .gitlab.gitlab.sidekiq.image.tag = "master" |
+  .gitlab.gitlab.sidekiq.image.tag = "'$TARGET_VERSION'" |
   .gitlab.kubectl.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.kubectl.image.repository = "gitlab-org/build/cng/kubectl" |
-  .gitlab.kubectl.image.tag = "master" |
+  .gitlab.kubectl.image.tag = "'$TARGET_VERSION'" |
   .gitlab.postgresql.image.registry = "docker.m.daocloud.io" |
   .gitlab.postgresql.volumePermissions.image.registry = "docker.m.daocloud.io" |
   .gitlab.postgresql.metrics.image.registry = "docker.m.daocloud.io" |
@@ -81,10 +83,10 @@ yq -i '
   .gitlab.redis.sysctl.image.registry = "docker.m.daocloud.io" |
   .gitlab.global.certificates.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.global.certificates.image.repository = "gitlab-org/build/cng/certificates" |
-  .gitlab.global.certificates.image.tag = "master" |
+  .gitlab.global.certificates.image.tag = "'$TARGET_VERSION'" |
   .gitlab.global.gitlabBase.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.global.gitlabBase.image.repository = "gitlab-org/build/cng/gitlab-base" |
-  .gitlab.global.gitlabBase.image.tag = "master"
+  .gitlab.global.gitlabBase.image.tag = "'$TARGET_VERSION'"
 ' values.yaml
 
 yq -i '
@@ -109,46 +111,46 @@ yq -i '
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitlab-webservice-ce" |
-  .image.tag = "master" |
+  .image.tag = "'$TARGET_VERSION'" |
   .workhorse.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .workhorse.image.repository = "gitlab-org/build/cng/gitlab-workhorse-ce" |
-  .workhorse.image.tag = "master"
+  .workhorse.image.tag = "'$TARGET_VERSION'"
 ' charts/gitlab/charts/gitlab/charts/webservice/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitlab-toolbox-ce" |
-  .image.tag = "master"
+  .image.tag = "'$TARGET_VERSION'"
 ' charts/gitlab/charts/gitlab/charts/toolbox/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitlab-toolbox-ce" |
-  .image.tag = "master"
+  .image.tag = "'$TARGET_VERSION'"
 ' charts/gitlab/charts/gitlab/charts/migrations/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitlab-kas" |
-  .image.tag = "master"
+  .image.tag = "'$TARGET_VERSION'"
 ' charts/gitlab/charts/gitlab/charts/kas/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitlab-shell" |
-  .image.tag = "master"
+  .image.tag = "'$TARGET_VERSION'"
 ' charts/gitlab/charts/gitlab/charts/gitlab-shell/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitaly" |
-  .image.tag = "master"
+  .image.tag = "'$TARGET_VERSION'"
 ' charts/gitlab/charts/gitlab/charts/gitaly/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitlab-sidekiq-ce" |
-  .image.tag = "master"
+  .image.tag = "'$TARGET_VERSION'"
 ' charts/gitlab/charts/gitlab/charts/sidekiq/values.yaml
 
 
