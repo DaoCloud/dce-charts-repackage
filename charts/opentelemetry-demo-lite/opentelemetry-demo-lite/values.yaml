@@ -51,17 +51,17 @@ opentelemetry-demo-lite:
     redis:
       redisCRResource:
         redisExporterImage:
-          registry: quay.m.daocloud.io
-          repository: opstree/redis-exporter
-          tag: "v1.44.0"
+          registry: docker.m.daocloud.io
+          repository: oliver006/redis_exporter
+          tag: "v1.45.0"
         image:
-          registry: quay.m.daocloud.io
-          repository: opstree/redis
-          tag: "v7.0.5"
+          registry: ghcr.m.daocloud.io
+          repository: ksmartdata/ot-redis
+          tag: "v6.2.12-alpine"
       image:
-        registry: docker.m.daocloud.io
-        repository: library/redis
-        tag: "alpine"
+        registry: ghcr.m.daocloud.io
+        repository: ksmartdata/ot-redis
+        tag: "v6.2.12-alpine"
     dataservice:
       # this value is not in used, it replaces by global.microservices.nacos.enabled
       enabled: true
