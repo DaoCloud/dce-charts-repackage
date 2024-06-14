@@ -165,12 +165,21 @@ yq -i '
   .argo-cd.redisSecretInit.resources.limits.memory = "1024Mi"
 ' values.yaml
 
-# replace amamba rbac
-yq -i '
-  .argo-cd.configs.cm["accounts.amamba"]="apiKey" |
-  .argo-cd.configs.rbac["policy.csv"]="g, amamba, role:admin" |
+policyCsv="g, amamba, role:admin
+g, amamba-view, role:readonly"
+
+yq -i "
+  .argo-cd.configs.cm[\"accounts.amamba\"]=\"apiKey\" |
+  .argo-cd.configs.cm[\"accounts.amamba-view\"]=\"apiKey\" |
+  .argo-cd.configs.rbac[\"policy.csv\"]=\"${policyCsv}\" |
   .argo-cd.redis-ha.exporter.enabled=false
-' values.yaml
+" values.yaml
+
+yq -i "
+  .argo-cd.configs.params[\"server.rootpath\"]=\"/argocd\" |
+  .argo-cd.configs.params[\"server.basehref\"]=\"/argocd\" |
+  .argo-cd.configs.params[\"server.insecure\"]=true
+" values.yaml
 
 # re-write global config.
 originGlobalRegistry=$(yq ".argo-cd.global.image.registry" values.yaml)
