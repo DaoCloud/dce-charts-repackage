@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: device-plugin-config
+  namespace: {{ .Release.Namespace }}
+data:
+  mixed: |-
+    version: v1
+    flags:
+      migStrategy: mixed
+      failOnInitError: true
+      nvidiaDriverRoot: "/run/nvidia/driver"
+      gdsEnabled: false
+      mofedEnabled: false
+      plugin:
+        passDeviceSpecs: true
+        deviceListStrategy:
+        - envvar
+        deviceIDStrategy: uuid
+        cdiAnnotationPrefix: cdi.k8s.io/
+        nvidiaCTKPath: "/usr/bin/nvidia-ctk"
+        containerDriverRoot: "/run/nvidia/driver"
+    resources:
+      gpus:
+      - pattern: "*"
+        name: nvidia.com/gpu
+  single: |-
+    version: v1
+    flags:
+      migStrategy: single
+      failOnInitError: true
+      nvidiaDriverRoot: "/run/nvidia/driver"
+      gdsEnabled: false
+      mofedEnabled: false
+      plugin:
+        passDeviceSpecs: true
+        deviceListStrategy:
+        - envvar
+        deviceIDStrategy: uuid
+        cdiAnnotationPrefix: cdi.k8s.io/
+        nvidiaCTKPath: "/usr/bin/nvidia-ctk"
+        containerDriverRoot: "/run/nvidia/driver"
+    resources:
+      gpus:
+      - pattern: "*"
+        name: nvidia.com/gpu
+  none: |-
+    version: v1
+    flags:
+      migStrategy: none
+      failOnInitError: true
+      nvidiaDriverRoot: "/run/nvidia/driver"
+      gdsEnabled: false
+      mofedEnabled: false
+      plugin:
+        passDeviceSpecs: true
+        deviceListStrategy:
+        - envvar
+        deviceIDStrategy: uuid
+        cdiAnnotationPrefix: cdi.k8s.io/
+        nvidiaCTKPath: "/usr/bin/nvidia-ctk"
+        containerDriverRoot: "/run/nvidia/driver"
+    resources:
+      gpus:
+      - pattern: "*"
+        name: nvidia.com/gpu

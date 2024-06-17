@@ -69,9 +69,6 @@
                 "migManager": {
                     "type": "object",
                     "properties": {
-                        "enabled": {
-                            "type": "boolean"
-                        },
                         "config": {
                             "type": "object",
                             "properties": {
@@ -79,26 +76,6 @@
                                     "type": "string"
                                 }
                             }
-                        }
-                    }
-                },
-                "mig": {
-                    "type": "object",
-                    "properties": {
-                        "strategy": {
-                            "type": "string",
-                            "enum": [
-                                "single",
-                                "mixed"
-                            ]
-                        }
-                    }
-                },
-                "node-feature-discovery": {
-                    "type": "object",
-                    "properties": {
-                        "enableNodeFeatureApi": {
-                            "type": "boolean"
                         }
                     }
                 }

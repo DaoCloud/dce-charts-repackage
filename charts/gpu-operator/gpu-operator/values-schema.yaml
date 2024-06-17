@@ -18,12 +18,9 @@ gpu-operator:
     image: nvidia/k8s/container-toolkit
     version: v1.14.3-centos7
   migManager:
-    enabled: false
     config:
       name: "default-mig-parted-config"
       default: "all-disabled"
-  mig:
-    strategy: single
 
   node-feature-discovery:
     enableNodeFeatureApi: true
