@@ -52,7 +52,7 @@ argo-cd:
       # -- If defined, a repository applied to all Argo CD deployments
       repository: argoproj/argocd
       # -- Overrides the global Argo CD image tag whose default is the chart appVersion
-      tag: "v2.11.2"
+      tag: "v2.11.3"
       # -- If defined, a imagePullPolicy applied to all Argo CD deployments
       imagePullPolicy: IfNotPresent
       registry: quay.m.daocloud.io
@@ -1507,7 +1507,7 @@ argo-cd:
       repository: "argoproj/argocd" # defaults to global.image.repository
       # -- Tag to use for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.tag)
-      tag: "v2.11.2" # defaults to global.image.tag
+      tag: "v2.11.3" # defaults to global.image.tag
       # -- Image pull policy for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.imagePullPolicy)
       imagePullPolicy: "" # IfNotPresent
@@ -1927,6 +1927,8 @@ argo-cd:
       # -- Server service https port appProtocol
       ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#application-protocol
       servicePortHttpsAppProtocol: ""
+      # -- The class of the load balancer implementation
+      loadBalancerClass: ""
       # -- LoadBalancer will get created with the IP specified in this field
       loadBalancerIP: ""
       # -- Source IP ranges to allow access to service from
