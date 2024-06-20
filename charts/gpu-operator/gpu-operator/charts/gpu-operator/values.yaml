@@ -110,8 +110,7 @@ operator:
     requests:
       cpu: 200m
       memory: 100Mi
-mig:
-  strategy: single
+mig: {}
 driver:
   enabled: true
   nvidiaDriverCRD:
@@ -261,9 +260,9 @@ devicePlugin:
     # Create a ConfigMap (default: false)
     create: false
     # ConfigMap name (either exiting or to create a new one with create=true above)
-    name: ""
+    name: "device-plugin-config"
     # Default config name within the ConfigMap
-    default: ""
+    default: "none"
     # Data section for the ConfigMap to create (i.e only applies when create=true)
     data: {}
 # standalone dcgm hostengine
@@ -323,7 +322,7 @@ gfd:
       value: "true"
   resources: {}
 migManager:
-  enabled: false
+  enabled: true
   repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/k8s-mig-manager
   version: v0.5.5-ubuntu20.04
