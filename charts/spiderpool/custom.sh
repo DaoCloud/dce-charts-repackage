@@ -44,7 +44,6 @@ yq -i '
     .spiderpool.global.imageRegistryOverride="ghcr.m.daocloud.io" |
     .spiderpool.ipam.enableIPv4=true |
     .spiderpool.ipam.enableIPv6=false |
-    .spiderpool.ipam.spidersubnet.enable=true |
     .spiderpool.coordinator.detectGateway = true |
     .spiderpool.coordinator.detectIPConflict = true | 
     .spiderpool.multus.multusCNI.uninstall=true |
@@ -70,12 +69,7 @@ yq -i '
     .spiderpool.spiderpoolInit.resources.requests.cpu=strenv(CUSTOM_SPIDERPOOL_INIT_CPU) |
     .spiderpool.spiderpoolInit.resources.requests.memory=strenv(CUSTOM_SPIDERPOOL_INIT_MEMORY) | 
     .spiderpool.plugins.image.registry="ghcr.m.daocloud.io" |
-    .spiderpool.rdma.rdmaSharedDevicePlugin.image.registry="ghcr.m.daocloud.io" |
-    .spiderpool.dra.hostDevicePath="/usr/lib/libsmc-preload.so" |
-    .spiderpool.netmaterial.image.registry="ghcr.m.daocloud.io" | 
-    .spiderpool.netmaterial.image.repository="daocloud/netmaterial" |
-    .spiderpool.netmaterial.image.tag="latest" |
-    .spiderpool.netmaterial.image.pullPolicy="IfNotPresent" 
+    .spiderpool.rdma.rdmaSharedDevicePlugin.image.registry="ghcr.m.daocloud.io" 
 ' ${CHART_DIRECTORY}/values.yaml
 
 if ! grep "keywords:" ${CHART_DIRECTORY}/Chart.yaml &>/dev/null ; then
@@ -83,36 +77,6 @@ if ! grep "keywords:" ${CHART_DIRECTORY}/Chart.yaml &>/dev/null ; then
     echo "  - networking" >> ${CHART_DIRECTORY}/Chart.yaml
     echo "  - ipam" >> ${CHART_DIRECTORY}/Chart.yaml
 fi
-
-# dra smc related
-echo "insert dra smc config"
-${SED_COMMAND} -i -e "/initContainers:/r ${CURRENT_DIR_PATH}/append/smc_initcontainer.txt" ${CHART_DIRECTORY}/charts/spiderpool/templates/daemonset.yaml
-
-matched_line=$(${SED_COMMAND} -n '/Values.dra.enabled/=' ${CHART_DIRECTORY}/charts/spiderpool/templates/daemonset.yaml |${SED_COMMAND} -n "$"p )
-[ -z "$matched_line" ] && echo "unexpected empty matched_line, exit 1" && exit 1
-
-echo "matched volume line is: " $matched_line
-${SED_COMMAND} -i -e "${matched_line}r ${CURRENT_DIR_PATH}/append/smc_volumes.txt" ${CHART_DIRECTORY}/charts/spiderpool/templates/daemonset.yaml
-
-echo '{{/*
-return the netermarial image
-*/}}
-{{- define "netmaterial.image" -}}
-{{- $registryName := .Values.netmaterial.image.registry -}}
-{{- $repositoryName := .Values.netmaterial.image.repository -}}
-{{- if .Values.global.imageRegistryOverride }}
-    {{- printf "%s/%s" .Values.global.imageRegistryOverride $repositoryName -}}
-{{ else if $registryName }}
-    {{- printf "%s/%s" $registryName $repositoryName -}}
-{{- else -}}
-    {{- printf "%s" $repositoryName -}}
-{{- end -}}
-{{- if .Values.netmaterial.image.tag -}}
-    {{- printf ":%s" .Values.netmaterial.image.tag -}}
-{{- else -}}
-    {{- printf ":%s" "latest" -}}
-{{- end -}}
-{{- end -}}' >> ${CHART_DIRECTORY}/charts/spiderpool/templates/_helpers.tpl
 
 rm -f ${CHART_DIRECTORY}/values.yaml-E || true
 
