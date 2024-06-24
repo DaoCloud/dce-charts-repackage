@@ -1,0 +1,16 @@
+{{- if and .Values.GProductNavigator.enabled}}
+apiVersion: ghippo.io/v1alpha1
+kind: GProductNavigator
+metadata:
+  name: monkeys # 命名规则：由小写的"spec.gproduct"与"-custom"而成
+data:
+  name: {{ .Values.GProductNavigator.spec.name }}
+  iconUrl: {{ .Values.GProductNavigator.spec.iconUrl }}
+  localizedName: # 定义菜单的中英文名称
+    {{- toYaml .Values.GProductNavigator.spec.localizedName | nindent 6 }}
+  url: {{ .Values.GProductNavigator.spec.url }}
+  category: {{ .Values.GProductNavigator.spec.category }} # 与parentGProduct二选一，用于区分一级菜单还是二级菜单，与NavigatorCategory的spec.name字段对应来完成匹配
+  visible: {{ .Values.GProductNavigator.spec.visible }} # 设置该菜单是否可见，默认为true
+  order: {{ .Values.GProductNavigator.spec.order }} # 排序，数字越大，越靠上
+  gproduct: {{ .Values.GProductNavigator.spec.gproduct }}
+{{- end}}

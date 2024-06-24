@@ -1,0 +1,62 @@
+{{- if and .Values.admin.enabled}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+{{ include "monkeys.ud.annotations" . | indent 4 }}
+    descriptions: admin
+  labels:
+{{- include "monkeys.labels" . | nindent 4 }}
+    component: admin
+{{ include "monkeys.ud.labels" . | indent 4 }}
+  name: {{ template "monkeys.admin.fullname" . }}
+spec:
+  replicas: {{ .Values.admin.replicas }}
+  selector:
+    matchLabels:
+{{- include "monkeys.selectorLabels" . | nindent 6 }}
+      component: admin
+  template:
+    metadata:
+      annotations:
+{{ include "monkeys.ud.annotations" . | indent 8 }}
+      labels:
+{{- include "monkeys.selectorLabels" . | nindent 8 }}
+        component: admin
+{{ include "monkeys.ud.labels" . | indent 8 }}
+    spec:
+      enableServiceLinks: false
+      {{- if .Values.images.admin.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.images.admin.pullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      initContainers:
+      {{- if .Values.postgresql.enabled }}
+      - name: wait-for-postgres
+        image: {{ .Values.images.busybox.registry }}/{{ .Values.images.busybox.repository }}:{{ .Values.images.busybox.tag }}
+        command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-postgresql 5432; do echo waiting for postgres; sleep 2; done;']
+        imagePullPolicy: {{ .Values.images.busybox.imagePullPolicy }}
+      {{- end }}
+      containers:
+        - image: "{{ .Values.images.busybox.registry }}/{{ .Values.images.admin.repository }}:{{ .Values.images.admin.tag }}"
+          imagePullPolicy: "{{ .Values.images.admin.pullPolicy }}"
+          name: admin
+          ports:
+            - name: http-server
+              containerPort: 3000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.admin.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /etc/monkeys-admin/config.yaml
+              name: {{ template "monkeys.admin.fullname" . }}
+              readOnly: true
+              subPath: config.yaml
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: {{ template "monkeys.admin.fullname" . }}
+          name: {{ template "monkeys.admin.fullname" . }}
+{{- end}}

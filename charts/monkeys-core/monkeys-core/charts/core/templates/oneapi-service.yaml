@@ -1,0 +1,28 @@
+{{- if .Values.oneapi.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "monkeys.oneapi.fullname" . }}
+  labels:
+{{ include "monkeys.labels" . | indent 4 }}
+{{- if .Values.service.labels }}
+{{ toYaml .Values.service.labels | indent 4 }}
+{{- end }}
+{{- if .Values.oneapi.enabled }}
+    component: "oneapi"
+{{- end }}
+{{- with .Values.oneapi.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+{{ include "monkeys.selectorLabels" . | indent 4 }}
+    component: "oneapi"
+{{- end}}

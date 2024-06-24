@@ -1,0 +1,60 @@
+{{- if and .Values.oneapi.enabled}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+{{ include "monkeys.ud.annotations" . | indent 4 }}
+    descriptions: oneapi
+  labels:
+{{- include "monkeys.labels" . | nindent 4 }}
+    component: oneapi
+{{ include "monkeys.ud.labels" . | indent 4 }}
+  name: {{ template "monkeys.oneapi.fullname" . }}
+spec:
+  replicas: {{ .Values.oneapi.replicas }}
+  selector:
+    matchLabels:
+{{- include "monkeys.selectorLabels" . | nindent 6 }}
+      component: oneapi
+  template:
+    metadata:
+      annotations:
+{{ include "monkeys.ud.annotations" . | indent 8 }}
+      labels:
+{{- include "monkeys.selectorLabels" . | nindent 8 }}
+        component: oneapi
+{{ include "monkeys.ud.labels" . | indent 8 }}
+    spec:
+      enableServiceLinks: false
+      {{- if .Values.images.oneapi.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.images.oneapi.pullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      initContainers:
+      {{- if .Values.postgresql.enabled }}
+      - name: wait-for-postgres
+        image: {{ .Values.images.busybox.registry }}/{{ .Values.images.busybox.repository }}:{{ .Values.images.busybox.tag }}
+        command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-postgresql 5432; do echo waiting for postgres; sleep 2; done;']
+        imagePullPolicy: {{ .Values.images.busybox.imagePullPolicy }}
+      {{- end }}
+      containers:
+        - image: "{{ .Values.images.oneapi.registry }}/{{ .Values.images.oneapi.repository }}:{{ .Values.images.oneapi.tag }}"
+          imagePullPolicy: "{{ .Values.images.oneapi.pullPolicy }}"
+          name: oneapi
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.oneapi.resources | nindent 12 }}
+          env:
+          {{- if .Values.postgresql.enabled }}
+            - name: SQL_DSN
+              value: postgres://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.auth.oneapiDatabase }}
+          {{- else if .Values.externalOneapiPostgresql.enabled }}
+            - name: SQL_DSN
+              value: postgres://{{ .Values.externalOneapiPostgresql.username }}:{{ .Values.externalOneapiPostgresql.password }}@{{ .Values.externalOneapiPostgresql.host }}:{{ .Values.externalOneapiPostgresql.port }}/{{ .Values.externalOneapiPostgresql.database }}
+          {{- end }}
+{{- end}}

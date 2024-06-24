@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+{{ include "monkeys.ud.annotations" . | indent 4 }}
+    descriptions: server
+  labels:
+{{- include "monkeys.labels" . | nindent 4 }}
+    component: server
+{{ include "monkeys.ud.labels" . | indent 4 }}
+  name: {{ template "monkeys.server.fullname" . }}
+spec:
+  replicas: {{ .Values.server.replicas }}
+  selector:
+    matchLabels:
+{{- include "monkeys.selectorLabels" . | nindent 6 }}
+      component: server
+  template:
+    metadata:
+      annotations:
+{{ include "monkeys.ud.annotations" . | indent 8 }}
+      labels:
+{{- include "monkeys.selectorLabels" . | nindent 8 }}
+        component: server
+{{ include "monkeys.ud.labels" . | indent 8 }}
+    spec:
+      enableServiceLinks: false
+      {{- if .Values.images.server.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.images.server.pullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      initContainers:
+      {{- if .Values.postgresql.enabled }}
+      - name: wait-for-postgres
+        image: {{ .Values.images.busybox.registry }}/{{ .Values.images.busybox.repository }}:{{ .Values.images.busybox.tag }}
+        command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-postgresql 5432; do echo waiting for postgres; sleep 2; done;']
+        imagePullPolicy: {{ .Values.images.busybox.imagePullPolicy }}
+      {{- end }}
+      {{- if .Values.redis.enabled }}
+      - name: wait-for-redis
+        image: {{ .Values.images.busybox.registry }}/{{ .Values.images.busybox.repository }}:{{ .Values.images.busybox.tag }}
+        command: ['sh', '-c', 'until nc -z monkeys-redis-master 6379; do echo waiting for redis; sleep 2; done;']
+        imagePullPolicy: {{ .Values.images.busybox.imagePullPolicy }}
+      {{- end }}
+      containers:
+        - image: "{{ .Values.images.server.registry }}/{{ .Values.images.server.repository }}:{{ .Values.images.server.tag }}"
+          imagePullPolicy: "{{ .Values.images.server.pullPolicy }}"
+          name: monkeys
+          ports:
+            - name: http-server
+              containerPort: 3000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /etc/monkeys/config.yaml
+              name: {{ template "monkeys.server.fullname" . }}
+              readOnly: true
+              subPath: config.yaml
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: {{ template "monkeys.server.fullname" . }}
+          name: {{ template "monkeys.server.fullname" . }}

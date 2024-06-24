@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+{{ include "monkeys.ud.annotations" . | indent 4 }}
+    descriptions: conductor
+  labels:
+{{- include "monkeys.labels" . | nindent 4 }}
+    component: conductor
+{{ include "monkeys.ud.labels" . | indent 4 }}
+  name: {{ template "monkeys.conductor.fullname" . }}
+spec:
+  replicas: {{ .Values.conductor.replicas }}
+  selector:
+    matchLabels:
+{{- include "monkeys.selectorLabels" . | nindent 6 }}
+      component: conductor
+  template:
+    metadata:
+      annotations:
+{{ include "monkeys.ud.annotations" . | indent 8 }}
+      labels:
+{{- include "monkeys.selectorLabels" . | nindent 8 }}
+        component: conductor
+{{ include "monkeys.ud.labels" . | indent 8 }}
+    spec:
+      enableServiceLinks: false
+      {{- if .Values.images.conductor.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.images.conductor.pullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      initContainers:
+      {{- if .Values.postgresql.enabled }}
+      - name: wait-for-postgres
+        image: {{ .Values.images.busybox.registry }}/{{ .Values.images.busybox.repository }}:{{ .Values.images.busybox.tag }}
+        command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-postgresql 5432; do echo waiting for postgres; sleep 2; done;']
+        imagePullPolicy: {{ .Values.images.busybox.imagePullPolicy }}
+      {{- end }}
+      {{- if .Values.elasticsearch.enabled }}
+      - name: wait-for-elasticsearch
+        image: {{ .Values.images.busybox.registry }}/{{ .Values.images.busybox.repository }}:{{ .Values.images.busybox.tag }}
+        command: ['sh', '-c', 'until nc -z elasticsearch-master 9200; do echo waiting for elasticsearch; sleep 2; done;']
+        imagePullPolicy: {{ .Values.images.busybox.imagePullPolicy }}
+      {{- end }}
+      containers:
+        - image: "{{ .Values.images.conductor.registry }}/{{ .Values.images.conductor.repository }}:{{ .Values.images.conductor.tag }}"
+          imagePullPolicy: "{{ .Values.images.conductor.pullPolicy }}"
+          name: conductor
+          ports:
+            - name: http-conductor
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.conductor.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /app/config/config-local.properties
+              name: conductor-config
+              readOnly: true
+              subPath: config-local.properties
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: conductor-config
+          name: conductor-config

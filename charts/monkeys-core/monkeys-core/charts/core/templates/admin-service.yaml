@@ -1,0 +1,29 @@
+{{- if and .Values.admin.enabled}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "monkeys.admin.fullname" . }}
+  labels:
+{{ include "monkeys.labels" . | indent 4 }}
+{{- if .Values.admin.service.labels }}
+{{ toYaml .Values.admin.service.labels | indent 4 }}
+{{- end }}
+    component: "admin"
+{{- with .Values.admin.service.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  type: ClusterIP
+  {{- if .Values.admin.service.clusterIP }}
+  clusterIP: {{ .Values.admin.service.clusterIP }}
+  {{- end }}
+  ports:
+    - name: http-server
+      port: {{ .Values.admin.service.port }}
+      protocol: TCP
+      targetPort: http-server
+  selector:
+{{ include "monkeys.selectorLabels" . | indent 4 }}
+    component: "admin"
+{{- end}}
