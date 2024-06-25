@@ -42,7 +42,7 @@ argo-rollouts:
     revisionHistoryLimit: 10
     imageRegistry: quay.m.daocloud.io
     repository: argoproj/argo-rollouts
-    tag: v1.6.6
+    tag: v1.7.0
   controller:
     # -- Value of label `app.kubernetes.io/component`
     component: rollouts-controller
@@ -85,7 +85,7 @@ argo-rollouts:
       # -- Repository to use
       repository: argoproj/argo-rollouts
       # -- Overrides the image tag (default is the chart appVersion)
-      tag: "v1.6.6"
+      tag: "v1.7.0"
       # -- Image pull policy
       pullPolicy: IfNotPresent
     # -- Additional command line arguments to pass to rollouts-controller.  A list of flags.
@@ -222,14 +222,14 @@ argo-rollouts:
   podSecurityContext:
     runAsNonRoot: true
   # -- Security Context to set on container level
-  containerSecurityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    seccompProfile:
+      type: RuntimeDefault
   # -- Annotations to be added to the Rollout service
   serviceAnnotations: {}
   # -- Labels to be added to the Rollout pods
@@ -311,7 +311,7 @@ argo-rollouts:
       # --  Repository to use
       repository: argoproj/kubectl-argo-rollouts
       # -- Overrides the image tag (default is the chart appVersion)
-      tag: "v1.6.6"
+      tag: "v1.7.0"
       # -- Image pull policy
       pullPolicy: IfNotPresent
     # -- Additional command line arguments to pass to rollouts-dashboard. A list of flags.
@@ -423,6 +423,8 @@ argo-rollouts:
       # -- Generic key:value pairs to be inserted into the notifications secret
       items: {}
       # slack-token:
+      # -- Annotations to be added to the notifications secret
+      annotations: {}
     # -- Configures notification services
     notifiers: {}
     # service.slack: |
@@ -445,3 +447,11 @@ argo-rollouts:
     # trigger.on-purple: |
     #   - send: [my-purple-template]
     #     when: rollout.spec.template.spec.containers[0].image == 'argoproj/rollouts-demo:purple'
+
+    # -- The subscriptions define the subscriptions to the triggers in a general way for all rollouts
+    subscriptions: {}
+    # subscriptions:
+    #   recipients:
+    #     - slack:<channel>
+    #   triggers:
+    #     - on-rollout-completed
