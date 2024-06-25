@@ -359,10 +359,8 @@ spec:
         image: {{ include "global.images.image" (dict "imageRoot" .Values.repoServer.image "global" .Values.global ) }}
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.repoServer.image.imagePullPolicy }}
         name: copyutil
-        {{- with .Values.repoServer.resources }}
         resources:
-          {{- toYaml . | nindent 10 }}
-        {{- end }}
+          {{- toYaml .Values.repoServer.resources | nindent 10 }}
         {{- with .Values.repoServer.containerSecurityContext }}
         securityContext:
           {{- toYaml . | nindent 10 }}
