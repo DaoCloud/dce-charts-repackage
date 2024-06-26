@@ -586,7 +586,7 @@ sentinels:
 | -------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------- |
 | `GProductNavigator.enabled`            | 是否启用 Daocloud DCE 菜单                              | `false`                                                   |
 | `GProductNavigator.spec.name`          | 显示名称                                                | `流程编排`                                                |
-| `GProductNavigator.spec.iconUrl`       | Logo                                                    | `[false](https://static.infmonkeys.com/favicon-gray.svg)` |
+| `GProductNavigator.spec.iconUrl`       | Logo                                                    | `https://static.infmonkeys.com/favicon-gray.svg` |
 | `GProductNavigator.spec.localizedName` | 多语言名称配置                                          | `""`                                                      |
 | `GProductNavigator.spec.url`           | 点击菜单之后的跳转地址，请修改为 Monkeys 的方访问地址。 | `"https://ai.daocloud.cn/login"`                          |
 | `GProductNavigator.spec.category`      | 类型                                                    | `modelapplication`                                        |

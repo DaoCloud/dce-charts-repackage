@@ -3,7 +3,7 @@ apiVersion: ghippo.io/v1alpha1
 kind: GProductNavigator
 metadata:
   name: monkeys # 命名规则：由小写的"spec.gproduct"与"-custom"而成
-data:
+spec:
   name: {{ .Values.GProductNavigator.spec.name }}
   iconUrl: {{ .Values.GProductNavigator.spec.iconUrl }}
   localizedName: # 定义菜单的中英文名称
