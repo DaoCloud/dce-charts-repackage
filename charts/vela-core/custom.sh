@@ -90,6 +90,7 @@ yq -i "
 
 # remove test
 rm -rf charts/vela-core/templates/test
+yq -i 'del(.vela-core.test)' values.yaml
 
 if [ $os == "Darwin" ];then
   sed -i "" 's?{{ .Values.imageRegistry }}{{ .Values.image.repository }}:{{ .Values.image.tag }}?{{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}?g' charts/vela-core/templates/kubevela-controller.yaml

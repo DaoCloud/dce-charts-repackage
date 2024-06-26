@@ -166,21 +166,6 @@ vela-core:
         certPath: /etc/k8s-cluster-gateway-certs
   ## @section Test parameters
 
-  ## @param test.app.repository Test app repository
-  ## @param test.app.tag Test app tag
-  ## @param test.k8s.repository Test k8s repository
-  ## @param test.k8s.tag Test k8s tag
-  test:
-    app:
-      repository: oamdev/hello-world
-      tag: v1
-      registry: docker.m.daocloud.io
-    k8s:
-      repository: oamdev/alpine-k8s
-      tag: 1.18.2
-      registry: docker.m.daocloud.io
-  ## @section Common parameters
-
   ## @param imagePullSecrets Image pull secrets
   imagePullSecrets: []
   ## @param nameOverride Override name
