@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "monkeys.web.fullname" . }}
+  labels:
+{{ include "monkeys.labels" . | indent 4 }}
+{{- if .Values.web.service.labels }}
+{{ toYaml .Values.web.service.labels | indent 4 }}
+{{- end }}
+    component: "web"
+{{- with .Values.web.service.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  type: ClusterIP
+  {{- if .Values.web.service.clusterIP }}
+  clusterIP: {{ .Values.web.service.clusterIP }}
+  {{- end }}
+  ports:
+    - name: http-web
+      port: {{ .Values.web.service.port }}
+      protocol: TCP
+      targetPort: http-web
+  selector:
+{{ include "monkeys.selectorLabels" . | indent 4 }}
+    component: "web"

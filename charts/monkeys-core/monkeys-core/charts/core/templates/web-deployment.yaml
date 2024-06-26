@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+{{ include "monkeys.ud.annotations" . | indent 4 }}
+    descriptions: web
+  labels:
+{{- include "monkeys.labels" . | nindent 4 }}
+    component: web
+{{ include "monkeys.ud.labels" . | indent 4 }}
+  name: {{ template "monkeys.web.fullname" . }}
+spec:
+  replicas: {{ .Values.web.replicas }}
+  selector:
+    matchLabels:
+{{- include "monkeys.selectorLabels" . | nindent 6 }}
+      component: web
+  template:
+    metadata:
+      annotations:
+{{ include "monkeys.ud.annotations" . | indent 8 }}
+      labels:
+{{- include "monkeys.selectorLabels" . | nindent 8 }}
+        component: web
+{{ include "monkeys.ud.labels" . | indent 8 }}
+    spec:
+      enableServiceLinks: false
+      {{- if .Values.images.web.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.images.web.pullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      containers:
+        - image: "{{ .Values.images.web.registry }}/{{ .Values.images.web.repository }}:{{ .Values.images.web.tag }}"
+          imagePullPolicy: "{{ .Values.images.web.pullPolicy }}"
+          name: web
+          ports:
+            - name: http-web
+              containerPort: 3000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}

@@ -1,0 +1,96 @@
+{{- if and .Values.clash.enabled}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+{{ include "monkeys.ud.annotations" . | indent 4 }}
+    descriptions: clash
+  labels:
+{{- include "monkeys.labels" . | nindent 4 }}
+    component: clash
+    # app: {{ template "monkeys.clash.fullname" . }}
+{{ include "monkeys.ud.labels" . | indent 4 }}
+  name: {{ template "monkeys.clash.fullname" . }}
+spec:
+  replicas: {{ .Values.clash.replicas }}
+  selector:
+    matchLabels:
+{{- include "monkeys.selectorLabels" . | nindent 6 }}
+      component: clash
+      {{/*
+      # Required labels for istio
+      # app: {{ template "monkeys.clash.fullname" . }}
+      # version: {{ (print "v" .Values.serviceMesh.version) | quote }}
+      */}}
+  template:
+    metadata:
+      annotations:
+{{ include "monkeys.ud.annotations" . | indent 8 }}
+      labels:
+{{- include "monkeys.selectorLabels" . | nindent 8 }}
+        component: clash
+        {{/*
+        # Required labels for istio
+        # app: {{ template "monkeys.clash.fullname" . }}
+        # version: {{ (print "v" .Values.serviceMesh.version) | quote }}
+        */}}
+{{ include "monkeys.ud.labels" . | indent 8 }}
+    spec:
+      {{- if .Values.images.clash.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.images.clash.pullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      containers:
+      - image: "{{ .Values.images.clash.registry }}/{{ .Values.images.clash.repository }}:{{ .Values.images.clash.tag }}"
+        imagePullPolicy: "{{ .Values.images.clash.pullPolicy }}"
+        name: clash
+        env:
+        {{- if .Values.clash.extraEnv }}
+          {{- toYaml .Values.clash.extraEnv | nindent 8 }}
+        {{- end }}
+        ports:
+          - name: http-clash
+            containerPort: 7890
+            protocol: TCP
+          - name: http-dashboard
+            containerPort: 9090
+            protocol: TCP
+        resources:
+          {{- toYaml .Values.clash.resources | nindent 12 }}
+        volumeMounts:
+        - name: clash-config
+          mountPath: /app/clash-for-linux/.env
+          readOnly: true
+          subPath: env
+    {{- if and (.Values.nodeSelector) (not .Values.clash.nodeSelector) }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.clash.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.clash.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if and (.Values.affinity) (not .Values.clash.affinity) }}
+      affinity:
+{{ toYaml .Values.affinity | indent 8 }}
+    {{- end }}
+    {{- if .Values.clash.affinity }}
+      affinity:
+{{ toYaml .Values.clash.affinity | indent 8 }}
+    {{- end }}
+    {{- if and (.Values.tolerations) (not .Values.clash.tolerations) }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
+    {{- end }}
+    {{- if .Values.clash.tolerations }}
+      tolerations:
+{{ toYaml .Values.clash.tolerations | indent 8 }}
+    {{- end }}
+      volumes:
+      - name: clash-config
+        configMap:
+          defaultMode: 420
+          name: clash-config
+{{- end }}

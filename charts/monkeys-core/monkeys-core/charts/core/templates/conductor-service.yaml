@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "monkeys.conductor.fullname" . }}
+  labels:
+{{ include "monkeys.labels" . | indent 4 }}
+{{- if .Values.conductor.service.labels }}
+{{ toYaml .Values.conductor.service.labels | indent 4 }}
+{{- end }}
+    component: "conductor"
+{{- with .Values.conductor.service.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  type: ClusterIP
+  {{- if .Values.conductor.service.clusterIP }}
+  clusterIP: {{ .Values.conductor.service.clusterIP }}
+  {{- end }}
+  ports:
+    - name: http-conductor
+      port: {{ .Values.conductor.service.port }}
+      protocol: TCP
+      targetPort: http-conductor
+  selector:
+{{ include "monkeys.selectorLabels" . | indent 4 }}
+    component: "conductor"

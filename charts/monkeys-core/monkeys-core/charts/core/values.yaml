@@ -1,0 +1,577 @@
+fullnameOverride:
+
+###################################
+# Images
+###################################
+images:
+  server:
+    registry: docker.io
+    repository: infmonkeys/monkeys
+    # To use multi tenancy version
+    # repository: infmonkeys/monkeys-multi-tenancy
+    tag: latest
+    pullPolicy: IfNotPresent
+    pullSecrets: 
+  
+  web:
+    registry: docker.io
+    repository: infmonkeys/monkeys-ui
+    tag: latest
+    pullPolicy: IfNotPresent
+    pullSecrets: 
+
+  admin:
+    registry: docker.io
+    repository: infmonkeys/monkeys-admin
+    # To use multi tenancy version
+    # repository: infmonkeys/monkeys-admin-multi-tenancy
+    tag: latest
+    pullPolicy: IfNotPresent
+    pullSecrets:
+
+  conductor:
+    registry: docker.io
+    repository: infmonkeys/conductor
+    tag: latest
+    pullPolicy: IfNotPresent
+    pullSecrets: 
+
+  oneapi:
+    registry: docker.io
+    repository: justsong/one-api
+    tag: latest
+    pullPolicy: IfNotPresent
+    pullSecrets: 
+
+  busybox:
+    registry: docker.io
+    repository: busybox
+    tag: latest
+    pullPolicy: IfNotPresent
+    pullSecrets: 
+
+  clash:
+    registry: docker.io
+    repository: infmonkeys/clash
+    tag: latest
+    pullPolicy: IfNotPresent
+    pullSecrets:
+
+  nginx:
+    registry: docker.io
+    repository: nginx
+    tag: latest
+    pullPolicy: IfNotPresent
+    pullSecrets:
+
+###################################
+# Nginx reverse proxy
+###################################
+proxy:
+  enabled: true
+
+  replicas: 1
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  extraEnv:
+  # Apply your own Environment Variables if necessary
+  # - name: LANG
+  #   value: "C.UTF-8"
+  log:
+    persistence:
+      ## If true, create/use a Persistent Volume Claim for log
+      ## If false, flush logs to stdout & stderr
+      ##
+      enabled: false
+      mountPath: "/var/log/nginx"
+      annotations:
+        helm.sh/resource-policy: keep
+      persistentVolumeClaim:
+        existingClaim: ""
+        ## Nginx Logs Persistent Volume Storage Class
+        ## If defined, storageClassName: <storageClass>
+        ## If set to "-", storageClassName: "", which disables dynamic provisioning
+        ## If undefined (the default) or set to null, no storageClassName spec is
+        ##   set, choosing the default provisioner.
+        ## ReadWriteMany access mode required for nginx
+        ##
+        storageClass:
+        accessModes: ReadWriteMany
+        size: 1Gi
+        subPath: ""
+  service:
+    port: 80
+    annotations: {}
+    labels: {}
+    clusterIP: ""
+
+
+###################################
+# Monkeys Server
+###################################
+server:
+  replicas: 1
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+  service:
+    port: 3000
+    annotations: {}
+    labels: {}
+    clusterIP: ""
+
+  # For single tenant
+  site:
+    # Defaults to monkeys, will use as table name prefix and etc, you can change to your own.
+    appId: monkeys
+    # Change this to public visible url
+    appUrl: http://localhost:3000
+    customization:
+      title: 猴子无限
+      logo:
+        light: https://static.infmonkeys.com/logo/InfMonkeys-logo-light.svg
+        dark: https://static.infmonkeys.com/logo/InfMonkeys-logo-dark.svg
+      favicon: https://static.infmonkeys.com/logo/InfMonkeys-ICO.svg
+      colors:
+        primary: "#52ad1f"
+
+  # For multi tenant
+  # sites:
+  #   - appId: monkeys
+  #     appUrl: http://localhost:3000
+  #     host: localhost:3000
+  #     customization:
+  #       title: 猴子无限
+  #       logo: https://static.aside.fun/static/vines.svg
+  #       favicon: https://static.infmonkeys.com/upload/favicon.svg
+  #       colors:
+  #         primary: "#52ad1f"
+  #   - appId: monkeys2
+  #     appUrl: http://localhost:3001
+  #     host: localhost:3001
+  #     customization:
+  #       title: 猴子无限
+  #       logo: https://static.aside.fun/static/vines.svg
+  #       favicon: https://static.infmonkeys.com/upload/favicon.svg
+  #       colors:
+  #         primary: "#52ad1f"
+
+  auth:
+    enabled:
+      - password
+
+  # Example: Enable OIDC SSO
+  # auth:
+  #   enabled:
+  #     - oidc
+  #   oidc:
+  #     auto_signin: false
+  #     issuer: 
+  #     client_id: 
+  #     client_secret: 
+  #     scope: openid profile
+  #     button_text: 使用 OIDC 登录
+  #     id_token_signed_response_alg: RS256  
+
+
+  # Example: Enable SMS Auth
+  # auth:
+  #   enabled:
+  #     - phone
+  #   sms:
+  #     provider: dysms
+  #     config:
+  #       accessKeyId: 
+  #       accessKeySecret: 
+  #       signName: 
+  #       templateCode: 
+
+
+###################################
+# Monkeys Web
+###################################
+web:
+  replicas: 1
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+  service:
+    port: 3000
+    annotations: {}
+    labels: {}
+    clusterIP: ""
+
+###################################
+# Monkeys Admin
+###################################
+admin:
+  enabled: false
+  replicas: 1
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+  service:
+    port: 3000
+    annotations: {}
+    labels: {}
+    clusterIP: ""
+
+  # For single tenant
+  site:
+    # Defaults to monkeys, will use as table name prefix and etc, you can change to your own.
+    appId: monkeys
+    # Change this to public visible url
+    appUrl: http://localhost:3000
+    auth:
+      enabled: true
+      defaultAdmin:
+        email: admin@example.com
+        password: monkeys123
+    customization:
+      title: 猴子无限
+      logo:
+        light: https://static.infmonkeys.com/logo/InfMonkeys-logo-light.svg
+        dark: https://static.infmonkeys.com/logo/InfMonkeys-logo-dark.svg
+      favicon: https://static.infmonkeys.com/logo/InfMonkeys-ICO.svg
+      colors:
+        primary: "#52ad1f"
+
+  # For multi tenant version
+  # sites:
+  #   - appId: monkeys
+  #     host: localhost:3000
+  #     auth:
+  #       enabled: true
+  #       defaultAdmin:
+  #         email: admin@example.com
+  #         password: monkeys123
+  #     customization:
+  #       title: 猴子无限
+  #       logo: https://static.aside.fun/static/vines.svg
+  #       favicon: https://static.infmonkeys.com/upload/favicon.svg
+  #       colors:
+  #         primary: "#52ad1f"
+  #   - appId: monkeys2
+  #     host: localhost:3001
+  #     auth:
+  #       enabled: true
+  #       defaultAdmin:
+  #         email: admin@example.com
+  #         password: monkeys123
+  #     customization:
+  #       title: 猴子无限
+  #       logo: https://static.aside.fun/static/vines.svg
+  #       favicon: https://static.infmonkeys.com/upload/favicon.svg
+  #       colors:
+  #         primary: "#52ad1f"
+
+###################################
+# OneAPI
+###################################
+oneapi:
+  enabled: true
+  rootUsername: root
+  rootPassword: "123456"
+
+###################################
+# External OneAPI
+###################################
+externalOneapi:
+  enabled: false
+  baseURL: http:127.0.0.1:3000
+  rootToken: "37383627c8daxxxxxxxx78ae3e453923c2"
+
+###################################
+# BuiltIn Tools
+###################################
+tools: []
+# tools:
+#   - name: knowledge-base
+#     manifestUrl: http://monkey-tools-knowledge-base:5000/manifest.json
+
+###################################
+# LLM Models
+###################################
+llmModels: []
+# llmModels:
+#   - model:
+#       - gpt-3.5-turbo
+#       - gpt-4-0613
+#     baseURL: https://api.openai.com/v1
+#     apiKey: sk-xxxxxxxxxxxxxxxxxxxx
+#     type:
+#       - chat_completions
+
+###################################
+# Conductor
+###################################
+conductor:
+  replicas: 1
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+  service:
+    port: 8080
+    annotations: {}
+    labels: {}
+    clusterIP: ""
+
+###################################
+# Clash
+###################################
+clash:
+  enabled: false
+  replicas: 1
+  resources: {}
+  annotations: {}
+
+  subscriptionUrl: ""
+  secret: ""
+
+
+###################################
+# GProductNavigator
+###################################
+GProductNavigator:
+  enabled: false
+  spec:
+    name: 流程编排
+    iconUrl: https://static.infmonkeys.com/favicon-gray.svg
+    localizedName:
+      zh-CN: 流程编排
+      en-US: Flow Choreography
+    url: https://ai.daocloud.cn/login
+    category: modelapplication
+    visible: true
+    order: 0
+    gproduct: monkeys
+
+
+###################################
+# BuiltIn postgres
+# - these configs are only used when `postgresql.enabled` is true
+###################################
+postgresql:
+  # If not enabled, will use sqlite as fallback.
+  enabled: true
+  image:
+    debug: true
+  auth:
+    postgresPassword: "monkeys123"
+    username: "monkeys"
+    password: "monkeys123"
+    monkeysDatabase: "monkeys"
+    conductorDatabase: "conductor"
+    oneapiDatabase: "oneapi"
+  primary:
+    initdb:
+      user: monkeys
+      password: monkeys123
+      scripts:
+        setup.sql: |
+          CREATE DATABASE monkeys;
+          CREATE DATABASE conductor;
+          CREATE DATABASE oneapi;
+
+###################################
+# External postgres
+# - these configs are only used when `externalPostgresql.enabled` is true
+###################################
+# For monkeys
+externalPostgresql:
+  enabled: false
+  host: 127.0.0.1
+  port: 5432
+  username: monkeys
+  password: monkeys123
+  database: monkeys
+
+# For conductor
+externalConductorPostgresql:
+  enabled: false
+  host: 127.0.0.1
+  port: 5432
+  username: monkeys
+  password: monkeys123
+  database: conductor
+
+# For OneAPI
+externalOneapiPostgresql:
+  enabled: false
+  host: 127.0.0.1
+  port: 5432
+  username: monkeys
+  password: monkeys123
+  database: oneapi
+
+###################################
+# BuiltIn elasticsearch
+# - these configs are only used when `elasticsearch.enabled` is true
+# See more at https://github.com/elastic/helm-charts/tree/main/elasticsearch#configuration
+###################################
+elasticsearch:
+  enabled: true
+  replicas: 1
+  image: docker.elastic.co/elasticsearch/elasticsearch
+  imageTag: 7.17.3
+  minimumMasterNodes: 1
+  esMajorVersion: 7
+  secret:
+    password: monkeys123
+
+  indexReplicasCount: 0
+  clusterHealthColor: yellow
+
+###################################
+# External elasticsearch 7
+# - these configs are only used when `externalElasticsearch.enabled` is true
+###################################
+externalElasticsearch:
+  enabled: false
+  indexReplicasCount: 0
+  clusterHealthColor: yellow
+  url: http://localhost:9200
+  username: elastic
+  password: monkeys123
+
+###################################
+# BuiltIn redis
+# - these configs are only used when `redis.enabled` is true
+###################################
+redis:
+  enabled: true
+  architecture: standalone
+  global:
+    redis:
+      password: monkeys123
+
+###################################
+# External redis
+# - these configs are only used when `externalRedis.enabled` is true
+###################################
+# standalone example
+externalRedis:
+  mode: standalone
+  enabled: false
+  url: redis://localhost:6379/0
+  # Set password like this
+  # url: redis://:password@localhost:6379/0
+
+# cluster example
+# externalRedis:
+#   enabled: true
+#   mode: cluster
+#   nodes:
+#     - host: 127.0.0.1
+#       port: 7001
+#     - host: 127.0.0.1
+#       port: 7002
+#     - host: 127.0.0.1
+#       port: 7003
+#     - host: 127.0.0.1
+#       port: 7004
+#     - host: 127.0.0.1
+#       port: 7005
+#     - host: 127.0.0.1
+#       port: 7006
+#   options:
+#     password: password
+
+# sentinel example
+# externalRedis:
+#   enabled: true
+#   mode: sentinel
+#   sentinels:
+#     - host: 127.0.0.1
+#       port: 7101
+#   sentinelName: mymaster
+#   options:
+#     password: password
+
+###################################
+# BuiltIn s3 storage
+# - these configs are only used when `minio.enabled` is true
+# - See more configuration at https://artifacthub.io/packages/helm/bitnami/minio
+###################################
+minio:
+  enabled: true
+  mode: standalone
+  defaultBuckets: monkeys-static
+  isPrivate: false
+  auth:
+    rootUser: minio
+    rootPassword: monkeys123
+
+  # By default use nodeport mode, so in browser user can access.
+  service:
+    type: NodePort
+    nodePorts:
+      # NodePort value should be between 30000-32767
+      # And if your server is behind a firewall, be sure to open those ports.
+      api: 31900
+      console: 31901
+
+  # This is the public accessible url of your minio, this will be use by frontend to display your staticfiles.
+  # **NOTE: this is the api port not console port**
+  # **NOTE: if you are using minikube, you need to port-foward minio service, see more at https://stackoverflow.com/a/55110218**
+  endpoint: http://127.0.0.1:31900
+
+###################################
+# External s3 storage
+# - these configs are only used when `externalRedis.enabled` is true
+###################################
+externalS3:
+  enabled: false
+  # If the bucket is private, set this to true
+  isPrivate: false
+  # If you are use minio, set this to true
+  forcePathStyle: false
+  endpoint: ""
+  accessKeyId: ""
+  secretAccessKey: ""
+  region: ""
+  bucket: ""
+  publicAccessUrl: ""
+
+###################################
+# Proxy SVC Config
+###################################
+# By default use ClusterIP Mode
+service:
+  type: ClusterIP
+  port: 80
+  clusterIP: ""
+
+  # Or you can use NodePort Mode
+  # type: NodePort
+  # port: 80
+  # nodePort: 30080
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    # nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    # nginx.ingress.kubernetes.io/proxy-body-size: 15m
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: monkeys-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10

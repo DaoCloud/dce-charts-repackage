@@ -1,0 +1,20 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+export REPO_URL=https://inf-monkeys.github.io/helm-charts
+export REPO_NAME=inf-monkeys
+export CHART_NAME=core
+export VERSION=v0.1.9
+
+# pr issue
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=zgfh
+export TEST_ASSIGNER=zgfh
+
+# optional, for wrapper chart
+export CUSTOM_SHELL=custom.sh
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon
+
+export NO_TRIVY=false

@@ -1,0 +1,10 @@
+{{- if and .Values.clash.enabled}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clash-config
+data:
+  env: |-
+    export CLASH_URL='{{ .Values.clash.subscriptionUrl }}'
+    export CLASH_SECRET='{{ .Values.clash.secret }}'
+{{- end}}

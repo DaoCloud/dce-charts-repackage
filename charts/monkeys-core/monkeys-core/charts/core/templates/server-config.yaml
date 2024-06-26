@@ -1,0 +1,111 @@
+immutable: false
+kind: ConfigMap
+metadata:
+  name: {{ template "monkeys.server.fullname" . }}
+apiVersion: v1
+data:
+  config.yaml: |
+    # Server config
+    {{- if .Values.server.site }}
+    server:
+    {{- toYaml .Values.server.site | nindent 6 }}
+    {{- end }}
+
+    {{- if .Values.server.sites }}
+    servers:
+    {{- toYaml .Values.server.sites | nindent 6 }}
+    {{- end }}
+
+    # Database Config
+    {{- if .Values.postgresql.enabled }}
+    database:
+      type: postgres
+      host: {{ .Release.Name }}-postgresql
+      port: 5432
+      username: {{ .Values.postgresql.auth.username }}
+      password: {{ .Values.postgresql.auth.password }}
+      database: {{ .Values.postgresql.auth.monkeysDatabase }}
+    {{- else if .Values.externalPostgresql.enabled }}
+    database:
+      type: postgres
+      host: {{ .Values.externalPostgresql.host }}
+      port: {{ .Values.externalPostgresql.port }}
+      username: {{ .Values.externalPostgresql.username }}
+      password: {{ .Values.externalPostgresql.password }}
+      database: {{ .Values.externalPostgresql.database }}
+    {{- else }}
+    database:
+      type: better-sqlite3
+      database: data/db.sqlite
+    {{- end }}
+
+    # Redis Config
+    {{- if .Values.redis.enabled }}
+    redis:
+      url: redis://:{{ .Values.redis.global.redis.password }}@monkeys-redis-master:6379/0
+    {{- else if .Values.externalRedis.enabled }}
+    redis:
+      {{- toYaml .Values.externalRedis | nindent 6 }}
+    {{- else }}
+    {{- end }}
+
+    # Auth Config
+    auth:
+    {{- toYaml .Values.server.auth | nindent 6 }}
+
+    {{- if .Values.minio.enabled }}
+    s3:
+      endpoint: {{ .Values.minio.endpoint }}
+      isPrivate: {{ .Values.minio.isPrivate }}
+      forcePathStyle: true
+      accessKeyId: {{ if .Values.minio.accessKeyId }}{{ .Values.minio.accessKeyId }}{{ else }}{{ .Values.minio.auth.rootUser }}{{ end }}
+      secretAccessKey: {{ if .Values.minio.secretAccessKey }}{{ .Values.minio.secretAccessKey }}{{ else }}{{ .Values.minio.auth.rootPassword }}{{ end }}
+      region: 'us-east-1'
+      bucket: {{ .Values.minio.defaultBuckets }}
+      publicAccessUrl: {{ .Values.minio.endpoint }}/{{ .Values.minio.defaultBuckets }}
+    {{- else if .Values.externalS3.enabled }}
+    s3:
+      isPrivate: {{ .Values.externalS3.isPrivate }}
+      forcePathStyle: {{ .Values.externalS3.forcePathStyle }}
+      endpoint: {{ .Values.externalS3.endpoint }}
+      accessKeyId: {{ .Values.externalS3.accessKeyId }}
+      secretAccessKey: {{ .Values.externalS3.secretAccessKey }}
+      region: {{ .Values.externalS3.region }}
+      bucket: {{ .Values.externalS3.bucket }}
+      publicAccessUrl: {{ .Values.externalS3.publicAccessUrl }}
+    {{- else }}
+    {{- end }}
+
+    conductor:
+      baseUrl: http://{{ template "monkeys.conductor.fullname" . }}:8080/api
+
+    {{- if .Values.llmModels }}
+    models:
+    {{- toYaml .Values.llmModels | nindent 6 }}
+    {{- end }}
+
+    {{- if .Values.tools }}
+    tools:
+    {{- toYaml .Values.tools | nindent 6 }}
+    {{- end }}
+
+    {{- if .Values.admin.enabled }}
+    paymentServer:
+      enabled: {{ .Values.admin.enabled }}
+      baseUrl: http://{{ template "monkeys.admin.fullname" . }}:{{ .Values.admin.service.port }}
+    {{- end }}
+
+    {{- if .Values.oneapi.enabled }}
+    oneapi:
+      enabled: true
+      baseURL: http://{{ template "monkeys.oneapi.fullname" . }}:3000
+      rootUsername: {{ .Values.oneapi.rootUsername }}
+      rootPassword: {{ .Values.oneapi.rootPassword }}
+      rootToken: {{ .Values.oneapi.rootToken }}
+    {{- else if .Values.externalOneapi.enabled }}
+    oneapi:
+      enabled: true
+      baseURL: {{ .Values.externalOneapi.baseURL }}
+      rootToken: {{ .Values.externalOneapi.rootToken }}
+    {{- else }}
+    {{- end }}

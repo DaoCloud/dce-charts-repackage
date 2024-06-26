@@ -1,0 +1,62 @@
+kind: ConfigMap
+metadata:
+  annotations:
+    kubesphere.io/creator: admin
+    kubesphere.io/description: conductor 配置文件
+  name: conductor-config
+apiVersion: v1
+data:
+  config-local.properties: |
+    conductor.grpc-server.enabled=false
+
+    # Database persistence model.
+    {{- if .Values.postgresql.enabled }}
+    conductor.db.type=postgres
+    spring.datasource.url=jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.auth.conductorDatabase }}
+    spring.datasource.username={{ .Values.postgresql.auth.username }}
+    spring.datasource.password={{ .Values.postgresql.auth.password }}
+    {{- else if .Values.externalConductorPostgresql.enabled }}
+    conductor.db.type=postgres
+    spring.datasource.url=jdbc:postgresql://{{ .Values.externalConductorPostgresql.host }}:{{ .Values.externalConductorPostgresql.port }}/{{ .Values.externalConductorPostgresql.database }}
+    spring.datasource.username={{ .Values.externalConductorPostgresql.username }}
+    spring.datasource.password={{ .Values.externalConductorPostgresql.password }}
+    {{- else }}
+    conductor.db.type=memory
+    {{- end }}
+
+    # Elastic search indexing
+    {{- if .Values.elasticsearch.enabled }}
+    conductor.indexing.enabled=true
+    conductor.elasticsearch.url=http://elasticsearch-master:9200
+    conductor.elasticsearch.version=7
+    conductor.elasticsearch.username=elastic
+    conductor.elasticsearch.password={{ .Values.elasticsearch.secret.password }}
+    conductor.elasticsearch.indexReplicasCount={{ .Values.elasticsearch.indexReplicasCount }}
+    conductor.elasticsearch.clusterHealthColor={{ .Values.elasticsearch.clusterHealthColor }}
+    {{- else if .Values.externalElasticsearch.enabled }}
+    conductor.indexing.enabled=true
+    conductor.elasticsearch.url={{ .Values.externalElasticsearch.url }}
+    conductor.elasticsearch.version=7
+    conductor.elasticsearch.username={{ .Values.externalElasticsearch.username }}
+    conductor.elasticsearch.password={{ .Values.externalElasticsearch.password }}
+    conductor.elasticsearch.indexReplicasCount={{ .Values.externalElasticsearch.indexReplicasCount }}
+    conductor.elasticsearch.clusterHealthColor={{ .Values.externalElasticsearch.clusterHealthColor }}
+    {{- else }}
+    conductor.indexing.enabled=false
+    {{- end }}
+
+    # Load sample kitchen sink workflow
+    loadSample=false
+
+    # Thresholds
+    conductor.app.workflowInputPayloadSizeThreshold=1MB
+    conductor.app.workflowOutputPayloadSizeThreshold=1MB
+    conductor.app.maxWorkflowOutputPayloadSizeThreshold=4GB
+    conductor.app.maxWorkflowInputPayloadSizeThreshold=4GB
+    conductor.app.taskInputPayloadSizeThreshold=1MB
+    conductor.app.taskOutputPayloadSizeThreshold=1MB
+    conductor.app.maxTaskInputPayloadSizeThreshold=4GB
+    conductor.app.maxTaskOutputPayloadSizeThreshold=4GB
+    conductor.app.maxWorkflowVariablesPayloadSizeThreshold=100MB
+    conductor.app.workflowOffsetTimeout=10m
+    conductor.app.asyncUpdateShortRunningWorkflowDuration=10m

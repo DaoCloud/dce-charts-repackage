@@ -1,0 +1,52 @@
+{{- if and .Values.admin.enabled}}
+immutable: false
+kind: ConfigMap
+metadata:
+  name: {{ template "monkeys.admin.fullname" . }}
+apiVersion: v1
+data:
+  config.yaml: |
+    # Server config
+    server:
+    {{- toYaml .Values.admin.site | nindent 6 }}
+
+    servers:
+    {{- toYaml .Values.admin.sites | nindent 6 }}
+
+    # Database Config
+    {{- if .Values.postgresql.enabled }}
+    database:
+      type: postgres
+      host: {{ .Release.Name }}-postgresql
+      port: 5432
+      username: {{ .Values.postgresql.global.postgresql.auth.username }}
+      password: {{ .Values.postgresql.global.postgresql.auth.password }}
+      database: {{ .Values.postgresql.global.postgresql.auth.database }}
+    {{- else if .Values.externalPostgresql.enabled }}
+    database:
+      type: postgres
+      host: {{ .Values.externalPostgresql.host }}
+      port: {{ .Values.externalPostgresql.port }}
+      username: {{ .Values.externalPostgresql.username }}
+      password: {{ .Values.externalPostgresql.password }}
+      database: {{ .Values.externalPostgresql.database }}
+    {{- else }}
+    database:
+      type: better-sqlite3
+      database: data/db.sqlite
+    {{- end }}
+
+    # Redis Config
+    {{- if .Values.redis.enabled }}
+    redis:
+      url: redis://:{{ .Values.redis.global.redis.password }}@monkeys-redis-master:6379/0
+    {{- else if .Values.externalRedis.enabled }}
+    redis:
+      {{- toYaml .Values.externalRedis | nindent 6 }}
+    {{- else }}
+    {{- end }}
+
+    # Auth Config
+    auth:
+    {{- toYaml .Values.admin.auth | nindent 6 }}
+{{- end}}
