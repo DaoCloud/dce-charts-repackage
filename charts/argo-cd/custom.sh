@@ -35,7 +35,7 @@ fi
 
 #==============================
 sysctlImageTag=$(yq .sysctlImage.tag charts/argo-cd/charts/redis-ha/values.yaml)
-configmapImageTag=$(yq .configmapTest.image.tag charts/argo-cd/charts/redis-ha/values.yaml)
+configmapImageTag="0.7.1"
 haproxyImageTag=$(yq .haproxy.image.tag charts/argo-cd/charts/redis-ha/values.yaml)
 exporterImageTag=$(yq .exporter.tag charts/argo-cd/charts/redis-ha/values.yaml)
 globalImageTag=$(yq .appVersion Chart.yaml)
