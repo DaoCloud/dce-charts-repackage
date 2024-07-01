@@ -53,16 +53,11 @@ ipam:
   ## @param ipam.enableKubevirtStaticIP the feature to keep kubevirt vm pod static IP
   enableKubevirtStaticIP: true
 
-  spidersubnet:
-    ## @param ipam.spidersubnet.enable SpiderSubnet feature.
-    enable: true
+  ## @param ipam.enableSpiderSubnet SpiderSubnet feature gate.
+  enableSpiderSubnet: true
 
-    autoPool:
-      ## @param ipam.spidersubnet.autoPool.enable SpiderSubnet Auto IPPool feature.
-      enable: true
-
-      ## @param ipam.spidersubnet.autoPool.defaultRedundantIPNumber the default redundant IP number of SpiderSubnet feature auto-created IPPools
-      defaultRedundantIPNumber: 1
+  ## @param ipam.subnetDefaultFlexibleIPNumber the default flexible IP number of SpiderSubnet feature auto-created IPPools
+  subnetDefaultFlexibleIPNumber: 1
 
   gc:
     ## @param ipam.gc.enabled enable retrieve IP in spiderippool CR
@@ -202,9 +197,6 @@ rdma:
       ## @param rdma.rdmaSharedDevicePlugin.deviceConfig.deviceIDs rdma device IDs, default to mellanox device
       deviceIDs: "1017"
 
-      ## @param rdma.rdmaSharedDevicePlugin.deviceConfig.ifNames rdma target device name, default to empty list.
-      ifNames: []
-
 ## @section multus parameters
 ##
 multus:
@@ -268,16 +260,6 @@ multus:
 
       ## @param multus.multusCNI.log.logFile the multus-CNI daemonset pod log file
       logFile: "/var/log/multus.log"
-
-## @section dra parameters
-##
-dra:
-  ## @param dra.enabled to enable dra feature
-  enabled: false
-  ## @param dra.cdiRootPath the dir of cdi root
-  cdiRootPath: "/var/run/cdi"
-  ## @param dra.hostDevicePath the dir path of the device
-  hostDevicePath: ""
 
 ## @section plugins parameters
 ##
@@ -378,7 +360,7 @@ spiderpoolAgent:
     digest: ""
 
     ## @param spiderpoolAgent.image.tag the image tag of spiderpoolAgent, overrides the image tag whose default is the chart appVersion.
-    tag: v1.0.0-rc0
+    tag: v0.9.4
 
     ## @param spiderpoolAgent.image.imagePullSecrets the image imagePullSecrets of spiderpoolAgent
     imagePullSecrets: []
@@ -562,7 +544,7 @@ spiderpoolController:
     digest: ""
 
     ## @param spiderpoolController.image.tag the image tag of spiderpoolController, overrides the image tag whose default is the chart appVersion.
-    tag: v1.0.0-rc0
+    tag: v0.9.4
 
     ## @param spiderpoolController.image.imagePullSecrets the image imagePullSecrets of spiderpoolController
     imagePullSecrets: []
@@ -767,10 +749,6 @@ spiderpoolController:
       ## @param spiderpoolController.tls.auto.extraDnsNames extra DNS names of server cert for auto method
       extraDnsNames: []
 
-  cleanup:
-    ## @param spiderpoolController.cleanup.enable clean up resources when helm uninstall
-    enable: true
-
 ## @section spiderpoolInit parameters
 ##
 spiderpoolInit:
@@ -797,7 +775,7 @@ spiderpoolInit:
     digest: ""
 
     ## @param spiderpoolInit.image.tag the image tag of spiderpoolInit, overrides the image tag whose default is the chart appVersion.
-    tag: v1.0.0-rc0
+    tag: v0.9.4
 
     ## @param spiderpoolInit.image.imagePullSecrets the image imagePullSecrets of spiderpoolInit
     imagePullSecrets: []
