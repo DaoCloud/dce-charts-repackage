@@ -188,13 +188,13 @@ checkBin:
 
 .PHONY: install-relok8s
 install-relok8s:
-	VERSION=0.5.1 ;\
+	VERSION=0.5.4 ;\
 	curl -OL https://github.com/vmware-tanzu/asset-relocation-tool-for-kubernetes/releases/download/v$${VERSION}/relok8s_$${VERSION}_linux_x86_64.tar.gz  ;\
 	tar -zvxf relok8s_$${VERSION}_linux_x86_64.tar.gz && mv relok8s /usr/local/bin/relok8s && rm -rf README.md relok8s*.tar.gz
 
 .PHONY: install-charts-syncer
 install-charts-syncer:
-	VERSION=0.0.15 ; \
+	VERSION=0.0.23 ; \
 	curl -OL https://github.com/DaoCloud/charts-syncer/releases/download/v$${VERSION}/charts-syncer_$${VERSION}_linux_x86_64.tar.gz ; \
 	tar -zvxf charts-syncer_$${VERSION}_linux_x86_64.tar.gz && mv charts-syncer /usr/local/bin/charts-syncer && rm -rf README.md charts-syncer*.tar.gz
 
