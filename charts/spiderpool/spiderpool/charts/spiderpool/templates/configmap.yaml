@@ -19,17 +19,12 @@ data:
     enableIPv6: {{ .Values.ipam.enableIPv6 }}
     enableStatefulSet: {{ .Values.ipam.enableStatefulSet }}
     enableKubevirtStaticIP: {{ .Values.ipam.enableKubevirtStaticIP }}
-    enableSpiderSubnet: {{ .Values.ipam.spidersubnet.enable }}
-    enableAutoPoolForApplication: {{ .Values.ipam.spidersubnet.autoPool.enable }}
-    {{- if and .Values.ipam.spidersubnet.enable .Values.ipam.spidersubnet.autoPool.enable }}
-    clusterSubnetDefaultFlexibleIPNumber: {{ .Values.ipam.spidersubnet.autoPool.defaultRedundantIPNumber }}
+    enableSpiderSubnet: {{ .Values.ipam.enableSpiderSubnet }}
+    {{- if .Values.ipam.enableSpiderSubnet }}
+    clusterSubnetDefaultFlexibleIPNumber: {{ .Values.ipam.subnetDefaultFlexibleIPNumber }}
     {{- else}}
     clusterSubnetDefaultFlexibleIPNumber: 0
     {{- end }}
-    dra:
-      enabled: {{ .Values.dra.enabled }}
-      cdiRootPath: {{ .Values.dra.cdiRootPath }}
-      hostDevicePath: {{ .Values.dra.hostDevicePath }}
 {{- if .Values.multus.multusCNI.install }}
 ---
 kind: ConfigMap

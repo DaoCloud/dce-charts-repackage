@@ -22,8 +22,7 @@ data:
              "rdmaHcaMax": {{ .Values.rdma.rdmaSharedDevicePlugin.deviceConfig.rdmaHcaMax }},
              "selectors": {
                "vendors": [{{ .Values.rdma.rdmaSharedDevicePlugin.deviceConfig.vendors | quote }}],
-               "deviceIDs": [{{ .Values.rdma.rdmaSharedDevicePlugin.deviceConfig.deviceIDs | quote }}],
-               "ifNames": {{ toJson .Values.rdma.rdmaSharedDevicePlugin.deviceConfig.ifNames }}
+               "deviceIDs": [{{ .Values.rdma.rdmaSharedDevicePlugin.deviceConfig.deviceIDs | quote }}]
               }
         }]
     }
