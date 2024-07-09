@@ -22,11 +22,17 @@ yq -i .prometheus-adapter.image.repository=\"$repository\"  values.yaml
 yq -i '.prometheus-adapter.image.registry="k8s.m.daocloud.io"'  values.yaml
 yq -i '.prometheus-adapter.prometheus.url="http://insight-agent-kube-prometh-prometheus.insight-system.svc"'  values.yaml
 
+tag=$(yq  '.appVersion' Chart.yaml)
+yq -i .prometheus-adapter.image.tag=\"$tag\"  values.yaml
+
 sed -i '/resources: {}/,/^\s*$/{/^\s*$/!s/#/ /g}' values.yaml
 sed -i 's/resources: {}/resources: /g' values.yaml
 
-if [ "$(uname)" == "Darwin" ];then
-  sed  -i '' 's?"{{ .Values.image.repository }}:{{ .Values.image.tag }}"?"{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?'   charts/prometheus-adapter/templates/deployment.yaml
-else
-  sed  -i  's?"{{ .Values.image.repository }}:{{ .Values.image.tag }}"?"{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?'   charts/prometheus-adapter/templates/deployment.yaml
-fi
+yq -i '
+  .prometheus-adapter.resources.requests.cpu = "1" |
+  .prometheus-adapter.resources.requests.memory = "1Gi" |
+  .prometheus-adapter.resources.limits.cpu = "1" |
+  .prometheus-adapter.resources.limits.memory = "1Gi"
+' values.yaml
+
+sed  -i  's?"{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"?"{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"?'   charts/prometheus-adapter/templates/deployment.yaml
