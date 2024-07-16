@@ -51,24 +51,24 @@ opentelemetry-demo-lite:
     redis:
       redisCRResource:
         redisExporterImage:
-          registry: quay.m.daocloud.io
-          repository: opstree/redis-exporter
-          tag: "v1.44.0"
+          registry: docker.m.daocloud.io
+          repository: oliver006/redis_exporter
+          tag: "v1.45.0"
         image:
-          registry: quay.m.daocloud.io
-          repository: opstree/redis
-          tag: "v7.0.5"
+          registry: ghcr.m.daocloud.io
+          repository: ksmartdata/ot-redis
+          tag: "v6.2.12-alpine"
       image:
-        registry: docker.m.daocloud.io
-        repository: library/redis
-        tag: "alpine"
+        registry: ghcr.m.daocloud.io
+        repository: ksmartdata/ot-redis
+        tag: "v6.2.12-alpine"
     dataservice:
       # this value is not in used, it replaces by global.microservices.nacos.enabled
       enabled: true
       image:
         registry: ghcr.m.daocloud.io
         repository: openinsight-proj/demo
-        tag: "fb41b4c0f323f929300ca2769e34f41fda8f9c25-dataservice"
+        tag: "db802043e29ceb4205af968a6d6f324c8929d543-dataservice"
         pullPolicy: Always
       servcie:
         type: ClusterIP
@@ -124,19 +124,16 @@ opentelemetry-demo-lite:
       image:
         registry: ghcr.m.daocloud.io
         repository: openinsight-proj/demo
-        tag: "fb41b4c0f323f929300ca2769e34f41fda8f9c25-adservice-v2"
+        tag: "db802043e29ceb4205af968a6d6f324c8929d543-adservice-v2"
         pullPolicy: Always
       servcie:
-        type: NodePort
+        type: ClusterIP
       ports:
-        - name: service-grpc
+        - name: grpc
           containerPort: 8080
           protocol: TCP
-        - name: rest-http
+        - name: http
           containerPort: 8081
-          protocol: TCP
-        - name: health-http
-          containerPort: 8999
           protocol: TCP
         - name: jmx-metrics
           containerPort: 12345

@@ -9,9 +9,9 @@ metadata:
 spec:
   selector:
     matchLabels:
-          app.kubernetes.io/component: adservice
-          app.kubernetes.io/instance: {{ .Release.Name }}
-          app.kubernetes.io/name: {{ .Release.Name }}-adservice
+      app.kubernetes.io/component: adservice
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: {{ .Release.Name }}-adservice
   template:
     metadata:
       labels:
@@ -34,9 +34,9 @@ spec:
           {{- if .Values.extensions.adservice.ports }}
           ports:
           {{- range $port := .Values.extensions.adservice.ports }}
-          - name: {{ $port.name}}
-            containerPort: {{ $port.containerPort }}
-            protocol: {{ $port.protocol }}
+            - name: {{ $port.name}}
+              containerPort: {{ $port.containerPort }}
+              protocol: {{ $port.protocol }}
           {{- end }}
           {{- end }}
           env:
@@ -62,6 +62,33 @@ spec:
             limits:
               cpu: "1"
               memory: 1024Mi
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 20
 ---
 apiVersion: v1
 kind: Service
@@ -74,10 +101,10 @@ spec:
   {{- if .Values.extensions.adservice.ports }}
   ports:
   {{- range $port := .Values.extensions.adservice.ports }}
-  - name: {{ $port.name}}
-    port: {{ $port.containerPort }}
-    protocol: {{ $port.protocol }}
-    targetPort: {{ $port.containerPort }}
+    - name: {{ $port.name}}
+      port: {{ $port.containerPort }}
+      protocol: {{ $port.protocol }}
+      targetPort: {{ $port.containerPort }}
   {{- end }}
   {{- end }}
   selector:
