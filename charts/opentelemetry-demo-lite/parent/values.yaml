@@ -127,16 +127,13 @@ opentelemetry-demo-lite:
         tag: "db802043e29ceb4205af968a6d6f324c8929d543-adservice-v2"
         pullPolicy: Always
       servcie:
-        type: NodePort
+        type: ClusterIP
       ports:
-        - name: service-grpc
+        - name: grpc
           containerPort: 8080
           protocol: TCP
-        - name: rest-http
+        - name: http
           containerPort: 8081
-          protocol: TCP
-        - name: health-http
-          containerPort: 8999
           protocol: TCP
         - name: jmx-metrics
           containerPort: 12345
