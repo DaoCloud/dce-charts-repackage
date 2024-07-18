@@ -1,0 +1,21 @@
+apiVersion: v2
+appVersion: 1.5.0
+description: A Helm chart for Koordinator
+home: https://koordinator.sh
+icon: https://koordinator.sh/img/logo.svg
+keywords:
+  - koordinator
+  - co-location
+  - mixed-workloads
+name: koordinator
+sources:
+  - https://github.com/koordinator-sh/koordinator
+type: application
+version: 1.5.0
+dependencies:
+  - name: koordinator
+    version: "1.5.0"
+    repository: "https://koordinator-sh.github.io/charts/"
+annotations:
+  addon.kpanda.io/release-name: koordinator
+  addon.kpanda.io/namespace: koordinator-system

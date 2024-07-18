@@ -1,0 +1,448 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "koordinator": {
+            "type": "object",
+            "properties": {
+                "crds": {
+                    "type": "object",
+                    "properties": {
+                        "clustercolocationprofiles": {
+                            "type": "boolean"
+                        },
+                        "devices": {
+                            "type": "boolean"
+                        },
+                        "elasticquotaprofiles": {
+                            "type": "boolean"
+                        },
+                        "elasticquotas": {
+                            "type": "boolean"
+                        },
+                        "managed": {
+                            "type": "boolean"
+                        },
+                        "nodemetrics": {
+                            "type": "boolean"
+                        },
+                        "noderesourcetopologies": {
+                            "type": "boolean"
+                        },
+                        "nodeslos": {
+                            "type": "boolean"
+                        },
+                        "podgroups": {
+                            "type": "boolean"
+                        },
+                        "podmigrationjobs": {
+                            "type": "boolean"
+                        },
+                        "recommendations": {
+                            "type": "boolean"
+                        },
+                        "reservations": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "descheduler": {
+                    "type": "object",
+                    "properties": {
+                        "featureGates": {
+                            "type": "string"
+                        },
+                        "hostNetwork": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "log": {
+                            "type": "object",
+                            "properties": {
+                                "level": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "nodeAffinity": {
+                            "type": "object"
+                        },
+                        "nodeSelector": {
+                            "type": "object"
+                        },
+                        "port": {
+                            "type": "integer"
+                        },
+                        "replicas": {
+                            "type": "integer"
+                        },
+                        "resources": {
+                            "type": "object",
+                            "properties": {
+                                "limits": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "requests": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tolerations": {
+                            "type": "array"
+                        }
+                    }
+                },
+                "featureGates": {
+                    "type": "string"
+                },
+                "imagePullSecrets": {
+                    "type": "object"
+                },
+                "imageRepositoryHost": {
+                    "type": "string"
+                },
+                "installation": {
+                    "type": "object",
+                    "properties": {
+                        "namespace": {
+                            "type": "string"
+                        },
+                        "roleListGroups": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "koordlet": {
+                    "type": "object",
+                    "properties": {
+                        "enableServiceMonitor": {
+                            "type": "boolean"
+                        },
+                        "features": {
+                            "type": "string"
+                        },
+                        "hostDirs": {
+                            "type": "object",
+                            "properties": {
+                                "koordProxyRegisterDir": {
+                                    "type": "string"
+                                },
+                                "koordletSockDir": {
+                                    "type": "string"
+                                },
+                                "koordletTSDBDir": {
+                                    "type": "string"
+                                },
+                                "kubeletConfigDir": {
+                                    "type": "string"
+                                },
+                                "kubeletLibDir": {
+                                    "type": "string"
+                                },
+                                "predictionCheckpointDir": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "log": {
+                            "type": "object",
+                            "properties": {
+                                "level": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "metrics": {
+                            "type": "object",
+                            "properties": {
+                                "port": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "nodeAffinity": {
+                            "type": "object"
+                        },
+                        "resources": {
+                            "type": "object",
+                            "properties": {
+                                "limits": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "requests": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "runtimeClassName": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "manager": {
+                    "type": "object",
+                    "properties": {
+                        "healthProbe": {
+                            "type": "object",
+                            "properties": {
+                                "port": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "hostNetwork": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "log": {
+                            "type": "object",
+                            "properties": {
+                                "level": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "metrics": {
+                            "type": "object",
+                            "properties": {
+                                "addr": {
+                                    "type": "string"
+                                },
+                                "port": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "nodeAffinity": {
+                            "type": "object"
+                        },
+                        "nodeSelector": {
+                            "type": "object"
+                        },
+                        "replicas": {
+                            "type": "integer"
+                        },
+                        "resources": {
+                            "type": "object",
+                            "properties": {
+                                "limits": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "requests": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "resyncPeriod": {
+                            "type": "string"
+                        },
+                        "tolerations": {
+                            "type": "array"
+                        },
+                        "webhook": {
+                            "type": "object",
+                            "properties": {
+                                "port": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                },
+                "scheduler": {
+                    "type": "object",
+                    "properties": {
+                        "compatible122FeatureGates": {
+                            "type": "string"
+                        },
+                        "compatibleBelow122FeatureGates": {
+                            "type": "string"
+                        },
+                        "featureGates": {
+                            "type": "string"
+                        },
+                        "hostNetwork": {
+                            "type": "boolean"
+                        },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "log": {
+                            "type": "object",
+                            "properties": {
+                                "level": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "nodeAffinity": {
+                            "type": "object"
+                        },
+                        "nodeSelector": {
+                            "type": "object"
+                        },
+                        "port": {
+                            "type": "integer"
+                        },
+                        "replicas": {
+                            "type": "integer"
+                        },
+                        "resources": {
+                            "type": "object",
+                            "properties": {
+                                "limits": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "requests": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tolerations": {
+                            "type": "array"
+                        }
+                    }
+                },
+                "serviceAccount": {
+                    "type": "object",
+                    "properties": {
+                        "annotations": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "webhookConfiguration": {
+                    "type": "object",
+                    "properties": {
+                        "failurePolicy": {
+                            "type": "object",
+                            "properties": {
+                                "elasticquotas": {
+                                    "type": "string"
+                                },
+                                "nodeStatus": {
+                                    "type": "string"
+                                },
+                                "nodes": {
+                                    "type": "string"
+                                },
+                                "pods": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "timeoutSeconds": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
