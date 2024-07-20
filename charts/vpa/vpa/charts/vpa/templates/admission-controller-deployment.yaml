@@ -8,6 +8,9 @@ metadata:
     {{- include "vpa.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.admissionController.replicaCount }}
+  {{- if .Values.admissionController.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.admissionController.revisionHistoryLimit }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/component: admission-controller
@@ -39,10 +42,17 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.admissionController.securityContext | nindent 12 }}
-          image: {{ template "admissionController.image" . }}
+          image: {{ .Values.admissionController.image.registry }}/{{ .Values.admissionController.image.repository }}:{{ .Values.admissionController.image.tag }}
           imagePullPolicy: {{ .Values.admissionController.image.pullPolicy }}
-          {{- if .Values.admissionController.extraArgs }}
           args:
+            - --register-webhook=false
+            - --webhook-service={{ include "vpa.fullname" . }}-webhook
+          {{- if .Values.admissionController.generateCertificate }}
+            - --client-ca-file=/etc/tls-certs/ca
+            - --tls-cert-file=/etc/tls-certs/cert
+            - --tls-private-key=/etc/tls-certs/key
+          {{- end }}
+          {{- if .Values.admissionController.extraArgs }}
           {{- range $key, $value := .Values.admissionController.extraArgs }}
             - --{{ $key }}={{ $value }}
           {{- end }}
@@ -51,24 +61,14 @@ spec:
             - name: tls-certs
               mountPath: "/etc/tls-certs"
               readOnly: true
+          {{- if .Values.admissionController.livenessProbe }}
           livenessProbe:
-            failureThreshold: 6
-            httpGet:
-              path: /health-check
-              port: metrics
-              scheme: HTTP
-            periodSeconds: 5
-            successThreshold: 1
-            timeoutSeconds: 3
+            {{- toYaml .Values.admissionController.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.admissionController.readinessProbe }}
           readinessProbe:
-            failureThreshold: 120
-            httpGet:
-              path: /health-check
-              port: metrics
-              scheme: HTTP
-            periodSeconds: 5
-            successThreshold: 1
-            timeoutSeconds: 3
+            {{- toYaml .Values.admissionController.readinessProbe | nindent 12 }}
+          {{- end }}
           ports:
             - name: http
               containerPort: 8000
@@ -86,7 +86,7 @@ spec:
       volumes:
         - name: tls-certs
           secret:
-            secretName: vpa-tls-certs
+            secretName: {{ include "vpa.webhook.secret" . }}
             {{- with .Values.admissionController.tlsSecretKeys }}
             items:
               {{- toYaml . | nindent 14 }}

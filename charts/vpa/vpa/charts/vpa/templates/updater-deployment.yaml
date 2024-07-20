@@ -8,6 +8,9 @@ metadata:
     {{- include "vpa.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.updater.replicaCount }}
+  {{- if .Values.updater.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.updater.revisionHistoryLimit }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/component: updater
@@ -39,7 +42,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.updater.securityContext | nindent 12 }}
-          image: {{ template "updater.image" . }}
+          image: {{ .Values.updater.image.registry }}/{{ .Values.updater.image.repository }}:{{ .Values.updater.image.tag }}
           imagePullPolicy: {{ .Values.updater.image.pullPolicy }}
           {{- if .Values.updater.extraArgs }}
           args:
@@ -52,24 +55,14 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+          {{- if .Values.updater.livenessProbe }}
           livenessProbe:
-            failureThreshold: 6
-            httpGet:
-              path: /health-check
-              port: metrics
-              scheme: HTTP
-            periodSeconds: 5
-            successThreshold: 1
-            timeoutSeconds: 3
+            {{- toYaml .Values.updater.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.updater.readinessProbe }}
           readinessProbe:
-            failureThreshold: 120
-            httpGet:
-              path: /health-check
-              port: metrics
-              scheme: HTTP
-            periodSeconds: 5
-            successThreshold: 1
-            timeoutSeconds: 3
+            {{- toYaml .Values.updater.readinessProbe | nindent 12 }}
+          {{- end }}
           ports:
             - name: metrics
               containerPort: 8943

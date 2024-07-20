@@ -31,48 +31,48 @@ fi
 
 #==============================
 if [ "$(uname)" == "Darwin" ];then
-  sed  -i '' 's?apk --update add openssl??'  charts/vpa/templates/admission-controller-certgen.yaml
-  sed  -i '' 's?{{ .Values.admissionController.certGen.image.repository }}:{{ .Values.admissionController.certGen.image.tag?{{ .Values.admissionController.certGen.image.registry }}/{{ .Values.admissionController.certGen.image.repository }}:{{ .Values.admissionController.certGen.image.tag?'  charts/vpa/templates/admission-controller-certgen.yaml
-  sed  -i '' 's?{{ .Values.admissionController.cleanupOnDelete.image.repository }}:{{ .Values.admissionController.cleanupOnDelete.image.tag?{{ .Values.admissionController.cleanupOnDelete.image.registry }}/{{ .Values.admissionController.cleanupOnDelete.image.repository }}:{{ .Values.admissionController.cleanupOnDelete.image.tag?'  charts/vpa/templates/admission-controller-cleanup.yaml
-  sed  -i '' 's?"{{ .Values.admissionController.image.repository }}:{{ .Values.admissionController.image.tag | default .Chart.AppVersion }}"?{{ template "admissionController.image" . }}?'   charts/vpa/templates/admission-controller-deployment.yaml
-  sed  -i '' 's?"{{ .Values.recommender.image.repository }}:{{ .Values.recommender.image.tag | default .Chart.AppVersion }}"?{{ template "recommender.image" . }}?'  charts/vpa/templates/recommender-deployment.yaml
-  sed  -i '' 's?"{{ .Values.updater.image.repository }}:{{ .Values.updater.image.tag | default .Chart.AppVersion }}"?{{ template "updater.image" . }}?'   charts/vpa/templates/updater-deployment.yaml
-  sed  -i '' 's?quay.io/reactiveops/ci-images:v11-alpine?release.daocloud.io/common-ci/common-ci-deployer:v0.1.52?'  charts/vpa/templates/tests/crd-available.yaml
-  sed  -i '' 's?quay.io/reactiveops/ci-images:v11-alpine?release.daocloud.io/common-ci/common-ci-deployer:v0.1.52?'  charts/vpa/templates/tests/create-vpa.yaml
-  sed  -i '' 's?quay.io/reactiveops/ci-images:v11-alpine?release.daocloud.io/common-ci/common-ci-deployer:v0.1.52?'  charts/vpa/templates/tests/metrics.yaml
+  sed -i '' 's?{{ include "vpa.test.image" . }}?release.daocloud.io/common-ci/common-ci-deployer:v0.1.52?'  charts/vpa/templates/tests/crds-available.yaml
+  sed -i '' 's?{{ include "vpa.test.image" . }}?release.daocloud.io/common-ci/common-ci-deployer:v0.1.52?'  charts/vpa/templates/tests/webhook.yaml
+  
+  sed -i '' 's?{{ printf "%s:%s" .Values.admissionController.certGen.image.repository .Values.admissionController.certGen.image.tag?{{ .Values.admissionController.certGen.image.registry }}/{{ .Values.admissionController.certGen.image.repository }}:{{ .Values.admissionController.certGen.image.tag?' charts/vpa/templates/webhooks/jobs/certgen-create.yaml
+  sed -i '' 's?{{ printf "%s:%s" .Values.admissionController.certGen.image.repository .Values.admissionController.certGen.image.tag?{{ .Values.admissionController.certGen.image.registry }}/{{ .Values.admissionController.certGen.image.repository }}:{{ .Values.admissionController.certGen.image.tag?' charts/vpa/templates/webhooks/jobs/certgen-patch.yaml
+  sed -i '' 's?{{ printf "%s:%s" .Values.admissionController.image.repository (.Values.admissionController.image.tag | default .Chart.AppVersion) }}?{{ .Values.admissionController.image.registry }}/{{ .Values.admissionController.image.repository }}:{{ .Values.admissionController.image.tag }}?' charts/vpa/templates/admission-controller-deployment.yaml
+  sed -i '' 's?{{ printf "%s:%s" .Values.recommender.image.repository (.Values.recommender.image.tag | default .Chart.AppVersion) }}?{{ .Values.recommender.image.registry }}/{{ .Values.recommender.image.repository }}:{{ .Values.recommender.image.tag }}?' charts/vpa/templates/recommender-deployment.yaml
+  sed -i '' 's?{{ printf "%s:%s" .Values.updater.image.repository (.Values.updater.image.tag | default .Chart.AppVersion) }}?{{ .Values.updater.image.registry }}/{{ .Values.updater.image.repository }}:{{ .Values.updater.image.tag }}?' charts/vpa/templates/updater-deployment.yaml
+  
 else
-  sed  -i  's?apk --update add openssl??'  charts/vpa/templates/admission-controller-certgen.yaml
-  sed  -i  's?{{ .Values.admissionController.certGen.image.repository }}:{{ .Values.admissionController.certGen.image.tag?{{ .Values.admissionController.certGen.image.registry }}/{{ .Values.admissionController.certGen.image.repository }}:{{ .Values.admissionController.certGen.image.tag?'   charts/vpa/templates/admission-controller-certgen.yaml
-  sed  -i  's?{{ .Values.admissionController.cleanupOnDelete.image.repository }}:{{ .Values.admissionController.cleanupOnDelete.image.tag?{{ .Values.admissionController.cleanupOnDelete.image.registry }}/{{ .Values.admissionController.cleanupOnDelete.image.repository }}:{{ .Values.admissionController.cleanupOnDelete.image.tag?'   charts/vpa/templates/admission-controller-cleanup.yaml
-  sed  -i  's?"{{ .Values.admissionController.image.repository }}:{{ .Values.admissionController.image.tag | default .Chart.AppVersion }}"?{{ template "admissionController.image" . }}?'   charts/vpa/templates/admission-controller-deployment.yaml
-  sed  -i  's?"{{ .Values.recommender.image.repository }}:{{ .Values.recommender.image.tag | default .Chart.AppVersion }}"?{{ template "recommender.image" . }}?'  charts/vpa/templates/recommender-deployment.yaml
-  sed  -i  's?"{{ .Values.updater.image.repository }}:{{ .Values.updater.image.tag | default .Chart.AppVersion }}"?{{ template "updater.image" . }}?' charts/vpa/templates/updater-deployment.yaml
-  sed  -i  's?quay.io/reactiveops/ci-images:v11-alpine?release.daocloud.io/common-ci/common-ci-deployer:v0.1.52?'  charts/vpa/templates/tests/crd-available.yaml
-  sed  -i  's?quay.io/reactiveops/ci-images:v11-alpine?release.daocloud.io/common-ci/common-ci-deployer:v0.1.52?'  charts/vpa/templates/tests/create-vpa.yaml
-  sed  -i  's?quay.io/reactiveops/ci-images:v11-alpine?release.daocloud.io/common-ci/common-ci-deployer:v0.1.52?'  charts/vpa/templates/tests/metrics.yaml
+  sed -i 's?{{ include "vpa.test.image" . }}?release.daocloud.io/common-ci/common-ci-deployer:v0.1.52?'  charts/vpa/templates/tests/crds-available.yaml
+  sed -i 's?{{ include "vpa.test.image" . }}?release.daocloud.io/common-ci/common-ci-deployer:v0.1.52?'  charts/vpa/templates/tests/webhook.yaml
+  
+  sed -i 's?{{ printf "%s:%s" .Values.admissionController.certGen.image.repository .Values.admissionController.certGen.image.tag?{{ .Values.admissionController.certGen.image.registry }}/{{ .Values.admissionController.certGen.image.repository }}:{{ .Values.admissionController.certGen.image.tag?' charts/vpa/templates/webhooks/jobs/certgen-create.yaml
+  sed -i 's?{{ printf "%s:%s" .Values.admissionController.certGen.image.repository .Values.admissionController.certGen.image.tag?{{ .Values.admissionController.certGen.image.registry }}/{{ .Values.admissionController.certGen.image.repository }}:{{ .Values.admissionController.certGen.image.tag?' charts/vpa/templates/webhooks/jobs/certgen-patch.yaml
+  sed -i 's?{{ printf "%s:%s" .Values.admissionController.image.repository (.Values.admissionController.image.tag | default .Chart.AppVersion) }}?{{ .Values.admissionController.image.registry }}/{{ .Values.admissionController.image.repository }}:{{ .Values.admissionController.image.tag }}?' charts/vpa/templates/admission-controller-deployment.yaml
+  sed -i 's?{{ printf "%s:%s" .Values.recommender.image.repository (.Values.recommender.image.tag | default .Chart.AppVersion) }}?{{ .Values.recommender.image.registry }}/{{ .Values.recommender.image.repository }}:{{ .Values.recommender.image.tag }}?' charts/vpa/templates/recommender-deployment.yaml
+  sed -i 's?{{ printf "%s:%s" .Values.updater.image.repository (.Values.updater.image.tag | default .Chart.AppVersion) }}?{{ .Values.updater.image.registry }}/{{ .Values.updater.image.repository }}:{{ .Values.updater.image.tag }}?' charts/vpa/templates/updater-deployment.yaml
+  
 fi
 
 yq -i '
   .vpa.kubeVersion = "" |
   .vpa.global.imageRegistry = "" |
-  .vpa.global.vpa.imageTag = "0.12.0" |
+  .vpa.global.vpa.imageTag = "1.0.0" |
   .vpa.crds.needcreate = true |
   .vpa.recommender.image.registry = "release.daocloud.io" |
   .vpa.recommender.image.repository = "autoscaling/vpa-recommender" |
-  .vpa.recommender.image.tag = "0.12.0" |
+  .vpa.recommender.image.tag = "1.0.0" |
   .vpa.recommender.image.oldTag = "0.9.0" |
   .vpa.updater.image.registry = "release.daocloud.io" |
   .vpa.updater.image.repository = "autoscaling/vpa-updater" |
-  .vpa.updater.image.tag = "0.12.0" |
+  .vpa.updater.image.tag = "1.0.0" |
   .vpa.updater.image.oldTag = "0.9.0" |
   .vpa.admissionController.enabled = true |
   .vpa.admissionController.image.registry = "release.daocloud.io" |
   .vpa.admissionController.image.repository = "autoscaling/vpa-admission-controller" |
-  .vpa.admissionController.image.tag = "0.12.0" |
+  .vpa.admissionController.image.tag = "1.0.0" |
   .vpa.admissionController.image.oldTag = "0.9.0" |
-  .vpa.admissionController.certGen.image.registry = "release.daocloud.io" |
-  .vpa.admissionController.certGen.image.repository = "common-ci/common-ci-deployer" |
-  .vpa.admissionController.certGen.image.tag = "v0.1.52" |
+  .vpa.admissionController.certGen.image.registry = "k8s.m.daocloud.io" |
+  .vpa.admissionController.certGen.image.repository = "ingress-nginx/kube-webhook-certgen" |
+  .vpa.admissionController.certGen.image.tag = "v20230312-helm-chart-4.5.2-28-g66a760794" |
   .vpa.createVpa.image.registry = "release.daocloud.io" |
   .vpa.createVpa.image.repository = "common-ci/common-ci-deployer" |
   .vpa.createVpa.image.tag = "v0.1.52" |
@@ -82,10 +82,7 @@ yq -i '
   .vpa.metrics.image.tag = "v0.1.52" |
   .vpa.crdAvailable.image.registry = "release.daocloud.io" |
   .vpa.crdAvailable.image.repository = "common-ci/common-ci-deployer" |
-  .vpa.crdAvailable.image.tag = "v0.1.52" |
-  .vpa.admissionController.cleanupOnDelete.image.registry = "release.daocloud.io" |
-  .vpa.admissionController.cleanupOnDelete.image.repository = "common-ci/common-ci-deployer" |
-  .vpa.admissionController.cleanupOnDelete.image.tag = "v0.1.52"
+  .vpa.crdAvailable.image.tag = "v0.1.52"
 ' values.yaml
 
 yq -i '
