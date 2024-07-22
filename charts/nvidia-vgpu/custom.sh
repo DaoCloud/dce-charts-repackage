@@ -92,7 +92,6 @@ if [ $os == "Darwin" ];then
      sed -i "" "$((line+1)) i\\
     repository: projecthami/hami
            " values.yaml
-     sed -i "" "s/image: {{ .Values.devicePlugin.image }}:{{ .Values.version }}/image: \"{{ .Values.devicePlugin.registry }}\/{{ .Values.devicePlugin.repository }}:{{ .Values.version }}\"/" charts/hami/templates/device-plugin/daemonsethygon.yaml
      sed -i "" "s/image: {{ .Values.devicePlugin.image }}:{{ .Values.version }}/image: \"{{ .Values.devicePlugin.registry }}\/{{ .Values.devicePlugin.repository }}:{{ .Values.version }}\"/" charts/hami/templates/device-plugin/daemonsetnvidia.yaml
 elif [ $os == "Linux" ];then
     sed -i "$line"d values.yaml
@@ -102,7 +101,6 @@ elif [ $os == "Linux" ];then
     sed -i  "$((line+1)) i\\
     repository: projecthami/hami
             " values.yaml
-    sed -i  "s/image: {{ .Values.devicePlugin.image }}:{{ .Values.version }}/image: \"{{ .Values.devicePlugin.registry }}\/{{ .Values.devicePlugin.repository }}:{{ .Values.version }}\"/" charts/hami/templates/device-plugin/daemonsethygon.yaml
     sed -i  "s/image: {{ .Values.devicePlugin.image }}:{{ .Values.version }}/image: \"{{ .Values.devicePlugin.registry }}\/{{ .Values.devicePlugin.repository }}:{{ .Values.version }}\"/" charts/hami/templates/device-plugin/daemonsetnvidia.yaml
 fi
 
@@ -217,18 +215,6 @@ line=$(sed -n -e '/volumeMounts:/=' charts/hami/templates/scheduler/deployment.y
     " charts/hami/templates/scheduler/deployment.yaml
   fi
 
-# add resoource daemonsethygon.yaml
-line=$(sed -n -e '/volumeMounts:/=' charts/hami/templates/device-plugin/daemonsethygon.yaml  | head -n 1)
-  echo "Processing line number: $line"
-  if [ $os == "Darwin" ];then
-     sed -i "" "$((line)) i\\
-          resources: {{ toYaml .Values.resources | nindent 12 }}
-      " charts/hami/templates/device-plugin/daemonsethygon.yaml
-  elif [ $os == "Linux" ];then
-    sed -i "$((line)) i\\
-          resources: {{ toYaml .Values.resources | nindent 12 }}
-    " charts/hami/templates/device-plugin/daemonsethygon.yaml
-  fi
 
 # add resources daemonsetnvidia.yaml
 line=$(sed -n -e '/volumeMounts:/=' charts/hami/templates/device-plugin/daemonsetnvidia.yaml  | head -n 1)
@@ -289,12 +275,6 @@ yq e '
     .devicePlugin.hygonImageTag="v1.0"
 ' -i charts/hami/values.yaml
 
-# update daemonsethygon.yaml image
-if [ $os == "Darwin" ];then
-   sed -i "" "s/{{ .Values.devicePlugin.hygonimage }}/\"{{ .Values.devicePlugin.registry }}\/{{ .Values.devicePlugin.hygonImageRepository }}:{{ .Values.devicePlugin.hygonImageTag | default .Chart.AppVersion }}\"/g" ./charts/hami/templates/device-plugin/daemonsethygon.yaml
-elif [ $os == "Linux" ]; then
-   sed -i  "s/{{ .Values.devicePlugin.hygonimage }}/\"{{ .Values.devicePlugin.registry }}\/{{ .Values.devicePlugin.hygonImageRepository }}:{{ .Values.devicePlugin.hygonImageTag | default .Chart.AppVersion }}\"/g" ./charts/hami/templates/device-plugin/daemonsethygon.yaml
-fi
 
 # set icon
 yq e '
