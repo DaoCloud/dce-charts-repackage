@@ -46,6 +46,17 @@
                                     "type": "string"
                                 }
                             }
+                        },
+                        "rdma": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "useHostMofed": {
+                                    "type": "boolean"
+                                }
+                            }
                         }
                     }
                 },
