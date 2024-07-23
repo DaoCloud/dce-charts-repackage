@@ -403,7 +403,7 @@ spec:
     image: {{ .Values.toolkit.image }}
     {{- end }}
     {{- if .Values.toolkit.version }}
-    version: {{ .Values.toolkit.version | quote }}
+    version: {{ include "toolkit.version" . }}
     {{- end }}
     {{- if .Values.toolkit.imagePullPolicy }}
     imagePullPolicy: {{ .Values.toolkit.imagePullPolicy }}
