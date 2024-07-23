@@ -5,6 +5,15 @@
         "gpu-operator": {
             "type": "object",
             "properties": {
+                "systemOS": {
+                    "type": "string",
+                    "enum": [
+                        "ubuntu22.04",
+                        "ubuntu20.04",
+                        "centos7.9",
+                        "other"
+                    ]
+                },
                 "operator": {
                     "type": "object",
                     "properties": {
@@ -28,6 +37,9 @@
                     "type": "object",
                     "properties": {
                         "enabled": {
+                            "type": "boolean"
+                        },
+                        "usePrecompiled":  {
                             "type": "boolean"
                         },
                         "image": {

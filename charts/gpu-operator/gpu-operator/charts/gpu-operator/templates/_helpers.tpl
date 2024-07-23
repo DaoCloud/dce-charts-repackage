@@ -71,3 +71,11 @@ Full image name with tag
 {{- define "gpu-operator.fullimage" -}}
 {{- .Values.operator.repository -}}/{{- .Values.operator.image -}}:{{- .Values.operator.version | default .Chart.AppVersion -}}
 {{- end }}
+
+{{- define "toolkit.version" -}}
+{{- if and (eq .Values.systemOS "ubuntu20.04") .Values.toolkit.versionubuntu20 }}
+ {{- default .Values.toolkit.versionubuntu20 }}
+{{- else }}
+ {{- default .Values.toolkit.version  }}
+{{- end }}
+{{- end -}}
