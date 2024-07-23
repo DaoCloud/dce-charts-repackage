@@ -12,6 +12,9 @@ gpu-operator:
     version: "535.104.12"
     repoConfig:
       configMapName: ""
+    rdma:
+      enabled: false
+      useHostMofed: false
   toolkit:
     enabled: true
     repository: nvcr.m.daocloud.io
