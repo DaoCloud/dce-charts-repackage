@@ -40,6 +40,7 @@ scheduler:
   defaultMem: 0
   defaultCores: 0
   defaultGPUNum: 1
+  overwriteEnv: "false"
   defaultSchedulerPolicy:
     nodeSchedulerPolicy: binpack
     gpuSchedulerPolicy: spread
@@ -115,8 +116,6 @@ devicePlugin:
   disablecorelimit: "false"
   extraArgs:
     - -v=false
-  hygonimage: "4pdosc/vdcu-device-plugin:v1.0"
-  hygondriver: "/root/dcu-driver/dtk-22.10.1-vdcu"
   service:
     httpPort: 31992
   pluginPath: /var/lib/kubelet/device-plugins
@@ -125,10 +124,6 @@ devicePlugin:
   nvidianodeSelector:
     nvidia.com/gpu.deploy.container-toolkit: "true"
     nvidia.com/vgpu.deploy.device-plugin: "true"
-  mlunodeSelector:
-    mlu: "on"
-  hygonnodeSelector:
-    dcu: "on"
   tolerations: []
   hygonImageRepository: 4pdosc/vdcu-device-plugin
   hygonImageTag: v1.0
