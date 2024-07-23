@@ -1,5 +1,6 @@
 # child values
 gpu-operator:
+  systemOS: ubuntu22.04
   operator:
     initContainer:
       image: nvidia/cuda
@@ -7,6 +8,7 @@ gpu-operator:
       version: 12.2.2-base-ubi8
   driver:
     enabled: true
+    usePrecompiled: false
     repository: nvcr.m.daocloud.io
     image: nvidia/driver
     version: "535.104.12"

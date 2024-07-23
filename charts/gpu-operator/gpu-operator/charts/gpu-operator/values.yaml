@@ -204,16 +204,19 @@ driver:
   # kernel module configuration for NVIDIA driver
   kernelModuleConfig:
     name: ""
+  versioncentos: 535.104.12
+  versionubunt20: 535.104.12
 toolkit:
   enabled: true
   repository: nvcr.m.daocloud.io
   image: nvidia/k8s/container-toolkit
-  version: v1.14.3-centos7
+  version: v1.16.0-ubi8
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
   resources: {}
   installDir: "/usr/local/nvidia"
+  versionubuntu20: v1.16.0-ubuntu20.04
 devicePlugin:
   enabled: true
   repository: nvcr.m.daocloud.io
@@ -499,3 +502,4 @@ node-feature-discovery:
     registry: k8s.m.daocloud.io
     repository: nfd/node-feature-discovery
     tag: v0.14.2
+systemOS: ubuntu22.04
