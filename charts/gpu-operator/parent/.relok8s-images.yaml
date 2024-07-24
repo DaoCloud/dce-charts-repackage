@@ -2,7 +2,7 @@
 - "{{ .gpu-operator.operator.repository }}/{{ .gpu-operator.operator.image }}:{{ .gpu-operator.operator.version }}"
 - "{{ .gpu-operator.operator.initContainer.repository }}/{{ .gpu-operator.operator.initContainer.image }}:{{ .gpu-operator.operator.initContainer.version }}"
 - "{{ .gpu-operator.driver.repository }}/{{ .gpu-operator.driver.image }}:{{ .gpu-operator.driver.version }}-ubuntu22.04"
-- "{{ .gpu-operator.driver.repository }}/{{ .gpu-operator.driver.image }}:{{ .gpu-operator.driver.versionubunt20 }}-ubuntu20.4"
+- "{{ .gpu-operator.driver.repository }}/{{ .gpu-operator.driver.image }}:{{ .gpu-operator.driver.versionubunt20 }}-ubuntu20.04"
 - "{{ .gpu-operator.driver.repository }}/{{ .gpu-operator.driver.image }}:{{ .gpu-operator.driver.versioncentos }}-centos7"
 - "{{ .gpu-operator.driver.manager.repository }}/{{ .gpu-operator.driver.manager.image }}:{{ .gpu-operator.driver.manager.version }}"
 - "{{ .gpu-operator.toolkit.repository }}/{{ .gpu-operator.toolkit.image }}:{{ .gpu-operator.toolkit.version }}"
