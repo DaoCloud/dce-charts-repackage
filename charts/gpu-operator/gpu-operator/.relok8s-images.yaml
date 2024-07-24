@@ -21,4 +21,3 @@
 - "{{ .gpu-operator.sandboxDevicePlugin.repository }}/{{ .gpu-operator.sandboxDevicePlugin.image }}:{{ .gpu-operator.sandboxDevicePlugin.version }}"
 - "{{ .gpu-operator.ccManager.repository }}/{{ .gpu-operator.ccManager.image }}:{{ .gpu-operator.ccManager.version }}"
 - "{{ .gpu-operator.node-feature-discovery.image.registry }}/{{ .gpu-operator.node-feature-discovery.image.repository }}:{{ .gpu-operator.node-feature-discovery.image.tag }}"
-- "{{ .gpu-operator.driver.repoConfig.repository }}/{{ .gpu-operator.driver.repoConfig.image }}:{{ .gpu-operator.driver.repoConfig.tag }}"
