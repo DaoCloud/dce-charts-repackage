@@ -1,0 +1,61 @@
+image:
+  registry: nvcr.io
+  repository: nvidia/mellanox/doca-driver
+  # default tag: {driverVersion}-${OSName}${OSVer}-${Arch}
+  OSName: "ubuntu"
+  OSVer: "22.04"
+  Arch: "amd64"
+  driverVersion: 24.04-0.6.6.0-0
+  tagOverwrite: ""
+
+  pullPolicy: IfNotPresent
+  imagePullSecrets: []
+
+tolerations:
+  - operator: Exists
+
+config:
+  # unload host storage modules prior to loading mofed modules
+  unload_host_storage_modules: false
+  # enable loading of nfs relates storage modules from mofed container
+  enable_nfsrdma: false
+  # restore host drivers when container is gracefully stopped
+  restore_hostdriver_on_termination: true
+
+extraEnv: []
+
+extraVolumes: []
+# - name: test-val
+#   mountPath: /host/tmp
+
+extraVolumeMounts: []
+# - name: test-val
+#   mountPath: /tmp
+
+nodeSelector:
+  kubernetes.io/os: linux
+
+affinity: {}
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 500Mi
+  requests:
+    cpu: 200m
+    memory: 150Mi
+
+startupProbe:
+  # it maybe take long time the build the driver
+  initialDelaySeconds: 20
+  periodSeconds: 20
+
+livenessProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 30
+
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 30
+
+terminationGracePeriodSeconds: 300

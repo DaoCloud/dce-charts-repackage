@@ -1,0 +1,73 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "ofed-driver": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "object",
+                    "description": "the image tag is with a format {driverVersion}-${OSName}${OSVer}-${Arch}, refer to nvidia available image tag: https://catalog.ngc.nvidia.com/orgs/nvidia/teams/mellanox/containers/doca-driver/tags",
+                    "required": [
+                        "registry",
+                        "repository",
+                        "Arch",
+                        "OSName",
+                        "OSVer",
+                        "driverVersion"
+                    ],
+                    "properties": {
+                        "registry": {
+                            "title": "registry",
+                            "type": "string",
+                            "default": "nvcr.m.daocloud.io",
+                            "examples": [
+                                "nvcr.m.daocloud.io"
+                            ]
+                        },
+                        "repository": {
+                            "title": "repository",
+                            "type": "string",
+                            "default": "nvidia/mellanox/doca-driver",
+                            "examples": [
+                                "nvidia/mellanox/doca-driver"
+                            ]
+                        },
+                        "Arch": {
+                            "type": "string",
+                            "description": "architect of the OS, available values: amd64, arm64",
+                            "default": "amd64",
+                            "examples": [
+                                "amd64"
+                            ]
+                        },
+                        "OSName": {
+                            "type": "string",
+                            "description": "The name of the OS, available values: ubuntu, centos, rhel",
+                            "default": "ubuntu",
+                            "examples": [
+                                "ubuntu"
+                            ]
+                        },
+                        "OSVer": {
+                            "type": "string",
+                            "description": "The version of the OS, available values: 20.04, 22.04, 24.04",
+                            "default": "22.04",
+                            "examples": [
+                                "22.04"
+                            ]
+                        },
+                        "driverVersion": {
+                            "type": "string",
+                            "description": "install the version of OFED driver, available OFED driver values, please refer to https://catalog.ngc.nvidia.com/orgs/nvidia/teams/mellanox/containers/doca-driver/tags",
+                            "default": "24.04-0.6.6.0-0",
+                            "examples": [
+                                "24.04-0.6.6.0-0"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
