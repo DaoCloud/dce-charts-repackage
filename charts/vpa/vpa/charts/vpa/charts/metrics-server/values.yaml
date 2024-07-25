@@ -3,17 +3,16 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: registry.k8s.io/metrics-server/metrics-server
+  repository: metrics-server/metrics-server
   # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
-  tag: ""
+  tag: "v0.6.4"
   pullPolicy: IfNotPresent
-
+  registry: k8s.m.daocloud.io
 imagePullSecrets: []
 # - name: registrySecretName
 
 nameOverride: ""
 fullnameOverride: ""
-
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -25,12 +24,10 @@ serviceAccount:
   # The list of secrets mountable by this service account.
   # See https://kubernetes.io/docs/reference/labels-annotations-taints/#enforce-mountable-secrets
   secrets: []
-
 rbac:
   # Specifies whether RBAC resources should be created
   create: true
   pspEnabled: false
-
 apiService:
   # Specifies if the v1beta1.metrics.k8s.io API service should be created.
   #
@@ -44,13 +41,10 @@ apiService:
   insecureSkipTLSVerify: true
   # The PEM encoded CA bundle for TLS verification
   caBundle: ""
-
 commonLabels: {}
 podLabels: {}
 podAnnotations: {}
-
 podSecurityContext: {}
-
 securityContext:
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
@@ -61,11 +55,8 @@ securityContext:
   capabilities:
     drop:
       - ALL
-
 priorityClassName: system-cluster-critical
-
 containerPort: 10250
-
 hostNetwork:
   # Specifies if metrics-server should be started in hostNetwork mode.
   #
@@ -73,9 +64,7 @@ hostNetwork:
   # API server unable to communicate with metrics-server. As an example, this is required
   # if you use Weave network on EKS
   enabled: false
-
 replicas: 1
-
 updateStrategy: {}
 #   type: RollingUpdate
 #   rollingUpdate:
@@ -87,15 +76,12 @@ podDisruptionBudget:
   enabled: false
   minAvailable:
   maxUnavailable:
-
 defaultArgs:
   - --cert-dir=/tmp
   - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
   - --kubelet-use-node-status-port
   - --metric-resolution=15s
-
 args: []
-
 livenessProbe:
   httpGet:
     path: /livez
@@ -104,7 +90,6 @@ livenessProbe:
   initialDelaySeconds: 0
   periodSeconds: 10
   failureThreshold: 3
-
 readinessProbe:
   httpGet:
     path: /readyz
@@ -113,7 +98,6 @@ readinessProbe:
   initialDelaySeconds: 20
   periodSeconds: 10
   failureThreshold: 3
-
 service:
   type: ClusterIP
   port: 443
@@ -122,12 +106,12 @@ service:
   #  Add these labels to have metrics-server show up in `kubectl cluster-info`
   #  kubernetes.io/cluster-service: "true"
   #  kubernetes.io/name: "Metrics-server"
-
 addonResizer:
   enabled: false
   image:
-    repository: registry.k8s.io/autoscaling/addon-resizer
+    repository: autoscaling/addon-resizer
     tag: 1.8.19
+    registry: k8s.m.daocloud.io
   resources:
     requests:
       cpu: 40m
@@ -143,10 +127,8 @@ addonResizer:
     minClusterSize: 100
     pollPeriod: 300000
     threshold: 5
-
 metrics:
   enabled: false
-
 serviceMonitor:
   enabled: false
   additionalLabels: {}
@@ -154,29 +136,20 @@ serviceMonitor:
   scrapeTimeout: 10s
   metricRelabelings: []
   relabelings: []
-
 # See https://github.com/kubernetes-sigs/metrics-server#scaling
 resources:
   requests:
     cpu: 100m
     memory: 200Mi
-  # limits:
-  #   cpu:
-  #   memory:
-
+    # limits:
+    #   cpu:
+    #   memory:
 extraVolumeMounts: []
-
 extraVolumes: []
-
 nodeSelector: {}
-
 tolerations: []
-
 affinity: {}
-
 topologySpreadConstraints: []
-
 # Annotations to add to the deployment
 deploymentAnnotations: {}
-
 schedulerName: ""

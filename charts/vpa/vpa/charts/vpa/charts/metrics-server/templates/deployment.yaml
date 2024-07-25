@@ -52,7 +52,7 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: {{ include "metrics-server.image" . }}
+          image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - {{ printf "--secure-port=%d" (int .Values.containerPort) }}
@@ -89,7 +89,7 @@ spec:
           {{- end }}
         {{- if .Values.addonResizer.enabled }}
         - name: metrics-server-nanny
-          image: {{ include "metrics-server.addonResizer.image" . }}
+          image: {{ .Values.addonResizer.image.registry }}/{{ .Values.addonResizer.image.repository }}:{{ .Values.addonResizer.image.tag }}
           env:
             - name: MY_POD_NAME
               valueFrom:

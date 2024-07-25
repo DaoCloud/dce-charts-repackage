@@ -39,6 +39,9 @@ if [ "$(uname)" == "Darwin" ];then
   sed -i '' 's?{{ printf "%s:%s" .Values.admissionController.image.repository (.Values.admissionController.image.tag | default .Chart.AppVersion) }}?{{ .Values.admissionController.image.registry }}/{{ .Values.admissionController.image.repository }}:{{ .Values.admissionController.image.tag }}?' charts/vpa/templates/admission-controller-deployment.yaml
   sed -i '' 's?{{ printf "%s:%s" .Values.recommender.image.repository (.Values.recommender.image.tag | default .Chart.AppVersion) }}?{{ .Values.recommender.image.registry }}/{{ .Values.recommender.image.repository }}:{{ .Values.recommender.image.tag }}?' charts/vpa/templates/recommender-deployment.yaml
   sed -i '' 's?{{ printf "%s:%s" .Values.updater.image.repository (.Values.updater.image.tag | default .Chart.AppVersion) }}?{{ .Values.updater.image.registry }}/{{ .Values.updater.image.repository }}:{{ .Values.updater.image.tag }}?' charts/vpa/templates/updater-deployment.yaml
+
+  sed -i '' 's?{{ include "metrics-server.image" . }}?{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}?' charts/vpa/charts/metrics-server/templates/deployment.yaml
+  sed -i '' 's?{{ include "metrics-server.addonResizer.image" . }}?{{ .Values.addonResizer.image.registry }}/{{ .Values.addonResizer.image.repository }}:{{ .Values.addonResizer.image.tag }}?' charts/vpa/charts/metrics-server/templates/deployment.yaml
   
 else
   sed -i 's?{{ include "vpa.test.image" . }}?release.daocloud.io/common-ci/common-ci-deployer:v0.1.52?'  charts/vpa/templates/tests/crds-available.yaml
@@ -49,6 +52,10 @@ else
   sed -i 's?{{ printf "%s:%s" .Values.admissionController.image.repository (.Values.admissionController.image.tag | default .Chart.AppVersion) }}?{{ .Values.admissionController.image.registry }}/{{ .Values.admissionController.image.repository }}:{{ .Values.admissionController.image.tag }}?' charts/vpa/templates/admission-controller-deployment.yaml
   sed -i 's?{{ printf "%s:%s" .Values.recommender.image.repository (.Values.recommender.image.tag | default .Chart.AppVersion) }}?{{ .Values.recommender.image.registry }}/{{ .Values.recommender.image.repository }}:{{ .Values.recommender.image.tag }}?' charts/vpa/templates/recommender-deployment.yaml
   sed -i 's?{{ printf "%s:%s" .Values.updater.image.repository (.Values.updater.image.tag | default .Chart.AppVersion) }}?{{ .Values.updater.image.registry }}/{{ .Values.updater.image.repository }}:{{ .Values.updater.image.tag }}?' charts/vpa/templates/updater-deployment.yaml
+
+  sed -i 's?{{ include "metrics-server.image" . }}?{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}?' charts/vpa/charts/metrics-server/templates/deployment.yaml
+  sed -i 's?{{ include "metrics-server.addonResizer.image" . }}?{{ .Values.addonResizer.image.registry }}/{{ .Values.addonResizer.image.repository }}:{{ .Values.addonResizer.image.tag }}?' charts/vpa/charts/metrics-server/templates/deployment.yaml
+  
   
 fi
 
@@ -89,6 +96,18 @@ yq -i '
    .annotations["addon.kpanda.io/namespace"]="kube-system" |
    .annotations["addon.kpanda.io/release-name"]="vpa"
 ' Chart.yaml
+
+
+yq -i '
+  .addonResizer.image.registry = "k8s.m.daocloud.io" |
+  .addonResizer.image.repository = "autoscaling/addon-resizer"
+'  charts/vpa/charts/metrics-server/values.yaml
+
+yq -i '
+  .image.registry = "k8s.m.daocloud.io" |
+  .image.repository = "metrics-server/metrics-server" |
+  .image.tag = "v0.6.4"
+'  charts/vpa/charts/metrics-server/values.yaml
 
 if ! grep "keywords:" Chart.yaml &>/dev/null ; then
     echo "keywords:" >> Chart.yaml
