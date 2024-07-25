@@ -1,0 +1,33 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "rdma-tools": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "object",
+                    "required": [
+                        "registry",
+                        "repository"
+                    ],
+                    "properties": {
+                        "registry": {
+                            "title": "registry",
+                            "type": "string",
+                            "default": "ghcr.m.daocloud.io",
+                            "examples": [
+                                "ghcr.m.daocloud.io"
+                            ]
+                        },
+                        "repository": {
+                            "type": "string",
+                            "title": "repository",
+                            "default": "spidernet-io/rdma-tools"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

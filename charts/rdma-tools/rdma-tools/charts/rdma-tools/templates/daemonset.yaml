@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name:  {{ .Values.name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.name | trunc 63 | trimSuffix "-" }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.name | trunc 63 | trimSuffix "-" }}
+  updateStrategy:
+    type: OnDelete
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name | trunc 63 | trimSuffix "-" }}
+      {{- if .Values.extraAnnotations }}
+      annotations:
+        {{- include "tplvalues.render" ( dict "value" .Values.extraAnnotations "context" $ ) | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+      {{- with .Values.image.imagePullSecrets }}
+      {{- toYaml . | trim | nindent 6 }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.hostnetwork }}
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      {{- else }}
+      hostNetwork: false
+      dnsPolicy: ClusterFirst
+      {{- end }}
+      restartPolicy: Always
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity:
+      {{- include "tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 6 }}
+      {{- end }}
+      containers:
+        - name: {{ .Values.name | trunc 63 | trimSuffix "-" }}
+          image: {{ include "project.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.resources }}
+          resources:
+          {{- toYaml . | trim | nindent 12 }}
+          {{- end }}
+          {{- if .Values.securityContext }}
+          securityContext:
+          {{- with .Values.securityContext }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- end }}
+          env:
+            - name: ENV_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ENV_LOCAL_NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: ENV_LOCAL_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: ENV_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- if .Values.extraVolumes }}
+          volumeMounts:
+            {{- if .Values.extraVolumes }}
+            {{- include "tplvalues.render" ( dict "value" .Values.extraVolumeMounts "context" $ ) | nindent 12 }}
+            {{- end }}
+          {{- end }}
+      {{- if .Values.extraVolumes }}
+      volumes:
+      {{- if .Values.extraVolumeMounts }}
+      {{- include "tplvalues.render" ( dict "value" .Values.extraVolumeMounts "context" $ ) | nindent 6 }}
+      {{- end }}
+      {{- end }}

@@ -1,0 +1,40 @@
+# child values
+rdma-tools:
+  name: rdma-test
+  image:
+    registry: ghcr.m.daocloud.io
+    repository: spidernet-io/rdma-tools
+    tag: "12.5.1-2c4f5689f61cb66418a333bd1cf5a147ca6eeaa6"
+    pullPolicy: IfNotPresent
+    imagePullSecrets: []
+  hostnetwork: false
+  tolerations: []
+  nodeSelector:
+    kubernetes.io/os: linux
+  affinity: {}
+  resources:
+    #limits:
+    #  spidernet.io/gpu1sriov: 1
+    limits:
+      cpu: 500m
+      memory: 1024Mi
+    requests:
+      cpu: 200m
+      memory: 150Mi
+  extraAnnotations:
+  #v1.multus-cni.io/default-network: spiderpool/calico
+  #k8s.v1.cni.cncf.io/networks: |-
+  #   [{"name":"gpu1-sriov","namespace":"spiderpool"},
+  #    {"name":"gpu2-sriov","namespace":"spiderpool"},
+  #    {"name":"gpu8-sriov","namespace":"spiderpool"}]
+  securityContext:
+  #capabilities:
+  #  add: [ "IPC_LOCK" ]
+  extraEnv: []
+  extraVolumes: []
+  # - name: test-val
+  #   mountPath: /host/tmp
+
+  extraVolumeMounts: []
+  # - name: test-val
+  #   mountPath: /tmp
