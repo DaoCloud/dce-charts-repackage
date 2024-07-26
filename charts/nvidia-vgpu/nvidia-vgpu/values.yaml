@@ -4,7 +4,7 @@ hami:
   nameOverride: ""
   fullnameOverride: ""
   imagePullSecrets: []
-  version: "v2.3.11"
+  version: "v2.3.13"
   #Nvidia GPU Parameters
   resourceName: "nvidia.com/vgpu"
   resourceMem: "nvidia.com/gpumem"
@@ -26,6 +26,9 @@ hami:
   #Ascend 910B Parameters
   ascendResourceName: "huawei.com/Ascend910"
   ascendResourceMem: "huawei.com/Ascend910-memory"
+  #Ascend 310P Parameters
+  ascend310PResourceName: "huawei.com/Ascend310P"
+  ascend310PResourceMem: "huawei.com/Ascend310P-memory"
   schedulerName: "hami-scheduler"
   podSecurityPolicy:
     enabled: false
@@ -33,10 +36,13 @@ hami:
     gpuHookPath: /usr/local
     labels: {}
     annotations: {}
+    managedNodeSelectorEnable: false
+    managedNodeSelector:
+      usage: "gpu"
   scheduler:
     # @param nodeName defines the node name and the nvidia-vgpu-scheduler-scheduler will schedule to the node.
-    # if we install the nvidia-vgpu-scheduler-scheduler as default scheduler, we need to remove the k8s defualt
-    # scheduler pod from the cluster first, we must specified node name to skip the schedule workflow.
+    # if we install the nvidia-vgpu-scheduler-scheduler as default scheduler, we need to remove the k8s default
+    # scheduler pod from the cluster first, we must specify node name to skip the schedule workflow.
     nodeName: ""
     defaultMem: 0
     defaultCores: 0
@@ -46,6 +52,7 @@ hami:
       nodeSchedulerPolicy: binpack
       gpuSchedulerPolicy: spread
     metricsBindAddress: ":9395"
+    livenessProbe: false
     leaderElect: true
     kubeScheduler:
       # @param enabled indicate whether to run kube-scheduler container in the scheduler pod, it's true by default.
@@ -68,8 +75,6 @@ hami:
         - --debug
         - -v=4
     podAnnotations: {}
-    #nodeSelector: 
-    #  gpu: "on"
     tolerations: []
     #serviceAccountName: "hami-vgpu-scheduler-sa"
     customWebhook:
@@ -79,6 +84,11 @@ hami:
       host: 127.0.0.1 # hostname or ip, can be your node'IP if you want to use https://<nodeIP>:<schedulerPort>/<path>
       port: 31998
       path: /webhook
+      whitelistNamespaces:
+      # Specify the namespaces that the webhook will not be applied to.
+      # - default
+      # - kube-system
+      # - istio-system
     patch:
       registry: docker.m.daocloud.io
       repository: jettech/kube-webhook-certgen

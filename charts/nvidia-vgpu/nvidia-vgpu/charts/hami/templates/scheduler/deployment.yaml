@@ -54,10 +54,29 @@ spec:
           volumeMounts:
             - name: scheduler-config
               mountPath: /config
-        {{- end }}      
+        {{- end }}
+          {{- if .Values.scheduler.livenessProbe }}
+          livenessProbe:
+            failureThreshold: 8
+            httpGet:
+              path: /healthz
+              port: 10259
+              scheme: HTTPS
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 15
+          {{- end }}
         - name: vgpu-scheduler-extender
           image: "{{ .Values.scheduler.extender.registry }}/{{ .Values.scheduler.extender.repository }}:{{ .Values.version }}"
           imagePullPolicy: {{ .Values.scheduler.extender.imagePullPolicy | quote }}
+          env:
+          {{- if .Values.global.managedNodeSelectorEnable }}
+          {{- range $key, $value := .Values.global.managedNodeSelector }}
+            - name: NODE_SELECTOR_{{ $key | upper | replace "-" "_" }}
+              value: "{{ $value }}"
+          {{- end }}
+          {{- end }}
           command:
             - scheduler
             - --resource-name={{ .Values.resourceName }}
@@ -80,6 +99,8 @@ spec:
             - --cambricon-mlu-cores={{ .Values.mluResourceCores }}
             - --ascend-name={{ .Values.ascendResourceName }}
             - --ascend-memory={{ .Values.ascendResourceMem }}
+            - --ascend310p-name={{ .Values.ascend310PResourceName }}
+            - --ascend310p-memory={{ .Values.ascend310PResourceMem }}
             - --overwrite-env={{ .Values.scheduler.overwriteEnv }}
             - --node-scheduler-policy={{ .Values.scheduler.defaultSchedulerPolicy.nodeSchedulerPolicy }}
             - --gpu-scheduler-policy={{ .Values.scheduler.defaultSchedulerPolicy.gpuSchedulerPolicy }}
@@ -94,6 +115,17 @@ spec:
           volumeMounts:
             - name: tls-config
               mountPath: /tls
+          {{- if .Values.scheduler.livenessProbe }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 443
+              scheme: HTTPS
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
+          {{- end }}
       volumes:
         - name: tls-config
           secret:
