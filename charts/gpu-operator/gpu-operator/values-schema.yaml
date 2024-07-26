@@ -19,9 +19,6 @@ gpu-operator:
       useHostMofed: false
   toolkit:
     enabled: true
-    repository: nvcr.m.daocloud.io
-    image: nvidia/k8s/container-toolkit
-    version: v1.14.3-centos7
   migManager:
     config:
       name: "default-mig-parted-config"
