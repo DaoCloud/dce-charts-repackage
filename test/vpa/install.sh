@@ -18,7 +18,7 @@ HELM_MUST_OPTION=" --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG
 set -x
 
 # deploy vpa
-helm install vpa chart-museum/vpa  ${HELM_MUST_OPTION}  --namespace kube-system
+helm install vpa chart-museum/vpa  ${HELM_MUST_OPTION} --namespace kube-system --set vpa.metrics-server.enabled=true
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"

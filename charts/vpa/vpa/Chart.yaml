@@ -1,14 +1,19 @@
 apiVersion: v2
-appVersion: 0.11.0
+appVersion: 1.0.0
 description: A Helm chart for Kubernetes Vertical Pod Autoscaler
+home: https://github.com/FairwindsOps/charts/tree/master/stable/vpa
+kubeVersion: '>= 1.24.0-0'
 maintainers:
   - name: sudermanjr
 name: vpa
+sources:
+  - https://github.com/FairwindsOps/charts/tree/master/stable/vpa
+  - https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler
 type: application
-version: 1.5.0
+version: 4.5.0
 dependencies:
   - name: vpa
-    version: "1.5.0"
+    version: "4.5.0"
     repository: "https://charts.fairwinds.com/stable"
 annotations:
   addon.kpanda.io/namespace: kube-system

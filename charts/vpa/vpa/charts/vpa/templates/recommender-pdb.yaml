@@ -1,6 +1,6 @@
 ---
-{{- if and .Values.recommender.podDisruptionBudget (gt (int .Values.recommender.replicaCount) 1) }}
-apiVersion: policy/v1beta1
+{{- if and .Values.recommender.podDisruptionBudget (gt (int .Values.recommender.replicaCount) 1) .Values.recommender.enabled }}
+apiVersion: {{ ternary "policy/v1" "policy/v1beta1" (semverCompare ">=1.21.0-0" .Capabilities.KubeVersion.Version) }}
 kind: PodDisruptionBudget
 metadata:
   name: "{{ template "vpa.fullname" . }}-recommender-pdb"
@@ -9,5 +9,5 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/component: recommender
-      app.kubernetes.io/name: {{ template "vpa.fullname" . }}
+      app.kubernetes.io/name: {{ template "vpa.name" . }}
 {{- end }}
