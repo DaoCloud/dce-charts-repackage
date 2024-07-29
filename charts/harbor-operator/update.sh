@@ -121,3 +121,9 @@ fi
 
 # replace values.schema.json
 cp ./parent/values.schema.json ./harbor-operator/values.schema.json
+
+
+yq -i '
+   .annotations["addon.kpanda.io/namespace"]="kangaroo-system"|
+   .annotations["addon.kpanda.io/release-name"]="harbor-operator"
+' harbor-operator/Chart.yaml
