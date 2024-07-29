@@ -66,8 +66,6 @@ yq -i '
     .spiderpool.spiderpoolController.resources.requests.memory=strenv(CUSTOM_SPIDERPOOL_CONTROLLER_MEMORY) |
     .spiderpool.spiderpoolController.tolerations[0].effect = "NoSchedule" |
     .spiderpool.spiderpoolInit.image.registry="ghcr.m.daocloud.io" | 
-    .spiderpool.spiderpoolInit.resources.requests.cpu=strenv(CUSTOM_SPIDERPOOL_INIT_CPU) |
-    .spiderpool.spiderpoolInit.resources.requests.memory=strenv(CUSTOM_SPIDERPOOL_INIT_MEMORY) | 
     .spiderpool.plugins.image.registry="ghcr.m.daocloud.io" |
     .spiderpool.rdma.rdmaSharedDevicePlugin.image.registry="ghcr.m.daocloud.io" 
 ' ${CHART_DIRECTORY}/values.yaml
