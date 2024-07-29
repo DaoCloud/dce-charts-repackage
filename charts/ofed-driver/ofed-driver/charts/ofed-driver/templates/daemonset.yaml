@@ -1,0 +1,141 @@
+# Copyright 2020 NVIDIA
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: mofed-driver
+    nvidia.com/ofed-driver: ""
+  name: mofed-{{ .Values.image.OSName }}-{{ .Values.image.OSVer }}-ds
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  updateStrategy:
+    type: OnDelete
+  selector:
+    matchLabels:
+      app: mofed-driver
+  template:
+    metadata:
+      labels:
+        app: mofed-driver
+        nvidia.com/ofed-driver: ""
+    spec:
+      priorityClassName: system-node-critical
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      hostNetwork: true
+      {{- if .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+      {{- with .Values.image.imagePullSecrets }}
+      {{- toYaml . | trim | nindent 6 }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity:
+        {{- include "tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      # unloading OFED modules can take more time than default terminationGracePeriod (30 sec)
+      terminationGracePeriodSeconds: {{ .Values.TerminationGracePeriodSeconds }}
+      containers:
+        - image: {{ include "driver.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: mofed-container
+          {{- with .Values.resources }}
+          resources:
+          {{- toYaml . | trim | nindent 12 }}
+          {{- end }}
+          securityContext:
+            privileged: true
+            seLinuxOptions:
+              level: "s0"
+          env:
+            - name: UNLOAD_STORAGE_MODULES
+              value: {{ .Values.config.unload_host_storage_modules | quote }}
+            - name: ENABLE_NFSRDMA
+              value: {{ .Values.config.enable_nfsrdma | quote }}
+            - name: RESTORE_DRIVER_ON_POD_TERMINATION
+              value: {{ .Values.config.restore_hostdriver_on_termination | quote }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: run-mlnx-ofed
+              mountPath: /run/mellanox/drivers
+              mountPropagation: Bidirectional
+            - name: etc-network
+              mountPath: /etc/network
+            - name: host-etc
+              mountPath: /host/etc
+            - name: host-usr
+              mountPath: /host/usr
+            - name: host-udev
+              mountPath: /host/lib/udev
+            - name: host-lib-modules
+              mountPath: /host/lib/modules
+            {{- if .Values.extraVolumes }}
+            {{- include "tplvalues.render" ( dict "value" .Values.extraVolumes "context" $ ) | nindent 12 }}
+            {{- end }}
+          startupProbe:
+            exec:
+              command:
+                [sh, -c, 'ls /.driver-ready']
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            failureThreshold: 60
+            successThreshold: 1
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+          livenessProbe:
+            exec:
+              command:
+                [sh, -c, 'lsmod | grep mlx5_core']
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            failureThreshold: 1
+            successThreshold: 1
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          readinessProbe:
+            exec:
+              command:
+                [sh, -c, 'lsmod | grep mlx5_core']
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            failureThreshold: 1
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+      volumes:
+        - name: run-mlnx-ofed
+          hostPath:
+            path: /run/mellanox/drivers
+        - name: etc-network
+          hostPath:
+            path: /etc/network
+        - name: host-etc
+          hostPath:
+            path: /etc
+        - name: host-usr
+          hostPath:
+            path: /usr
+        - name: host-udev
+          hostPath:
+            path: /lib/udev
+        - name: host-lib-modules
+          hostPath:
+            path: /lib/modules
+        {{- if .Values.extraVolumeMounts }}
+        {{- include "tplvalues.render" ( dict "value" .Values.extraVolumeMounts "context" $ ) | nindent 8 }}
+        {{- end }}

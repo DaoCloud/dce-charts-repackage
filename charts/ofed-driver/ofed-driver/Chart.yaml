@@ -1,0 +1,18 @@
+apiVersion: v2
+appVersion: 24.04.0
+description: ofed driver
+home: https://spidernet-io.github.io/charts
+keywords:
+  - ofed
+  - mellanox
+  - networking
+kubeVersion: '>= 1.16.0-0'
+name: ofed-driver
+sources:
+  - https://spidernet-io.github.io/charts
+type: application
+version: 24.04.0
+dependencies:
+  - name: ofed-driver
+    version: "24.04.0"
+    repository: "https://spidernet-io.github.io/charts"
