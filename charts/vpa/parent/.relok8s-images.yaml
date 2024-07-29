@@ -2,14 +2,14 @@
 - "{{ .vpa.updater.image.registry }}/{{ .vpa.updater.image.repository }}:{{ .vpa.updater.image.tag }}"
 - "{{ .vpa.admissionController.image.registry }}/{{ .vpa.admissionController.image.repository }}:{{ .vpa.admissionController.image.tag }}"
 - "{{ .vpa.admissionController.certGen.image.registry }}/{{ .vpa.admissionController.certGen.image.repository }}:{{ .vpa.admissionController.certGen.image.tag }}"
-- "{{ .vpa.admissionController.cleanupOnDelete.image.registry }}/{{ .vpa.admissionController.cleanupOnDelete.image.repository }}:{{ .vpa.admissionController.cleanupOnDelete.image.tag }}"
+- "{{ .vpa.metrics-server.image.registry }}/{{ .vpa.metrics-server.image.repository }}:{{ .vpa.metrics-server.image.tag }}"
+- "{{ .vpa.metrics-server.addonResizer.image.registry }}/{{ .vpa.metrics-server.addonResizer.image.repository }}:{{ .vpa.metrics-server.addonResizer.image.tag }}"
+- "{{ .vpa.metrics.image.registry }}/{{ .vpa.metrics.image.repository }}:{{ .vpa.metrics.image.tag }}"
+- "{{ .vpa.createVpa.image.registry }}/{{ .vpa.createVpa.image.repository }}:{{ .vpa.createVpa.image.tag }}"
+- "{{ .vpa.crdAvailable.image.registry }}/{{ .vpa.crdAvailable.image.repository }}:{{ .vpa.crdAvailable.image.tag }}"
 
 - "{{ .vpa.recommender.image.registry }}/{{ .vpa.recommender.image.repository }}:{{ .vpa.recommender.image.oldTag }}"
 - "{{ .vpa.updater.image.registry }}/{{ .vpa.updater.image.repository }}:{{ .vpa.updater.image.oldTag }}"
 - "{{ .vpa.admissionController.image.registry }}/{{ .vpa.admissionController.image.repository }}:{{ .vpa.admissionController.image.oldTag }}"
-- "{{ .vpa.createVpa.image.registry }}/{{ .vpa.createVpa.image.repository }}:{{ .vpa.createVpa.image.tag }}"
-- "{{ .vpa.crdAvailable.image.registry }}/{{ .vpa.crdAvailable.image.repository }}:{{ .vpa.crdAvailable.image.tag }}"
-- "{{ .vpa.crdAvailable.image.registry }}/{{ .vpa.crdAvailable.image.repository }}:{{ .vpa.crdAvailable.image.tag }}"
-- "{{ .vpa.metrics.image.registry }}/{{ .vpa.metrics.image.repository }}:{{ .vpa.metrics.image.tag }}"
-- "{{ .vpa.admissionController.certGen.image.registry }}/{{ .vpa.admissionController.certGen.image.repository }}:{{ .vpa.admissionController.certGen.image.tag }}"
-- "{{ .vpa.admissionController.cleanupOnDelete.image.registry }}/{{ .vpa.admissionController.cleanupOnDelete.image.repository }}:{{ .vpa.admissionController.cleanupOnDelete.image.tag }}"
+
+
