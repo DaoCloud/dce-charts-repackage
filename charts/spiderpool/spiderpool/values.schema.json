@@ -117,7 +117,7 @@
                                 "defaultCniCRName": {
                                     "type": "string",
                                     "title": "Default CNI Name",
-                                    "description": "The name of cluster default CNI name. Default is \"\", If this value is empty, spiderpool will automatically get default CNI according to the existed CNI conf file in /etc/cni/net.d/"
+                                    "description": "The name of cluster default CNI name. Default is \"\", If this value is empty, spiderpool will automatically get default CNI according to the existed CNI conf file in /etc/cni/net.d/. Recommended to leave empty as is for DCE5 cluster."
                                 },
                                 "image": {
                                     "type": "object",
@@ -136,12 +136,12 @@
                 },
                 "sriov": {
                     "type": "object",
-                    "title": "SriovCNI",
+                    "title": "Sriov-Operator",
                     "properties": {
                         "install": {
                             "type": "boolean",
-                            "title": "Install Sriov-CNI",
-                            "description": "Install all SR-IOV components on-demand through the SRIOV operator."
+                            "title": "Install Sriov-Operator",
+                            "description": "Install all SR-IOV components on-demand through the SRIOV operator. Sriov-operator is used to help install sriov-cni, sriov-device-plugin and other components. It is recommended to install it if you are building an AI cluster scenario where you need to provide RDMA communication (including Roce and Infiniband) and acceleration to containers based on SR-IOV technology. Note: It is recommended that Sriov-operator is not installed at the same time as k8s-rdma-shared-dev-plugin."
                         },
                         "image": {
                             "type": "object",
@@ -152,9 +152,10 @@
                                         "repository": {
                                             "title": "repository",
                                             "type": "string",
-                                            "default": "k8snetworkplumbingwg/sriov-network-operator",
+                                            "description": "operator is used to help install all sriov components",
+                                            "default": "spidernet.io/sriov-network-operator",
                                             "examples": [
-                                                "k8snetworkplumbingwg/sriov-network-operator"
+                                                "spidernet.io/sriov-network-operator"
                                             ]
                                         }
                                     }
@@ -166,6 +167,7 @@
                                             "title": "repository",
                                             "type": "string",
                                             "default": "k8snetworkplumbingwg/sriov-cni",
+                                            "description": "It used to help install the sriov-cni CNI binary to each node",
                                             "examples": [
                                                 "k8snetworkplumbingwg/sriov-cni"
                                             ]
@@ -179,6 +181,7 @@
                                             "title": "repository",
                                             "type": "string",
                                             "default": "k8snetworkplumbingwg/sriov-network-device-plugin",
+                                            "description": "It used to discover srivo device resources on the host and report them to the kubelet",
                                             "examples": [
                                                 "k8snetworkplumbingwg/sriov-network-device-plugin"
                                             ]
@@ -191,9 +194,10 @@
                                         "repository": {
                                             "title": "repository",
                                             "type": "string",
-                                            "default": "k8snetworkplumbingwg/sriov-network-operator-config-daemon",
+                                            "default": "spidernet.io/sriov-network-operator-config-daemon",
+                                            "description": "It used to configure the sriov network configuration on the host, e.g. to enable the SR-IOV feature, etc.",
                                             "examples": [
-                                                "k8snetworkplumbingwg/sriov-network-operator-config-daemon"
+                                                "spidernet.io/sriov-network-operator-config-daemon"
                                             ]
                                         }
                                     }
@@ -205,6 +209,7 @@
                                             "title": "repository",
                                             "type": "string",
                                             "default": "k8snetworkplumbingwg/ib-sriov-cni",
+                                            "description": "It used to help install the sriov-cni CNI binary to each node",
                                             "examples": [
                                                 "k8snetworkplumbingwg/ib-sriov-cni"
                                             ]
@@ -218,6 +223,7 @@
                                             "title": "repository",
                                             "type": "string",
                                             "default": "k8snetworkplumbingwg/network-resources-injector",
+                                            "description": "Based on webHook, it is possible to automatically update the configuration of the Pod's network resources (mainly sriov network resources).",
                                             "examples": [
                                                 "k8snetworkplumbingwg/network-resources-injector"
                                             ]
@@ -230,9 +236,10 @@
                                         "repository": {
                                             "title": "repository",
                                             "type": "string",
-                                            "default": "k8snetworkplumbingwg/sriov-network-operator-webhook",
+                                            "default": "spidernet.io/sriov-network-operator-webhook",
+                                            "description": "the webhook component validates and updates resources.",
                                             "examples": [
-                                                "k8snetworkplumbingwg/sriov-network-operator-webhook"
+                                                "spidernet.io/sriov-network-operator-webhook"
                                             ]
                                         }
                                     }
@@ -246,12 +253,12 @@
                     "properties": {
                         "rdmaSharedDevicePlugin": {
                             "type": "object",
-                            "title": "RdmaSharedDevicePlugin",
+                            "title": "k8s-rdma-shared-dev-plugin",
                             "properties": {
                                 "install": {
                                     "type": "boolean",
-                                    "title": "Install RdmaSharedDevicePlugin",
-                                    "description": "RdmaSharedDevicePlugin can be used with macvlan for RDMA"
+                                    "title": "Install",
+                                    "description": "Enable the installation of the k8s-rdma-shared-dev-plugin component. and share the rdma device for container use with Macvlan or IPVlan CNI. Recommended install it if you are building an AI cluster. Note: It is recommended that this not be installed at the same time as Sriov-Operator."
                                 },
                                 "image": {
                                     "type": "object",
@@ -273,7 +280,7 @@
                                         "resourceName": {
                                             "type": "string",
                                             "default": "hca_shared_devices",
-                                            "description": "Endpoint resource name. Should not contain special characters, must be unique in the scope of the resource prefix.",
+                                            "description": "the resource name of k8s-rdma-shared-dev-plugin. Should not contain special characters, must be unique in the scope of the resource prefix.",
                                             "examples": [
                                                 "hca_shared_devices"
                                             ]
@@ -281,11 +288,11 @@
                                         "vendors": {
                                             "type": "string",
                                             "default": "15b3",
-                                            "description": "Target device's vendor Hex code as string, Example: \"15b3\"."
+                                            "description": "Target rdma device's vendor Hex code as string in the host, Example: \"15b3\"."
                                         },
                                         "deviceIDs": {
                                             "type": "string",
-                                            "description": "A list of devices IDs to be selected. Examples: \"1017\".",
+                                            "description": "A list of rdma devices IDs to be selected in the host. Examples: \"1017\".",
                                             "default": "1017",
                                             "examples": [
                                                 "1017"
@@ -319,15 +326,6 @@
                             "title": "install CNI-Plugins",
                             "description": "install CNI-Plugins binary(macvlan, ipvlan, etc.) to each node. If you haven't installed it, you can set it to true. Default to false",
                             "default": false,
-                            "examples": [
-                                false
-                            ]
-                        },
-                        "installRdmaCNI": {
-                            "type": "boolean",
-                            "title": "install RDMA-CNI",
-                            "description": "install RDMA-CNI plugin binary to each node. If you haven't installed it, you can set it to true. Default to true",
-                            "default": true,
                             "examples": [
                                 false
                             ]
