@@ -52,7 +52,7 @@ argo-cd:
       # -- If defined, a repository applied to all Argo CD deployments
       repository: argoproj/argocd
       # -- Overrides the global Argo CD image tag whose default is the chart appVersion
-      tag: "v2.11.2"
+      tag: "v2.12.0"
       # -- If defined, a imagePullPolicy applied to all Argo CD deployments
       imagePullPolicy: IfNotPresent
       registry: quay.m.daocloud.io
@@ -408,6 +408,16 @@ argo-cd:
     #   labels: {}
     #   annotations: {}
     #   project: my-project1
+    #   config:
+    #     bearerToken: "<authentication token>"
+    #     tlsClientConfig:
+    #       insecure: false
+    #       caData: "<base64 encoded certificate>"
+    # mycluster4-sharded:
+    #   shard: 1
+    #   server: https://mycluster4.example.com
+    #   labels: {}
+    #   annotations: {}
     #   config:
     #     bearerToken: "<authentication token>"
     #     tlsClientConfig:
@@ -1491,7 +1501,7 @@ argo-cd:
     password: ""
     # -- External Redis server port
     port: 6379
-    # -- The name of an existing secret with Redis credentials (must contain key `redis-password`).
+    # -- The name of an existing secret with Redis (must contain key `redis-password`) and Sentinel credentials.
     # When it's set, the `externalRedis.password` parameter is ignored
     existingSecret: ""
     # -- External Redis Secret annotations
@@ -1507,7 +1517,7 @@ argo-cd:
       repository: "argoproj/argocd" # defaults to global.image.repository
       # -- Tag to use for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.tag)
-      tag: "v2.11.2" # defaults to global.image.tag
+      tag: "v2.12.0" # defaults to global.image.tag
       # -- Image pull policy for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.imagePullPolicy)
       imagePullPolicy: "" # IfNotPresent
@@ -1852,8 +1862,6 @@ argo-cd:
     certificate:
       # -- Deploy a Certificate resource (requires cert-manager)
       enabled: false
-      # -- The name of the Secret that will be automatically created and managed by this Certificate resource
-      secretName: argocd-server-tls
       # -- Certificate primary domain (commonName)
       # @default -- `""` (defaults to global.domain)
       domain: ""
@@ -1891,6 +1899,8 @@ argo-cd:
       # -- Usages for the certificate
       ### Ref: https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.KeyUsage
       usages: []
+      # -- Annotations that allow the certificate to be composed from data residing in existing Kubernetes Resources
+      secretTemplateAnnotations: {}
     # TLS certificate configuration via Secret
     ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/tls/#tls-certificates-used-by-argocd-server
     certificateSecret:
@@ -1927,6 +1937,8 @@ argo-cd:
       # -- Server service https port appProtocol
       ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#application-protocol
       servicePortHttpsAppProtocol: ""
+      # -- The class of the load balancer implementation
+      loadBalancerClass: ""
       # -- LoadBalancer will get created with the IP specified in this field
       loadBalancerIP: ""
       # -- Source IP ranges to allow access to service from
@@ -2785,8 +2797,6 @@ argo-cd:
     certificate:
       # -- Deploy a Certificate resource (requires cert-manager)
       enabled: false
-      # -- The name of the Secret that will be automatically created and managed by this Certificate resource
-      secretName: argocd-applicationset-controller-tls
       # -- Certificate primary domain (commonName)
       # @default -- `""` (defaults to global.domain)
       domain: ""
