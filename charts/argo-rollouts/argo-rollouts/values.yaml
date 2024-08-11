@@ -418,6 +418,9 @@ argo-rollouts:
     # -- Additional volumeMounts to add to the dashboard container
     volumeMounts: []
   notifications:
+    configmap:
+      # -- Whether to create notifications configmap
+      create: true
     secret:
       # -- Whether to create notifications secret
       create: false
