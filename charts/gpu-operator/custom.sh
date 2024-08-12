@@ -98,7 +98,8 @@ yq -i '
     .gpu-operator.gds.version="2.16.1-ubuntu22.04" |
     .gpu-operator.driver.version="535.104.12" |
     .gpu-operator.driver.versioncentos="535.104.12" |
-    .gpu-operator.driver.versionubunt20="535.104.12"
+    .gpu-operator.driver.versionubunt20="535.104.12" |
+    .gpu-operator.driver.versionrhel92="535.183.06"
 ' values.yaml
 
 yq -i '
@@ -107,7 +108,8 @@ yq -i '
     .gds.version="2.16.1-ubuntu22.04" |
     .driver.version="535.104.12" |
     .driver.versioncentos="535.104.12" |
-    .driver.versionubunt20="535.104.12"
+    .driver.versionubunt20="535.104.12" |
+    .driver.versionrhel92="535.183.06"
 ' charts/gpu-operator/values.yaml
 
 # set serviceMonitor
