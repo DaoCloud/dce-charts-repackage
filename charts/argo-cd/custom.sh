@@ -51,6 +51,8 @@ redisNewTag=${redisTag//-alpine/}
 
 redisHaProxyTag=${haproxyImageTag//-alpine/}
 
+yq -i '.kubeVersion=">=1.23.0-0"' Chart.yaml
+
 yq -i '
   .argo-cd.global.image.registry = "quay.m.daocloud.io" |
   .argo-cd.global.image.repository = "argoproj/argocd" |
