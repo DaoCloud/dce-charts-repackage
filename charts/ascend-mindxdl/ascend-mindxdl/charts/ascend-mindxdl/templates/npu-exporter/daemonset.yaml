@@ -26,7 +26,7 @@ spec:
         command: [ "/bin/bash", "-c", "--"]
         # pair firstly
         args: [ "umask 027;npu-exporter -port=8082 -ip=0.0.0.0  -updateTime=5
-                 -logFile=/var/log/mindx-dl/npu-exporter/npu-exporter.log -logLevel=0 -containerMode=docker" ]
+                 -logFile=/var/log/mindx-dl/npu-exporter/npu-exporter.log -logLevel=0 -containerMode={{ .Values.criType }}" ]
         securityContext:
           privileged: true
           readOnlyRootFilesystem: true
