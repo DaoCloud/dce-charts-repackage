@@ -114,6 +114,12 @@
                     "title": "Install ARP Pool",
                     "description": "install an instance of Loadbalancer IP Address Pool working with ARP mode. Note: \"--wait\" is required when helm installing."
                 },
+                "sharedIPPool": {
+                    "type": "boolean",
+                    "default": false,
+                    "title": "Shared IPPool",
+                    "description": "when enabled, tha all ips of the ippool are shared ip."
+                },
                 "ipAddressPools": {
                     "type": "object",
                     "title": "Loadbalancer IP Address Pool Settings",

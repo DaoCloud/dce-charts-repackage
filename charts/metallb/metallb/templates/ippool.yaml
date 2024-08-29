@@ -9,6 +9,10 @@ metadata:
 {{- end }}
   annotations:
     {{- include "dce-metallb.helm-hook-annotations" . | nindent 4 }}
+    {{- if .Values.instances.ipAddressPools.shared }}  
+    metallb.universe.tf/share-address-pool: "true"
+    {{- end }} 
+
 spec:
   addresses:
 {{- if .Values.instances.ipAddressPools.addresses }}
