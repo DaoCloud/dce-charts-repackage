@@ -8,6 +8,9 @@ instances:
     name: default-pool
     # labels: {}
     # -- list of addresses pool, include ipv4/ipv6
+    # shared ippool, if true, the each ip of the pool is 
+    # shared ip
+    shared: false
     addresses: []
     autoAssign: true
     avoidBuggyIPs: true

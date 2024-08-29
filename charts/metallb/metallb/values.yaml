@@ -171,7 +171,7 @@ metallb:
     # webhookMode: enabled
     image:
       repository: metallb/controller
-      tag: v0.13.12
+      tag: v0.14.8
       pullPolicy:
       registry: quay.m.daocloud.io
     ## @param controller.updateStrategy.type Metallb controller deployment strategy type.
@@ -228,6 +228,9 @@ metallb:
       periodSeconds: 10
       successThreshold: 1
       timeoutSeconds: 1
+    tlsMinVersion: "VersionTLS12"
+    tlsCipherSuites: ""
+    extraContainers: []
   # speaker contains configuration specific to the MetalLB speaker
   # daemonset.
   speaker:
@@ -239,12 +242,15 @@ metallb:
     memberlist:
       enabled: true
       mlBindPort: 7946
+      mlBindAddrOverride: ""
       mlSecretKeyPath: "/etc/ml_secret_key"
     excludeInterfaces:
       enabled: true
+    # ignore the exclude-from-external-loadbalancer label
+    ignoreExcludeLB: false
     image:
       repository: metallb/speaker
-      tag: v0.13.12
+      tag: v0.14.8
       pullPolicy:
       registry: quay.m.daocloud.io
     ## @param speaker.updateStrategy.type Speaker daemonset strategy type
@@ -262,6 +268,7 @@ metallb:
       # true, a name is generated using the fullname template
       name: ""
       annotations: {}
+    securityContext: {}
     ## Defines a secret name for the controller to generate a memberlist encryption secret
     ## By default secretName: {{ "metallb.fullname" }}-memberlist
     ##
@@ -308,7 +315,7 @@ metallb:
       enabled: false
       image:
         repository: frrouting/frr
-        tag: 8.5.2
+        tag: 9.1.0
         pullPolicy:
         registry: quay.m.daocloud.io
       metricsPort: 7473
@@ -320,9 +327,20 @@ metallb:
       resources: {}
     frrMetrics:
       resources: {}
+    extraContainers: []
   crds:
     enabled: true
     validationFailurePolicy: Fail
+  # frrk8s contains the configuration related to using an frrk8s instance
+  # (github.com/metallb/frr-k8s) as the backend for the BGP implementation.
+  # This allows configuring additional frr parameters in combination to those
+  # applied by MetalLB.
+  frrk8s:
+    # if set, enables frrk8s as a backend. This is mutually exclusive to frr
+    # mode.
+    enabled: false
+    external: false
+    namespace: ""
 # create default ipaddress-pool
 instances:
   # -- enable default ip-address pool
@@ -332,6 +350,9 @@ instances:
     name: default-pool
     # labels: {}
     # -- list of addresses pool, include ipv4/ipv6
+    # shared ippool, if true, the each ip of the pool is 
+    # shared ip
+    shared: false
     addresses: []
     autoAssign: true
     avoidBuggyIPs: true

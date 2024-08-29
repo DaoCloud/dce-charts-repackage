@@ -20,6 +20,7 @@ set -x
 # deploy the metallb
 helm install metallb chart-museum/metallb  ${HELM_MUST_OPTION}   --namespace metallb-system1  --create-namespace \
   --set instances.enabled=true \
+  --set .instances.ipAddressPools.shared=true \
   --set instances.arp.nodeSelectors.key=kubernetes.io/arch \
   --set instances.arp.nodeSelectors.value=amd64 \
   --set metallb.prometheus.serviceMonitor.enabled=true \
