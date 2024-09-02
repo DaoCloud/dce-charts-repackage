@@ -72,5 +72,11 @@ Shortcut to return image for builders
 {{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Base "root" .) }}
 */}}
 {{- define "builder.image" }}
-  {{- include "jenkins.images.image" (dict "imageRoot" .builder "global" .root.Values.global "root" .root.Values.image) -}}{{ template "jenkins.agent.variant" .root }}
+  {{- $image := include "jenkins.images.image" (dict "imageRoot" .builder "global" .root.Values.global "root" .root.Values.image) -}}
+  {{- $osSuffix := "" -}}
+  {{- if .os -}}
+    {{- $osSuffix = printf "-%s" .os -}}
+  {{- end -}}
+  {{- $variant := include "jenkins.agent.variant" .root -}}
+  {{- printf "%s%s%s" $image $osSuffix $variant -}}
 {{- end -}}
