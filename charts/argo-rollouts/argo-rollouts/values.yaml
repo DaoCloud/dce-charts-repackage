@@ -42,7 +42,7 @@ argo-rollouts:
     revisionHistoryLimit: 10
     imageRegistry: quay.m.daocloud.io
     repository: argoproj/argo-rollouts
-    tag: v1.7.1
+    tag: v1.7.2
   controller:
     # -- Value of label `app.kubernetes.io/component`
     component: rollouts-controller
@@ -85,7 +85,7 @@ argo-rollouts:
       # -- Repository to use
       repository: argoproj/argo-rollouts
       # -- Overrides the image tag (default is the chart appVersion)
-      tag: "v1.7.1"
+      tag: "v1.7.2"
       # -- Image pull policy
       pullPolicy: IfNotPresent
     # -- Additional command line arguments to pass to rollouts-controller.  A list of flags.
@@ -312,7 +312,7 @@ argo-rollouts:
       # --  Repository to use
       repository: argoproj/kubectl-argo-rollouts
       # -- Overrides the image tag (default is the chart appVersion)
-      tag: "v1.7.1"
+      tag: "v1.7.2"
       # -- Image pull policy
       pullPolicy: IfNotPresent
     # -- Additional command line arguments to pass to rollouts-dashboard. A list of flags.
@@ -331,6 +331,8 @@ argo-rollouts:
     service:
       # -- Sets the type of the Service
       type: ClusterIP
+      # -- The class of the load balancer implementation
+      loadBalancerClass: ""
       # -- LoadBalancer will get created with the IP specified in this field
       loadBalancerIP: ""
       # -- Source IP ranges to allow access to service from
@@ -418,6 +420,9 @@ argo-rollouts:
     # -- Additional volumeMounts to add to the dashboard container
     volumeMounts: []
   notifications:
+    configmap:
+      # -- Whether to create notifications configmap
+      create: true
     secret:
       # -- Whether to create notifications secret
       create: false
