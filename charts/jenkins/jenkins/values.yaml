@@ -21,7 +21,7 @@ jenkins:
       SchedulerName: ""
     Name: jenkins-master
     Image: "amambadev/jenkins"
-    ImageTag: "v0.3.2-2.413"
+    ImageTag: "v0.4.0-2.413"
     ImagePullPolicy: "IfNotPresent"
     ImagePullSecret: ""
     Component: "jenkins-master"
@@ -317,22 +317,36 @@ jenkins:
     Builder:
       Base:
         Image: amambadev/jenkins-agent-base
-        ImageTag: v0.3.2
-      NodeJs16:
+        ImageTag: v0.4.0
+      NodeJs:
         Image: amambadev/jenkins-agent-nodejs
-        ImageTag: v0.3.2
+        ImageTag: v0.4.0-16.17.0
+        # Versions for auto generator Jenkins CASC Config and relock_k8s images.
+        # must build image first.
+        Versions:
+          - v0.4.0-18.20.4
+          - v0.4.0-20.16.0
       Maven:
         Image: amambadev/jenkins-agent-maven
-        ImageTag: v0.3.2-jdk1.8
-      Mavenjdk11:
-        Image: amambadev/jenkins-agent-maven
-        ImageTag: v0.3.2-jdk11
+        ImageTag: v0.4.0-jdk8
+        Versions:
+          - v0.4.0-jdk11
+          - v0.4.0-jdk17
+          - v0.4.0-jdk21
       Golang:
         Image: amambadev/jenkins-agent-go
-        ImageTag: v0.3.2
+        ImageTag: v0.4.0-1.22.6
+        Versions:
+          - v0.4.0-1.17.13
+          - v0.4.0-1.18.10
+          - v0.4.0-1.20.14
       Python:
         Image: amambadev/jenkins-agent-python
-        ImageTag: v0.3.2
+        ImageTag: v0.4.0-3.8.19
+        Versions:
+          - v0.4.0-2.7.9
+          - v0.4.0-3.10.9
+          - v0.4.0-3.11.9
       ContainerRuntime: podman # Available values: docker, podman
   Persistence:
     Enabled: true

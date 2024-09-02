@@ -28,6 +28,7 @@ data:
                 label: "base"
                 nodeUsageMode: "NORMAL"
                 idleMinutes: 0
+                serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
                 - name: "base"
                   image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Base "root" .) -}}"
@@ -87,9 +88,10 @@ data:
                 label: "nodejs"
                 nodeUsageMode: "EXCLUSIVE"
                 idleMinutes: 0
+                serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
                 - name: "nodejs"
-                  image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.NodeJs16 "root" .) -}}"
+                  image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.NodeJs "root" .) -}}"
                   command: "cat"
                   args: ""
                   ttyEnabled: true
@@ -147,11 +149,14 @@ data:
                           ephemeral-storage: "10Gi"
                     securityContext:
                       fsGroup: 1000
+              {{- $nodejsParams := dict "language" "nodejs" "builder" .Values.Agent.Builder.NodeJs "root" . "os" "ubuntu"}}
+              {{ include "language.images" $nodejsParams | nindent 14 }}
               - name: "maven"
                 namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
                 label: "maven"
                 nodeUsageMode: "EXCLUSIVE"
                 idleMinutes: 0
+                serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
                 - name: "maven"
                   image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Maven "root" .) -}}"
@@ -220,18 +225,14 @@ data:
                             path: settings.xml
                     securityContext:
                       fsGroup: 1000
-
-              - name: "mavenjdk11"
-                label: "mavenjdk11"
-                inheritFrom: "maven"
-                containers:
-                - name: "maven"
-                  image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Mavenjdk11 "root" .) -}}"
+              {{- $mavenParams := dict "language" "maven" "builder" .Values.Agent.Builder.Maven "root" . "os" "ubuntu" }}
+              {{ include "language.images" $mavenParams | nindent 14 }}
               - name: "go"
                 namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
                 label: "go"
                 nodeUsageMode: "EXCLUSIVE"
                 idleMinutes: 0
+                serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
                 - name: "go"
                   image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Golang "root" .) -}}"
@@ -289,11 +290,14 @@ data:
                           ephemeral-storage: "10Gi"
                     securityContext:
                       fsGroup: 1000
+              {{- $goParams := dict "language" "go" "builder" .Values.Agent.Builder.Golang "root" . "os" "ubuntu" }}
+              {{ include "language.images" $goParams | nindent 14 }}
               - name: "python"
                 namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
                 label: "python"
                 nodeUsageMode: "EXCLUSIVE"
                 idleMinutes: 0
+                serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
                 - name: "python"
                   image: "{{- include "builder.image" ( dict "builder" .Values.Agent.Builder.Python "root" .) }}"
@@ -354,7 +358,8 @@ data:
                           ephemeral-storage: "10Gi"
                     securityContext:
                       fsGroup: 1000
-
+              {{- $pythonParams := dict "language" "python" "builder" .Values.Agent.Builder.Python "root" . "os" "ubuntu" }}
+              {{ include "language.images" $pythonParams | nindent 14 }}
       securityRealm:
       authorizationStrategy: loggedInUsersCanDoAnything
 
