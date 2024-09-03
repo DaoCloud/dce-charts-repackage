@@ -78,7 +78,7 @@ yq -i '
   .argo-cd.redis-ha.sysctlImage.image.repository = "library/busybox" |
   .argo-cd.redis-ha.exporter.image.registry = "docker.m.daocloud.io" |
   .argo-cd.redis-ha.exporter.image.repository = "oliver006/redis_exporter" |
-  .argo-cd.redisSecretInit.image.registry = "quay.m.daocloud.io"
+  .argo-cd.redisSecretInit.image.registry = ""
 ' values.yaml
 
 
@@ -101,13 +101,13 @@ yq -i "
 
 
 yq -i "
-  .redisSecretInit.image.registry = \"quay.m.daocloud.io\" |
+  .redisSecretInit.image.registry = \"\" |
   .redisSecretInit.image.repository = \"argoproj/argocd\" |
   .redisSecretInit.image.tag = \"${globalImageTag}\"
 " charts/argo-cd/values.yaml
 
 yq -i "
-  .argo-cd.redisSecretInit.image.registry = \"quay.m.daocloud.io\" |
+  .argo-cd.redisSecretInit.image.registry = \"\" |
   .argo-cd.redisSecretInit.image.repository = \"argoproj/argocd\" |
   .argo-cd.redisSecretInit.image.tag = \"${globalImageTag}\"
 " values.yaml
