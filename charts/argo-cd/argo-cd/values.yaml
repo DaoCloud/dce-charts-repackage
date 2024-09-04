@@ -1521,7 +1521,6 @@ argo-cd:
       # -- Image pull policy for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.imagePullPolicy)
       imagePullPolicy: "" # IfNotPresent
-      registry: ""
     # -- Secrets with credentials to pull images from a private registry
     # @default -- `[]` (defaults to global.imagePullSecrets)
     imagePullSecrets: []
