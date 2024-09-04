@@ -7,4 +7,3 @@
 - "{{ .argo-cd.redis-ha.haproxy.image.registry }}/{{ .argo-cd.redis-ha.haproxy.image.repository }}:{{ .argo-cd.redis-ha.haproxy.image.tag }}"
 - "{{ .argo-cd.redis-ha.sysctlImage.image.registry }}/{{ .argo-cd.redis-ha.sysctlImage.image.repository }}:{{ .argo-cd.redis-ha.sysctlImage.image.tag }}"
 - "{{ .argo-cd.redis-ha.exporter.image.registry }}/{{ .argo-cd.redis-ha.exporter.image.repository }}:{{ .argo-cd.redis-ha.exporter.image.tag }}"
-- "{{ .argo-cd.redisSecretInit.image.registry }}/{{ .argo-cd.redisSecretInit.image.repository }}:{{ .argo-cd.redisSecretInit.image.tag }}"
