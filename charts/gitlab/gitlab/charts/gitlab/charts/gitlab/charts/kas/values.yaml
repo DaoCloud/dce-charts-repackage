@@ -115,12 +115,9 @@ workhorse: {}
 # port: 8181
 # merged with the default kas config
 customConfig: {}
-privateApi:
-  # secret:
-  # key:
-  tls:
-    enabled: false # DEPRECATED: in favor of `global.kas.tls.enabled`
-    # secretName: # DEPRECATED: in favor of `global.kas.tls.secretName`
+privateApi: {}
+# secret:
+# key:
 deployment:
   terminationGracePeriodSeconds: 300
   strategy: {}
@@ -148,5 +145,8 @@ networkpolicy:
 affinity:
   podAntiAffinity:
     topologyKey:
+  nodeAffinity:
+    key:
+    values:
 # Priority class assigned to pods
 priorityClassName: ""
