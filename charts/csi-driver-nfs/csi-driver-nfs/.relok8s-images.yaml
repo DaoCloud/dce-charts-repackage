@@ -1,0 +1,6 @@
+- "{{ .csi-driver-nfs.image.baseRepo }}/{{ .csi-driver-nfs.image.csiProvisioner.repository}}:{{ .csi-driver-nfs.image.csiProvisioner.tag }}"
+- "{{ .csi-driver-nfs.image.baseRepo }}/{{ .csi-driver-nfs.image.csiSnapshotter.repository}}:{{ .csi-driver-nfs.image.csiSnapshotter.tag }}"
+- "{{ .csi-driver-nfs.image.baseRepo }}/{{ .csi-driver-nfs.image.externalSnapshotter.repository}}:{{ .csi-driver-nfs.image.externalSnapshotter.tag }}"
+- "{{ .csi-driver-nfs.image.baseRepo }}/{{ .csi-driver-nfs.image.livenessProbe.repository}}:{{ .csi-driver-nfs.image.livenessProbe.tag }}"
+- "{{ .csi-driver-nfs.image.baseRepo }}/{{ .csi-driver-nfs.image.nfs.repository}}:{{ .csi-driver-nfs.image.nfs.tag }}"
+- "{{ .csi-driver-nfs.image.baseRepo }}/{{ .csi-driver-nfs.image.nodeDriverRegistrar.repository}}:{{ .csi-driver-nfs.image.nodeDriverRegistrar.tag }}"

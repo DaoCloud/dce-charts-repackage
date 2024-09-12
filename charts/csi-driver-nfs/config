@@ -1,0 +1,20 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+
+export REPO_URL=https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+export REPO_NAME=csi-driver-nfs
+export CHART_NAME=csi-driver-nfs
+export VERSION=v4.9.0
+
+# pr, issue, none
+
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=rei1010
+export TEST_ASSIGNER=liyuerich
+
+# push to daocloud repo
+
+export DAOCLOUD_REPO_PROJECT=addon
+export CUSTOM_SHELL=custom.sh
+export NO_TRIVY=true
