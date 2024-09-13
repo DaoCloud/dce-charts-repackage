@@ -828,13 +828,13 @@ gitlab:
   ## https://docs.gitlab.com/charts/charts/nginx/
   ## https://docs.gitlab.com/charts/architecture/decisions#nginx-ingress
   ## Installation & configuration of charts/ingress-nginx:
-  nginx-ingress: &nginx-ingress
+  nginx-ingress:
     enabled: true
     tcpExternalConfig: "true"
-    controller: &nginx-ingress-controller
+    controller:
       addHeaders:
         Referrer-Policy: strict-origin-when-cross-origin
-      config: &nginx-ingress-controller-config
+      config:
         annotation-value-word-blocklist: "load_module,lua_package,_by_lua,location,root,proxy_pass,serviceaccount,{,},',\""
         hsts: "true"
         hsts-include-subdomains: "false"
@@ -892,12 +892,62 @@ gitlab:
   #   - Pass X-Forwarded-For headers as is
   #   - Use a different IngressClass name
   nginx-ingress-geo:
-    !!merge <<: *nginx-ingress
+    tcpExternalConfig: "true"
+    defaultBackend:
+      resources:
+        requests:
+          cpu: 5m
+          memory: 5Mi
+    rbac:
+      create: true
+      # Needed for k8s 1.20 and 1.21
+      # https://github.com/kubernetes/ingress-nginx/issues/7510
+      # https://github.com/kubernetes/ingress-nginx/issues/7519
+      scope: false
+    serviceAccount:
+      create: true
     enabled: false
     controller:
-      !!merge <<: *nginx-ingress-controller
+      addHeaders:
+        Referrer-Policy: strict-origin-when-cross-origin
+      service:
+        externalTrafficPolicy: "Local"
+      ingressClassByName: false
+      resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      publishService:
+        enabled: true
+      replicaCount: 2
+      minAvailable: 1
+      scope:
+        enabled: true
+      metrics:
+        enabled: true
+        service:
+          annotations:
+            gitlab.com/prometheus_scrape: "true"
+            gitlab.com/prometheus_port: "10254"
+            prometheus.io/scrape: "true"
+            prometheus.io/port: "10254"
+      admissionWebhooks:
+        enabled: false
       config:
-        !!merge <<: *nginx-ingress-controller-config
+        annotation-value-word-blocklist: "load_module,lua_package,_by_lua,location,root,proxy_pass,serviceaccount,{,},',\""
+        hsts: "true"
+        hsts-include-subdomains: "false"
+        hsts-max-age: "63072000"
+        server-name-hash-bucket-size: "256"
+        use-http2: "true"
+        ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4"
+        ssl-protocols: "TLSv1.3 TLSv1.2"
+        server-tokens: "false"
+        # Configure smaller defaults for upstream-keepalive-*, see https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration
+        upstream-keepalive-connections: 100 # Limit of 100 held-open connections
+        upstream-keepalive-time: 30s # 30 second limit for connection reuse
+        upstream-keepalive-timeout: 5 # 5 second timeout to hold open idle connections
+        upstream-keepalive-requests: 1000 # 1000 requests per connection, before recycling
         # Pass incoming X-Forwarded-* headers to upstream. Required to handle requests
         # from other Geo sites.
         # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#use-forwarded-headers
