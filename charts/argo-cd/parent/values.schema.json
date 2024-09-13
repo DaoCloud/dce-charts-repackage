@@ -71,9 +71,6 @@
                                 },
                                 "renewBefore": {
                                     "type": "string"
-                                },
-                                "secretName": {
-                                    "type": "string"
                                 }
                             }
                         },
@@ -1530,6 +1527,17 @@
                         "domain": {
                             "type": "string"
                         },
+                        "dualStack": {
+                            "type": "object",
+                            "properties": {
+                                "ipFamilies": {
+                                    "type": "array"
+                                },
+                                "ipFamilyPolicy": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "env": {
                             "type": "array"
                         },
@@ -1755,6 +1763,29 @@
                         "initContainers": {
                             "type": "array"
                         },
+                        "livenessProbe": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "failureThreshold": {
+                                    "type": "integer"
+                                },
+                                "initialDelaySeconds": {
+                                    "type": "integer"
+                                },
+                                "periodSeconds": {
+                                    "type": "integer"
+                                },
+                                "successThreshold": {
+                                    "type": "integer"
+                                },
+                                "timeoutSeconds": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
                         "logFormat": {
                             "type": "string"
                         },
@@ -1858,6 +1889,29 @@
                         },
                         "priorityClassName": {
                             "type": "string"
+                        },
+                        "readinessProbe": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "failureThreshold": {
+                                    "type": "integer"
+                                },
+                                "initialDelaySeconds": {
+                                    "type": "integer"
+                                },
+                                "periodSeconds": {
+                                    "type": "integer"
+                                },
+                                "successThreshold": {
+                                    "type": "integer"
+                                },
+                                "timeoutSeconds": {
+                                    "type": "integer"
+                                }
+                            }
                         },
                         "resources": {
                             "type": "object",
@@ -2496,9 +2550,6 @@
                                             }
                                         }
                                     }
-                                },
-                                "tag": {
-                                    "type": "string"
                                 }
                             }
                         },
@@ -2685,9 +2736,6 @@
                             "type": "object",
                             "properties": {
                                 "imagePullPolicy": {
-                                    "type": "string"
-                                },
-                                "registry": {
                                     "type": "string"
                                 },
                                 "repository": {
@@ -3266,8 +3314,8 @@
                                 "renewBefore": {
                                     "type": "string"
                                 },
-                                "secretName": {
-                                    "type": "string"
+                                "secretTemplateAnnotations": {
+                                    "type": "object"
                                 },
                                 "usages": {
                                     "type": "array"
@@ -3797,6 +3845,9 @@
                                 },
                                 "labels": {
                                     "type": "object"
+                                },
+                                "loadBalancerClass": {
+                                    "type": "string"
                                 },
                                 "loadBalancerIP": {
                                     "type": "string"
