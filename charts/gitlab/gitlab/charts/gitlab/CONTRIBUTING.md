@@ -49,7 +49,7 @@ request is as follows:
 1. Write code and charts changes.
 1. If deemed necessary, provide MR to the [Cloud Native GitLab containers][CNG].
     - Provide the related Issue and MR link from that repository.
-1. [Generate a changelog entry with `bin/changelog`][changelog]
+1. [Generate a changelog entry][changelog]
 1. If you have multiple commits please combine them into a few logically
   organized commits by [squashing them][git-squash]
 1. Push the commit(s) to your fork

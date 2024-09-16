@@ -40,10 +40,34 @@ init:
     requests:
       cpu: 50m
   containerSecurityContext: {}
+# Gitaly built-in cgroups, spawns Git processes into a cgroup per repository, protecting the service/pod from OOM events
+# ref: https://docs.gitlab.com/ee/administration/gitaly/configure_gitaly.html#control-groups
+cgroups:
+  enabled: false
+  initContainer:
+    image:
+      repository: registry.gitlab.com/gitlab-org/build/cng/gitaly-init-cgroups
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+  mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
+  hierarchyRoot: gitaly
+  # memoryBytes:
+  # cpuShares:
+  # cpuQuotaUs:
+  repositories: {}
+  # count:
+  # memoryBytes:
+  # cpuShares:
+  # cpuQuotaUs:
 ## Support for tolerations for pod scheduling
 tolerations: []
 ## The Gitaly StatefulSet's priorityClassName
 # priorityClassName:
+
+# Gitaly shutdown grace period, how long to wait for in-flight requests to complete (seconds)
+# Pod `terminationGracePeriodSeconds` is set to this value + 5 seconds
+gracefulRestartTimeout: 25
 logging:
   format: "json"
   # level:
@@ -55,6 +79,7 @@ git: {}
 ## commands. Accepts configuration as documented in git-config(1).
 # config:
 #   - {key: "pack.threads", value: 4}
+
 prometheus: {}
 # grpcLatencyBuckets: "[1.0, 1.5, 2.0, 2.5]"
 
@@ -109,6 +134,7 @@ persistence:
   ## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#selector
   matchExpressions: []
   annotations: {}
+  labels: {}
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -151,9 +177,19 @@ statefulset:
     timeoutSeconds: 3
     successThreshold: 1
     failureThreshold: 3
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 1
+    periodSeconds: 2
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 30
 affinity:
   podAntiAffinity:
     topologyKey:
+  nodeAffinity:
+    key:
+    values:
 ## Enable the Gitaly pack-objects cache
 ## ref: https://docs.gitlab.com/ee/administration/gitaly/configure_gitaly.html#pack-objects-cache
 packObjectsCache: {}
@@ -167,3 +203,10 @@ gpgSigning: {}
 # enabled: false
 # secret: glGPG
 # key:
+
+backup: {}
+# goCloudUrl:
+
+# default enable gomemlimit to avoid gc related OOM errors
+gomemlimit:
+  enabled: true

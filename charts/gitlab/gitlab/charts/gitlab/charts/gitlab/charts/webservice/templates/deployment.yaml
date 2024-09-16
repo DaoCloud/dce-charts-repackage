@@ -494,6 +494,7 @@ spec:
             {{- include "gitlab.clickhouse.main.secrets" $ | nindent 10 }}
           {{- end }}
           {{- include "gitlab.redis.secrets" (dict "globalContext" $) | nindent 10 }}
+          {{- include "gitlab.redisSentinel.secret" $ | nindent 10 }}
           {{- range $.Values.local.psql }}
           {{-   include "gitlab.psql.secret" . | nindent 10 }}
           {{- end }}
