@@ -159,7 +159,7 @@ data:
                 serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
                 - name: "maven"
-                  image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Maven "root" .) -}}"
+                  image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Maven "root" . "os" "ubuntu") -}}"
                   command: "cat"
                   args: ""
                   ttyEnabled: true
@@ -235,7 +235,7 @@ data:
                 serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
                 - name: "go"
-                  image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Golang "root" .) -}}"
+                  image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Golang "root" . "os" "ubuntu") -}}"
                   command: "cat"
                   args: ""
                   ttyEnabled: true
