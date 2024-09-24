@@ -12,6 +12,9 @@ metadata:
     "helm.sh/resource-policy": keep
   {{- end }}
 spec:
+  hostPaths:
+    rootFS: {{ .Values.hostPaths.rootFS }}
+    driverInstallDir: {{ .Values.hostPaths.driverInstallDir }}
   operator:
     {{- if .Values.operator.defaultRuntime }}
     defaultRuntime: {{ .Values.operator.defaultRuntime }}
@@ -91,6 +94,12 @@ spec:
       env: {{ toYaml .Values.validator.plugin.env | nindent 8 }}
       {{- end }}
     {{- end }}
+    {{- if .Values.validator.cuda }}
+    cuda:
+      {{- if .Values.validator.cuda.env }}
+      env: {{ toYaml .Values.validator.cuda.env | nindent 8 }}
+      {{- end }}
+    {{- end }}
     {{- if .Values.validator.driver }}
     driver:
       {{- if .Values.validator.driver.env }}
@@ -126,8 +135,6 @@ spec:
     {{- if .Values.mig.strategy }}
     strategy: {{ .Values.mig.strategy }}
     {{- end }}
-  psp:
-    enabled: {{ .Values.psp.enabled }}
   psa:
     enabled: {{ .Values.psa.enabled }}
   cdi:
@@ -136,6 +143,7 @@ spec:
   driver:
     enabled: {{ .Values.driver.enabled }}
     useNvidiaDriverCRD: {{ .Values.driver.nvidiaDriverCRD.enabled }}
+    useOpenKernelModules: {{ .Values.driver.useOpenKernelModules }}
     usePrecompiled: {{ .Values.driver.usePrecompiled }}
     {{- if .Values.driver.repository }}
     repository: {{ .Values.driver.repository }}
@@ -477,9 +485,6 @@ spec:
     {{- if .Values.dcgm.args }}
     args: {{ toYaml .Values.dcgm.args | nindent 6 }}
     {{- end }}
-    {{- if .Values.dcgm.hostPort }}
-    hostPort: {{ .Values.dcgm.hostPort }}
-    {{- end }}
   dcgmExporter:
     enabled: {{ .Values.dcgmExporter.enabled }}
     {{- if .Values.dcgmExporter.repository }}
@@ -565,7 +570,9 @@ spec:
     args: {{ toYaml .Values.migManager.args | nindent 6 }}
     {{- end }}
     {{- if .Values.migManager.config }}
-    config: {{ toYaml .Values.migManager.config | nindent 6 }}
+    config:
+      name: {{ .Values.migManager.config.name }}
+      default: {{ .Values.migManager.config.default }}
     {{- end }}
     {{- if .Values.migManager.gpuClientsConfig }}
     gpuClientsConfig: {{ toYaml .Values.migManager.gpuClientsConfig | nindent 6 }}
@@ -615,6 +622,29 @@ spec:
     {{- end }}
     {{- if .Values.gds.args }}
     args: {{ toYaml .Values.gds.args | nindent 6 }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.gdrcopy }}
+  gdrcopy:
+    enabled: {{ .Values.gdrcopy.enabled | default false }}
+    {{- if .Values.gdrcopy.repository }}
+    repository: {{ .Values.gdrcopy.repository }}
+    {{- end }}
+    {{- if .Values.gdrcopy.image }}
+    image: {{ .Values.gdrcopy.image }}
+    {{- end }}
+    version: {{ .Values.gdrcopy.version | quote }}
+    {{- if .Values.gdrcopy.imagePullPolicy }}
+    imagePullPolicy: {{ .Values.gdrcopy.imagePullPolicy }}
+    {{- end }}
+    {{- if .Values.gdrcopy.imagePullSecrets }}
+    imagePullSecrets: {{ toYaml .Values.gdrcopy.imagePullSecrets | nindent 8 }}
+    {{- end }}
+    {{- if .Values.gdrcopy.env }}
+    env: {{ toYaml .Values.gdrcopy.env | nindent 6 }}
+    {{- end }}
+    {{- if .Values.gdrcopy.args }}
+    args: {{ toYaml .Values.gdrcopy.args | nindent 6 }}
     {{- end }}
   {{- end }}
   sandboxWorkloads:
