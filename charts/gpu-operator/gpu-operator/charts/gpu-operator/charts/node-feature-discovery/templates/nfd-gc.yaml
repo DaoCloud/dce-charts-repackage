@@ -1,4 +1,4 @@
-{{- if and .Values.gc.enable (or .Values.enableNodeFeatureApi .Values.topologyUpdater.enable) -}}
+{{- if and .Values.gc.enable (or (and .Values.featureGates.NodeFeatureAPI .Values.enableNodeFeatureApi) .Values.topologyUpdater.enable) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,6 +13,7 @@ metadata:
   {{- end }}
 spec:
   replicas: {{ .Values.gc.replicaCount | default 1 }}
+  revisionHistoryLimit: {{ .Values.gc.revisionHistoryLimit }}
   selector:
     matchLabels:
       {{- include "node-feature-discovery.selectorLabels" . | nindent 6 }}
@@ -29,6 +30,9 @@ spec:
     spec:
       serviceAccountName: {{ include "node-feature-discovery.gc.serviceAccountName" . }}
       dnsPolicy: ClusterFirstWithHostNet
+    {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . }}
+    {{- end }}
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -58,6 +62,9 @@ spec:
             drop: [ "ALL" ]
           readOnlyRootFilesystem: true
           runAsNonRoot: true
+        ports:
+          - name: metrics
+            containerPort: {{ .Values.gc.metricsPort | default "8081"}}
 
     {{- with .Values.gc.nodeSelector }}
       nodeSelector:
