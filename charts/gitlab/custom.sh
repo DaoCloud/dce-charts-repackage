@@ -175,6 +175,8 @@ sed -i 's/openssl req -new -newkey rsa:4096 -subj "\/CN={{ coalesce .Values.regi
 
 sed -i 's/{{- printf "%s:%s%s" .image.repository $tag $tagSuffix -}}/{{- printf "%s\/%s:%s%s" .image.registry .image.repository $tag $tagSuffix -}}/' charts/gitlab/templates/_image.tpl
 
+sed -i 's/!!merge <</<</' values.yaml
+
 #==============================
 echo "fulfill tag"
 sed -i 's@tag: ""@tag: "master"@g' values.yaml
