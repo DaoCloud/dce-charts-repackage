@@ -892,12 +892,12 @@ gitlab:
   #   - Pass X-Forwarded-For headers as is
   #   - Use a different IngressClass name
   nginx-ingress-geo:
-    !!merge <<: *nginx-ingress
+    <<: *nginx-ingress
     enabled: false
     controller:
-      !!merge <<: *nginx-ingress-controller
+      <<: *nginx-ingress-controller
       config:
-        !!merge <<: *nginx-ingress-controller-config
+        <<: *nginx-ingress-controller-config
         # Pass incoming X-Forwarded-* headers to upstream. Required to handle requests
         # from other Geo sites.
         # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#use-forwarded-headers
