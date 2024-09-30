@@ -1,6 +1,59 @@
 # SonarQube Chart Changelog
 All changes to this chart will be documented in this file.
 
+## [10.6.1]
+* Update Chart's version to 10.6.1
+* Fix a typo in the new common STS template
+* Fix regression on env valuesFrom in the new STS template
+
+## [10.6.0]
+* Update SonarQube to 10.6.0
+* Update Chart's version to 10.6.0
+* Fix the env-var templating when sourcing from secrets
+* Fix the postgresql chart's repository link
+* Add support for overriding liveness/readiness probe logic
+* Use a common template for Deployment and StatefulSet
+
+## [10.5.0]
+* Upgrade SonarQube to 10.5.0
+* Update Chart's version to 10.5.0
+* Update nginx-ingress-controller dependency to version 4.9.1
+* Set `automountServiceAccountToken` to false in pod's specifications
+* Update default `resources` values matching better default Xmx and Xms of the SonarQube processes.
+* Make `ephemeral-storage` resource's limits and requests configurable for the SonarQube container
+* Set memory and cpu limits for the test container
+* Deprecate nginx.enabled in favor of ingress-nginx.enabled, to match with subchart config block
+* Deprecate `prometheusMonitoring.podMonitor.namespace`
+* Instantiate `monitoring-web` and `monitoring-ce` endpoints when the `prometheusExporter` is enabled
+* Take `sonarWebContext` into account for the `PodMonitor` path
+* Fix duplicated env_var in Pods causing deployment issue (`SONAR_WEB_CONTEXT`,`SONAR_WEB_JAVAOPTS`,`SONAR_CE_JAVAOPTS`)
+
+## [10.4.0]
+* Upgrade SonarQube to 10.4.0
+* Update Chart's version to 10.4.0
+* Improve the description of deprecated `jvmOpts` and `jvmCeOpts` values
+* Run the initSysctl init-container as root to prevent 'permission denied' issues
+* Add revisionHistoryLimit configuration for SonarQube application Deployment ReplicaSets & StatefulSets
+* Update the security contexts to use root as group ID
+* Fix empty ingress annotations in values
+* Add support for dual stack and IPv6 single stack clusters in readiness/liveness probes
+
+## [10.3.0]
+* Upgrade SonarQube to 10.3.0
+* Update Chart's version to 10.3.0
+* Update default images to the latest versions
+* Remove the nginx-proxy-body annotation when nginx is disabled
+* Enable post-upgrade in the change-admin-password hook
+* Update default ContainerSecurityContext, InitContainerSecurityContext and postgresql.securityContext to match restricted podSecurityStandard
+* Update initFs defaut securityContext to match baseline podSecurityStandard
+* Update Elasticsearch.configureNode to false by default after 3 year deprecation
+* Fix wrong condition on initSysctl feature
+* Update default image of initContainers to sonarqube image, allowing for faster loading time and less external images needed
+* Support Kubernetes v1.28
+* Avoid duplicate SONAR_WEB_SYSTEMPASSCODE secrets
+* Deprecate embedded PostgreSQL
+* Update nginx-ingress-controller dependency to version 4.8.3, please carefully read the changelog of this new major version.
+
 ## [10.2.0]
 * Update SonarQube to 10.2.0
 * Update Chart's version to 10.2.0
