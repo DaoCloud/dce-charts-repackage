@@ -27,7 +27,7 @@ spec:
       {{- end }}
 
     spec:
-      automountServiceAccountToken: false
+      {{- include "gitlab.automountServiceAccountToken" . | nindent 6 }}
       restartPolicy: OnFailure
       {{- include "gitlab.nodeSelector" . | nindent 6 }}
       {{- if .Values.tolerations }}

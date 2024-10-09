@@ -242,4 +242,8 @@ deployment:
   strategy:
     type: Recreate
     rollingUpdate: null
+serviceAccount: {}
+## Used for local override of global ServiceAccount token mounting
+# automountServiceAccountToken: false
+
 registry: docker.m.daocloud.io
