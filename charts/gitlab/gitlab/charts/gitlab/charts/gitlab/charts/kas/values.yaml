@@ -105,6 +105,10 @@ serviceAccount:
   enabled: false
   create: false
   annotations: {}
+  ## Used for local override of global ServiceAccount token mounting
+  # automountServiceAccountToken: false
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name:
 # Tolerations for pod scheduling
 tolerations: []
 workhorse: {}
@@ -115,12 +119,9 @@ workhorse: {}
 # port: 8181
 # merged with the default kas config
 customConfig: {}
-privateApi:
-  # secret:
-  # key:
-  tls:
-    enabled: false # DEPRECATED: in favor of `global.kas.tls.enabled`
-    # secretName: # DEPRECATED: in favor of `global.kas.tls.secretName`
+privateApi: {}
+# secret:
+# key:
 deployment:
   terminationGracePeriodSeconds: 300
   strategy: {}
@@ -148,5 +149,8 @@ networkpolicy:
 affinity:
   podAntiAffinity:
     topologyKey:
+  nodeAffinity:
+    key:
+    values:
 # Priority class assigned to pods
 priorityClassName: ""
