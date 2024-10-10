@@ -6,15 +6,21 @@ image:
   # tag
 
   registry: k8s.m.daocloud.io
-  tag: v0.14.2
+  tag: v0.16.3
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 namespaceOverride: ""
 enableNodeFeatureApi: true
+featureGates:
+  NodeFeatureAPI: true
+  NodeFeatureGroupAPI: false
+priorityClassName: ""
 master:
+  enable: true
   config: ### <NFD-MASTER-CONF-START-DO-NOT-REMOVE>
   # noPublish: false
+  # autoDefaultNs: true
   # extraLabelNs: ["added.ns.io","added.kubernets.io"]
   # denyLabelNs: ["denied.ns.io","denied.kubernetes.io"]
   # resourceLabels: ["vendor-1.com/feature-1","vendor-2.io/feature-2"]
@@ -45,6 +51,8 @@ master:
   # nfdApiParallelism: 10
   ### <NFD-MASTER-CONF-END-DO-NOT-REMOVE>
   # The TCP port that nfd-master listens for incoming requests. Default: 8080
+  # Deprecated this parameter is related to the deprecated gRPC API and will
+  # be removed with it in a future release
   port: 8080
   metricsPort: 8081
   instance:
@@ -77,23 +85,24 @@ master:
     # The name of the service account to use.
     # If not set and create is true, a name is generated using the fullname template
     name:
+  # specify how many old ReplicaSets for the Deployment to retain.
+  revisionHistoryLimit:
   rbac:
     create: true
   service:
     type: ClusterIP
     port: 8080
-  resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
+  resources:
+    limits:
+      memory: 4Gi
+    requests:
+      cpu: 100m
+      # You may want to use the same value for `requests.memory` and `limits.memory`. The “requests” value affects scheduling to accommodate pods on nodes.
+      # If there is a large difference between “requests” and “limits” and nodes experience memory pressure, the kernel may invoke
+      # the OOM Killer, even if the memory does not exceed the “limits” threshold. This can cause unexpected pod evictions. Memory
+      # cannot be compressed and once allocated to a pod, it can only be reclaimed by killing the pod.
+      # Natan Yellin 22/09/2022 https://home.robusta.dev/blog/kubernetes-memory-limit
+      memory: 128Mi
   nodeSelector: {}
   tolerations:
     - key: "node-role.kubernetes.io/master"
@@ -121,6 +130,7 @@ master:
                 operator: In
                 values: [""]
 worker:
+  enable: true
   config: ### <NFD-WORKER-CONF-START-DO-NOT-REMOVE>
   #core:
   #  labelWhiteList:
@@ -148,6 +158,7 @@ worker:
   #    cpuid:
   ##     NOTE: whitelist has priority over blacklist
   #      attributeBlacklist:
+  #        - "AVX10"
   #        - "BMI1"
   #        - "BMI2"
   #        - "CLMUL"
@@ -206,7 +217,7 @@ worker:
   #    # The following feature demonstrates the capabilities of the matchFeatures
   #    - name: "my custom rule"
   #      labels:
-  #        my-ng-feature: "true"
+  #        "vendor.io/my-ng-feature": "true"
   #      # matchFeatures implements a logical AND over all matcher terms in the
   #      # list (i.e. all of the terms, or per-feature matchers, must match)
   #      matchFeatures:
@@ -277,7 +288,7 @@ worker:
   #    # The following feature demonstrates the capabilities of the matchAny
   #    - name: "my matchAny rule"
   #      labels:
-  #        my-ng-feature-2: "my-value"
+  #        "vendor.io/my-ng-feature-2": "my-value"
   #      # matchAny implements a logical IF over all elements (sub-matchers) in
   #      # the list (i.e. at least one feature matcher must match)
   #      matchAny:
@@ -298,10 +309,17 @@ worker:
   #                vendor: {op: In, value: ["8086"]}
   #                class: {op: In, value: ["02"]}
   #
+  #    - name: "avx wildcard rule"
+  #      labels:
+  #        "my-avx-feature": "true"
+  #      matchFeatures:
+  #        - feature: cpu.cpuid
+  #          matchName: {op: InRegexp, value: ["^AVX512"]}
+  #
   #    # The following features demonstreate label templating capabilities
   #    - name: "my template rule"
   #      labelsTemplate: |
-  #        {{ range .system.osrelease }}my-system-feature.{{ .Name }}={{ .Value }}
+  #        {{ range .system.osrelease }}vendor.io/my-system-feature.{{ .Name }}={{ .Value }}
   #        {{ end }}
   #      matchFeatures:
   #        - feature: system.osrelease
@@ -311,7 +329,7 @@ worker:
   #
   #    - name: "my template rule 2"
   #      labelsTemplate: |
-  #        {{ range .pci.device }}my-pci-device.{{ .class }}-{{ .device }}=with-cpuid
+  #        {{ range .pci.device }}vendor.io/my-pci-device.{{ .class }}-{{ .device }}=with-cpuid
   #        {{ end }}
   #      matchFeatures:
   #        - feature: pci.device
@@ -326,7 +344,7 @@ worker:
   #    # previous labels and vars
   #    - name: "my dummy kernel rule"
   #      labels:
-  #        "my.kernel.feature": "true"
+  #        "vendor.io/my.kernel.feature": "true"
   #      matchFeatures:
   #        - feature: kernel.version
   #          matchExpressions:
@@ -341,13 +359,20 @@ worker:
   #
   #    - name: "my rule using backrefs"
   #      labels:
-  #        "my.backref.feature": "true"
+  #        "vendor.io/my.backref.feature": "true"
   #      matchFeatures:
   #        - feature: rule.matched
   #          matchExpressions:
-  #            my.kernel.feature: {op: IsTrue}
+  #            vendor.io/my.kernel.feature: {op: IsTrue}
   #            my.dummy.var: {op: Gt, value: ["0"]}
   #
+  #    - name: "kconfig template rule"
+  #      labelsTemplate: |
+  #        {{ range .kernel.config }}kconfig-{{ .Name }}={{ .Value }}
+  #        {{ end }}
+  #      matchFeatures:
+  #        - feature: kernel.config
+  #          matchName: {op: In, value: ["SWAP", "X86", "ARM"]}
   ### <NFD-WORKER-CONF-END-DO-NOT-REMOVE>
   metricsPort: 8081
   daemonsetAnnotations: {}
@@ -361,6 +386,19 @@ worker:
     readOnlyRootFilesystem: true
     runAsNonRoot: true
     # runAsUser: 1000
+  # livenessProbe: {}
+  ## NOTE: Currently not configurable, defaults are provided for the sake of extra documentation.
+  # grpc:
+  #   port: 8082
+  # initialDelaySeconds: 10
+  # periodSeconds: 10
+  # readinessProbe: {}
+  ## NOTE: Currently not configurable, defaults are provided for the sake of extra documentation.
+  # grpc:
+  #   port: 8082
+  # initialDelaySeconds: 5
+  # periodSeconds: 10
+  # failureThreshold: 10
   serviceAccount:
     # Specifies whether a service account should be created.
     # We create this by default to make it easier for downstream users to apply PodSecurityPolicies.
@@ -375,18 +413,12 @@ worker:
   # Allow users to mount the hostPath /usr/src, useful for RHCOS on s390x
   # Does not work on systems without /usr/src AND a read-only /usr, such as Talos
   mountUsrSrc: false
-  resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      cpu: 5m
+      memory: 64Mi
   nodeSelector: {}
   tolerations: []
   annotations: {}
@@ -423,18 +455,25 @@ topologyUpdater:
       drop: ["ALL"]
     readOnlyRootFilesystem: true
     runAsUser: 0
-  resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
+  # livenessProbe: {}
+  ## NOTE: Currently not configurable, defaults are provided for the sake of extra documentation.
+  # grpc:
+  #   port: 8082
+  # initialDelaySeconds: 10
+  # periodSeconds: 10
+  # readinessProbe: {}
+  ## NOTE: Currently not configurable, defaults are provided for the sake of extra documentation.
+  # grpc:
+  #   port: 8082
+  # initialDelaySeconds: 5
+  # periodSeconds: 10
+  # failureThreshold: 10
+  resources:
+    limits:
+      memory: 60Mi
+    requests:
+      cpu: 50m
+      memory: 40Mi
   nodeSelector: {}
   tolerations: []
   annotations: {}
@@ -452,23 +491,20 @@ gc:
     create: true
   interval: 1h
   podSecurityContext: {}
-  resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      cpu: 10m
+      memory: 128Mi
+  metricsPort: 8081
   nodeSelector: {}
   tolerations: []
   annotations: {}
   deploymentAnnotations: {}
   affinity: {}
+  # specify how many old ReplicaSets for the Deployment to retain.
+  revisionHistoryLimit:
 # Optionally use encryption for worker <--> master comms
 # TODO: verify hostname is not yet supported
 #
@@ -477,6 +513,10 @@ gc:
 tls:
   enable: false
   certManager: false
+  certManagerCertificate:
+    issuerKind:
+    issuerName:
 prometheus:
   enable: false
+  scrapeInterval: 10s
   labels: {}
