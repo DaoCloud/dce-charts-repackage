@@ -1,63 +1,70 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: istio-cni
+  name: {{ template "name" . }}
   labels:
-    app: istio-cni
+    app: {{ template "name" . }}
     release: {{ .Release.Name }}
     istio.io/rev: {{ .Values.revision | default "default" }}
     install.operator.istio.io/owning-resource: {{ .Values.ownerName | default "unknown" }}
     operator.istio.io/component: "Cni"
 rules:
 - apiGroups: [""]
-  resources:
-  - pods
-  - nodes
-  verbs:
-  - get
+  resources: ["pods","nodes","namespaces"]
+  verbs: ["get", "list", "watch"]
+{{- if (eq .Values.platform "openshift") }}
+- apiGroups: ["security.openshift.io"]
+  resources: ["securitycontextconstraints"]
+  resourceNames: ["privileged"]
+  verbs: ["use"]
+{{- end }}
 ---
 {{- if .Values.cni.repair.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: istio-cni-repair-role
+  name: {{ template "name" . }}-repair-role
   labels:
-    app: istio-cni
+    app: {{ template "name" . }}
     release: {{ .Release.Name }}
     istio.io/rev: {{ .Values.revision | default "default" }}
     install.operator.istio.io/owning-resource: {{ .Values.ownerName | default "unknown" }}
     operator.istio.io/component: "Cni"
 rules:
-- apiGroups: [""]
-  resources: ["pods"]
-  verbs: ["get", "list", "watch", "delete", "patch", "update" ]
-- apiGroups: [""]
-  resources: ["events"]
-  verbs: ["get", "list", "watch", "delete", "patch", "update", "create" ]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["watch", "get", "list"]
+{{- if .Values.cni.repair.repairPods }}
+{{- /*  No privileges needed*/}}
+{{- else if .Values.cni.repair.deletePods }}
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["delete"]
+{{- else if .Values.cni.repair.labelPods }}
+  - apiGroups: [""]
+    {{- /* pods/status is less privileged than the full pod, and either can label. So use the lower pods/status */}}
+    resources: ["pods/status"]
+    verbs: ["patch", "update"]
+{{- end }}
 {{- end }}
 ---
-  {{- if .Values.cni.taint.enabled }}
+{{- if .Values.cni.ambient.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: istio-cni-taint-role
+  name: {{ template "name" . }}-ambient
   labels:
-    app: istio-cni
+    app: {{ template "name" . }}
     release: {{ .Release.Name }}
     istio.io/rev: {{ .Values.revision | default "default" }}
     install.operator.istio.io/owning-resource: {{ .Values.ownerName | default "unknown" }}
     operator.istio.io/component: "Cni"
 rules:
-  - apiGroups: [""]
-    resources: ["pods"]
-    verbs: ["get", "list", "watch", "patch"]
-  - apiGroups: [""]
-    resources: ["nodes"]
-    verbs: ["get", "list", "watch", "update", "patch"]
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    verbs: ["get", "list"]
-  - apiGroups: ["coordination.k8s.io"]
-    resources: ["leases"]
-    verbs: ["get", "list", "create", "update"]
-  {{- end }}
+- apiGroups: [""]
+  {{- /* pods/status is less privileged than the full pod, and either can label. So use the lower pods/status */}}
+  resources: ["pods/status"]
+  verbs: ["patch", "update"]
+{{- end }}
