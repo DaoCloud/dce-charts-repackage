@@ -47,7 +47,7 @@ spec:
 
     spec:
       {{- if .Values.upgradeCheck.nodeSelector }}
-        nodeSelector: {{ toYaml .Values.upgradeCheck.nodeSelector | nindent 8 }}
+      nodeSelector: {{ toYaml .Values.upgradeCheck.nodeSelector | nindent 8 }}
       {{- else }}
       {{- include "gitlab.nodeSelector" . | nindent 6 }}
       {{- end }}
@@ -68,6 +68,7 @@ spec:
           image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.upgradeCheck.image) | quote }}
           command: ['/bin/sh', '/scripts/runcheck']
           {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
+          {{- include "upgradeCheck.containerSecurityContext" . | indent 10 }}
           env:
             - name: GITLAB_VERSION
               value: '{{ coalesce .Values.global.gitlabVersion .Chart.AppVersion }}'
