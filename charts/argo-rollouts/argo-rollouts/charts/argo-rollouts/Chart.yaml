@@ -1,7 +1,7 @@
 annotations:
   artifacthub.io/changes: |
-    - kind: changed
-      description: add loadBalancerClass field for Service resources
+    - kind: added
+      description: add description for manual secret creation
   artifacthub.io/signKey: |
     fingerprint: 2B8F22F57260EFA67BE1C5824B11F800CD9D2252
     url: https://argoproj.github.io/argo-helm/pgp_keys.asc
@@ -19,4 +19,4 @@ maintainers:
 name: argo-rollouts
 sources:
 - https://github.com/argoproj/argo-rollouts
-version: 2.37.6
+version: 2.37.7
