@@ -4,7 +4,11 @@ rdma-tools:
   image:
     registry: ghcr.m.daocloud.io
     repository: spidernet-io/rdma-tools
-    tag: "12.5.1-2c4f5689f61cb66418a333bd1cf5a147ca6eeaa6"
+    tag: "12.5.1-898cf75813bf866d1ba576ce7484065c0fd237e8"
+    #registry: ghcr.io
+    #repository: coreweave/nccl-tests
+    #tag: "12.4.1-cudnn-devel-ubuntu22.04-nccl2.21.5-1-85f9143"
+
     pullPolicy: IfNotPresent
     imagePullSecrets: []
   hostnetwork: false
@@ -13,8 +17,6 @@ rdma-tools:
     kubernetes.io/os: linux
   affinity: {}
   resources:
-    #limits:
-    #  spidernet.io/gpu1sriov: 1
     limits:
       cpu: 500m
       memory: 1024Mi
@@ -28,8 +30,12 @@ rdma-tools:
   #    {"name":"gpu2-sriov","namespace":"spiderpool"},
   #    {"name":"gpu8-sriov","namespace":"spiderpool"}]
   securityContext:
+  #privileged: true
   #capabilities:
   #  add: [ "IPC_LOCK" ]
+  command:
+  #- "/usr/bin/sleep"
+  #- "infinity"
   extraEnv: []
   extraVolumes: []
   # - name: test-val
@@ -38,3 +44,6 @@ rdma-tools:
   extraVolumeMounts: []
   # - name: test-val
   #   mountPath: /tmp
+
+  service:
+    type: ClusterIP
