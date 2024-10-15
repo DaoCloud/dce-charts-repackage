@@ -1,3 +1,4 @@
+{{- if .Values.master.enable }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -12,6 +13,7 @@ metadata:
   {{- end }}
 spec:
   replicas: {{ .Values.master.replicaCount }}
+  revisionHistoryLimit: {{ .Values.master.revisionHistoryLimit }}
   selector:
     matchLabels:
       {{- include "node-feature-discovery.selectorLabels" . | nindent 6 }}
@@ -26,6 +28,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+    {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . }}
+    {{- end }}
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -41,29 +46,13 @@ spec:
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           livenessProbe:
-            exec:
-              command:
-              - "/usr/bin/grpc_health_probe"
-              - "-addr=:{{ .Values.master.port | default "8080" }}"
-              {{- if .Values.tls.enable }}
-              - "-tls"
-              - "-tls-ca-cert=/etc/kubernetes/node-feature-discovery/certs/ca.crt"
-              - "-tls-client-key=/etc/kubernetes/node-feature-discovery/certs/tls.key"
-              - "-tls-client-cert=/etc/kubernetes/node-feature-discovery/certs/tls.crt"
-              {{- end }}
+            grpc:
+              port: 8082
             initialDelaySeconds: 10
             periodSeconds: 10
           readinessProbe:
-            exec:
-              command:
-              - "/usr/bin/grpc_health_probe"
-              - "-addr=:{{ .Values.master.port | default "8080" }}"
-              {{- if .Values.tls.enable }}
-              - "-tls"
-              - "-tls-ca-cert=/etc/kubernetes/node-feature-discovery/certs/ca.crt"
-              - "-tls-client-key=/etc/kubernetes/node-feature-discovery/certs/tls.key"
-              - "-tls-client-cert=/etc/kubernetes/node-feature-discovery/certs/tls.crt"
-              {{- end }}
+            grpc:
+              port: 8082
             initialDelaySeconds: 5
             periodSeconds: 10
             failureThreshold: 10
@@ -85,9 +74,8 @@ spec:
             {{- if .Values.master.instance | empty | not }}
             - "-instance={{ .Values.master.instance }}"
             {{- end }}
+            {{- if not (and .Values.featureGates.NodeFeatureAPI .Values.enableNodeFeatureApi) }}
             - "-port={{ .Values.master.port | default "8080" }}"
-            {{- if not .Values.enableNodeFeatureApi }}
-            - "-enable-nodefeature-api=false"
             {{- else if gt (int .Values.master.replicaCount) 1 }}
             - "-enable-leader-election"
             {{- end }}
@@ -123,6 +111,10 @@ spec:
             - "-key-file=/etc/kubernetes/node-feature-discovery/certs/tls.key"
             - "-cert-file=/etc/kubernetes/node-feature-discovery/certs/tls.crt"
             {{- end }}
+            # Go over featureGates and add the feature-gate flag
+            {{- range $key, $value := .Values.featureGates }}
+            - "-feature-gates={{ $key }}={{ $value }}"
+            {{- end }}
             - "-metrics={{ .Values.master.metricsPort  | default "8081" }}"
           volumeMounts:
             {{- if .Values.tls.enable }}
@@ -157,3 +149,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+{{- end }}

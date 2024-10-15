@@ -47,11 +47,11 @@ elif [ $os == "Linux" ];then
            " charts/hami/values.yaml
 fi
 
-# set scheduler imageTag v1.20.0 to "v1.24.0"
+# set scheduler imageTag v1.20.0 to "v1.28.0"
 if [ $os == "Darwin" ];then
-        sed -i "" "s/imageTag: \"v1.20.0\"/imageTag: \"v1.24.0\"/g" charts/hami/values.yaml
+        sed -i "" "s/imageTag: \"v1.20.0\"/imageTag: \"v1.28.0\"/g" charts/hami/values.yaml
 elif [ $os == "Linux" ];then
-        sed -i "s/imageTag: \"v1.20.0\"/imageTag: \"v1.24.0\"/g" charts/hami/values.yaml
+        sed -i "s/imageTag: \"v1.20.0\"/imageTag: \"v1.28.0\"/g" charts/hami/values.yaml
 fi
 
 # sed scheduler.extender.image
