@@ -3,7 +3,7 @@
 nameOverride: ""
 fullnameOverride: ""
 imagePullSecrets: []
-version: "v2.3.13"
+version: "v2.4.0"
 #Nvidia GPU Parameters
 resourceName: "nvidia.com/vgpu"
 resourceMem: "nvidia.com/gpumem"
@@ -22,12 +22,6 @@ dcuResourceCores: "hygon.com/dcucores"
 iluvatarResourceName: "iluvatar.ai/vgpu"
 iluvatarResourceMem: "iluvatar.ai/vcuda-memory"
 iluvatarResourceCore: "iluvatar.ai/vcuda-core"
-#Ascend 910B Parameters
-ascendResourceName: "huawei.com/Ascend910"
-ascendResourceMem: "huawei.com/Ascend910-memory"
-#Ascend 310P Parameters
-ascend310PResourceName: "huawei.com/Ascend310P"
-ascend310PResourceMem: "huawei.com/Ascend310P-memory"
 schedulerName: "hami-scheduler"
 podSecurityPolicy:
   enabled: false
@@ -43,6 +37,8 @@ scheduler:
   # if we install the nvidia-vgpu-scheduler-scheduler as default scheduler, we need to remove the k8s default
   # scheduler pod from the cluster first, we must specify node name to skip the schedule workflow.
   nodeName: ""
+  #  nodeLabelSelector:
+  #    "gpu": "on"
   defaultMem: 0
   defaultCores: 0
   defaultGPUNum: 1
@@ -137,6 +133,22 @@ devicePlugin:
   tolerations: []
   hygonImageRepository: 4pdosc/vdcu-device-plugin
   hygonImageTag: v1.0
+devices:
+  ascend:
+    enabled: false
+    image: ""
+    imagePullPolicy: IfNotPresent
+    extraArgs: []
+    nodeSelector:
+      ascend: "on"
+    tolerations: []
+    resources:
+      - huawei.com/Ascend910A
+      - huawei.com/Ascend910A-memory
+      - huawei.com/Ascend910B
+      - huawei.com/Ascend910B-memory
+      - huawei.com/Ascend310P
+      - huawei.com/Ascend310P-memory
 resources:
   limits:
     cpu: 500m
