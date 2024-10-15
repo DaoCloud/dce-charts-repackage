@@ -4,7 +4,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     operator.insight.io/managed-by: insight
-  name: vgpu-exporter
+  name: vgpu-deivce-plugin-exporter
   namespace: {{ .Release.Namespace | quote }}
 spec:
   endpoints:
@@ -20,17 +20,18 @@ spec:
       sourceLabels:
       - podnamespace
       targetLabel: exported_namespace
+    path: /metrics
+    port: monitorport
+    relabelings:
     - action: replace
       sourceLabels:
-        - nodeid
+      - __meta_kubernetes_endpoint_node_name
       targetLabel: node
-    path: /metrics
-    port: monitor
   jobLabel: app
   namespaceSelector:
     matchNames:
     - {{ .Release.Namespace | quote }}
   selector:
     matchLabels:
-      app.kubernetes.io/component: hami-scheduler
+      app.kubernetes.io/component: hami-device-plugin
 {{- end }}
