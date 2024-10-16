@@ -27,7 +27,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      dnsPolicy: ClusterFirstWithHostNet
+      dnsPolicy: {{ tpl .Values.dnsPolicy . }}
       hostNetwork: {{ tpl .Values.hostNetwork . }}
       hostPID: true
       imagePullSecrets:
@@ -81,6 +81,10 @@ spec:
           env:
           - name: TZ
             value: {{ tpl .Values.timezone . }}
+          - name: K8S_NAMESPACE_FOR_DEEPFLOW
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
           - name: K8S_NODE_IP_FOR_DEEPFLOW
             valueFrom:
               fieldRef:
@@ -105,11 +109,10 @@ spec:
               {{- else }}
                 fieldPath: status.podIP
               {{- end }}
-          - name: K8S_MEM_LIMIT_FOR_DEEPFLOW
-            valueFrom:
-              resourceFieldRef:
-                divisor: 1Mi
-                resource: limits.memory
+          {{- range .Values.env}}
+          - name: {{ .name }}
+            value: {{ .value }}
+          {{- end}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
