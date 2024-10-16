@@ -1,8 +1,12 @@
+## Globally shared configuration
+global:
+  # -- Default priority class for all components
+  priorityClassName: ""
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##
 image:
-  repository: redis
+  repository: public.ecr.aws/docker/library/redis
   tag: 7.2.4-alpine
   pullPolicy: IfNotPresent
   registry: docker.m.daocloud.io
@@ -53,6 +57,8 @@ serviceAccount:
   ## opt in/out of automounting API credentials into container
   ## https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
   automountToken: false
+  # Annotations to be added to the service account for the redis statefulset
+  annotations: {}
 ## Enables a HA Proxy for better LoadBalancing / Sentinel Master support. Automatically proxies to Redis master.
 ## Recommend for externally exposed Redis clusters.
 ## ref: https://cbonte.github.io/haproxy-dconv/1.9/intro.html
@@ -78,7 +84,7 @@ haproxy:
     #   maxSurge: 25%
     #   maxUnavailable: 25%
   image:
-    repository: haproxy
+    repository: public.ecr.aws/docker/library/haproxy
     tag: 2.9.4-alpine
     pullPolicy: IfNotPresent
     registry: docker.m.daocloud.io
@@ -119,6 +125,7 @@ haproxy:
   serviceAccountName: redis-sa
   serviceAccount:
     create: true
+    automountToken: false
   ## Official HAProxy embedded prometheus metrics settings.
   ## Ref: https://github.com/haproxy/haproxy/tree/master/contrib/prometheus-exporter
   ##
@@ -223,7 +230,7 @@ rbac:
 sysctlImage:
   enabled: false
   command: []
-  registry: docker.io
+  registry: public.ecr.aws/docker/library
   repository: busybox
   tag: 1.34.1
   pullPolicy: Always
@@ -238,6 +245,15 @@ sysctlImage:
 redis:
   port: 6379
   masterGroupName: "mymaster" # must match ^[\\w-\\.]+$) and can be templated
+  customCommand: []
+  # - bash
+  customArgs: []
+  # - "custom-startup.sh"
+
+  envFrom: []
+  # - secretRef:
+  #     name: add-env-secret
+
   ## Configures redis with tls-port parameter
   # tlsPort: 6385
 
@@ -331,6 +347,8 @@ sentinel:
 
   ## Defines the key holding the sentinel password in existing secret.
   authKey: sentinel-password
+  customCommand: []
+  customArgs: []
   # liveness probe parameters for sentinel container
   livenessProbe:
     initialDelaySeconds: 30
@@ -452,9 +470,9 @@ exporter:
   tag: v1.57.0
   pullPolicy: IfNotPresent
   # prometheus port & scrape path
-  port: 9121
+  port: &exporter_port 9121
   portName: exporter-port
-  scrapePath: /metrics
+  scrapePath: &exporter_scrapePath /metrics
   # Address/Host for Redis instance. Default: localhost
   # Exists to circumvent issues with IPv6 dns resolution that occurs on certain environments
   ##
@@ -508,10 +526,16 @@ exporter:
   # prometheus exporter SCANS redis db which can take some time
   # allow different probe settings to not let container crashloop
   livenessProbe:
+    httpGet:
+      path: *exporter_scrapePath
+      port: *exporter_port
     initialDelaySeconds: 15
     timeoutSeconds: 3
     periodSeconds: 15
   readinessProbe:
+    httpGet:
+      path: *exporter_scrapePath
+      port: *exporter_port
     initialDelaySeconds: 15
     timeoutSeconds: 3
     periodSeconds: 15
