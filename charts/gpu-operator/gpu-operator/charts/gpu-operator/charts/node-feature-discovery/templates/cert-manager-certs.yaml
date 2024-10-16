@@ -1,4 +1,5 @@
 {{- if .Values.tls.certManager }}
+{{- if .Values.master.enable }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -17,14 +18,17 @@ spec:
   # first one is configured for use by the worker; below are for completeness
   - {{ include "node-feature-discovery.fullname" . }}-master.{{ include "node-feature-discovery.namespace" .  }}.svc
   - {{ include "node-feature-discovery.fullname" . }}-master.{{ include "node-feature-discovery.namespace" .  }}.svc.cluster.local
-  # localhost needed for grpc_health_probe
-  - localhost
   issuerRef:
-    name: nfd-ca-issuer
+    name: {{ default "nfd-ca-issuer" .Values.tls.certManagerCertificate.issuerName }}
+    {{- if and .Values.tls.certManagerCertificate.issuerName .Values.tls.certManagerCertificate.issuerKind }}
+    kind: {{ .Values.tls.certManagerCertificate.issuerKind }}
+    {{- else }}
     kind: Issuer
+    {{- end }}
     group: cert-manager.io
-
+{{- end }}
 ---
+{{- if .Values.worker.enable }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -39,9 +43,14 @@ spec:
   dnsNames:
   - {{ include "node-feature-discovery.fullname" . }}-worker.{{ include "node-feature-discovery.namespace" .  }}.svc.cluster.local
   issuerRef:
-    name: nfd-ca-issuer
+    name: {{ default "nfd-ca-issuer" .Values.tls.certManagerCertificate.issuerName }}
+    {{- if and .Values.tls.certManagerCertificate.issuerName .Values.tls.certManagerCertificate.issuerKind }}
+    kind: {{ .Values.tls.certManagerCertificate.issuerKind }}
+    {{- else }}
     kind: Issuer
+    {{- end }}
     group: cert-manager.io
+{{- end }}
 
 {{- if .Values.topologyUpdater.enable }}
 ---
@@ -59,8 +68,12 @@ spec:
   dnsNames:
   - {{ include "node-feature-discovery.fullname" . }}-topology-updater.{{ include "node-feature-discovery.namespace" .  }}.svc.cluster.local
   issuerRef:
-    name: nfd-ca-issuer
+    name: {{ default "nfd-ca-issuer" .Values.tls.certManagerCertificate.issuerName }}
+    {{- if and .Values.tls.certManagerCertificate.issuerName .Values.tls.certManagerCertificate.issuerKind }}
+    kind: {{ .Values.tls.certManagerCertificate.issuerKind }}
+    {{- else }}
     kind: Issuer
+    {{- end }}
     group: cert-manager.io
 {{- end }}
 
