@@ -45,7 +45,7 @@ validator:
   repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/gpu-operator-validator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v24.6.0"
+  version: "v24.6.2"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -59,7 +59,7 @@ operator:
   repository: nvcr.m.daocloud.io
   image: nvidia/gpu-operator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v24.6.0"
+  version: "v24.6.2"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   priorityClassName: system-node-critical
@@ -74,7 +74,7 @@ operator:
   initContainer:
     image: nvidia/cuda
     repository: nvcr.m.daocloud.io
-    version: 12.5.1-base-ubi8
+    version: 12.6.1-base-ubi8
     imagePullPolicy: IfNotPresent
   tolerations:
     - key: "node-role.kubernetes.io/master"
@@ -231,7 +231,7 @@ devicePlugin:
   enabled: true
   repository: nvcr.m.daocloud.io
   image: nvidia/k8s-device-plugin
-  version: v0.16.1-ubi8
+  version: v0.16.2-ubi8
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   args: []
@@ -328,7 +328,7 @@ gfd:
   enabled: true
   repository: nvcr.m.daocloud.io
   image: nvidia/gpu-feature-discovery
-  version: v0.16.1-ubi8
+  version: v0.16.2-ubi8
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env:
@@ -394,7 +394,7 @@ nodeStatusExporter:
   repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/gpu-operator-validator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v24.6.0"
+  version: "v24.6.2"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   resources: {}
@@ -452,7 +452,7 @@ vfioManager:
   enabled: false
   repository: nvcr.m.daocloud.io
   image: nvidia/cuda
-  version: 12.5.1-base-ubi8
+  version: 12.6.1-base-ubi8
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
