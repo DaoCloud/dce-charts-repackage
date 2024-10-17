@@ -39,7 +39,7 @@ private_api:
   listen:
     address: ":{{ .Values.service.privateApiPort }}"
     authentication_secret_file: "/etc/kas/.gitlab_kas_private_api_secret"
-    {{- if or .Values.privateApi.tls.enabled $.Values.global.kas.tls.enabled }}
+    {{- if $.Values.global.kas.tls.enabled }}
     certificate_file: "/etc/kas/tls.crt"
     key_file: "/etc/kas/tls.key"
     ca_certificate_file: "/etc/ssl/certs/ca-certificates.crt"
