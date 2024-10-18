@@ -5,6 +5,7 @@
  "revision" .Values.revision
   "injectionPath" .Values.istiodRemote.injectionPath
   "injectionURL" .Values.istiodRemote.injectionURL
+  "reinvocationPolicy" .Values.sidecarInjectorWebhook.reinvocationPolicy
   "namespace" .Release.Namespace }}
 {{- define "core" }}
 {{- /* Kubernetes unfortunately requires a unique name for the webhook in some newer versions, so we assign
@@ -27,7 +28,7 @@ a unique prefix to each. */}}
     apiVersions: ["v1"]
     resources: ["pods"]
   failurePolicy: Fail
-  admissionReviewVersions: ["v1beta1", "v1"]
+  admissionReviewVersions: ["v1"]
 {{- end }}
 {{- range $tagName := $.Values.revisionTags }}
 apiVersion: admissionregistration.k8s.io/v1
@@ -40,7 +41,7 @@ metadata:
 {{- end }}
   labels:
     istio.io/tag: {{ $tagName }}
-    istio.io/rev: {{ $.Values.revision | default "default" }}
+    istio.io/rev: {{ $.Values.revision | default "default" | quote }}
     install.operator.istio.io/owning-resource: {{ $.Values.ownerName | default "unknown" }}
     operator.istio.io/component: "Pilot"
     app: sidecar-injector
