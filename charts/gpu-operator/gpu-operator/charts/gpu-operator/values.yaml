@@ -327,7 +327,7 @@ dcgmExporter:
 gfd:
   enabled: true
   repository: nvcr.m.daocloud.io
-  image: nvidia/gpu-feature-discovery
+  image: nvidia/k8s-device-plugin
   version: v0.16.1-ubi8
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
