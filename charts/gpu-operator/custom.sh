@@ -145,7 +145,7 @@ yq -i '
   .gpu-operator.dcgmExporter.image="nvidia/k8s/dcgm-exporter" |
   .gpu-operator.dcgmExporter.config.name="metrics-config" |
   .gpu-operator.gfd.repository="nvcr.m.daocloud.io" |
-  .gpu-operator.gfd.image="nvidia/gpu-feature-discovery" |
+  .gpu-operator.gfd.image="nvidia/k8s-device-plugin" |
   .gpu-operator.migManager.repository="nvcr.m.daocloud.io" |
   .gpu-operator.migManager.enabled=true |
   .gpu-operator.migManager.image="nvidia/cloud-native/k8s-mig-manager" |
@@ -188,7 +188,7 @@ yq -i '
   .dcgmExporter.image="nvidia/k8s/dcgm-exporter" |
   .dcgmExporter.config.name="metrics-config" |
   .gfd.repository="nvcr.m.daocloud.io" |
-  .gfd.image="nvidia/gpu-feature-discovery" |
+  .gfd.image="nvidia/k8s-device-plugin" |
   .migManager.repository="nvcr.m.daocloud.io" |
   .migManager.enabled=true |
   .migManager.image="nvidia/cloud-native/k8s-mig-manager" |

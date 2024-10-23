@@ -26,25 +26,6 @@ spec:
       targetLabel: node
     path: /metrics
     port: monitor
-  - bearerTokenSecret:
-      key: ""
-    interval: 15s
-    metricRelabelings:
-    - action: replace
-      sourceLabels:
-      - podname
-      targetLabel: exported_pod
-    - action: replace
-      sourceLabels:
-      - podnamespace
-      targetLabel: exported_namespace
-    path: /metrics
-    port: monitorport
-    relabelings:
-    - action: replace
-      sourceLabels:
-      - __meta_kubernetes_endpoint_node_name
-      targetLabel: node
   jobLabel: app
   namespaceSelector:
     matchNames:
