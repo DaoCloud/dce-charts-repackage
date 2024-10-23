@@ -86,7 +86,7 @@ yq -i '
   .gitlab.global.certificates.image.tag = "'$TARGET_VERSION'" |
   .gitlab.global.gitlabBase.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .gitlab.global.gitlabBase.image.repository = "gitlab-org/build/cng/gitlab-base" |
-  .gitlab.global.gitlabBase.image.tag = "'$TARGET_VERSION'"
+  .gitlab.global.gitlabBase.image.tag = "'$TARGET_VERSION'" | explode(.)
 ' values.yaml
 
 yq -i '
@@ -94,18 +94,18 @@ yq -i '
   .metrics.image.registry = "docker.m.daocloud.io" |
   .sentinel.image.registry = "docker.m.daocloud.io" |
   .volumePermissions.image.registry = "docker.m.daocloud.io" |
-  .sysctl.image.registry = "docker.m.daocloud.io"
+  .sysctl.image.registry = "docker.m.daocloud.io" | explode(.)
 ' charts/gitlab/charts/redis/values.yaml
 
 yq -i '
   .image.registry = "docker.m.daocloud.io" |
   .volumePermissions.image.registry = "docker.m.daocloud.io" |
-  .metrics.image.registry = "docker.m.daocloud.io"
+  .metrics.image.registry = "docker.m.daocloud.io" | explode(.)
 ' charts/gitlab/charts/postgresql/values.yaml
 
 yq -i '
   .minioMc.registry = "docker.m.daocloud.io" |
-  .registry = "docker.m.daocloud.io"
+  .registry = "docker.m.daocloud.io" | explode(.)
 ' charts/gitlab/charts/minio/values.yaml
 
 yq -i '
@@ -114,68 +114,80 @@ yq -i '
   .image.tag = "'$TARGET_VERSION'" |
   .workhorse.image.registry = "m.daocloud.io/registry.gitlab.com" |
   .workhorse.image.repository = "gitlab-org/build/cng/gitlab-workhorse-ce" |
-  .workhorse.image.tag = "'$TARGET_VERSION'"
+  .workhorse.image.tag = "'$TARGET_VERSION'" | explode(.)
 ' charts/gitlab/charts/gitlab/charts/webservice/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitlab-toolbox-ce" |
-  .image.tag = "'$TARGET_VERSION'"
+  .image.tag = "'$TARGET_VERSION'" | explode(.)
 ' charts/gitlab/charts/gitlab/charts/toolbox/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitlab-toolbox-ce" |
-  .image.tag = "'$TARGET_VERSION'"
+  .image.tag = "'$TARGET_VERSION'" | explode(.)
 ' charts/gitlab/charts/gitlab/charts/migrations/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitlab-kas" |
-  .image.tag = "'$TARGET_VERSION'"
+  .image.tag = "'$TARGET_VERSION'" | explode(.)
 ' charts/gitlab/charts/gitlab/charts/kas/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitlab-shell" |
-  .image.tag = "'$TARGET_VERSION'"
+  .image.tag = "'$TARGET_VERSION'" | explode(.)
 ' charts/gitlab/charts/gitlab/charts/gitlab-shell/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitaly" |
-  .image.tag = "'$TARGET_VERSION'"
+  .image.tag = "'$TARGET_VERSION'" | explode(.)
 ' charts/gitlab/charts/gitlab/charts/gitaly/values.yaml
 
 yq -i '
   .image.registry = "m.daocloud.io/registry.gitlab.com" |
   .image.repository = "gitlab-org/build/cng/gitlab-sidekiq-ce" |
-  .image.tag = "'$TARGET_VERSION'"
+  .image.tag = "'$TARGET_VERSION'" | explode(.)
 ' charts/gitlab/charts/gitlab/charts/sidekiq/values.yaml
 
+os=$(uname)
 
-sed -i 's/image: {{ .Values.minioMc.image }}:{{ .Values.minioMc.tag }}/image: {{ .Values.minioMc.registry}}\/{{ .Values.minioMc.image }}:{{ .Values.minioMc.tag }}/' charts/gitlab/charts/minio/templates/create-buckets-job.yaml
-sed -i 's/image: {{ .Values.image }}:{{ .Values.imageTag }}/image: {{ .Values.registry }}\/{{ .Values.image }}:{{ .Values.imageTag }}/' charts/gitlab/charts/minio/templates/minio_deployment.yaml
-# 移除了 {{ include "gitlab.image.tagSuffix" . }}
-sed -i 's/image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}{{ include "gitlab.image.tagSuffix" . }}"/image: "{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag }}"/' charts/gitlab/charts/gitlab/charts/gitaly/templates/_statefulset_spec.yaml
-sed -i 's/image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}{{ include "gitlab.image.tagSuffix" . }}"/image: "{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag }}"/' charts/gitlab/charts/gitlab/charts/gitlab-shell/templates/deployment.yaml
-sed -i 's/image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}{{ include "gitlab.image.tagSuffix" . }}"/image: "{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag }}"/' charts/gitlab/charts/gitlab/charts/kas/templates/deployment.yaml
-sed -i 's/image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}{{ include "gitlab.image.tagSuffix" . }}"/image: "{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag }}"/' charts/gitlab/charts/gitlab/charts/toolbox/templates/deployment.yaml
-sed -i 's/image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}{{ include "gitlab.image.tagSuffix" . }}"/image: "{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag }}"/' charts/gitlab/charts/gitlab/charts/migrations/templates/_jobspec.yaml
-sed -i 's/image: {{ include "webservice.image" $ }}/image: {{ $.Values.image.registry }}\/{{ $.Values.image.repository }}:{{ $.Values.image.tag }}/' charts/gitlab/charts/gitlab/charts/webservice/templates/deployment.yaml
-sed -i 's/image: "{{ coalesce $.Values.workhorse.image.*/image: {{ $.Values.workhorse.image.registry }}\/{{ $.Values.workhorse.image.repository }}:{{ $.Values.workhorse.image.tag }}/' charts/gitlab/charts/gitlab/charts/webservice/templates/deployment.yaml
-sed -i 's/image: {{ include "gitlab.kubectl.image" . }}/image: {{ .Values.kubectl.image.registry }}\/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}/' charts/gitlab/templates/shared-secrets/job.yaml
-sed -i 's/image: {{ include "gitlab.kubectl.image" . }}/image: {{ .Values.kubectl.image.registry }}\/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}/' charts/gitlab/templates/shared-secrets/self-signed-cert-job.yml
+if [ "$os" == "Darwin" ]; then
+  sed -i '' 's?image: {{ .Values.minioMc.image }}:{{ .Values.minioMc.tag }}?image: {{ .Values.minioMc.registry}}/{{ .Values.minioMc.image }}:{{ .Values.minioMc.tag }}?g' charts/gitlab/charts/minio/templates/create-buckets-job.yaml
+  sed -i '' 's?image: {{ .Values.image }}:{{ .Values.imageTag }}?image: {{ .Values.registry }}/{{ .Values.image }}:{{ .Values.imageTag }}?g' charts/gitlab/charts/minio/templates/minio_deployment.yaml
+  sed -i '' 's?image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}{{ include "gitlab.image.tagSuffix" . }}"?image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?g' charts/gitlab/charts/gitlab/charts/gitaly/templates/_statefulset_spec.yaml
+  sed -i '' 's?image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}{{ include "gitlab.image.tagSuffix" . }}"?image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?g' charts/gitlab/charts/gitlab/charts/gitlab-shell/templates/deployment.yaml
+  sed -i '' 's?image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}{{ include "gitlab.image.tagSuffix" . }}"?image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?g' charts/gitlab/charts/gitlab/charts/kas/templates/deployment.yaml
+  sed -i '' 's?image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}{{ include "gitlab.image.tagSuffix" . }}"?image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?g' charts/gitlab/charts/gitlab/charts/toolbox/templates/deployment.yaml
+  sed -i '' 's?image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}{{ include "gitlab.image.tagSuffix" . }}"?image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?g' charts/gitlab/charts/gitlab/charts/migrations/templates/_jobspec.yaml
+  sed -i '' 's?image: {{ include "webservice.image" $ }}?image: {{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $.Values.image.tag }}?g' charts/gitlab/charts/gitlab/charts/webservice/templates/deployment.yaml
+  sed -i '' 's?image: "{{ coalesce $.Values.workhorse.image.*?image: {{ $.Values.workhorse.image.registry }}/{{ $.Values.workhorse.image.repository }}:{{ $.Values.workhorse.image.tag }}?g' charts/gitlab/charts/gitlab/charts/webservice/templates/deployment.yaml
+  sed -i '' 's?image: {{ include "gitlab.kubectl.image" . }}?image: {{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}?g' charts/gitlab/templates/shared-secrets/job.yaml
+  sed -i '' 's?image: {{ include "gitlab.kubectl.image" . }}?image: {{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}?g' charts/gitlab/templates/shared-secrets/self-signed-cert-job.yml
+  sed -i '' 's?{{- $image := (printf "%s:%s%s" (coalesce .Values.image.repository (include "image.repository" .)) (coalesce .Values.image.tag (include "gitlab.versionTag" . )) (include "gitlab.image.tagSuffix" .)) | toString -}}?{{- $image := (printf "%s/%s:%s" (coalesce .Values.image.registry (include "image.repository" .)) (coalesce .Values.image.repository) (coalesce .Values.image.tag)) | toString -}}?g' charts/gitlab/charts/gitlab/charts/sidekiq/templates/deployment.yaml
+  sed -i '' 's?openssl req -new -newkey rsa:4096 -subj "/CN={{ coalesce .Values.registry.tokenIssuer  (dig "registry" "tokenIssuer" "gitlab-issuer" .Values.global ) }}" -nodes -x509 -keyout certs/registry-example-com.key -out certs/registry-example-com.crt -days 3650?openssl req -new -newkey rsa:4096 -subj "/CN={{ coalesce .Values.global.registry.tokenIssuer  (dig "registry" "tokenIssuer" "gitlab-issuer" .Values.global ) }}" -nodes -x509 -keyout certs/registry-example-com.key -out certs/registry-example-com.crt -days 3650?g' charts/gitlab/templates/shared-secrets/_generate_secrets.sh.tpl
+  sed -i '' 's?{{- printf "%s:%s%s" .image.repository $tag $tagSuffix -}}?{{- printf "%s/%s:%s%s" .image.registry .image.repository $tag $tagSuffix -}}?g' charts/gitlab/templates/_image.tpl
+  sed -i '' 's?tag: ""?tag: "master"?g' values.yaml
+else
+  sed -i 's?image: {{ .Values.minioMc.image }}:{{ .Values.minioMc.tag }}?image: {{ .Values.minioMc.registry}}/{{ .Values.minioMc.image }}:{{ .Values.minioMc.tag }}?g' charts/gitlab/charts/minio/templates/create-buckets-job.yaml
+  sed -i 's?image: {{ .Values.image }}:{{ .Values.imageTag }}?image: {{ .Values.registry }}/{{ .Values.image }}:{{ .Values.imageTag }}?g' charts/gitlab/charts/minio/templates/minio_deployment.yaml
+  # 移除了 {{ include "gitlab.image.tagSuffix" . }}
+  sed -i 's?image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}{{ include "gitlab.image.tagSuffix" . }}"?image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?g' charts/gitlab/charts/gitlab/charts/gitaly/templates/_statefulset_spec.yaml
+  sed -i 's?image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}{{ include "gitlab.image.tagSuffix" . }}"?image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?g' charts/gitlab/charts/gitlab/charts/gitlab-shell/templates/deployment.yaml
+  sed -i 's?image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}{{ include "gitlab.image.tagSuffix" . }}"?image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?g' charts/gitlab/charts/gitlab/charts/kas/templates/deployment.yaml
+  sed -i 's?image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}{{ include "gitlab.image.tagSuffix" . }}"?image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?g' charts/gitlab/charts/gitlab/charts/toolbox/templates/deployment.yaml
+  sed -i 's?image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}{{ include "gitlab.image.tagSuffix" . }}"?image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"?g' charts/gitlab/charts/gitlab/charts/migrations/templates/_jobspec.yaml
+  sed -i 's?image: {{ include "webservice.image" $ }}?image: {{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $.Values.image.tag }}?g' charts/gitlab/charts/gitlab/charts/webservice/templates/deployment.yaml
+  sed -i 's?image: "{{ coalesce $.Values.workhorse.image.*?image: {{ $.Values.workhorse.image.registry }}/{{ $.Values.workhorse.image.repository }}:{{ $.Values.workhorse.image.tag }}?g' charts/gitlab/charts/gitlab/charts/webservice/templates/deployment.yaml
+  sed -i 's?image: {{ include "gitlab.kubectl.image" . }}?image: {{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}?g' charts/gitlab/templates/shared-secrets/job.yaml
+  sed -i 's?image: {{ include "gitlab.kubectl.image" . }}?image: {{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}?g' charts/gitlab/templates/shared-secrets/self-signed-cert-job.yml
+  sed -i 's?{{- $image := (printf "%s:%s%s" (coalesce .Values.image.repository (include "image.repository" .)) (coalesce .Values.image.tag (include "gitlab.versionTag" . )) (include "gitlab.image.tagSuffix" .)) | toString -}}?{{- $image := (printf "%s/%s:%s" (coalesce .Values.image.registry (include "image.repository" .)) (coalesce .Values.image.repository) (coalesce .Values.image.tag)) | toString -}}?g' charts/gitlab/charts/gitlab/charts/sidekiq/templates/deployment.yaml
+  sed -i 's?openssl req -new -newkey rsa:4096 -subj "/CN={{ coalesce .Values.registry.tokenIssuer  (dig "registry" "tokenIssuer" "gitlab-issuer" .Values.global ) }}" -nodes -x509 -keyout certs/registry-example-com.key -out certs/registry-example-com.crt -days 3650?openssl req -new -newkey rsa:4096 -subj "/CN={{ coalesce .Values.global.registry.tokenIssuer  (dig "registry" "tokenIssuer" "gitlab-issuer" .Values.global ) }}" -nodes -x509 -keyout certs/registry-example-com.key -out certs/registry-example-com.crt -days 3650?g' charts/gitlab/templates/shared-secrets/_generate_secrets.sh.tpl
+  sed -i 's?{{- printf "%s:%s%s" .image.repository $tag $tagSuffix -}}?{{- printf "%s/%s:%s%s" .image.registry .image.repository $tag $tagSuffix -}}?g' charts/gitlab/templates/_image.tpl
+  sed -i 's?tag: ""?tag: "master"?g' values.yaml
+fi
 
-
-sed -i 's/{{- $image := (printf "%s:%s%s" (coalesce .Values.image.repository (include "image.repository" .)) (coalesce .Values.image.tag (include "gitlab.versionTag" . )) (include "gitlab.image.tagSuffix" .)) | toString -}}/{{- $image := (printf "%s\/%s:%s" (coalesce .Values.image.registry (include "image.repository" .)) (coalesce .Values.image.repository) (coalesce .Values.image.tag)) | toString -}}/' charts/gitlab/charts/gitlab/charts/sidekiq/templates/deployment.yaml
-
-
-sed -i 's/openssl req -new -newkey rsa:4096 -subj "\/CN={{ coalesce .Values.registry.tokenIssuer  (dig "registry" "tokenIssuer" "gitlab-issuer" .Values.global ) }}" -nodes -x509 -keyout certs\/registry-example-com.key -out certs\/registry-example-com.crt -days 3650/openssl req -new -newkey rsa:4096 -subj "\/CN={{ coalesce .Values.global.registry.tokenIssuer  (dig "registry" "tokenIssuer" "gitlab-issuer" .Values.global ) }}" -nodes -x509 -keyout certs\/registry-example-com.key -out certs\/registry-example-com.crt -days 3650/' charts/gitlab/templates/shared-secrets/_generate_secrets.sh.tpl
-
-sed -i 's/{{- printf "%s:%s%s" .image.repository $tag $tagSuffix -}}/{{- printf "%s\/%s:%s%s" .image.registry .image.repository $tag $tagSuffix -}}/' charts/gitlab/templates/_image.tpl
-
-#==============================
-echo "fulfill tag"
-sed -i 's@tag: ""@tag: "master"@g' values.yaml
 exit $?
