@@ -53,6 +53,7 @@ yq -i '
    .cert-manager.cainjector.resources.requests.memory="32Mi" |
    .cert-manager.cainjector.resources.limits.cpu="200m" |
    .cert-manager.cainjector.resources.limits.memory="256Mi" |
+   .cert-manager.startupapicheck.enabled=false |
    .cert-manager.startupapicheck.image.repository="quay.m.daocloud.io/jetstack/cert-manager-ctl" |
    .cert-manager.startupapicheck.image.tag=strenv(IMAGE_VERSION) |
    .cert-manager.startupapicheck.resources.requests.cpu="10m" |
