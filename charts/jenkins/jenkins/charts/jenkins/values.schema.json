@@ -14,6 +14,7 @@
                         "ContainerRuntime": {
                             "type": "string",
                             "default": "podman",
+                            "description": "ContainerRuntime defines the tools used by the Agent to run and build containers. It’s important to note that \"Docker\" should only be selected when the container runtime on the node is Docker. For other container runtimes, please select \"Podman\".",
                             "enum": [
                                 "podman",
                                 "docker"
@@ -33,7 +34,7 @@
             "properties": {
                 "AdminPassword": {
                     "type": "string",
-                    "default": "Admin01"
+                    "default": ""
                 },
                 "AdminUser": {
                     "type": "string",

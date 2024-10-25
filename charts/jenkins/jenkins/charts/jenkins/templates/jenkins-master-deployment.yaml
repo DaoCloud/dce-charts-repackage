@@ -65,12 +65,12 @@ spec:
           - name: ADMIN_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ template "jenkins.fullname" . }}
+                name: jenkins-secret
                 key: jenkins-admin-password
           - name: ADMIN_USER
             valueFrom:
               secretKeyRef:
-                name: {{ template "jenkins.fullname" . }}
+                name: jenkins-secret
                 key: jenkins-admin-user
           {{- end }}
           {{- if .Values.Master.InitContainerEnv }}
@@ -158,12 +158,12 @@ spec:
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "jenkins.fullname" . }}
+                  name: jenkins-secret
                   key: jenkins-admin-password
             - name: ADMIN_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "jenkins.fullname" . }}
+                  name: jenkins-secret
                   key: jenkins-admin-user
             {{- end }}
             {{- if .Values.Master.ContainerEnv }}
