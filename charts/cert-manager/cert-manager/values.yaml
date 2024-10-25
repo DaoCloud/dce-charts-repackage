@@ -1147,7 +1147,7 @@ cert-manager:
   # For more information, see [this note](https://github.com/cert-manager/cert-manager/pull/4414).
   startupapicheck:
     # Enables the startup api check.
-    enabled: true
+    enabled: false
     # Pod Security Context to be set on the startupapicheck component Pod.
     # For more information, see [Configure a Security Context for a Pod or Container](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/).
     # +docs:property
