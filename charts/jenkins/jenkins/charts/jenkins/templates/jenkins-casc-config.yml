@@ -47,6 +47,7 @@ data:
                   resourceLimitCpu: "500m"
                   resourceRequestMemory: "400Mi"
                   resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
                 workspaceVolume:
                   emptyDirWorkspaceVolume:
                     memory: false
@@ -107,6 +108,7 @@ data:
                   resourceLimitCpu: "500m"
                   resourceRequestMemory: "400Mi"
                   resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
                 workspaceVolume:
                   emptyDirWorkspaceVolume:
                     memory: false
@@ -175,6 +177,7 @@ data:
                   resourceLimitCpu: "500m"
                   resourceRequestMemory: "400Mi"
                   resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
                 workspaceVolume:
                   emptyDirWorkspaceVolume:
                     memory: false
@@ -251,6 +254,7 @@ data:
                   resourceLimitCpu: "500m"
                   resourceRequestMemory: "400Mi"
                   resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
                 workspaceVolume:
                   emptyDirWorkspaceVolume:
                     memory: false
@@ -316,6 +320,7 @@ data:
                   resourceLimitCpu: "500m"
                   resourceRequestMemory: "400Mi"
                   resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
                 workspaceVolume:
                   emptyDirWorkspaceVolume:
                     memory: false
