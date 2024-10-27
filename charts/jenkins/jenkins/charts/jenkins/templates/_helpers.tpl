@@ -174,7 +174,7 @@ rateLimiterConfig: {{ toYaml .rateLimiterConfig | nindent 2 }}
 - name: AMAMBA_EVENTPROXY_TOKEN
   valueFrom:
     secretKeyRef:
-      name: jenkins-secret
+      name: {{ template "jenkins.fullname" . }}
       key: event-proxy-token
 {{- end -}}
 
