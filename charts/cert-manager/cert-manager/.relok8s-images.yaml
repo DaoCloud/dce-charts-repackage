@@ -1,3 +1,6 @@
+- "{{ .cert-manager.image.repository }}-arm64:{{ .cert-manager.image.tag }}"
+- "{{ .cert-manager.webhook.image.repository }}-arm64:{{ .cert-manager.webhook.image.tag }}"
+- "{{ .cert-manager.cainjector.image.repository }}-arm64:{{ .cert-manager.cainjector.image.tag }}"
 - "{{ .cert-manager.image.repository }}:{{ .cert-manager.image.tag }}"
 - "{{ .cert-manager.webhook.image.repository }}:{{ .cert-manager.webhook.image.tag }}"
 - "{{ .cert-manager.cainjector.image.repository }}:{{ .cert-manager.cainjector.image.tag }}"
