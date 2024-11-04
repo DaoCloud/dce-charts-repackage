@@ -141,6 +141,11 @@ spec:
                       is a positive integer the default value is 0, which means leaving
                       it as it is.
                     type: integer
+                  vethLinkAddress:
+                    description: VethLinkAddress configure a ipv4 link-local address
+                      for veth0 device. empty means disable. default is empty. Format
+                      is like 169.254.100.1
+                    type: string
                 type: object
               customCNI:
                 description: OtherCniTypeConfig only used for CniType custom, valid
@@ -224,6 +229,10 @@ spec:
                     - mode
                     - name
                     type: object
+                  enableRdma:
+                    default: false
+                    description: enable share rdma for ipvlan
+                    type: boolean
                   ippools:
                     description: SpiderpoolPools could specify the IPAM spiderpool
                       CNI configuration default IPv4&IPv6 pools.
@@ -241,6 +250,11 @@ spec:
                     items:
                       type: string
                     type: array
+                  rdmaResourceName:
+                    description: Resource name of the rdma device-plugin, If it's
+                      empty and enableRdma is true, the value will be auto set by
+                      operator. and the user can also set this value manually.
+                    type: string
                   vlanID:
                     format: int32
                     maximum: 4094
@@ -266,6 +280,10 @@ spec:
                     - mode
                     - name
                     type: object
+                  enableRdma:
+                    default: false
+                    description: enable share rdma for macvlan
+                    type: boolean
                   ippools:
                     description: SpiderpoolPools could specify the IPAM spiderpool
                       CNI configuration default IPv4&IPv6 pools.
@@ -283,6 +301,11 @@ spec:
                     items:
                       type: string
                     type: array
+                  rdmaResourceName:
+                    description: Resource name of the rdma device-plugin, If it's
+                      empty and enableRdma is true, the value will be auto set by
+                      operator. and the user can also set this value manually.
+                    type: string
                   vlanID:
                     format: int32
                     maximum: 4094
