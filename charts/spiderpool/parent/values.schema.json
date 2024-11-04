@@ -90,6 +90,16 @@
                                     "default": "spidernet-io/spiderpool/spiderpool-controller"
                                 }
                             }
+                        },
+                        "podResourceInject": {
+                            "title": "Enable auto inject RDMA resources for AI Apps, High recommended enable it in AI cluster.",
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "default": "true"
+                                }
+                            }
                         }
                     }
                 },
@@ -160,20 +170,6 @@
                                         }
                                     }
                                 },
-                                "sriovCni": {
-                                    "type": "object",
-                                    "properties": {
-                                        "repository": {
-                                            "title": "repository",
-                                            "type": "string",
-                                            "default": "k8snetworkplumbingwg/sriov-cni",
-                                            "description": "It used to help install the sriov-cni CNI binary to each node",
-                                            "examples": [
-                                                "k8snetworkplumbingwg/sriov-cni"
-                                            ]
-                                        }
-                                    }
-                                },
                                 "sriovDevicePlugin": {
                                     "type": "object",
                                     "properties": {
@@ -198,20 +194,6 @@
                                             "description": "It used to configure the sriov network configuration on the host, e.g. to enable the SR-IOV feature, etc.",
                                             "examples": [
                                                 "spidernet.io/sriov-network-operator-config-daemon"
-                                            ]
-                                        }
-                                    }
-                                },
-                                "ibSriovCni": {
-                                    "type": "object",
-                                    "properties": {
-                                        "repository": {
-                                            "title": "repository",
-                                            "type": "string",
-                                            "default": "k8snetworkplumbingwg/ib-sriov-cni",
-                                            "description": "It used to help install the sriov-cni CNI binary to each node",
-                                            "examples": [
-                                                "k8snetworkplumbingwg/ib-sriov-cni"
                                             ]
                                         }
                                     }
