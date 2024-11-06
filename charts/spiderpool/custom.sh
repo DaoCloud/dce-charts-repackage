@@ -69,7 +69,8 @@ yq -i '
     .spiderpool.spiderpoolController.podResourceInject.namespacesExclude= ["insight-system","mcamel-system","amamba-system","argocd","baize-system","ghippo-system","gpu-operator","dowl-system","hwameistor","insight-system","kairship-system","kangaroo-system","kant-system","kcollie-system","kcoral-system","kolm-system","kpanda-system","kubean-system","local-path-storage","metax","mspider-system","nvidia-gpu-operator","skoala-system","spidernet-system","virtnest-system","ipavo-system"] + .spiderpool.spiderpoolController.podResourceInject.namespacesExclude | 
     .spiderpool.spiderpoolInit.image.registry="ghcr.m.daocloud.io" | 
     .spiderpool.plugins.image.registry="ghcr.m.daocloud.io" |
-    .spiderpool.rdma.rdmaSharedDevicePlugin.image.registry="ghcr.m.daocloud.io" 
+    .spiderpool.rdma.rdmaSharedDevicePlugin.image.registry="ghcr.m.daocloud.io" |
+    .spiderpool.sriov.image.resourcesInjector.tag="v1.5"
 ' ${CHART_DIRECTORY}/values.yaml
 
 if ! grep "keywords:" ${CHART_DIRECTORY}/Chart.yaml &>/dev/null ; then
