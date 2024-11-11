@@ -80,6 +80,31 @@ yq -i '
   .argo-cd.redis-ha.exporter.image.repository = "oliver006/redis_exporter"
 ' values.yaml
 
+# default enable metrics
+yq -i '
+  .argo-cd.controller.metrics.enabled = true |
+  .argo-cd.controller.metrics.serviceMonitor.enabled = true |
+  .argo-cd.controller.metrics.serviceMonitor.additionalLabels."operator.insight.io/managed-by" = "insight" |
+  .argo-cd.dex.metrics.enabled = true |
+  .argo-cd.dex.metrics.serviceMonitor.enabled = true |
+  .argo-cd.dex.metrics.serviceMonitor.additionalLabels."operator.insight.io/managed-by" = "insight" |
+  .argo-cd.redis.metrics.enabled = true |
+  .argo-cd.redis.metrics.serviceMonitor.enabled = true |
+  .argo-cd.redis.metrics.serviceMonitor.additionalLabels."operator.insight.io/managed-by" = "insight" |
+  .argo-cd.server.metrics.enabled = true |
+  .argo-cd.server.metrics.serviceMonitor.enabled = true |
+  .argo-cd.server.metrics.serviceMonitor.additionalLabels."operator.insight.io/managed-by" = "insight" |
+  .argo-cd.repoServer.metrics.enabled = true |
+  .argo-cd.repoServer.metrics.serviceMonitor.enabled = true |
+  .argo-cd.repoServer.metrics.serviceMonitor.additionalLabels."operator.insight.io/managed-by" = "insight" |
+  .argo-cd.notifications.metrics.enabled = true |
+  .argo-cd.notifications.metrics.serviceMonitor.enabled = true |
+  .argo-cd.notifications.metrics.serviceMonitor.additionalLabels."operator.insight.io/managed-by" = "insight" |
+  .argo-cd.applicationSet.metrics.enabled = true |
+  .argo-cd.applicationSet.metrics.serviceMonitor.enabled = true |
+  .argo-cd.applicationSet.metrics.serviceMonitor.additionalLabels."operator.insight.io/managed-by" = "insight"
+' values.yaml
+
 
 # reset image to strut
 yq -i 'del(.exporter.image)' charts/argo-cd/charts/redis-ha/values.yaml

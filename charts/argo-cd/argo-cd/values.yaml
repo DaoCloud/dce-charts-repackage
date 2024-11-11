@@ -739,7 +739,7 @@ argo-cd:
     ## Application controller metrics configuration
     metrics:
       # -- Deploy metrics service
-      enabled: false
+      enabled: true
       # -- Prometheus ServiceMonitor scrapeTimeout. If empty, Prometheus uses the global scrape timeout unless it is less than the target's scrape interval value in which the latter is used.
       scrapeTimeout: ""
       applicationLabels:
@@ -762,7 +762,7 @@ argo-cd:
         portName: http-metrics
       serviceMonitor:
         # -- Enable a prometheus ServiceMonitor
-        enabled: false
+        enabled: true
         # -- Prometheus ServiceMonitor interval
         interval: 30s
         # -- Prometheus [RelabelConfigs] to apply to samples before scraping
@@ -780,7 +780,8 @@ argo-cd:
         # -- Prometheus ServiceMonitor namespace
         namespace: "" # "monitoring"
         # -- Prometheus ServiceMonitor labels
-        additionalLabels: {}
+        additionalLabels:
+          operator.insight.io/managed-by: insight
         # -- Prometheus ServiceMonitor annotations
         annotations: {}
       rules:
@@ -839,7 +840,7 @@ argo-cd:
     extraArgs: []
     metrics:
       # -- Deploy metrics service
-      enabled: false
+      enabled: true
       service:
         # -- Metrics service annotations
         annotations: {}
@@ -849,7 +850,7 @@ argo-cd:
         portName: http-metrics
       serviceMonitor:
         # -- Enable a prometheus ServiceMonitor
-        enabled: false
+        enabled: true
         # -- Prometheus ServiceMonitor interval
         interval: 30s
         # -- Prometheus [RelabelConfigs] to apply to samples before scraping
@@ -867,7 +868,8 @@ argo-cd:
         # -- Prometheus ServiceMonitor namespace
         namespace: "" # "monitoring"
         # -- Prometheus ServiceMonitor labels
-        additionalLabels: {}
+        additionalLabels:
+          operator.insight.io/managed-by: insight
         # -- Prometheus ServiceMonitor annotations
         annotations: {}
     ## Dex Pod Disruption Budget
@@ -1341,7 +1343,7 @@ argo-cd:
       labels: {}
     metrics:
       # -- Deploy metrics service
-      enabled: false
+      enabled: true
       # Redis metrics service configuration
       service:
         # -- Metrics service type
@@ -1358,7 +1360,7 @@ argo-cd:
         portName: http-metrics
       serviceMonitor:
         # -- Enable a prometheus ServiceMonitor
-        enabled: false
+        enabled: true
         # -- Interval at which metrics should be scraped
         interval: 30s
         # -- Prometheus [RelabelConfigs] to apply to samples before scraping
@@ -1376,7 +1378,8 @@ argo-cd:
         # -- Prometheus ServiceMonitor namespace
         namespace: "" # "monitoring"
         # -- Prometheus ServiceMonitor labels
-        additionalLabels: {}
+        additionalLabels:
+          operator.insight.io/managed-by: insight
         # -- Prometheus ServiceMonitor annotations
         annotations: {}
       image:
@@ -1954,7 +1957,7 @@ argo-cd:
     ## Server metrics service configuration
     metrics:
       # -- Deploy metrics service
-      enabled: false
+      enabled: true
       service:
         # -- Metrics service type
         type: ClusterIP
@@ -1970,7 +1973,7 @@ argo-cd:
         portName: http-metrics
       serviceMonitor:
         # -- Enable a prometheus ServiceMonitor
-        enabled: false
+        enabled: true
         # -- Prometheus ServiceMonitor interval
         interval: 30s
         # -- Prometheus ServiceMonitor scrapeTimeout. If empty, Prometheus uses the global scrape timeout unless it is less than the target's scrape interval value in which the latter is used.
@@ -1990,7 +1993,8 @@ argo-cd:
         # -- Prometheus ServiceMonitor namespace
         namespace: "" # monitoring
         # -- Prometheus ServiceMonitor labels
-        additionalLabels: {}
+        additionalLabels:
+          operator.insight.io/managed-by: insight
         # -- Prometheus ServiceMonitor annotations
         annotations: {}
     # -- Automount API credentials for the Service Account into the pod.
@@ -2484,7 +2488,7 @@ argo-cd:
     ## Repo server metrics service configuration
     metrics:
       # -- Deploy metrics service
-      enabled: false
+      enabled: true
       service:
         # -- Metrics service type
         type: ClusterIP
@@ -2500,7 +2504,7 @@ argo-cd:
         portName: http-metrics
       serviceMonitor:
         # -- Enable a prometheus ServiceMonitor
-        enabled: false
+        enabled: true
         # -- Prometheus ServiceMonitor interval
         interval: 30s
         # -- Prometheus ServiceMonitor scrapeTimeout. If empty, Prometheus uses the global scrape timeout unless it is less than the target's scrape interval value in which the latter is used.
@@ -2520,7 +2524,8 @@ argo-cd:
         # -- Prometheus ServiceMonitor namespace
         namespace: "" # "monitoring"
         # -- Prometheus ServiceMonitor labels
-        additionalLabels: {}
+        additionalLabels:
+          operator.insight.io/managed-by: insight
         # -- Prometheus ServiceMonitor annotations
         annotations: {}
     ## Enable Custom Rules for the Repo server's Cluster Role resource
@@ -2625,7 +2630,7 @@ argo-cd:
     ## Metrics service configuration
     metrics:
       # -- Deploy metrics service
-      enabled: false
+      enabled: true
       service:
         # -- Metrics service type
         type: ClusterIP
@@ -2641,7 +2646,7 @@ argo-cd:
         portName: http-metrics
       serviceMonitor:
         # -- Enable a prometheus ServiceMonitor
-        enabled: false
+        enabled: true
         # -- Prometheus ServiceMonitor interval
         interval: 30s
         # -- Prometheus ServiceMonitor scrapeTimeout. If empty, Prometheus uses the global scrape timeout unless it is less than the target's scrape interval value in which the latter is used.
@@ -2661,7 +2666,8 @@ argo-cd:
         # -- Prometheus ServiceMonitor namespace
         namespace: "" # monitoring
         # -- Prometheus ServiceMonitor labels
-        additionalLabels: {}
+        additionalLabels:
+          operator.insight.io/managed-by: insight
         # -- Prometheus ServiceMonitor annotations
         annotations: {}
     ## ApplicationSet service configuration
@@ -2988,7 +2994,7 @@ argo-cd:
     # For more information: https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/services/email/
     metrics:
       # -- Enables prometheus metrics server
-      enabled: false
+      enabled: true
       # -- Metrics port
       port: 9001
       service:
@@ -3004,12 +3010,13 @@ argo-cd:
         portName: http-metrics
       serviceMonitor:
         # -- Enable a prometheus ServiceMonitor
-        enabled: false
+        enabled: true
         # -- Prometheus ServiceMonitor selector
         selector: {}
         # prometheus: kube-prometheus
         # -- Prometheus ServiceMonitor labels
-        additionalLabels: {}
+        additionalLabels:
+          operator.insight.io/managed-by: insight
         # -- Prometheus ServiceMonitor annotations
         annotations: {}
         # namespace: monitoring
