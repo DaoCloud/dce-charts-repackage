@@ -43,6 +43,12 @@ yq -i "
 #==============================
 os=$(uname)
 
+yq -i '
+  .argo-rollouts.controller.metrics.enabled = true |
+  .argo-rollouts.controller.metrics.serviceMonitor.enabled = true |
+  .argo-rollouts.controller.metrics.serviceMonitor.additionalLabels."operator.insight.io/managed-by" = "insight"
+' values.yaml
+
 
 echo '
 {{- define "global.images.image" -}}

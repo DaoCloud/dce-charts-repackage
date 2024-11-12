@@ -128,7 +128,7 @@ argo-rollouts:
       healthz: 8080
     metrics:
       # -- Deploy metrics service
-      enabled: false
+      enabled: true
       service:
         # -- Metrics service port name
         portName: metrics
@@ -138,11 +138,12 @@ argo-rollouts:
         annotations: {}
       serviceMonitor:
         # -- Enable a prometheus ServiceMonitor
-        enabled: false
+        enabled: true
         # -- Namespace to be used for the ServiceMonitor
         namespace: ""
         # -- Labels to be added to the ServiceMonitor
-        additionalLabels: {}
+        additionalLabels:
+          operator.insight.io/managed-by: insight
         # -- Annotations to be added to the ServiceMonitor
         additionalAnnotations: {}
         # -- RelabelConfigs to apply to samples before scraping
