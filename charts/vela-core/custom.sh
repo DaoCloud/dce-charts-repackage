@@ -30,6 +30,56 @@ if ! which yq &>/dev/null ; then
      mv /tmp/${YQ_BINARY} /usr/bin/yq
 fi
 
+# add metrics config
+cat <<EOF > charts/vela-core/templates/controller-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubevela-controller-service
+  namespace: {{ .Release.Namespace }}
+  labels:
+    component: kubevela-controller
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9443
+      targetPort: 9443
+    - name: metrics
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    {{- include "kubevela.selectorLabels" . | nindent 6 }}
+EOF
+
+cat <<EOF > charts/vela-core/templates/controller-service-monitor.yaml
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.multicluster.metrics.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: amamba-kubevela
+  namespace: {{ .Release.Namespace }}
+  labels:
+      operator.insight.io/managed-by: insight
+spec:
+  endpoints:
+    - honorLabels: true
+      interval: 10s
+      path: /metrics
+      port: metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      component: kubevela-controller
+{{- end -}}
+EOF
+
+yq -i '.vela-core.multicluster.metrics.enabled=true' values.yaml
+
 echo '
 {{- define "global.images.image" -}}
 {{- $registryName := .imageRoot.registry -}}
