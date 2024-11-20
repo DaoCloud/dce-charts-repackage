@@ -105,6 +105,14 @@
             "type": "string"
           }
         },
+        "publicKeyAlgorithms": {
+          "title": "Accepted public key algorithms in gitlab-sshd",
+          "description": "Custom list of public key algorithms. If empty, the default algorithms are used.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "gssapi": {
           "properties": {
             "enabled": {
@@ -137,6 +145,16 @@
             }
           },
           "title": "GSS-API related settings",
+          "type": "object"
+        },
+        "lfs": {
+          "properties": {
+            "pureSSHProtocol": {
+              "title": "Enable LFS pure SSH protocol support",
+              "type": "boolean"
+            }
+          },
+          "title": "LFS related settings",
           "type": "object"
         }
       },
@@ -428,6 +446,10 @@
         "loadBalancerIP": {
           "title": "IP address to assign to LoadBalancer",
           "type": "string"
+        },
+        "allocateLoadBalancerNodePorts": {
+          "title": "If the LoadBalancer Service should also have a NodePort",
+          "type": "boolean"
         },
         "loadBalancerSourceRanges": {
           "title": "List of IP CIDRs allowed access to LoadBalancer",

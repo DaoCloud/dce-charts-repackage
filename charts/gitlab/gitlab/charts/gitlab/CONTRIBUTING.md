@@ -49,7 +49,7 @@ request is as follows:
 1. Write code and charts changes.
 1. If deemed necessary, provide MR to the [Cloud Native GitLab containers][CNG].
     - Provide the related Issue and MR link from that repository.
-1. [Generate a changelog entry with `bin/changelog`][changelog]
+1. [Generate a changelog entry][changelog]
 1. If you have multiple commits please combine them into a few logically
   organized commits by [squashing them][git-squash]
 1. Push the commit(s) to your fork
@@ -67,8 +67,8 @@ request is as follows:
     1. If you are contributing code, fill in the template already provided in the
      "Description" field.
     1. If you are contributing documentation
-      1. Choose `Documentation` from the "Choose a template" menu and fill in the template.
-      1. Ensure the branch name starts with `docs-` or ends with `-docs`
+       1. Choose `Documentation` from the "Choose a template" menu and fill in the template.
+       1. Ensure the branch name starts with `docs-` or ends with `-docs`
     1. Mention the issue(s) your merge request solves, using the `Solves #XXX` or
     `Closes #XXX` syntax to auto-close the issue(s) once the merge request will
     be merged.
