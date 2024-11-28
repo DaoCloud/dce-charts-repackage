@@ -201,11 +201,11 @@ spec:
         {{- if .Values.multus.multusCNI.defaultCniCRName }}
             - name: MULTUS_CLUSTER_NETWORK
               value: {{ .Release.Namespace }}/{{ .Values.multus.multusCNI.defaultCniCRName }}
-        {{ end }}
-        {{- with .Values.spiderpoolAgent.extraEnv }}
-        {{- toYaml . | nindent 8 }}
         {{- end }}
-        {{- if or .Values.spiderpoolAgent.tuneSysctlConfig .Values.spiderpoolAgent.securityContext }}
+        {{- with .Values.spiderpoolAgent.extraEnv }}
+        {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- if or .Values.spiderpoolAgent.tuneSysctlConfig .Values.spiderpoolAgent.securityContext .Values.spiderpoolAgent.prometheus.enabledRdmaMetric }}
           securityContext:
             privileged: true
         {{- with .Values.spiderpoolAgent.securityContext }}
@@ -216,6 +216,7 @@ spec:
         {{- if .Values.spiderpoolAgent.prometheus.enabledRdmaMetric }}
             - name: host-ns
               mountPath: /var/run/netns
+              mountPropagation: Bidirectional
         {{- end }}
             - name: config-path
               mountPath: /tmp/spiderpool/config-map
