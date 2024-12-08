@@ -289,6 +289,7 @@ webhooks:
         - spidermultusconfigs
   sideEffects: None
 {{- end }}
+
 {{- if eq .Values.spiderpoolController.tls.method "certmanager" -}}
 ---
 apiVersion: cert-manager.io/v1
