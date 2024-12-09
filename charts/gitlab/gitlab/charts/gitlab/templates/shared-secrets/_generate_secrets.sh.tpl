@@ -156,7 +156,6 @@ if [ -n "$env" ]; then
     otp_key_base=$(fetch_rails_value secrets.yml "${env}.otp_key_base")
     db_key_base=$(fetch_rails_value secrets.yml "${env}.db_key_base")
     openid_connect_signing_key=$(fetch_rails_value secrets.yml "${env}.openid_connect_signing_key")
-    ci_jwt_signing_key=$(fetch_rails_value secrets.yml "${env}.ci_jwt_signing_key")
     encrypted_settings_key_base=$(fetch_rails_value secrets.yml "${env}.encrypted_settings_key_base")
   fi;
 
@@ -165,7 +164,6 @@ if [ -n "$env" ]; then
   otp_key_base="${otp_key_base:-$(gen_random 'a-f0-9' 128)}" # equavilent to secureRandom.hex(64)
   db_key_base="${db_key_base:-$(gen_random 'a-f0-9' 128)}" # equavilent to secureRandom.hex(64)
   openid_connect_signing_key="${openid_connect_signing_key:-$(openssl genrsa 2048)}"
-  ci_jwt_signing_key="${ci_jwt_signing_key:-$(openssl genrsa 2048)}"
   encrypted_settings_key_base="${encrypted_settings_key_base:-$(gen_random 'a-f0-9' 128)}" # equavilent to secureRandom.hex(64)
 
   # Update the existing secret
@@ -184,8 +182,6 @@ stringData:
       encrypted_settings_key_base: $encrypted_settings_key_base
       openid_connect_signing_key: |
 $(echo "${openid_connect_signing_key}" | awk '{print "        " $0}')
-      ci_jwt_signing_key: |
-$(echo "${ci_jwt_signing_key}" | awk '{print "        " $0}')
 EOF
   kubectl --validate=false --namespace=$namespace apply -f rails-secrets.yml
   label_secret $rails_secret
