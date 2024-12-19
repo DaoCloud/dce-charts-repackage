@@ -1,0 +1,5 @@
+- "{{ .registry }}/{{ .gpuLabel.image.name }}:{{ .gpuLabel.image.version }}"
+- "{{ .registry }}/{{ .topoMaster.image.name }}:{{ .topoMaster.image.version }}"
+- "{{ .registry }}/{{ .topoWorker.image.name }}:{{ .topoWorker.image.version }}"
+- "{{ .registry }}/{{ .gpuAware.image.name }}:{{ .gpuAware.image.version }}"
+- "{{ .registry }}/{{ .gpuDevice.image.name }}:{{ .gpuDevice.image.version }}"
