@@ -1,0 +1,2 @@
+- "{{ .image.registry }}/{{ .image.repository }}:{{ .image.tag }}"
+- "{{ .clusterAgent.agentYaml.image.registry }}/{{ .clusterAgent.agentYaml.image.repository }}:{{ .clusterAgent.agentYaml.image.tag }}"
