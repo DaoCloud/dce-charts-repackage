@@ -34,7 +34,7 @@ bmc-operator:
       # Optional: network interface configuration
       underlayInterface: ""
       # Optional: Use host network for agent pods
-      hostNetwork: "true"
+      hostNetwork: true
       # Optional: Node scheduling configuration
       # Option 1: Use nodeAffinity for flexible node selection
       # nodeAffinity:

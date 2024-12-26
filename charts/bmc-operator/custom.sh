@@ -20,6 +20,6 @@ sed -iE "s?tag:.*?tag: v${APP_VERSION}?g" values.yaml
 yq -i ' .bmc-operator.image.registry = "ghcr.m.daocloud.io" ' values.yaml
 yq -i ' .bmc-operator.clusterAgent.agentYaml.image.registry = "ghcr.m.daocloud.io" ' values.yaml
 
-yq -i ' .bmc-operator.clusterAgent.agentYaml.hostNetwork = "true" ' values.yaml
+yq -i ' .bmc-operator.clusterAgent.agentYaml.hostNetwork = true' values.yaml
 
 rm -rf values.yamlE || true 
