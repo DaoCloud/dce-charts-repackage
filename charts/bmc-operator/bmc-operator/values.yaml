@@ -5,11 +5,11 @@ bmc-operator:
   # Available values: debug, info, error
   logLevel: "debug"
   image:
-    registry: "ghcr.io"
+    registry: "ghcr.m.daocloud.io"
     repository: "spidernet-io/bmc-controller"
     pullPolicy: IfNotPresent
     # tag will be overridden by version from Chart.yaml
-    tag: 0.1.0
+    tag: v0.1.0
     # Optional: image digest
     digest: ""
   resources:
@@ -24,17 +24,17 @@ bmc-operator:
   clusterAgent:
     agentYaml:
       image:
-        registry: "ghcr.io"
+        registry: "ghcr.m.daocloud.io"
         repository: "spidernet-io/bmc-agent"
         pullPolicy: IfNotPresent
         # tag will be overridden by version from Chart.yaml
-        tag: 0.1.0
+        tag: v0.1.0
         # Optional: image digest
         digest: ""
       # Optional: network interface configuration
       underlayInterface: ""
       # Optional: Use host network for agent pods
-      hostNetwork: false
+      hostNetwork: "true"
       # Optional: Node scheduling configuration
       # Option 1: Use nodeAffinity for flexible node selection
       # nodeAffinity:
@@ -133,10 +133,3 @@ bmc-operator:
     imageRegistryOverride: ""
     # Override image tag for all images
     imageTagOverride: ""
-image:
-  registry: ghcr.m.daocloud.io
-clusterAgent:
-  agentYaml:
-    image:
-      registry: ghcr.m.daocloud.io
-    hostNetwork: "true"

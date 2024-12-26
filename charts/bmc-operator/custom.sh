@@ -16,10 +16,10 @@ set -o nounset
 #========= set tag for relok8s-images
 APP_VERSION=` cat Chart.yaml | grep appVersion | awk '{print $2}'`
 
-sed -iE "s?tag:.*?tag: ${APP_VERSION}?g" values.yaml
-yq -i ' .image.registry = "ghcr.m.daocloud.io" ' values.yaml
-yq -i ' .clusterAgent.agentYaml.image.registry = "ghcr.m.daocloud.io" ' values.yaml
+sed -iE "s?tag:.*?tag: v${APP_VERSION}?g" values.yaml
+yq -i ' .bmc-operator.image.registry = "ghcr.m.daocloud.io" ' values.yaml
+yq -i ' .bmc-operator.clusterAgent.agentYaml.image.registry = "ghcr.m.daocloud.io" ' values.yaml
 
-yq -i ' .clusterAgent.agentYaml.hostNetwork = "true" ' values.yaml
+yq -i ' .bmc-operator.clusterAgent.agentYaml.hostNetwork = "true" ' values.yaml
 
 rm -rf values.yamlE || true 
