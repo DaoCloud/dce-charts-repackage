@@ -163,9 +163,9 @@ jobs:
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
               source ${BASE}/charts/${PROJECT}/config && [ "${NO_IMAGE}" == "true" ] && continue
               CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
-              if helm template test ${CHART_PATH} | grep ' image: ' | cut -d ":" -f2,3 | grep -v "daocloud" &>/dev/null ; then
+              if helm template test ${CHART_PATH} | grep ' image: ' | grep -v "{{"  | cut -d ":" -f2,3 | grep -v "daocloud" &>/dev/null ; then
                   echo "error, ${PROJECT} image is not in daocloud repo"
-                  helm template test ${CHART_PATH} | grep ' image: ' | cut -d ":" -f2,3 | grep -v "daocloud"
+                  helm template test ${CHART_PATH} | grep ' image: ' | grep -v "{{"  | cut -d ":" -f2,3 | grep -v "daocloud"
                   exit 1
               fi
           done
