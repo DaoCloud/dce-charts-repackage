@@ -2,7 +2,7 @@ replicaCount: 1
 
 # Log level configuration
 # Available values: debug, info, error
-logLevel: "debug"
+logLevel: "info"
 
 image:
   registry: "ghcr.io"
@@ -65,7 +65,7 @@ clusterAgent:
     hostStatusUpdateInterval: 60
 
     # 日志级别，可选值：debug, info, error
-    logLevel: "debug"
+    logLevel: "info"
 
     # Enable DHCP server (default: true)
     enableDhcpServer: true
@@ -74,6 +74,12 @@ clusterAgent:
     dhcpServerConfig:
       # Enable DHCP discovery (default: true)
       enableDhcpDiscovery: true
+
+      # fix the dhcp ip for the dhcp client in the dhcp server
+      enableBindDhcpIP: true
+      # fix the hostendpoint ip in the dhcp server
+      enableBindStaticIP: true   
+
       # DHCP server interface (required)
       dhcpServerInterface: "net1"
       # Subnet for DHCP server (required)
@@ -84,12 +90,6 @@ clusterAgent:
       gateway: "192.168.0.1"
       # Self IP for DHCP server (optional)
       selfIp: "192.168.0.2/24"
-
-    # Enable Redfish metrics collection (default: false)
-    redfishMetrics: false
-    
-    # Enable GUI proxy (default: true)
-    enableGuiProxy: true
 
   # Storage configuration for DHCP lease files
   storage:

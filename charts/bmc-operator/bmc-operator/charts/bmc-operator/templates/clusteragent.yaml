@@ -34,6 +34,8 @@ spec:
     {{- if .enableDhcpServer }}
     dhcpServerConfig:
       enableDhcpDiscovery: {{ .dhcpServerConfig.enableDhcpDiscovery | default true }}
+      enableBindDhcpIP: {{ .dhcpServerConfig.enableBindDhcpIP | default true }}
+      enableBindStaticIP: {{ .dhcpServerConfig.enableBindStaticIP | default true }}
       dhcpServerInterface: {{ .dhcpServerConfig.dhcpServerInterface }}
       subnet: {{ .dhcpServerConfig.subnet }}
       ipRange: {{ .dhcpServerConfig.ipRange }}
@@ -42,6 +44,4 @@ spec:
       selfIp: {{ .dhcpServerConfig.selfIp }}
       {{- end }}
     {{- end }}
-    redfishMetrics: {{ .redfishMetrics }}
-    enableGuiProxy: {{ .enableGuiProxy }}
   {{- end }}

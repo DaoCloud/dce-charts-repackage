@@ -12,8 +12,17 @@ data:
     # 1 year
     default-lease-time 31536000;
     max-lease-time 31536000;
+    # do no modify the following lines, they will be rendered by the operator
     subnet {{ "{{ .Subnet }}" }} netmask {{ "{{ .Netmask }}" }} {
         range {{ "{{ .Range }}" }};
         option routers {{ "{{ .Router }}" }};
         option subnet-mask {{ "{{ .SubnetMask }}" }};
+
+        # add fixed ip to dhcp configuration for dhcp client
+        {{ "{{- range $key, $value := .FixedIPs }}" }}
+        host {{ "{{ $key }}" }} {
+            hardware ethernet {{ "{{ $value.Mac }}" }};
+            fixed-address {{ "{{ $value.IpAddr }}" }};
+        }
+        {{ "{{- end }}" }}
     }

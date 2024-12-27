@@ -3,13 +3,13 @@ bmc-operator:
   replicaCount: 1
   # Log level configuration
   # Available values: debug, info, error
-  logLevel: "debug"
+  logLevel: "info"
   image:
     registry: "ghcr.m.daocloud.io"
     repository: "spidernet-io/bmc-controller"
     pullPolicy: IfNotPresent
     # tag will be overridden by version from Chart.yaml
-    tag: v0.1.0
+    tag: v0.2.0
     # Optional: image digest
     digest: ""
   resources:
@@ -28,7 +28,7 @@ bmc-operator:
         repository: "spidernet-io/bmc-agent"
         pullPolicy: IfNotPresent
         # tag will be overridden by version from Chart.yaml
-        tag: v0.1.0
+        tag: v0.2.0
         # Optional: image digest
         digest: ""
       # Optional: network interface configuration
@@ -61,13 +61,17 @@ bmc-operator:
       # 状态更新间隔，它决定了多久向主机发送一次redfish请求，来更新 hostStatus 对象中的信息，默认 60 秒
       hostStatusUpdateInterval: 60
       # 日志级别，可选值：debug, info, error
-      logLevel: "debug"
+      logLevel: "info"
       # Enable DHCP server (default: true)
       enableDhcpServer: true
       # DHCP server configuration (required when enableDhcpServer is true)
       dhcpServerConfig:
         # Enable DHCP discovery (default: true)
         enableDhcpDiscovery: true
+        # fix the dhcp ip for the dhcp client in the dhcp server
+        enableBindDhcpIP: true
+        # fix the hostendpoint ip in the dhcp server
+        enableBindStaticIP: true
         # DHCP server interface (required)
         dhcpServerInterface: "net1"
         # Subnet for DHCP server (required)
@@ -78,10 +82,6 @@ bmc-operator:
         gateway: "192.168.0.1"
         # Self IP for DHCP server (optional)
         selfIp: "192.168.0.2/24"
-      # Enable Redfish metrics collection (default: false)
-      redfishMetrics: false
-      # Enable GUI proxy (default: true)
-      enableGuiProxy: true
     # Storage configuration for DHCP lease files
     storage:
       # Storage type: "pvc" or "hostPath"

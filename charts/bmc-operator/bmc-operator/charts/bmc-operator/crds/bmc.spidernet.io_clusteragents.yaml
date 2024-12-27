@@ -302,6 +302,14 @@ spec:
                         description: DhcpServerInterface specifies the interface for
                           DHCP server
                         type: string
+                      enableBindDhcpIP:
+                        default: true
+                        description: EnableBindDhcpIP enables DHCP IP binding
+                        type: boolean
+                      enableBindStaticIP:
+                        default: true
+                        description: EnableBindStaticIP enables static IP binding
+                        type: boolean
                       enableDhcpDiscovery:
                         default: true
                         description: EnableDhcpDiscovery enables DHCP discovery
@@ -324,6 +332,8 @@ spec:
                         type: string
                     required:
                     - dhcpServerInterface
+                    - enableBindDhcpIP
+                    - enableBindStaticIP
                     - enableDhcpDiscovery
                     - gateway
                     - ipRange
@@ -332,14 +342,6 @@ spec:
                   enableDhcpServer:
                     default: true
                     description: EnableDhcpServer enables the DHCP server
-                    type: boolean
-                  enableGuiProxy:
-                    default: true
-                    description: EnableGuiProxy enables GUI proxy
-                    type: boolean
-                  redfishMetrics:
-                    default: false
-                    description: RedfishMetrics enables redfish metrics collection
                     type: boolean
                 type: object
             required:
