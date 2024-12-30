@@ -55,6 +55,10 @@ spec:
             properties:
               basic:
                 properties:
+                  activeDhcpClient:
+                    description: ActiveDhcpClient specifies this host is an active
+                      dhcp client when type is dhcp
+                    type: boolean
                   https:
                     type: boolean
                   ipAddr:
