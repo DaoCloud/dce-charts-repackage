@@ -3,7 +3,10 @@
 CHART_DIRECTORY=$1
 [ ! -d "$CHART_DIRECTORY" ] && echo "custom shell: error, miss CHART_DIRECTORY $CHART_DIRECTORY " && exit 1
 
-CURRENT_DIR_PATH=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
+CURRENT_DIR_PATH=$(
+    cd $(dirname ${BASH_SOURCE[0]})
+    pwd
+)
 
 echo "custom shell: CHART_DIRECTORY $CHART_DIRECTORY"
 echo "CHART_DIRECTORY $(ls)"
@@ -16,13 +19,13 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-if ! which yq &>/dev/null ; then
+if ! which yq &>/dev/null; then
     echo " 'yq' no found, try to install..."
     YQ_VERSION=v4.30.6
     YQ_BINARY="yq_$(uname | tr 'A-Z' 'a-z')_amd64"
     wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}.tar.gz -O /tmp/yq.tar.gz &&
-     tar -xzf /tmp/yq.tar.gz -C /tmp &&
-     mv /tmp/${YQ_BINARY} /usr/bin/yq
+        tar -xzf /tmp/yq.tar.gz -C /tmp &&
+        mv /tmp/${YQ_BINARY} /usr/bin/yq
 fi
 
 OS=$(uname -s | tr 'A-Z' 'a-z')
@@ -66,8 +69,6 @@ yq -i '
     .spiderpool.spiderpoolController.resources.requests.cpu=strenv(CUSTOM_SPIDERPOOL_CONTROLLER_CPU) |
     .spiderpool.spiderpoolController.resources.requests.memory=strenv(CUSTOM_SPIDERPOOL_CONTROLLER_MEMORY) |
     .spiderpool.spiderpoolController.tolerations[0].effect = "NoSchedule" |
-    .spiderpool.spiderpoolController.podResourceInject.enabled=true | 
-    .spiderpool.spiderpoolController.podResourceInject.namespacesExclude= ["insight-system","mcamel-system","amamba-system","argocd","baize-system","ghippo-system","gpu-operator","dowl-system","hwameistor","insight-system","kairship-system","kangaroo-system","kant-system","kcollie-system","kcoral-system","kolm-system","kpanda-system","kubean-system","local-path-storage","mspider-system","nvidia-gpu-operator","skoala-system","spidernet-system","virtnest-system","ipavo-system"] + .spiderpool.spiderpoolController.podResourceInject.namespacesExclude |
     .spiderpool.spiderpoolInit.image.registry="ghcr.m.daocloud.io" | 
     .spiderpool.plugins.image.registry="ghcr.m.daocloud.io" |
     .spiderpool.rdma.rdmaSharedDevicePlugin.image.registry="ghcr.m.daocloud.io" |
@@ -75,12 +76,14 @@ yq -i '
     .spiderpool.grafanaDashboard.labels."operator.insight.io/managed-by"="insight"
 ' ${CHART_DIRECTORY}/values.yaml
 
+#     .spiderpool.spiderpoolController.podResourceInject.namespacesExclude= ["insight-system","mcamel-system","amamba-system","argocd","baize-system","ghippo-system","gpu-operator","dowl-system","hwameistor","insight-system","kairship-system","kangaroo-system","kant-system","kcollie-system","kcoral-system","kolm-system","kpanda-system","kubean-system","local-path-storage","mspider-system","nvidia-gpu-operator","skoala-system","spidernet-system","virtnest-system","ipavo-system"] + .spiderpool.spiderpoolController.podResourceInject.namespacesExclude |
 # `.spiderpool.sriov.image.resourcesInjector.tag="v1.5"` is used as a fallback because resourcesInjector v1.6.0 does not include an ARM64 image.
+#     .spiderpool.spiderpoolController.podResourceInject.enabled=true |
 
-if ! grep "keywords:" ${CHART_DIRECTORY}/Chart.yaml &>/dev/null ; then
-    echo "keywords:" >> ${CHART_DIRECTORY}/Chart.yaml
-    echo "  - networking" >> ${CHART_DIRECTORY}/Chart.yaml
-    echo "  - ipam" >> ${CHART_DIRECTORY}/Chart.yaml
+if ! grep "keywords:" ${CHART_DIRECTORY}/Chart.yaml &>/dev/null; then
+    echo "keywords:" >>${CHART_DIRECTORY}/Chart.yaml
+    echo "  - networking" >>${CHART_DIRECTORY}/Chart.yaml
+    echo "  - ipam" >>${CHART_DIRECTORY}/Chart.yaml
 fi
 
 rm -f ${CHART_DIRECTORY}/values.yaml-E || true
