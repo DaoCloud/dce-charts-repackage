@@ -1,0 +1,281 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "bmc-operator",
+  "type": "object",
+  "properties": {
+    "bmc-operator": {
+      "title": "bmc operator",
+      "type": "object",
+      "properties": {
+        "global": {
+          "type": "object",
+          "properties": {
+            "imageRegistryOverride": {
+              "type": "string",
+              "title": "Global Image Registry",
+              "default": "ghcr.m.daocloud.io",
+              "description": "The registry to use for the image"
+            }
+          },
+          "required": [
+            "imageRegistryOverride"
+          ]
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "Operator Image Repository",
+              "default": "spidernet-io/bmc-controller",
+              "description": "The repository to use for the Operator image"
+            }
+          },
+          "required": [
+            "repository"
+          ]
+        },
+        "clusterAgent": {
+          "type": "object",
+          "properties": {
+            "agentYaml": {
+              "type": "object",
+              "properties": {
+                "image": {
+                  "type": "object",
+                  "properties": {
+                    "repository": {
+                      "type": "string",
+                      "title": "Agent Image Repository",
+                      "default": "spidernet-io/bmc-agent",
+                      "description": "The repository to use for the Agent image"
+                    }
+                  },
+                  "required": [
+                    "repository"
+                  ]
+                },
+                "underlayInterface": {
+                  "type": "string",
+                  "title": "Underlay Interface",
+                  "default": "net1",
+                  "description": "Optional, the under interface of agent, which is used for DHCP server"
+                },
+                "hostNetwork": {
+                  "type": "boolean",
+                  "title": "Host Network",
+                  "default": true,
+                  "description": "Whether to use host network for agent"
+                },
+                "nodeAffinity": {
+                  "type": "object",
+                  "properties": {
+                    "requiredDuringSchedulingIgnoredDuringExecution": {
+                      "type": "object",
+                      "properties": {
+                        "nodeSelectorTerms": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "matchExpressions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "key": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "type": "string"
+                                    },
+                                    "values": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "key",
+                                    "operator",
+                                    "values"
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "matchExpressions"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "nodeSelectorTerms"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "requiredDuringSchedulingIgnoredDuringExecution"
+                  ]
+                },
+                "nodeName": {
+                  "type": "string",
+                  "title": "Agent Node Name",
+                  "default": "",
+                  "description": "Optional, The name of the node to use for the Agent"
+                }
+              },
+              "required": [
+                "image",
+                "hostNetwork"
+              ]
+            },
+            "endpoint": {
+              "type": "object",
+              "title": "Bmc Endpoint",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "title": "Bmc Default Username",
+                  "default": "",
+                  "description": "The username to use for connecting the Bmc"
+                },
+                "password": {
+                  "type": "string",
+                  "title": "Bmc Default Password",
+                  "default": "",
+                  "description": "The password to use for connecting the Bmc"
+                }
+              },
+              "required": [
+                "username",
+                "password"
+              ]
+            },
+            "feature": {
+              "type": "object",
+              "properties": {
+                "enableDhcpServer": {
+                  "type": "boolean",
+                  "title": "Enable DHCP Server",
+                  "default": true,
+                  "description": "Whether to enable DHCP server in the agent"
+                },
+                "dhcpServerConfig": {
+                  "type": "object",
+                  "title": "DHCP Server Config",
+                  "properties": {
+                    "enableBindDhcpIP": {
+                      "type": "boolean",
+                      "title": "Enable Bind DHCP Client IP",
+                      "default": true,
+                      "description": "Enable automatically bind the IP of DHCP Client in the DHCP Server"
+                    },
+                    "enableBindStaticIP": {
+                      "type": "boolean",
+                      "title": "Enable Bind Static IP",
+                      "default": true,
+                      "description": "Enable automatically bind the hostEndpoint IP in the DHCP Server"
+                    },
+                    "dhcpServerInterface": {
+                      "type": "string",
+                      "title": "DHCP Server Interface",
+                      "default": "net1",
+                      "description": "The interface that DHCP Server listens on in the agent pod"
+                    },
+                    "subnet": {
+                      "type": "string",
+                      "title": "DHCP Server Subnet",
+                      "default": "",
+                      "description": "The subnet of DHCP Server, for exmaple: 192.168.1.0/24"
+                    },
+                    "ipRange": {
+                      "type": "string",
+                      "title": "DHCP Server IP Range",
+                      "default": "",
+                      "description": "The IP range of DHCP Server, for exmaple: 192.168.1.100-192.168.1.150"
+                    },
+                    "gateway": {
+                      "type": "string",
+                      "title": "Gateway",
+                      "default": "",
+                      "description": "The gateway in the subnet, it will be delivered to the DHCP Client. For example, if the subnet is 192.168.1.0/24, the gateway is 192.168.1.1"
+                    },
+                    "selfIp": {
+                      "type": "string",
+                      "title": "IP Of DHCP Server Interface",
+                      "default": "",
+                      "description": "[Opional] The designated IP of DHCP Server Interface. If not set, the DHCP Server will use the original IP of DHCP Server Interface"
+                    }
+                  },
+                  "required": [
+                    "enableBindDhcpIP",
+                    "enableBindStaticIP",
+                    "dhcpServerInterface",
+                    "subnet",
+                    "ipRange",
+                    "gateway"
+                  ]
+                }
+              },
+              "required": [
+                "enableDhcpServer",
+                "dhcpServerConfig"
+              ]
+            },
+            "storage": {
+              "type": "object",
+              "title": "Storage For DHCP Server",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "hostPath",
+                    "pvc"
+                  ]
+                },
+                "pvc": {
+                  "type": "object",
+                  "properties": {
+                    "storageClass": {
+                      "type": "string",
+                      "title": "Storage Class",
+                      "default": "",
+                      "description": "The storage class to use for the DHCP Server"
+                    },
+                    "size": {
+                      "type": "string",
+                      "title": "Storage Size",
+                      "default": "100M",
+                      "description": "The size of the storage for the DHCP Server"
+                    }
+                  },
+                  "required": [
+                    "storageClass",
+                    "size"
+                  ]
+                }
+              },
+              "required": [
+                "type",
+                "pvc"
+              ]
+            }
+          },
+          "required": [
+            "agentYaml",
+            "endpoint",
+            "feature"
+          ]
+        }
+      },
+      "required": [
+        "global",
+        "image",
+        "clusterAgent"
+      ]
+    }
+  },
+  "required": ["bmc-operator"]
+}
