@@ -1,7 +1,6 @@
 {{- if .Values.config -}}
-{{- $config := .Values.config -}}
-{{- $_ := set $config "apiVersion" (default "controller.config.cert-manager.io/v1alpha1" $config.apiVersion) -}}
-{{- $_ := set $config "kind" (default "ControllerConfiguration" $config.kind) -}}
+{{- $_ := .Values.config.apiVersion | required ".Values.config.apiVersion must be set !" -}}
+{{- $_ := .Values.config.kind | required ".Values.config.kind must be set !" -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -15,5 +14,5 @@ metadata:
     {{- include "labels" . | nindent 4 }}
 data:
   config.yaml: |
-    {{- $config | toYaml | nindent 4 }}
+    {{- .Values.config | toYaml | nindent 4 }}
 {{- end -}}
