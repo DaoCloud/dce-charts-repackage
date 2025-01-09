@@ -233,8 +233,7 @@ multus:
       digest: ""
 
       ## @param multus.multusCNI.image.tag the multus-CNI image tag
-      tag: v3.9.3
-      # tag: v4.0.2-thick
+      tag: v4.1.4
 
       ## @param multus.multusCNI.image.imagePullSecrets the multus-CNI image imagePullSecrets
       imagePullSecrets: []
@@ -302,7 +301,7 @@ plugins:
     digest: ""
 
     ## @param plugins.image.tag the image tag of plugins
-    tag: 82659d90cae0d6a5169eac2869e47c989932d775
+    tag: 27c4f118b1cec3773f2679b772e7583fc77e5686
 
     ## @param plugins.image.imagePullSecrets the image imagePullSecrets of plugins
     imagePullSecrets: []
@@ -369,7 +368,7 @@ spiderpoolAgent:
     digest: ""
 
     ## @param spiderpoolAgent.image.tag the image tag of spiderpoolAgent, overrides the image tag whose default is the chart appVersion.
-    tag: v1.0.0-rc3
+    tag: v1.0.0-rc4
 
     ## @param spiderpoolAgent.image.imagePullSecrets the image imagePullSecrets of spiderpoolAgent
     imagePullSecrets: []
@@ -559,7 +558,7 @@ spiderpoolController:
     digest: ""
 
     ## @param spiderpoolController.image.tag the image tag of spiderpoolController, overrides the image tag whose default is the chart appVersion.
-    tag: v1.0.0-rc3
+    tag: v1.0.0-rc4
 
     ## @param spiderpoolController.image.imagePullSecrets the image imagePullSecrets of spiderpoolController
     imagePullSecrets: []
@@ -805,7 +804,7 @@ spiderpoolInit:
     digest: ""
 
     ## @param spiderpoolInit.image.tag the image tag of spiderpoolInit, overrides the image tag whose default is the chart appVersion.
-    tag: v1.0.0-rc3
+    tag: v1.0.0-rc4
 
     ## @param spiderpoolInit.image.imagePullSecrets the image imagePullSecrets of spiderpoolInit
     imagePullSecrets: []
