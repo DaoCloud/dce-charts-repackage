@@ -18,28 +18,28 @@ spec:
             message_zh: "无法抓取 ingress-nginx-controller-metrics 的指标"
           labels:
             severity: critical
-    - alert: NginxHighHttp4xxErrorRate
-      expr: sum(rate(nginx_http_requests_total{status=~"^4.."}[1m])) / sum(rate(nginx_http_requests_total[1m])) * 100 > {{ .Values.alert.prometheusRule.nginxHighHttp4xxErrorRate }}
-      for: 1m
-      labels:
-        severity: critical
-      annotations:
-        message: "Too many HTTP requests with status 4xx (> {{ .Values.alert.prometheusRule.nginxHighHttp4xxErrorRate }}%)\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
-        message_zh: "HTTP 请求 4xx (> {{ .Values.alert.prometheusRule.nginxHighHttp4xxErrorRate }}%)\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
-    - alert: NginxHighHttp5xxErrorRate
-      expr: sum(rate(nginx_http_requests_total{status=~"^5.."}[1m])) / sum(rate(nginx_http_requests_total[1m])) * 100 > {{ .Values.alert.prometheusRule.nginxHighHttp5xxErrorRate }}
-      for: 1m
-      labels:
-        severity: critical
-      annotations:
-        message: "Too many HTTP requests with status 5xx (> {{ .Values.alert.prometheusRule.nginxHighHttp5xxErrorRate }}%)\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
-        message_zh: "HTTP 请求 5xx (> {{ .Values.alert.prometheusRule.nginxHighHttp5xxErrorRate }}%)\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
-    - alert: NginxLatencyHigh
-      expr: histogram_quantile(0.99, sum(rate(nginx_http_request_duration_seconds_bucket[2m])) by (host, node)) > {{ .Values.alert.prometheusRule.nginxLatencySecond }}
-      for: 2m
-      labels:
-        severity: warning
-      annotations:
-        message: "Nginx p99 latency is higher than {{ .Values.alert.prometheusRule.nginxLatencySecond }} seconds\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
-        message_zh: "Nginx p99 延迟超过 {{ .Values.alert.prometheusRule.nginxLatencySecond }} 秒\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
+        - alert: NginxHighHttp4xxErrorRate
+          expr: sum(rate(nginx_http_requests_total{status=~"^4.."}[1m])) / sum(rate(nginx_http_requests_total[1m])) * 100 > {{ .Values.alert.prometheusRule.nginxHighHttp4xxErrorRate }}
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            message: "Too many HTTP requests with status 4xx (> {{ .Values.alert.prometheusRule.nginxHighHttp4xxErrorRate }}%)\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
+            message_zh: "HTTP 请求 4xx (> {{ .Values.alert.prometheusRule.nginxHighHttp4xxErrorRate }}%)\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
+        - alert: NginxHighHttp5xxErrorRate
+          expr: sum(rate(nginx_http_requests_total{status=~"^5.."}[1m])) / sum(rate(nginx_http_requests_total[1m])) * 100 > {{ .Values.alert.prometheusRule.nginxHighHttp5xxErrorRate }}
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            message: "Too many HTTP requests with status 5xx (> {{ .Values.alert.prometheusRule.nginxHighHttp5xxErrorRate }}%)\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
+            message_zh: "HTTP 请求 5xx (> {{ .Values.alert.prometheusRule.nginxHighHttp5xxErrorRate }}%)\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
+        - alert: NginxLatencyHigh
+          expr: histogram_quantile(0.99, sum(rate(nginx_http_request_duration_seconds_bucket[2m])) by (host, node)) > {{ .Values.alert.prometheusRule.nginxLatencySecond }}
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            message: "Nginx p99 latency is higher than {{ .Values.alert.prometheusRule.nginxLatencySecond }} seconds\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
+            message_zh: "Nginx p99 延迟超过 {{ .Values.alert.prometheusRule.nginxLatencySecond }} 秒\n  VALUE = {{"{{ $value }}"}}\n  LABELS = {{"{{ $labels }}"}}"
 {{ end }}
