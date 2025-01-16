@@ -26,6 +26,9 @@ spec:
     {{- if and $.Values.clusterAgent.endpoint.username $.Values.clusterAgent.endpoint.password }}
     secretName: {{ $.Release.Name }}-credentials
     secretNamespace: {{ $.Release.Namespace }}
+    {{- else }}
+    secretName: ""
+    secretNamespace: ""
     {{- end }}
   {{- end }}
   {{- with .Values.clusterAgent.feature }}
