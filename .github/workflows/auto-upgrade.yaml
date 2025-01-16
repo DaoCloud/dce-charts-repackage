@@ -193,12 +193,14 @@ jobs:
                           gh pr close ${PR_NUM} -c "robot: found newer version ${LATEST_VERSION}"
                       done
                   fi
-          
+                  
+                  sleep 5
                   gh pr create --title "${FINAL_TITLE}" \
                       --assignee "${UPGRADE_REVIWER}" \
                       --label "${LABEL}" \
                       --body "I am robot, upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
-                      --base main
+                      --base main \
+                      --head ${PR_BRANCH}
                   if (( $? != 0 )) ; then
                       MSG="error, failed to create PR for project ${PROJECT} for LATEST_VERSION=$LATEST_VERSION"
                       FAILED_MESSAGE+="${MSG} \n"
