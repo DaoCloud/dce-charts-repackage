@@ -9,7 +9,7 @@ bmc-operator:
     repository: "spidernet-io/bmc-controller"
     pullPolicy: IfNotPresent
     # tag will be overridden by version from Chart.yaml
-    tag: v0.3.0
+    tag: v0.3.1
     # Optional: image digest
     digest: ""
   resources:
@@ -28,7 +28,7 @@ bmc-operator:
         repository: "spidernet-io/bmc-agent"
         pullPolicy: IfNotPresent
         # tag will be overridden by version from Chart.yaml
-        tag: v0.3.0
+        tag: v0.3.1
         # Optional: image digest
         digest: ""
       # Optional: network interface configuration
