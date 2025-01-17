@@ -92,12 +92,35 @@ spec:
                 type: object
               lastUpdateTime:
                 type: string
+              log:
+                properties:
+                  lastestLog:
+                    properties:
+                      message:
+                        type: string
+                      time:
+                        type: string
+                    required:
+                    - message
+                    - time
+                    type: object
+                  totalLogAccount:
+                    format: int32
+                    type: integer
+                  warningLogAccount:
+                    format: int32
+                    type: integer
+                required:
+                - totalLogAccount
+                - warningLogAccount
+                type: object
             required:
             - basic
             - clusterAgent
             - healthy
             - info
             - lastUpdateTime
+            - log
             type: object
         type: object
     served: true
