@@ -195,14 +195,16 @@ jobs:
                   fi
                   
                   sleep 5
+                  FAILED_PROJECT=""
                   gh pr create --title "${FINAL_TITLE}" \
                       --assignee "${UPGRADE_REVIWER}" \
                       --label "${LABEL}" \
                       --body "I am robot, upgrade: project ${PROJECT} chart upgrade from $VERSION to ${LATEST_VERSION}" \
                       --base main \
-                      --head ${PR_BRANCH}
-                  if (( $? != 0 )) ; then
+                      --head ${PR_BRANCH} || FAILED_PROJECT="${PROJECT}"
+                  if [ -n "${FAILED_PROJECT}" ] ; then
                       MSG="error, failed to create PR for project ${PROJECT} for LATEST_VERSION=$LATEST_VERSION"
+                      echo "${MSG}"
                       FAILED_MESSAGE+="${MSG} \n"
                       git reset --hard HEAD || true
                       continue
