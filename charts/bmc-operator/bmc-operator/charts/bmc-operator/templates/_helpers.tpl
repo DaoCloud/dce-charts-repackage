@@ -75,9 +75,9 @@ return the controller image
 {{- if .Values.image.digest }}
     {{- print "@" .Values.image.digest -}}
 {{- else if .Values.global.imageTagOverride -}}
-    {{- printf ":%s" .Values.global.imageTagOverride -}}
+    {{- printf ":%s" (toString .Values.global.imageTagOverride) -}}
 {{- else if .Values.image.tag -}}
-    {{- printf ":%s" .Values.image.tag -}}
+    {{- printf ":%s" (toString .Values.image.tag) -}}
 {{- else -}}
     {{- printf ":v%s" .Chart.AppVersion -}}
 {{- end -}}
@@ -97,9 +97,9 @@ return the agent image
 {{- if .Values.clusterAgent.agentYaml.image.digest }}
     {{- print "@" .Values.clusterAgent.agentYaml.image.digest -}}
 {{- else if .Values.global.imageTagOverride -}}
-    {{- printf ":%s" .Values.global.imageTagOverride -}}
+    {{- printf ":%s" (toString .Values.global.imageTagOverride) -}}
 {{- else if .Values.clusterAgent.agentYaml.image.tag -}}
-    {{- printf ":%s" .Values.clusterAgent.agentYaml.image.tag -}}
+    {{- printf ":%s" (toString .Values.clusterAgent.agentYaml.image.tag) -}}
 {{- else -}}
     {{- printf ":v%s" .Chart.AppVersion -}}
 {{- end -}}
