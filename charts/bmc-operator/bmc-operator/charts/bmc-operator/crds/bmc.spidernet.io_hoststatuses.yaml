@@ -104,6 +104,16 @@ spec:
                     - message
                     - time
                     type: object
+                  lastestWarningLog:
+                    properties:
+                      message:
+                        type: string
+                      time:
+                        type: string
+                    required:
+                    - message
+                    - time
+                    type: object
                   totalLogAccount:
                     format: int32
                     type: integer
