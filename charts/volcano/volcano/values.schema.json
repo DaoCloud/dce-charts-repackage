@@ -29,6 +29,9 @@
                         "image_pull_secret": {
                             "type": "string"
                         },
+                        "image_registry": {
+                            "type": "string"
+                        },
                         "image_tag_version": {
                             "type": "string"
                         },
@@ -46,11 +49,20 @@
                         "admission_affinity": {
                             "type": "null"
                         },
+                        "admission_config_override": {
+                            "type": "null"
+                        },
+                        "admission_default_csc": {
+                            "type": "null"
+                        },
                         "admission_enable": {
                             "type": "boolean"
                         },
                         "admission_labels": {
                             "type": "null"
+                        },
+                        "admission_log_level": {
+                            "type": "integer"
                         },
                         "admission_ns": {
                             "type": "null"
@@ -70,7 +82,13 @@
                         "admission_tolerations": {
                             "type": "null"
                         },
+                        "common_labels": {
+                            "type": "null"
+                        },
                         "controller_affinity": {
+                            "type": "null"
+                        },
+                        "controller_default_csc": {
                             "type": "null"
                         },
                         "controller_enable": {
@@ -78,6 +96,9 @@
                         },
                         "controller_labels": {
                             "type": "null"
+                        },
+                        "controller_log_level": {
+                            "type": "integer"
                         },
                         "controller_ns": {
                             "type": "null"
@@ -121,11 +142,20 @@
                         "scheduler_affinity": {
                             "type": "null"
                         },
+                        "scheduler_config_override": {
+                            "type": "null"
+                        },
+                        "scheduler_default_csc": {
+                            "type": "null"
+                        },
                         "scheduler_enable": {
                             "type": "boolean"
                         },
                         "scheduler_labels": {
                             "type": "null"
+                        },
+                        "scheduler_log_level": {
+                            "type": "integer"
                         },
                         "scheduler_ns": {
                             "type": "null"
