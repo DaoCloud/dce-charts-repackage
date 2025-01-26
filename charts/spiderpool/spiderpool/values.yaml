@@ -44,6 +44,10 @@ spiderpool:
     enableKubevirtStaticIP: true
     ## @param ipam.enableSpiderSubnet SpiderSubnet feature gate.
     enableSpiderSubnet: true
+    ## @param ipam.enableIPConflictDetection enable IP conflict detection
+    enableIPConflictDetection: false
+    ## @param ipam.enableGatewayDetection enable gateway detection
+    enableGatewayDetection: false
     ## @param ipam.subnetDefaultFlexibleIPNumber the default flexible IP number of SpiderSubnet feature auto-created IPPools
     subnetDefaultFlexibleIPNumber: 1
     gc:
@@ -271,7 +275,7 @@ spiderpool:
       ## @param spiderpoolAgent.image.digest the image digest of spiderpoolAgent, which takes preference over tag
       digest: ""
       ## @param spiderpoolAgent.image.tag the image tag of spiderpoolAgent, overrides the image tag whose default is the chart appVersion.
-      tag: v0.9.8
+      tag: v0.9.9
       ## @param spiderpoolAgent.image.imagePullSecrets the image imagePullSecrets of spiderpoolAgent
       imagePullSecrets: []
       # - name: "image-pull-secret"
@@ -412,7 +416,7 @@ spiderpool:
       ## @param spiderpoolController.image.digest the image digest of spiderpoolController, which takes preference over tag
       digest: ""
       ## @param spiderpoolController.image.tag the image tag of spiderpoolController, overrides the image tag whose default is the chart appVersion.
-      tag: v0.9.8
+      tag: v0.9.9
       ## @param spiderpoolController.image.imagePullSecrets the image imagePullSecrets of spiderpoolController
       imagePullSecrets: []
       # - name: "image-pull-secret"
@@ -587,7 +591,7 @@ spiderpool:
       ## @param spiderpoolInit.image.digest the image digest of spiderpoolInit, which takes preference over tag
       digest: ""
       ## @param spiderpoolInit.image.tag the image tag of spiderpoolInit, overrides the image tag whose default is the chart appVersion.
-      tag: v0.9.8
+      tag: v0.9.9
       ## @param spiderpoolInit.image.imagePullSecrets the image imagePullSecrets of spiderpoolInit
       imagePullSecrets: []
       # - name: "image-pull-secret"
