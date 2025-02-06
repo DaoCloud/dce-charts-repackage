@@ -20,11 +20,15 @@ vela-core:
   ## @section KubeVela workflow parameters
 
   ## @param workflow.enableSuspendOnFailure Enable suspend on workflow failure
+  ## @param workflow.enableExternalPackageForDefaultCompiler Enable external package for default cuex compiler
+  ## @param workflow.enableExternalPackageWatchForDefaultCompiler Enable external package watch for default cuex compiler
   ## @param workflow.backoff.maxTime.waitState The max backoff time of workflow in a wait condition
   ## @param workflow.backoff.maxTime.failedState The max backoff time of workflow in a failed condition
   ## @param workflow.step.errorRetryTimes The max retry times of a failed workflow step
   workflow:
     enableSuspendOnFailure: false
+    enableExternalPackageForDefaultCompiler: true
+    enableExternalPackageWatchForDefaultCompiler: false
     backoff:
       maxTime:
         waitState: 60
@@ -42,7 +46,7 @@ vela-core:
   ## @param image.pullPolicy Image pull policy
   image:
     repository: oamdev/vela-core
-    tag: v1.9.11
+    tag: v1.10.0
     pullPolicy: Always
     registry: docker.m.daocloud.io
   ## @param resources.limits.cpu KubeVela controller's cpu limit
@@ -107,6 +111,7 @@ vela-core:
   ##@param featureGates.informerCacheFilterUnnecessaryFields filter unnecessary fields for informer cache
   ##@param featureGates.sharedDefinitionStorageForApplicationRevision use definition cache to reduce duplicated definition storage for application revision, must be used with InformerCacheFilterUnnecessaryFields
   ##@param featureGates.disableWorkflowContextConfigMapCache disable the workflow context's configmap informer cache
+  ##@param featureGates.enableCueValidation enable the strict cue validation for cue required parameter fields
   ##@param
   featureGates:
     gzipResourceTracker: false
@@ -122,6 +127,7 @@ vela-core:
     informerCacheFilterUnnecessaryFields: true
     sharedDefinitionStorageForApplicationRevision: true
     disableWorkflowContextConfigMapCache: true
+    enableCueValidation: false
   ## @section MultiCluster parameters
 
   ## @param multicluster.enabled Whether to enable multi-cluster
@@ -269,4 +275,4 @@ vela-core:
   global:
     imageRegistry: docker.m.daocloud.io
     repository: oamdev/vela-core
-    tag: v1.9.11
+    tag: v1.10.0
