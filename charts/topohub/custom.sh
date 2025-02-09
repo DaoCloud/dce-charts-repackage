@@ -16,9 +16,11 @@ set -o nounset
 #========= set tag for relok8s-images
 APP_VERSION=` cat Chart.yaml | grep appVersion | awk '{print $2}'`
 
-sed -iE "s?tag:.*?tag: v${APP_VERSION}?g" values.yaml
+# image
 yq -i ' .topohub.image.registry = "ghcr.m.daocloud.io" ' values.yaml
-yq -i ' .topohub.httpServer.image.registry = "ghcr.m.daocloud.io" ' values.yaml
-yq -i ' .topohub.httpServer.enabled = true ' values.yaml
+yq -i ' .topohub.image.tag = "v${APP_VERSION}" ' values.yaml
+yq -i ' .topohub.filebrowser.image.registry = "docker.m.daocloud.io" ' values.yaml
+#
+yq -i ' .topohub.filebrowser.enabled = true ' values.yaml
 
 rm -rf values.yamlE || true 

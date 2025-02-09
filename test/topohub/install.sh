@@ -24,7 +24,8 @@ helm install topohub chart-museum/topohub ${HELM_MUST_OPTION}  --namespace topoh
     --set defaultConfig.dhcpServer.interface=eth0 \
     --set replicaCount=1 \
     --set storage.type=hostPath \
-    --set httpServer.enabled=true
+    --set fileBrowser.enabled=true \
+    --set fileBrowser.port=8089
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
