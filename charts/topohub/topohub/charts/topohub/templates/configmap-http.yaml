@@ -1,0 +1,18 @@
+{{- if .Values.httpServer.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "topohub.fullname" . }}-httpserver
+  labels:
+    {{- include "topohub.labels" . | nindent 4 }}
+data:
+  .filebrowser.json: |
+    {
+    "port": {{ .Values.httpServer.port }},
+    "baseURL": "",
+    "address": "",
+    "log": "stdout",
+    "database": "/database.db",
+    "root": "/var/lib/topohub"
+    }
+{{- end }}

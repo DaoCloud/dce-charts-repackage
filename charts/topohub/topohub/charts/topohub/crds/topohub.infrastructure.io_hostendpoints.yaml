@@ -1,0 +1,78 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: (unknown)
+  name: hostendpoints.topohub.infrastructure.io
+spec:
+  group: topohub.infrastructure.io
+  names:
+    kind: HostEndpoint
+    listKind: HostEndpointList
+    plural: hostendpoints
+    singular: hostendpoint
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.clusterName
+      name: CLUSTERNAME
+      type: string
+    - jsonPath: .spec.ipAddr
+      name: HOSTIP
+      type: string
+    name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: HostEndpoint is the Schema for the hostendpoints API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: HostEndpointSpec defines the desired state of HostEndpoint
+            properties:
+              clusterName:
+                description: ClusterName specifies which clusterName this hostEndpoint
+                  belongs to
+                type: string
+              https:
+                default: true
+                description: HTTPS specifies whether to use HTTPS for communication
+                type: boolean
+              ipAddr:
+                description: IPAddr is the IP address of the host endpoint
+                type: string
+              port:
+                default: 443
+                description: Port specifies the port number for communication
+                format: int32
+                type: integer
+              secretName:
+                description: SecretName is the name of the secret containing credentials
+                type: string
+              secretNamespace:
+                description: SecretNamespace is the namespace of the secret containing
+                  credentials
+                type: string
+            required:
+            - ipAddr
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources: {}

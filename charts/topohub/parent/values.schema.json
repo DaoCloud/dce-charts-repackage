@@ -1,0 +1,437 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Generated schema for Topohub",
+  "type": "object",
+  "properties": {
+    "topohub": {
+      "title": "The Topohub Schema",
+      "type": "object",
+      "properties": {
+        "replicaCount": {
+          "title": "Replica Count",
+          "type": "number",
+          "default": 1,
+          "description": "Replica count of Topohub, suggested to be 2 for production deployment"
+        },
+        "registryOverride": {
+          "title": "global image Registry",
+          "type": "string",
+          "default": "ghcr.m.daocloud.io",
+          "examples": [
+              "ghcr.m.daocloud.io"
+          ]
+        },
+        "image": {
+          "title": "topohub image setting",
+          "description": "topohub is a deployment with antiaffinity running on each node",
+          "type": "object",
+          "properties": {
+            "repository": {
+              "title": "tophub image Repository",
+              "default": "infrustructure-io/topohub",
+              "type": "string"
+            }
+          },
+          "required": [
+            "repository"
+          ]
+        },
+        "defaultConfig": {
+          "title": "Topohub Default Config",
+          "type": "object",
+          "properties": {
+            "redfish": {
+              "title": "Redfish Default Connection Config",
+              "type": "object",
+              "properties": {
+                "username": {
+                  "title": "Redfish Default Connection Username",
+                  "type": "string"
+                },
+                "password": {
+                  "title": "Redfish Default Connection Password",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "username",
+                "password"
+              ]
+            },
+            "dhcpServer": {
+              "title": "DHCP Server Default Config",
+              "type": "object",
+              "properties": {
+                "interface": {
+                  "title": "The Node's Interface where the DHCP Server runs",
+                  "description": "this interface should be connected to the switch with trunking all vlan",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "interface"
+              ]
+            },
+            "httpServer": {
+              "title": "HTTP Server Default Config",
+              "description": "this http server is used to expose the IOS for PXE boot",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "title": "Enable HTTP Server",
+                  "type": "boolean"
+                },
+                "port": {
+                  "title": "HTTP Server Port",
+                  "description": "Topohub runs with hostnetwork mode, So this port should not be occupied by other services on the node",
+                  "default": 80,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "enabled",
+                "port"
+              ]
+            }
+          },
+          "required": [
+            "redfish",
+            "dhcpServer",
+            "httpServer"
+          ]
+        },
+        "storage": {
+          "title": "Storage For Topohub",
+          "description": "This fits for production usage. It stores files for dhcp server, PXE IOS",
+          "type": "object",
+          "properties": {
+            "type": {
+              "title": "Storage Type",
+              "enum": [
+                "hostPath",
+                "pvc"
+              ],
+              "default": "pvc",
+              "type": "string"
+            },
+            "pvc": {
+              "type": "PVC settings",
+              "properties": {
+                "storageClass": {
+                  "title": "Storage Class",
+                  "default": "",
+                  "type": "string"
+                },
+                "size": {
+                  "title": "PVC Storage Size",
+                  "default": "10Gi",
+                  "description": "It should be big enough for storing PXE IOS",
+                  "type": "string"
+                },
+                "accessModes": {
+                  "title": "PVC Storage Access Modes",
+                  "default":  "ReadWriteOnce",
+                  "type": "string",
+                  "enum": [
+                    "ReadWriteOnce",
+                    "ReadWriteMany"
+                  ]
+                }
+              },
+              "required": [
+                "storageClass",
+                "size",
+                "accessModes"
+              ]
+            },
+            "hostPath": {
+              "title": "HostPath Storage",
+              "description": "This just fits for POC usage. It store files for dhcp server, PXE IOS",
+              "type": "object",
+              "properties": {
+                "path": {
+                  "title": "HostPath Storage Path",
+                  "description": "It should be big enough for storing PXE IOS",
+                  "default": "/var/lib/topohub",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path"
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ]
+        },
+        "logLevel": {
+          "title": "Topohub Log Level",
+          "default": "info",
+          "type": "string",
+          "enum": [
+            "debug",
+            "info",
+            "error"
+          ]
+        },
+        "metricsPort": {
+          "title": "Topohub Metrics Port",
+          "description": "Topohub runs with hostnetwork mode, So this port should not be occupied by other services on the node",
+          "default": 8083,
+          "type": "number"
+        },
+        "healthProbePort": {
+          "title": "Topohub Health Probe Port",
+          "description": "Topohub runs with hostnetwork mode, So this port should not be occupied by other services on the node",
+          "default": 8081,
+          "type": "number"
+        },
+        "webhook": {
+          "type": "object",
+          "properties": {
+            "webhookPort": {
+              "type": "number"
+            },
+            "timeoutSeconds": {
+              "type": "number"
+            },
+            "failurePolicy": {
+              "type": "string"
+            },
+            "certificate": {
+              "type": "object",
+              "properties": {
+                "validityDays": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "validityDays"
+              ]
+            }
+          },
+          "required": [
+            "webhookPort",
+            "timeoutSeconds",
+            "failurePolicy",
+            "certificate"
+          ]
+        },
+        "serviceAccount": {
+          "type": "object",
+          "properties": {
+            "create": {
+              "type": "boolean"
+            },
+            "name": {
+              "type": "string"
+            },
+            "annotations": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          "required": [
+            "create",
+            "name",
+            "annotations"
+          ]
+        },
+        "podAnnotations": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "podSecurityContext": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "securityContext": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "nodeSelector": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "nodeAffinity": {
+          "type": "object",
+          "properties": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "type": "object",
+              "properties": {
+                "nodeSelectorTerms": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "matchExpressions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "type": "string"
+                            },
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "boolean"
+                              }
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "operator",
+                            "values"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "matchExpressions"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "nodeSelectorTerms"
+              ]
+            }
+          },
+          "required": [
+            "requiredDuringSchedulingIgnoredDuringExecution"
+          ]
+        },
+        "tolerations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "operator": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "operator"
+            ]
+          }
+        },
+        "httpServer": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "image": {
+              "type": "object",
+              "properties": {
+                "registry": {
+                  "type": "string"
+                },
+                "repository": {
+                  "type": "string"
+                },
+                "pullPolicy": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "string"
+                },
+                "digest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "registry",
+                "repository",
+                "pullPolicy",
+                "tag",
+                "digest"
+              ]
+            },
+            "port": {
+              "type": "number"
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ]
+                },
+                "requests": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ]
+                }
+              },
+              "required": [
+                "limits",
+                "requests"
+              ]
+            }
+          },
+          "required": [
+            "enabled",
+            "image",
+            "port",
+            "resources"
+          ]
+        }
+      },
+      "required": [
+        "replicaCount",
+        "registryOverride",
+        "imagePullSecrets",
+        "nameOverride",
+        "fullnameOverride",
+        "image",
+        "resources",
+        "defaultConfig",
+        "storage",
+        "logLevel",
+        "metricsPort",
+        "healthProbePort",
+        "webhook",
+        "serviceAccount",
+        "podAnnotations",
+        "podSecurityContext",
+        "securityContext",
+        "nodeSelector",
+        "nodeAffinity",
+        "tolerations",
+        "httpServer"
+      ]
+    }
+  }
+}
