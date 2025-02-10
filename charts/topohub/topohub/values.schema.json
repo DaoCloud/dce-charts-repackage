@@ -1,0 +1,320 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Generated schema for Topohub",
+  "type": "object",
+  "properties": {
+    "topohub": {
+      "title": "The Topohub Schema",
+      "type": "object",
+      "properties": {
+        "replicaCount": {
+          "title": "Replica Count",
+          "type": "number",
+          "default": 1,
+          "description": "Replica count of Topohub, suggested to be 2 for production deployment"
+        },
+        "image": {
+          "title": "topohub image setting",
+          "description": "topohub is a deployment with antiaffinity running on each node",
+          "type": "object",
+          "properties": {
+            "registry": {
+              "title": "tophub image Registry",
+              "default": "ghcr.m.daocloud.io",
+              "type": "string"
+            },
+            "repository": {
+              "title": "tophub image Repository",
+              "default": "infrustructure-io/topohub",
+              "type": "string"
+            }
+          },
+          "required": [
+            "registry",
+            "repository"
+          ]
+        },
+        "defaultConfig": {
+          "title": "Topohub Default Config",
+          "type": "object",
+          "properties": {
+            "redfish": {
+              "title": "Redfish Default Connection Config",
+              "type": "object",
+              "properties": {
+                "username": {
+                  "title": "Redfish Default Connection Username",
+                  "type": "string"
+                },
+                "password": {
+                  "title": "Redfish Default Connection Password",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "username",
+                "password"
+              ]
+            },
+            "dhcpServer": {
+              "title": "DHCP Server Default Config",
+              "type": "object",
+              "properties": {
+                "interface": {
+                  "title": "The Node's Interface where the DHCP Server runs",
+                  "description": "this interface should be connected to the switch with trunking all vlan",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "interface"
+              ]
+            },
+            "httpServer": {
+              "title": "HTTP Server Default Config",
+              "description": "this http server is used to expose the IOS for PXE boot",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "title": "Enable HTTP Server",
+                  "type": "boolean"
+                },
+                "port": {
+                  "title": "HTTP Server Port",
+                  "description": "Topohub runs with hostnetwork mode, So this port should not be occupied by other services on the node",
+                  "default": 80,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "enabled",
+                "port"
+              ]
+            }
+          },
+          "required": [
+            "redfish",
+            "dhcpServer",
+            "httpServer"
+          ]
+        },
+        "storage": {
+          "title": "Storage For Topohub",
+          "description": "This fits for production usage. It stores files for dhcp server, PXE IOS",
+          "type": "object",
+          "properties": {
+            "type": {
+              "title": "Storage Type",
+              "enum": [
+                "hostPath",
+                "pvc"
+              ],
+              "default": "pvc",
+              "type": "string"
+            },
+            "pvc": {
+              "title": "PVC Storage",
+              "type": "object",
+              "properties": {
+                "storageClass": {
+                  "title": "Storage Class",
+                  "default": "",
+                  "type": "string"
+                },
+                "size": {
+                  "title": "PVC Storage Size",
+                  "default": "10Gi",
+                  "description": "It should be big enough for storing PXE IOS",
+                  "type": "string"
+                },
+                "accessModes": {
+                  "title": "PVC Storage Access Modes",
+                  "type": "array",
+                  "default": [
+                    "ReadWriteOnce"
+                  ],
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "ReadWriteOnce",
+                      "ReadWriteMany"
+                    ]
+                  }
+                }
+              }
+            },
+            "hostPath": {
+              "title": "HostPath Storage",
+              "description": "This just fits for POC usage. It store files for dhcp server, PXE IOS",
+              "type": "object",
+              "properties": {
+                "path": {
+                  "title": "HostPath Storage Path",
+                  "description": "It should be big enough for storing PXE IOS",
+                  "default": "/var/lib/topohub",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "type"
+          ]
+        },
+        "logLevel": {
+          "title": "Topohub Log Level",
+          "default": "info",
+          "type": "string",
+          "enum": [
+            "debug",
+            "info",
+            "error"
+          ]
+        },
+        "metricsPort": {
+          "title": "Topohub Metrics Port",
+          "description": "Topohub runs in hostnetwork mode, So this port should not be occupied by other services on the node",
+          "default": 8083,
+          "type": "number"
+        },
+        "healthProbePort": {
+          "title": "Topohub Health Probe Port",
+          "description": "Topohub runs in hostnetwork mode, So this port should not be occupied by other services on the node",
+          "default": 8081,
+          "type": "number"
+        },
+        "webhook": {
+          "type": "object",
+          "properties": {
+            "webhookPort": {
+              "title": "Topohub Webhook Port",
+              "default": 8082,
+              "description": "Topohub runs in hostnetwork mode, So this port should not be occupied by other services on the node",
+              "type": "number"
+            }
+          },
+          "required": [
+            "webhookPort"
+          ]
+        },
+        "nodeAffinity": {
+          "title": "Node Affinity For Topohub",
+          "type": "object",
+          "properties": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "type": "object",
+              "properties": {
+                "nodeSelectorTerms": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "matchExpressions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "default": "infrastructure.io/deploy",
+                              "type": "string"
+                            },
+                            "operator": {
+                              "default": "In",
+                              "enum": [
+                                "In",
+                                "NotIn",
+                                "Exists",
+                                "DoesNotExist"
+                              ],
+                              "type": "string"
+                            },
+                            "values": {
+                              "type": "array",
+                              "default": ["true"],
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "operator",
+                            "values"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "matchExpressions"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "nodeSelectorTerms"
+              ]
+            }
+          },
+          "required": [
+            "requiredDuringSchedulingIgnoredDuringExecution"
+          ]
+        },
+        "fileBrowser": {
+          "title": "File Browser Config",
+          "description": "This service provides a web UI for browsing files for managing the files such as ISO",
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "title": "Enable File Browser",
+              "default": true,
+              "type": "boolean"
+            },
+            "image": {
+              "title": "File Browser image setting",
+              "type": "object",
+              "properties": {
+                "registry": {
+                  "title": "File Browser image Registry",
+                  "default": "docker.m.daocloud.io",
+                  "type": "string"
+                },
+                "repository": {
+                  "title": "File Browser image Repository",
+                  "default": "filebrowser/filebrowser",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "registry",
+                "repository"
+              ]
+            },
+            "port": {
+              "title": "File Browser Port",
+              "description": "Topohub runs in hostnetwork mode, So this port should not be occupied by other services on the node",
+              "default": 80,
+              "type": "number"
+            }
+          },
+          "required": [
+            "enabled",
+            "image",
+            "port"
+          ]
+        }
+      },
+      "required": [
+        "replicaCount",
+        "image",
+        "defaultConfig",
+        "storage",
+        "logLevel",
+        "metricsPort",
+        "healthProbePort",
+        "webhook",
+        "nodeAffinity",
+        "fileBrowser"
+      ]
+    }
+  }
+}
