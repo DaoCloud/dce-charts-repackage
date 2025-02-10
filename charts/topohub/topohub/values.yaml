@@ -10,7 +10,7 @@ topohub:
     repository: "infrastructure-io/topohub"
     pullPolicy: IfNotPresent
     # tag will be overridden by version from Chart.yaml
-    tag: "v0.2.1"
+    tag: "v0.2.2"
     # Optional: image digest
     digest: ""
   resources:
@@ -85,8 +85,6 @@ topohub:
     name: ""
     annotations: {}
   podAnnotations: {}
-  podSecurityContext: {}
-  securityContext: {}
   nodeSelector: {}
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:

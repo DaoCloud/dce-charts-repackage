@@ -33,5 +33,6 @@ if (($?==0)) ; then
 else
   echo "error, faild to deploy $CHART_DIR"
     kubectl --kubeconfig ${KIND_KUBECONFIG} get pod -o wide -A
+    kubectl logs -n topohub deployment/topohub --kubeconfig ${KIND_KUBECONFIG} || true
   exit 1
 fi

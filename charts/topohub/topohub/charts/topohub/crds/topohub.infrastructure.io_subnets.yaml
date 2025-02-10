@@ -18,9 +18,6 @@ spec:
     - jsonPath: .spec.ipv4Subnet.subnet
       name: SUBNET
       type: string
-    - jsonPath: .spec.feature.enableSyncEndpoint.defaultClusterName
-      name: CLUSTER
-      type: string
     - jsonPath: .status.dhcpStatus.dhcpIpTotalAmount
       name: IP_TOTAL
       type: integer
@@ -30,6 +27,15 @@ spec:
     - jsonPath: .status.dhcpStatus.dhcpIpReservedAmount
       name: IP_RESERVED
       type: integer
+    - jsonPath: .spec.feature.enableSyncEndpoint.enable
+      name: SYNC_ENDPOINT
+      type: boolean
+    - jsonPath: .spec.feature.enableSyncEndpoint.defaultClusterName
+      name: CLUSTER
+      type: string
+    - jsonPath: .spec.feature.enableBindDhcpIP
+      name: BIND_DHCP_IP
+      type: boolean
     - jsonPath: .spec.feature.enablePxe
       name: PXE
       type: boolean
