@@ -112,7 +112,7 @@ nodeAffinity:
       - key: infrastructure.io/deploy
         operator: In
         values:
-        - true
+        - "true"
 
 ## @skip spiderpoolAgent.tolerations
 tolerations:

@@ -10,7 +10,7 @@ topohub:
     repository: "infrastructure-io/topohub"
     pullPolicy: IfNotPresent
     # tag will be overridden by version from Chart.yaml
-    tag: "v0.2.0"
+    tag: "v0.2.1"
     # Optional: image digest
     digest: ""
   resources:
@@ -95,7 +95,7 @@ topohub:
             - key: infrastructure.io/deploy
               operator: In
               values:
-                - true
+                - "true"
   ## @skip spiderpoolAgent.tolerations
   tolerations:
     - operator: Exists
