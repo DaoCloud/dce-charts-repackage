@@ -129,18 +129,19 @@
                 },
                 "accessModes": {
                   "title": "PVC Storage Access Modes",
-                  "default":  "ReadWriteOnce",
-                  "type": "string",
-                  "enum": [
-                    "ReadWriteOnce",
-                    "ReadWriteMany"
-                  ]
+                  "type": "array",
+                  "default": [
+                    "ReadWriteOnce"
+                  ],
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "ReadWriteOnce",
+                      "ReadWriteMany"
+                    ]
+                  }
                 }
-              },
-              "required": [
-                "size",
-                "accessModes"
-              ]
+              }
             },
             "hostPath": {
               "title": "HostPath Storage",
@@ -153,10 +154,7 @@
                   "default": "/var/lib/topohub",
                   "type": "string"
                 }
-              },
-              "required": [
-                "path"
-              ]
+              }
             }
           },
           "required": [
