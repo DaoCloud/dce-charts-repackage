@@ -83,16 +83,16 @@ return the image
 {{/*
 return the image
 */}}
-{{- define "httpServer.image" -}}
-{{- $registryName := .Values.httpServer.image.registry -}}
+{{- define "fileBrowser.image" -}}
+{{- $registryName := .Values.fileBrowser.image.registry -}}
 {{- if .Values.registryOverride }}
 {{- $registryName = .Values.registryOverride }}
 {{- end }}
-{{- $repositoryName := .Values.httpServer.image.repository -}}
+{{- $repositoryName := .Values.fileBrowser.image.repository -}}
 {{- printf "%s/%s" $registryName $repositoryName -}}
-{{- if .Values.httpServer.image.digest }}
-    {{- print "@" .Values.httpServer.image.digest -}}
-{{- else if .Values.httpServer.image.tag -}}
-    {{- printf ":%s" (toString .Values.httpServer.image.tag) -}}
+{{- if .Values.fileBrowser.image.digest }}
+    {{- print "@" .Values.fileBrowser.image.digest -}}
+{{- else if .Values.fileBrowser.image.tag -}}
+    {{- printf ":%s" (toString .Values.fileBrowser.image.tag) -}}
 {{- end -}}
 {{- end -}}

@@ -1,10 +1,9 @@
-replicaCount: 2
-
-# Log level configuration
-# Available values: debug, info, error
-logLevel: "info"
+replicaCount: 1
 
 registryOverride: ""
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
 
 image:
   registry: "ghcr.io"
@@ -23,8 +22,6 @@ resources:
     cpu: 100m
     memory: 128Mi
 
-securityContext: {}
-
 defaultConfig:
   redfish:
     # Port for the endpoint (default: 443)
@@ -38,8 +35,8 @@ defaultConfig:
     hostStatusUpdateInterval: 60
 
   dhcpServer:
-    # 宿主机网卡名，最好是 trunck 模式接入网络，从而接入到各种子网中
-    interface: "eth0"  
+    # 宿主机网卡名，最好是 trunk 模式接入网络，从而接入到各种子网中
+    interface: ""
 
   # for iso and ztp in dchp subnet
   httpServer:
@@ -57,8 +54,8 @@ storage:
   pvc:
     # Storage class for new PVC
     storageClass: ""
-    # Storage size for new PVC
-    size: "100M"
+    # Storage size for new PVC, it is used to store config files and ISO files
+    size: "10Gi"
     # Access modes for PVC
     accessModes:
       - ReadWriteOnce
@@ -69,8 +66,12 @@ storage:
     # Path on the host
     path: "/var/lib/topohub"
 
+# Log level configuration
+# Available values: debug, info, error
+logLevel: "info"
+
 # Port for metrics server
-metricsPort: 8080
+metricsPort: 8083
 
 # Health probe port
 healthProbePort: 8081
@@ -88,10 +89,6 @@ webhook:
     # Validity duration in days
     validityDays: 36500
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -108,25 +105,21 @@ securityContext: {}
 
 nodeSelector: {}
 
-tolerations: []
-
-nodeAffinity: {}
-  # requiredDuringSchedulingIgnoredDuringExecution:
-  #   nodeSelectorTerms:
-  #   - matchExpressions:
-  #     - key: kubernetes.io/os
-  #       operator: In
-  #       values:
-  #       - linux
-
+nodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+    - matchExpressions:
+      - key: infrastructure.io/deploy
+        operator: In
+        values:
+        - true
 
 ## @skip spiderpoolAgent.tolerations
 tolerations:
   - operator: Exists
 
-
 ## this is used to manage the files for the administrator
-httpServer:
+fileBrowser:
   enabled: false
   
   image:
@@ -138,7 +131,7 @@ httpServer:
     # Optional: image digest
     digest: ""
 
-  port: 10080
+  port: 8080
 
   resources:
     limits:
@@ -147,4 +140,3 @@ httpServer:
     requests:
       cpu: 100m
       memory: 128Mi
-

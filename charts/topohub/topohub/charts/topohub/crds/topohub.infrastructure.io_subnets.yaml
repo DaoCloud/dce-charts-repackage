@@ -65,7 +65,7 @@ spec:
                 description: Feature configuration
                 properties:
                   enableBindDhcpIP:
-                    default: false
+                    default: true
                     description: Enable Automatically bind DHCP Client IP in the dhcp
                       server config
                     type: boolean
@@ -80,7 +80,7 @@ spec:
                         description: Default cluster name
                         type: string
                       dhcpClient:
-                        default: true
+                        default: false
                         description: Enable automatically create the hoststatus object
                           for the dhcp client. Notice, it will not be deleted automatically
                         type: boolean

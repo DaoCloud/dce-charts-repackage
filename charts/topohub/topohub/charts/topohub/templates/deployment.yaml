@@ -97,18 +97,18 @@ spec:
           periodSeconds: 10
         resources:
           {{- toYaml .Values.resources | nindent 12 }}
-      {{- if .Values.httpServer.enabled }}
+      {{- if .Values.fileBrowser.enabled }}
       - name: http-server
-        image:  {{ include "httpServer.image" . | quote }}
-        imagePullPolicy: {{ .Values.httpServer.image.pullPolicy }}
+        image:  {{ include "fileBrowser.image" . | quote }}
+        imagePullPolicy: {{ .Values.fileBrowser.image.pullPolicy }}
         command: ["/filebrowser"]
         args:
-        - --port={{ .Values.httpServer.port }}
+        - --port={{ .Values.fileBrowser.port }}
         - --root=/var/lib/topohub
         - --database=/var/lib/topohub/filebrowser/filebrowser.db
         ports:
         - name: http
-          containerPort: {{ .Values.httpServer.port }}
+          containerPort: {{ .Values.fileBrowser.port }}
           protocol: TCP
         volumeMounts:
         - name: storage-data
@@ -116,17 +116,17 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: {{ .Values.httpServer.port }}
+            port: {{ .Values.fileBrowser.port }}
           initialDelaySeconds: 15
           periodSeconds: 20
         readinessProbe:
           httpGet:
             path: /
-            port: {{ .Values.httpServer.port }}
+            port: {{ .Values.fileBrowser.port }}
           initialDelaySeconds: 5
           periodSeconds: 10
         resources:
-          {{- toYaml .Values.httpServer.resources | nindent 12 }}
+          {{- toYaml .Values.fileBrowser.resources | nindent 12 }}
       {{- end }}
       volumes:
       - name: webhook-certs
