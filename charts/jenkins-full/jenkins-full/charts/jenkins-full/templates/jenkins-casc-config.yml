@@ -30,31 +30,31 @@ data:
                 idleMinutes: 0
                 serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
-                  - name: "base"
-                    image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Base "root" . "os" "ubuntu") -}}"
-                    command: "cat"
-                    args: ""
-                    ttyEnabled: true
-                    privileged: {{ template "jenkins.agent.privileged" . }}
-                    resourceRequestCpu: "100m"
-                    resourceLimitCpu: "4000m"
-                    resourceRequestMemory: "100Mi"
-                    resourceLimitMemory: "8192Mi"
-                  - name: "jnlp"
-                    image: "{{ template "jenkins-agent.jnlp.image" . }}"
-                    args: "^${computer.jnlpmac} ^${computer.name}"
-                    resourceRequestCpu: "50m"
-                    resourceLimitCpu: "500m"
-                    resourceRequestMemory: "400Mi"
-                    resourceLimitMemory: "1536Mi"
-                    command: "/usr/local/bin/jenkins-agent"
+                - name: "base"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Base "root" . "os" "ubuntu") -}}"
+                  command: "cat"
+                  args: ""
+                  ttyEnabled: true
+                  privileged: {{ template "jenkins.agent.privileged" . }}
+                  resourceRequestCpu: "100m"
+                  resourceLimitCpu: "4000m"
+                  resourceRequestMemory: "100Mi"
+                  resourceLimitMemory: "8192Mi"
+                - name: "jnlp"
+                  image: "{{ template "jenkins-agent.jnlp.image" . }}"
+                  args: "^${computer.jnlpmac} ^${computer.name}"
+                  resourceRequestCpu: "50m"
+                  resourceLimitCpu: "500m"
+                  resourceRequestMemory: "400Mi"
+                  resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
                 workspaceVolume:
                   emptyDirWorkspaceVolume:
                     memory: false
                 volumes:
-                  - hostPathVolume:
-                      hostPath: "/var/data/jenkins_sonar_cache"
-                      mountPath: "/root/.sonar/cache"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_sonar_cache"
+                    mountPath: "/root/.sonar/cache"
                 {{- include "jenkins-agent.volume" . | indent 16 }}
                 yaml: |
                   spec:
@@ -91,37 +91,37 @@ data:
                 idleMinutes: 0
                 serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
-                  - name: "nodejs"
-                    image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.NodeJs "root" . "os" "ubuntu") -}}"
-                    command: "cat"
-                    args: ""
-                    ttyEnabled: true
-                    privileged: {{ template "jenkins.agent.privileged" . }}
-                    resourceRequestCpu: "100m"
-                    resourceLimitCpu: "4000m"
-                    resourceRequestMemory: "100Mi"
-                    resourceLimitMemory: "8192Mi"
-                  - name: "jnlp"
-                    image: "{{ template "jenkins-agent.jnlp.image" . }}"
-                    args: "^${computer.jnlpmac} ^${computer.name}"
-                    resourceRequestCpu: "50m"
-                    resourceLimitCpu: "500m"
-                    resourceRequestMemory: "400Mi"
-                    resourceLimitMemory: "1536Mi"
-                    command: "/usr/local/bin/jenkins-agent"
+                - name: "nodejs"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.NodeJs "root" . "os" "ubuntu") -}}"
+                  command: "cat"
+                  args: ""
+                  ttyEnabled: true
+                  privileged: {{ template "jenkins.agent.privileged" . }}
+                  resourceRequestCpu: "100m"
+                  resourceLimitCpu: "4000m"
+                  resourceRequestMemory: "100Mi"
+                  resourceLimitMemory: "8192Mi"
+                - name: "jnlp"
+                  image: "{{ template "jenkins-agent.jnlp.image" . }}"
+                  args: "^${computer.jnlpmac} ^${computer.name}"
+                  resourceRequestCpu: "50m"
+                  resourceLimitCpu: "500m"
+                  resourceRequestMemory: "400Mi"
+                  resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
                 workspaceVolume:
                   emptyDirWorkspaceVolume:
                     memory: false
                 volumes:
-                  - hostPathVolume:
-                      hostPath: "/var/data/jenkins_nodejs_yarn_cache"
-                      mountPath: "/root/.yarn"
-                  - hostPathVolume:
-                      hostPath: "/var/data/jenkins_nodejs_npm_cache"
-                      mountPath: "/root/.npm"
-                  - hostPathVolume:
-                      hostPath: "/var/data/jenkins_sonar_cache"
-                      mountPath: "/root/.sonar/cache"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_nodejs_yarn_cache"
+                    mountPath: "/root/.yarn"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_nodejs_npm_cache"
+                    mountPath: "/root/.npm"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_sonar_cache"
+                    mountPath: "/root/.sonar/cache"
                 {{- include "jenkins-agent.volume" . | indent 16 }}
                 yaml: |
                   spec:
@@ -151,6 +151,8 @@ data:
                           ephemeral-storage: "10Gi"
                     securityContext:
                       fsGroup: 1000
+              {{- $nodejsParams := dict "language" "nodejs" "builder" .Values.Agent.Builder.NodeJs "root" . "os" "ubuntu"}}
+              {{ include "language.images" $nodejsParams | nindent 14 }}
               - name: "maven"
                 namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
                 label: "maven"
@@ -158,34 +160,34 @@ data:
                 idleMinutes: 0
                 serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
-                  - name: "maven"
-                    image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Maven "root" . "os" "ubuntu") -}}"
-                    command: "cat"
-                    args: ""
-                    ttyEnabled: true
-                    privileged: {{ template "jenkins.agent.privileged" . }}
-                    resourceRequestCpu: "100m"
-                    resourceLimitCpu: "4000m"
-                    resourceRequestMemory: "100Mi"
-                    resourceLimitMemory: "8192Mi"
-                  - name: "jnlp"
-                    image: "{{ template "jenkins-agent.jnlp.image" . }}"
-                    args: "^${computer.jnlpmac} ^${computer.name}"
-                    resourceRequestCpu: "50m"
-                    resourceLimitCpu: "500m"
-                    resourceRequestMemory: "400Mi"
-                    resourceLimitMemory: "1536Mi"
-                    command: "/usr/local/bin/jenkins-agent"
+                - name: "maven"
+                  image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Maven "root" . "os" "ubuntu") -}}"
+                  command: "cat"
+                  args: ""
+                  ttyEnabled: true
+                  privileged: {{ template "jenkins.agent.privileged" . }}
+                  resourceRequestCpu: "100m"
+                  resourceLimitCpu: "4000m"
+                  resourceRequestMemory: "100Mi"
+                  resourceLimitMemory: "8192Mi"
+                - name: "jnlp"
+                  image: "{{ template "jenkins-agent.jnlp.image" . }}"
+                  args: "^${computer.jnlpmac} ^${computer.name}"
+                  resourceRequestCpu: "50m"
+                  resourceLimitCpu: "500m"
+                  resourceRequestMemory: "400Mi"
+                  resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
                 workspaceVolume:
                   emptyDirWorkspaceVolume:
                     memory: false
                 volumes:
-                  - hostPathVolume:
-                      hostPath: "/var/data/jenkins_maven_cache"
-                      mountPath: "/root/.m2"
-                  - hostPathVolume:
-                      hostPath: "/var/data/jenkins_sonar_cache"
-                      mountPath: "/root/.sonar/cache"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_maven_cache"
+                    mountPath: "/root/.m2"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_sonar_cache"
+                    mountPath: "/root/.sonar/cache"
                 {{- include "jenkins-agent.volume" . | indent 16 }}
                 yaml: |
                   spec:
@@ -226,6 +228,8 @@ data:
                             path: settings.xml
                     securityContext:
                       fsGroup: 1000
+              {{- $mavenParams := dict "language" "maven" "builder" .Values.Agent.Builder.Maven "root" . "os" "ubuntu" }}
+              {{ include "language.images" $mavenParams | nindent 14 }}
               - name: "go"
                 namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
                 label: "go"
@@ -233,34 +237,34 @@ data:
                 idleMinutes: 0
                 serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
-                  - name: "go"
-                    image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Golang "root" . "os" "ubuntu") -}}"
-                    command: "cat"
-                    args: ""
-                    ttyEnabled: true
-                    privileged: {{ template "jenkins.agent.privileged" . }}
-                    resourceRequestCpu: "100m"
-                    resourceLimitCpu: "4000m"
-                    resourceRequestMemory: "100Mi"
-                    resourceLimitMemory: "8192Mi"
-                  - name: "jnlp"
-                    image: "{{ template "jenkins-agent.jnlp.image" . }}"
-                    args: "^${computer.jnlpmac} ^${computer.name}"
-                    resourceRequestCpu: "50m"
-                    resourceLimitCpu: "500m"
-                    resourceRequestMemory: "400Mi"
-                    resourceLimitMemory: "1536Mi"
-                    command: "/usr/local/bin/jenkins-agent"
+                - name: "go"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Golang "root" . "os" "ubuntu") -}}"
+                  command: "cat"
+                  args: ""
+                  ttyEnabled: true
+                  privileged: {{ template "jenkins.agent.privileged" . }}
+                  resourceRequestCpu: "100m"
+                  resourceLimitCpu: "4000m"
+                  resourceRequestMemory: "100Mi"
+                  resourceLimitMemory: "8192Mi"
+                - name: "jnlp"
+                  image: "{{ template "jenkins-agent.jnlp.image" . }}"
+                  args: "^${computer.jnlpmac} ^${computer.name}"
+                  resourceRequestCpu: "50m"
+                  resourceLimitCpu: "500m"
+                  resourceRequestMemory: "400Mi"
+                  resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
                 workspaceVolume:
                   emptyDirWorkspaceVolume:
                     memory: false
                 volumes:
-                  - hostPathVolume:
-                      hostPath: "/var/data/jenkins_go_cache"
-                      mountPath: "/home/jenkins/go/pkg"
-                  - hostPathVolume:
-                      hostPath: "/var/data/jenkins_sonar_cache"
-                      mountPath: "/root/.sonar/cache"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_go_cache"
+                    mountPath: "/home/jenkins/go/pkg"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_sonar_cache"
+                    mountPath: "/root/.sonar/cache"
                 {{- include "jenkins-agent.volume" . | indent 16 }}
                 yaml: |
                   spec:
@@ -290,6 +294,8 @@ data:
                           ephemeral-storage: "10Gi"
                     securityContext:
                       fsGroup: 1000
+              {{- $goParams := dict "language" "go" "builder" .Values.Agent.Builder.Golang "root" . "os" "ubuntu" }}
+              {{ include "language.images" $goParams | nindent 14 }}
               - name: "python"
                 namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
                 label: "python"
@@ -297,37 +303,37 @@ data:
                 idleMinutes: 0
                 serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
-                  - name: "python"
-                    image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Python "root" . "os" "ubuntu") -}}"
-                    command: "cat"
-                    args: ""
-                    ttyEnabled: true
-                    privileged: {{ template "jenkins.agent.privileged" . }}
-                    resourceRequestCpu: "100m"
-                    resourceLimitCpu: "4000m"
-                    resourceRequestMemory: "100Mi"
-                    resourceLimitMemory: "8192Mi"
-                  - name: "jnlp"
-                    image: "{{ template "jenkins-agent.jnlp.image" . }}"
-                    args: "^${computer.jnlpmac} ^${computer.name}"
-                    resourceRequestCpu: "50m"
-                    resourceLimitCpu: "500m"
-                    resourceRequestMemory: "400Mi"
-                    resourceLimitMemory: "1536Mi"
-                    command: "/usr/local/bin/jenkins-agent"
+                - name: "python"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Python "root" . "os" "ubuntu") -}}"
+                  command: "cat"
+                  args: ""
+                  ttyEnabled: true
+                  privileged: {{ template "jenkins.agent.privileged" . }}
+                  resourceRequestCpu: "100m"
+                  resourceLimitCpu: "4000m"
+                  resourceRequestMemory: "100Mi"
+                  resourceLimitMemory: "8192Mi"
+                - name: "jnlp"
+                  image: "{{ template "jenkins-agent.jnlp.image" . }}"
+                  args: "^${computer.jnlpmac} ^${computer.name}"
+                  resourceRequestCpu: "50m"
+                  resourceLimitCpu: "500m"
+                  resourceRequestMemory: "400Mi"
+                  resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
                 workspaceVolume:
                   emptyDirWorkspaceVolume:
                     memory: false
                 volumes:
-                  - hostPathVolume:
-                      hostPath: "/var/data/jenkins_python_pip_cache"
-                      mountPath: "/root/.cache/pip"
-                  - hostPathVolume:
-                      hostPath: "/var/data/jenkins_python_pipenv_cache"
-                      mountPath: "/root/.local/share/virtualenvs"
-                  - hostPathVolume:
-                      hostPath: "/var/data/jenkins_sonar_cache"
-                      mountPath: "/root/.sonar/cache"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_python_pip_cache"
+                    mountPath: "/root/.cache/pip"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_python_pipenv_cache"
+                    mountPath: "/root/.local/share/virtualenvs"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_sonar_cache"
+                    mountPath: "/root/.sonar/cache"
                 {{- include "jenkins-agent.volume" . | indent 16 }}
                 yaml: |
                   spec:
@@ -357,6 +363,8 @@ data:
                           ephemeral-storage: "10Gi"
                     securityContext:
                       fsGroup: 1000
+              {{- $pythonParams := dict "language" "python" "builder" .Values.Agent.Builder.Python "root" . "os" "ubuntu" }}
+              {{ include "language.images" $pythonParams | nindent 14 }}
       securityRealm:
       authorizationStrategy: loggedInUsersCanDoAnything
 
@@ -365,7 +373,7 @@ data:
         url: {{ include "location.url" . }}
       gitLabServers:
         servers:
-          - name: "https://gitlab.com"
-            serverUrl: "https://gitlab.com"
+        - name: "https://gitlab.com"
+          serverUrl: "https://gitlab.com"
       eventDispatcher:
         receiver: {{ include "jenkins.event.receiver" . | quote }}
