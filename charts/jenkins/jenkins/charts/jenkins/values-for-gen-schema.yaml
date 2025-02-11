@@ -1,5 +1,5 @@
 image:
-  registry: 
+  registry:
 Master:
   AdminUser: admin
   AdminPassword: ""
@@ -11,8 +11,11 @@ Master:
       cpu: "2"
       memory: "4096Mi"
   JavaOpts: |-
-    -XX:MaxRAMPercentage=70.0 
-    -XX:MaxRAM=2g
+    -XX:+PrintFlagsFinal 
+    -XX:MaxRAMPercentage=70.0
+    -XX:MinHeapFreeRatio=8 -XX:MaxHeapFreeRatio=15
+    -XX:MinRAMPercentage=20.0 -XX:-UseAdaptiveSizePolicy
+    -XX:-ShrinkHeapInSteps
     -Dhudson.slaves.NodeProvisioner.initialDelay=20
     -Dhudson.slaves.NodeProvisioner.MARGIN=50
     -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85
@@ -22,11 +25,9 @@ Master:
     -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true
     -Dio.jenkins.plugins.casc.ConfigurationAsCode.initialDelay=10000
     -Djenkins.install.runSetupWizard=false
-    -XX:+UseG1GC
-    -XX:+UseStringDeduplication
-    -XX:+ParallelRefProcEnabled
-    -XX:+DisableExplicitGC
-    -XX:+UnlockDiagnosticVMOptions
+    -XX:+UseConcMarkSweepGC
+    -XX:+UseStringDeduplication -XX:+ParallelRefProcEnabled
+    -XX:+DisableExplicitGC -XX:+UnlockDiagnosticVMOptions
     -XX:+UnlockExperimentalVMOptions
     -javaagent:/otel-auto-instrumentation/javaagent.jar
   ServicePort: 80
@@ -39,10 +40,6 @@ Master:
 
 eventProxy:
   enabled: true
-  image:
-    repository: amamba/amamba-event-proxy
-    tag: "v0.15.0-alpha.0"
-  imagePullPolicy: IfNotPresent
   configMap:
     eventProxy:
       host: "amamba-devops-server.amamba-system:80"
