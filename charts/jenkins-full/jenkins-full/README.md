@@ -1,6 +1,7 @@
-# Jenkins-minimal Helm Chart
+# Jenkins Helm Chart
 
-Jenkins master and slave cluster utilizing the Jenkins Kubernetes plugin.
+Jenkins master and slave cluster utilizing the Jenkins Kubernetes plugin
+
 
 * https://wiki.jenkins-ci.org/display/JENKINS/Kubernetes+Plugin
 
@@ -12,7 +13,7 @@ This chart will do the following:
 
 * 1 x Jenkins Master with port 8080 exposed on an external LoadBalancer
 * All using Kubernetes Deployments
-* Just contains base agent image
+* Contains Full Agents Image, such as 'nodejs', 'golang', 'maven', 'python'
 
 ## Installing the Chart
 

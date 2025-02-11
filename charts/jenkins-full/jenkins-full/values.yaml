@@ -1,5 +1,5 @@
 # child values
-jenkins:
+jenkins-full:
   image:
     registry: docker.m.daocloud.io
   nameOverride: "jenkins"
@@ -110,8 +110,6 @@ jenkins:
       - name: EMAIL_FROM_PASS
         value: "P@ssw0rd"
     InitScripts:
-      #    TimeZone:
-      #      System.setProperty('org.apache.commons.jelly.tags.fmt.timeZone', 'Asia/Shanghai')
       Mailer: |-
         import jenkins.model.*
 
@@ -131,6 +129,9 @@ jenkins:
         mailer.setUseSsl(env.EMAIL_USE_SSL.toBoolean())
         mailer.setSmtpPort(env.EMAIL_SMTP_PORT)
         mailer.save()
+      #    TimeZone:
+      #      System.setProperty('org.apache.commons.jelly.tags.fmt.timeZone', 'Asia/Shanghai')
+
       K8sCredentials: |-
         import com.cloudbees.plugins.credentials.CredentialsScope
         import com.cloudbees.plugins.credentials.SystemCredentialsProvider
@@ -334,18 +335,33 @@ jenkins:
         ImageTag: v0.4.9
       NodeJs:
         Image: amambadev/jenkins-agent-nodejs
-        ImageTag: v0.4.9-16.20.2-ubuntu
+        ImageTag: v0.4.9-16.20.2
         # Versions for auto generator Jenkins CASC Config and relock_k8s images.
         # must build image first.
+        Versions:
+          - v0.4.9-18.20.4
+          - v0.4.9-20.17.0
       Maven:
         Image: amambadev/jenkins-agent-maven
-        ImageTag: v0.4.9-jdk8-ubuntu
+        ImageTag: v0.4.9-jdk8
+        Versions:
+          - v0.4.9-jdk11
+          - v0.4.9-jdk17
+          - v0.4.9-jdk21
       Golang:
         Image: amambadev/jenkins-agent-go
-        ImageTag: v0.4.9-1.22.6-ubuntu
+        ImageTag: v0.4.9-1.22.6
+        Versions:
+          - v0.4.9-1.17.13
+          - v0.4.9-1.18.10
+          - v0.4.9-1.20.14
       Python:
         Image: amambadev/jenkins-agent-python
-        ImageTag: v0.4.9-3.8.19-ubuntu
+        ImageTag: v0.4.9-3.8.19
+        Versions:
+          - v0.4.9-2.7.9
+          - v0.4.9-3.10.9
+          - v0.4.9-3.11.9
       ContainerRuntime: podman # Available values: docker, podman
   Persistence:
     Enabled: true

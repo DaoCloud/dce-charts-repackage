@@ -1,0 +1,15 @@
+apiVersion: v1
+data:
+  registries.conf: |
+    # https://github.com/containers/podman/blob/main/troubleshooting.md#solution-2
+    # Add insecure registries below, one [[registry]] section per registry
+    #[[registry]]
+    #location = "10.6.182.195:5000"
+    #insecure = true
+    
+kind: ConfigMap
+metadata:
+  # don't change the name
+  name: insecure-registries
+  namespace: {{ include "jenkins.namespace" . }}
+
