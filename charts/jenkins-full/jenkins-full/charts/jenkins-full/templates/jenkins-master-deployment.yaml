@@ -1,0 +1,320 @@
+{{- if not .Values.Master.StatefulSet.Enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "jenkins.fullname" . }}
+  labels:
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
+    chart: "{{ .Chart.Name }}-{{ include "charts.version" . }}"
+    component: "{{ .Release.Name }}-{{ .Values.Master.Name }}"
+spec:
+  replicas: 1
+  strategy:
+    type: {{ if .Values.Persistence.Enabled }}Recreate{{ else }}RollingUpdate{{ end }}
+  selector:
+    matchLabels:
+      component: "{{ .Release.Name }}-{{ .Values.Master.Component }}"
+  template:
+    metadata:
+      labels:
+        app: {{ template "jenkins.fullname" . }}
+        heritage: {{ .Release.Service | quote }}
+        release: {{ .Release.Name | quote }}
+        chart: "{{ .Chart.Name }}-{{ include "charts.version" . }}"
+        component: "{{ .Release.Name }}-{{ .Values.Master.Component }}"
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+        {{- if .Values.Master.PodAnnotations }}
+{{ toYaml .Values.Master.PodAnnotations | indent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.Master.NodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.Master.NodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.Master.Tolerations }}
+      tolerations:
+{{ toYaml .Values.Master.Tolerations | indent 8 }}
+      {{- end }}
+      {{- if .Values.Master.Affinity }}
+      affinity:
+{{ toYaml .Values.Master.Affinity | indent 8 }}
+      {{- end }}
+{{- if .Values.Master.UsePodSecurityContext }}
+      securityContext:
+        runAsUser: {{ default 0 .Values.Master.RunAsUser }}
+{{- if and (.Values.Master.RunAsUser) (.Values.Master.FsGroup) }}
+{{- if not (eq .Values.Master.RunAsUser 0.0) }}
+        fsGroup: {{ .Values.Master.FsGroup }}
+{{- end }}
+{{- end }}
+{{- end }}
+      serviceAccountName: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
+{{- if .Values.Master.HostNetworking }}
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+{{- end }}
+      initContainers:
+        - name: "copy-default-config"
+          image: {{ include "jenkins.images.image" (dict "imageRoot" .Values.Master "global" .Values.global "root" .Values.image ) }}
+          imagePullPolicy: {{ template "jenkins.image.pullPolicy" . }}
+          command: [ "sh", "/var/jenkins_config/apply_config.sh" ]
+          env:
+          {{- if .Values.Master.UseSecurity }}
+          - name: ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "jenkins.fullname" . }}
+                key: jenkins-admin-password
+          - name: ADMIN_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "jenkins.fullname" . }}
+                key: jenkins-admin-user
+          {{- end }}
+          {{- if .Values.Master.InitContainerEnv }}
+{{ toYaml .Values.Master.InitContainerEnv | indent 12 }}
+          {{- end }}
+          resources:
+{{ toYaml .Values.Master.resources | indent 12 }}
+          volumeMounts:
+            - mountPath: /var/jenkins_home
+              name: jenkins-home
+            - mountPath: /var/jenkins_config
+              name: jenkins-config
+            {{- if .Values.Master.CredentialsXmlSecret }}
+            - mountPath: /var/jenkins_credentials
+              name: jenkins-credentials
+              readOnly: true
+            {{- end }}
+            {{- if .Values.Master.SecretsFilesSecret }}
+            - mountPath: /var/jenkins_secrets
+              name: jenkins-secrets
+              readOnly: true
+            {{- end }}
+            {{- if .Values.Master.Jobs }}
+            - mountPath: /var/jenkins_jobs
+              name: jenkins-jobs
+              readOnly: true
+            {{- end }}
+            - mountPath: /usr/share/jenkins/ref/secrets/
+              name: secrets-dir
+        {{- if .Values.trace.enabled }}
+        - name: opentelemetry-auto-instrumentation
+          image: "{{ include "common.images.image" (dict "imageRoot" .Values.trace.image "global" .Values.global ) -}}"
+          command:
+            - sh
+            - '-c'
+            - cp /javaagent.jar /otel-auto-instrumentation/javaagent.jar
+          volumeMounts:
+            - name: opentelemetry-auto-instrumentation
+              mountPath: /otel-auto-instrumentation
+        {{- end }}
+      containers:
+        - name: {{ template "jenkins.fullname" . }}
+          image: "{{ include "jenkins.images.image" (dict "imageRoot" .Values.Master "global" .Values.global "root" .Values.image ) }}"
+          imagePullPolicy: {{ template "jenkins.image.pullPolicy" . }}
+          {{- if .Values.Master.UseSecurity }}
+          args: [ "--argumentsRealm.passwd.$(ADMIN_USER)=$(ADMIN_PASSWORD)",  "--argumentsRealm.roles.$(ADMIN_USER)=admin"]
+          {{- end }}
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: 'http://insight-agent-opentelemetry-collector.insight-system.svc.cluster.local:4317'
+            - name: 'OTEL_SERVICE_NAME'
+              value: amamba-jenkins
+            - name: 'OTEL_K8S_NAMESPACE'
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_RESOURCE_ATTRIBUTES_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_RESOURCE_ATTRIBUTES_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: 'k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_RESOURCE_ATTRIBUTES_NODE_NAME),k8s.pod.name=$(OTEL_RESOURCE_ATTRIBUTES_POD_NAME)'
+            - name: OTEL_JAVAAGENT_DEBUG
+              value: "false"
+            - name: OTEL_INSTRUMENTATION_JDBC_ENABLED
+              value: "true"
+            - name: SPLUNK_PROFILER_ENABLED
+              value: "false"
+            - name: OTEL_TRACES_SAMPLER
+              value: always_on
+            - name: TZ
+              value: "{{ default "Asia/Shanghai" .Values.Master.TZ | replace "\n" " "}}"
+            - name: JAVA_TOOL_OPTIONS
+              value: {{ template "jenkins.master.javaOpts" . }}
+            - name: JENKINS_OPTS
+              value: "{{ if .Values.Master.JenkinsUriPrefix }}--prefix={{ .Values.Master.JenkinsUriPrefix }} {{ end }}{{ default "" .Values.Master.JenkinsOpts}}"
+            {{- if .Values.Master.UseSecurity }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "jenkins.fullname" . }}
+                  key: jenkins-admin-password
+            - name: ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "jenkins.fullname" . }}
+                  key: jenkins-admin-user
+            {{- end }}
+            {{- if .Values.Master.ContainerEnv }}
+{{ toYaml .Values.Master.ContainerEnv | indent 12 }}
+            {{- end }}
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: {{ .Values.Master.SlaveListenerPort }}
+              name: slavelistener
+            {{- if .Values.Master.JMXPort }}
+            - containerPort: {{ .Values.Master.JMXPort }}
+              name: jmx
+            {{- end }}
+{{- if .Values.Master.HealthProbes }}
+          livenessProbe:
+            httpGet:
+              path: "{{ default "" .Values.Master.JenkinsUriPrefix }}/login"
+              port: http
+            initialDelaySeconds: {{ .Values.Master.livenessProbe.initialDelaySeconds }}
+            timeoutSeconds:  {{ .Values.Master.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.Master.livenessProbe.failureThreshold }}
+            successThreshold: {{ .Values.Master.livenessProbe.successThreshold }}
+            periodSeconds:  {{ .Values.Master.livenessProbe.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: "{{ default "" .Values.Master.JenkinsUriPrefix }}/login"
+              port: http
+            initialDelaySeconds: {{ .Values.Master.readinessProbe.initialDelaySeconds }}
+            timeoutSeconds:  {{ .Values.Master.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.Master.readinessProbe.failureThreshold }}
+            successThreshold: {{ .Values.Master.readinessProbe.successThreshold }}
+            periodSeconds:  {{ .Values.Master.readinessProbe.periodSeconds }}
+{{- end }}
+          # Resources configuration is a little hacky. This was to prevent breaking
+          # changes, and should be cleanned up in the future once everybody had
+          # enough time to migrate.
+          resources:
+{{ toYaml .Values.Master.resources | indent 12 }}
+          volumeMounts:
+{{- if .Values.Persistence.mounts }}
+{{ toYaml .Values.Persistence.mounts | indent 12 }}
+{{- end }}
+            {{- if .Values.trace.enabled }}
+            - name: opentelemetry-auto-instrumentation
+              mountPath: /otel-auto-instrumentation
+            {{- end }}
+            - mountPath: /var/jenkins_home
+              name: jenkins-home
+              readOnly: false
+            - mountPath: /var/jenkins_config
+              name: jenkins-config
+              readOnly: true
+            {{- if .Values.Master.CredentialsXmlSecret }}
+            - mountPath: /var/jenkins_credentials
+              name: jenkins-credentials
+              readOnly: true
+            {{- end }}
+            {{- if .Values.Master.SecretsFilesSecret }}
+            - mountPath: /var/jenkins_secrets
+              name: jenkins-secrets
+              readOnly: true
+            {{- end }}
+            {{- if .Values.Master.Jobs }}
+            - mountPath: /var/jenkins_jobs
+              name: jenkins-jobs
+              readOnly: true
+            {{- end }}
+            - mountPath: /usr/share/jenkins/ref/secrets/
+              name: secrets-dir
+              readOnly: false
+        {{- if .Values.eventProxy.enabled }}
+        - name: event-proxy
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.eventProxy.image "global" .Values.global ) }}
+          imagePullPolicy: {{ template "jenkins.event-proxy.pullPolicy" . }}
+          command:
+            - /bin/event-proxy
+            - --bind-address=0.0.0.0
+            - --insecure-port=9090
+          ports:
+            - containerPort: 9090
+              name: http
+          env:
+            {{- include "jenkins.event-proxy.tokenEnv" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.eventProxy.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /etc/amamba
+              name: event-proxy-config
+            - mountPath: /var/amamba/event-proxy
+              name: jenkins-home
+              readOnly: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 9090
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9090
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            periodSeconds: 3
+      {{- end }}
+      volumes:
+      {{- if .Values.trace.enabled }}
+      - name: opentelemetry-auto-instrumentation
+        emptyDir: {}
+      {{- end }}
+      {{- if .Values.eventProxy.enabled }}
+      - name: event-proxy-config
+        configMap:
+          name: event-proxy-config
+      {{- end }}
+{{- if .Values.Persistence.volumes }}
+{{ toYaml .Values.Persistence.volumes | indent 6 }}
+{{- end }}
+      - name: jenkins-config
+        configMap:
+          name: {{ template "jenkins.fullname" . }}
+      {{- if .Values.Master.CredentialsXmlSecret }}
+      - name: jenkins-credentials
+        secret:
+          secretName: {{ .Values.Master.CredentialsXmlSecret }}
+      {{- end }}
+      {{- if .Values.Master.SecretsFilesSecret }}
+      - name: jenkins-secrets
+        secret:
+          secretName: {{ .Values.Master.SecretsFilesSecret }}
+      {{- end }}
+      {{- if .Values.Master.Jobs }}
+      - name: jenkins-jobs
+        configMap:
+          name: {{ template "jenkins.fullname" . }}-jobs
+      {{- end }}
+      - name: secrets-dir
+        emptyDir: {}
+      - name: jenkins-home
+      {{- if .Values.Persistence.Enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.Persistence.ExistingClaim | default (include "jenkins.fullname" .) }}
+      {{- else }}
+        emptyDir: {}
+      {{- end -}}
+{{- if .Values.Master.ImagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.Master.ImagePullSecret }}
+{{- end -}}
+{{- end -}}
