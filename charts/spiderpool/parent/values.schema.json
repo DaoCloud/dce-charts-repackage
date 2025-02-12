@@ -57,6 +57,24 @@
                                     ]
                                 }
                             }
+                        },
+                        "prometheus": {
+                            "title": "Spiderpool Agent Prometheus Setting",
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "title": "Enable Prometheus",
+                                    "description": "Enable Prometheus for spiderpool agent",
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "enableRdmaMetric": {
+                                    "title": "Enable RDMA Metric",
+                                    "description": "Enable RDMA Metric for spiderpool agent, required to enable Prometheus",
+                                    "type": "boolean",
+                                    "default": false
+                                }
+                            }
                         }
                     }
                 },
