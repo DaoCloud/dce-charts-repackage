@@ -14,6 +14,9 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+echo "upgrade jenkins from " ${PREV_VERSION} "->" ${VERSION}
+os=$(uname)
+
 if ! which yq &>/dev/null ; then
     echo " 'yq' no found"
     if [ "$(uname)" == "Darwin" ];then
@@ -33,5 +36,12 @@ yq -i '
   .jenkins-full.trace.enabled = true |
   .jenkins-full.eventProxy.image.registry = "release.daocloud.io"
 ' values.yaml
+
+# update relok8s.yaml
+if [ $os == "Darwin" ];then
+  sed -i "" "s/${PREV_VERSION}/${VERSION}/g" .relok8s-images.yaml
+else
+  sed -i "s/${PREV_VERSION}/${VERSION}/g" .relok8s-images.yaml
+fi
 
 exit $?

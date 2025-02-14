@@ -5,6 +5,9 @@ export USE_OPENSOURCE_CHART=false
 export REPO_URL=https://amamba-io.github.io/charts
 export REPO_NAME=amamba
 export CHART_NAME=jenkins
+
+# Notice: update relok8s file when upgrade, avoid hardcode version
+export PREV_VERSION=0.4.8
 export VERSION=0.4.10
 
 # pr, issue, none
