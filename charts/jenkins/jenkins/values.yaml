@@ -1,7 +1,7 @@
 # child values
 jenkins:
   image:
-    registry: docker.m.daocloud.io
+    registry: ghcr.m.daocloud.io
   nameOverride: "jenkins"
   fullnameOverride: ""
   pullPolicy: IfNotPresent
@@ -20,8 +20,8 @@ jenkins:
       # Name of the Kubernetes scheduler to use
       SchedulerName: ""
     Name: jenkins-master
-    Image: "amambadev/jenkins"
-    ImageTag: "v0.4.9-2.413"
+    Image: "amamba-io/jenkins"
+    ImageTag: "v0.4.10-2.413"
     ImagePullPolicy: "IfNotPresent"
     ImagePullSecret: ""
     Component: "jenkins-master"
@@ -293,7 +293,7 @@ jenkins:
         additionalLabels: {}
   Agent:
     Enabled: true
-    Image: "jenkins/inbound-agent"
+    Image: "amamba-io/inbound-agent"
     ImageTag: 4.10-2
     CustomJenkinsLabels: []
     Component: "jenkins-inbound-agent"
@@ -330,22 +330,22 @@ jenkins:
     relok8sPlaceholder: ""
     Builder:
       Base:
-        Image: amambadev/jenkins-agent-base
-        ImageTag: v0.4.9
+        Image: amamba-io/jenkins-agent-base
+        ImageTag: v0.4.10
       NodeJs:
-        Image: amambadev/jenkins-agent-nodejs
-        ImageTag: v0.4.9-16.20.2-ubuntu
+        Image: amamba-io/jenkins-agent-nodejs
+        ImageTag: v0.4.10-16.20.2
         # Versions for auto generator Jenkins CASC Config and relock_k8s images.
         # must build image first.
       Maven:
-        Image: amambadev/jenkins-agent-maven
-        ImageTag: v0.4.9-jdk8-ubuntu
+        Image: amamba-io/jenkins-agent-maven
+        ImageTag: v0.4.10-jdk8
       Golang:
-        Image: amambadev/jenkins-agent-go
-        ImageTag: v0.4.9-1.22.6-ubuntu
+        Image: amamba-io/jenkins-agent-go
+        ImageTag: v0.4.10-1.22.6
       Python:
-        Image: amambadev/jenkins-agent-python
-        ImageTag: v0.4.9-3.8.19-ubuntu
+        Image: amamba-io/jenkins-agent-python
+        ImageTag: v0.4.10-3.8.19
       ContainerRuntime: podman # Available values: docker, podman
   Persistence:
     Enabled: true
