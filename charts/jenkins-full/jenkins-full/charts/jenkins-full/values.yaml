@@ -1,5 +1,5 @@
 image:
-  registry: docker.io
+  registry: ghcr.io
 nameOverride: "jenkins"
 fullnameOverride: ""
 pullPolicy: IfNotPresent
@@ -19,8 +19,8 @@ Master:
     # Name of the Kubernetes scheduler to use
     SchedulerName: ""
   Name: jenkins-master
-  Image: "amambadev/jenkins"
-  ImageTag: "v0.4.9-2.413"
+  Image: "amamba-io/jenkins"
+  ImageTag: "v0.4.10-2.413"
   ImagePullPolicy: "IfNotPresent"
   ImagePullSecret: ""
   Component: "jenkins-master"
@@ -322,7 +322,7 @@ Master:
 
 Agent:
   Enabled: true
-  Image: "jenkins/inbound-agent"
+  Image: "amamba-io/inbound-agent"
   ImageTag: 4.10-2
   CustomJenkinsLabels: []
   Component: "jenkins-inbound-agent"
@@ -359,37 +359,37 @@ Agent:
   relok8sPlaceholder: ""
   Builder:
     Base:
-      Image: amambadev/jenkins-agent-base
-      ImageTag: v0.4.9
+      Image: amamba-io/jenkins-agent-base
+      ImageTag: v0.4.10
     NodeJs:
-      Image: amambadev/jenkins-agent-nodejs
-      ImageTag: v0.4.9-16.20.2
+      Image: amamba-io/jenkins-agent-nodejs
+      ImageTag: v0.4.10-16.20.2
       # Versions for auto generator Jenkins CASC Config and relock_k8s images.
       # must build image first.
       Versions:
-        - v0.4.9-18.20.4
-        - v0.4.9-20.17.0
+        - v0.4.10-18.20.4
+        - v0.4.10-20.17.0
     Maven:
-      Image: amambadev/jenkins-agent-maven
-      ImageTag: v0.4.9-jdk8
+      Image: amamba-io/jenkins-agent-maven
+      ImageTag: v0.4.10-jdk8
       Versions:
-        - v0.4.9-jdk11
-        - v0.4.9-jdk17
-        - v0.4.9-jdk21
+        - v0.4.10-jdk11
+        - v0.4.10-jdk17
+        - v0.4.10-jdk21
     Golang:
-      Image: amambadev/jenkins-agent-go
-      ImageTag: v0.4.9-1.22.6
+      Image: amamba-io/jenkins-agent-go
+      ImageTag: v0.4.10-1.22.6
       Versions:
-        - v0.4.9-1.17.13
-        - v0.4.9-1.18.10
-        - v0.4.9-1.20.14
+        - v0.4.10-1.17.13
+        - v0.4.10-1.18.10
+        - v0.4.10-1.20.14
     Python:
-      Image: amambadev/jenkins-agent-python
-      ImageTag: v0.4.9-3.8.19
+      Image: amamba-io/jenkins-agent-python
+      ImageTag: v0.4.10-3.8.19
       Versions:
-        - v0.4.9-2.7.9
-        - v0.4.9-3.10.9
-        - v0.4.9-3.11.9
+        - v0.4.10-2.7.9
+        - v0.4.10-3.10.9
+        - v0.4.10-3.11.9
     ContainerRuntime: podman # Available values: docker, podman
 
 Persistence:
