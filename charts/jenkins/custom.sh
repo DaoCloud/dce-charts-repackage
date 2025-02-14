@@ -28,7 +28,7 @@ if ! which yq &>/dev/null ; then
 fi
 
 yq -i '
-  .jenkins.image.registry = "docker.m.daocloud.io" |
+  .jenkins.image.registry = "ghcr.m.daocloud.io" |
   .jenkins.trace.image.registry = "ghcr.m.daocloud.io" |
   .jenkins.trace.enabled = true |
   .jenkins.eventProxy.image.registry = "release.daocloud.io"
