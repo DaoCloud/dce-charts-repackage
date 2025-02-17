@@ -40,8 +40,10 @@ yq -i '
 # update relok8s.yaml
 if [ $os == "Darwin" ];then
   sed -i "" "s/${PREV_VERSION}/${VERSION}/g" .relok8s-images.yaml
+  sed -i "" "s/${PREV_VERSION}/${VERSION}/g" ./charts/jenkins-full/.relok8s-images.yaml
 else
   sed -i "s/${PREV_VERSION}/${VERSION}/g" .relok8s-images.yaml
+  sed -i "s/${PREV_VERSION}/${VERSION}/g" ./charts/jenkins-full/.relok8s-images.yaml
 fi
 
 exit $?
