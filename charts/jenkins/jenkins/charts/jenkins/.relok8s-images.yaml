@@ -2,7 +2,7 @@
 - "{{ .image.registry }}/{{ .Agent.Image }}:{{ .Agent.ImageTag }}"
 - "{{ .image.registry }}/{{ .Agent.Builder.Base.Image }}:{{ .Agent.Builder.Base.ImageTag }}-ubuntu-podman"
 - "{{ .image.registry }}/{{ .Agent.Builder.NodeJs.Image }}:{{ .Agent.Builder.NodeJs.ImageTag }}-ubuntu-podman"
-- "{{ .image.registry }}/{{ .Agent.Builder.Maven.Image }}:{{ .Agent.relok8sPlaceholder }}v0.4.12-jdk8-ubuntu-podman"
+- "{{ .image.registry }}/{{ .Agent.Builder.Maven.Image }}:{{ .Agent.relok8sPlaceholder }}v0.5.0-jdk8-ubuntu-podman"
 - "{{ .image.registry }}/{{ .Agent.Builder.Golang.Image }}:{{ .Agent.Builder.Golang.ImageTag }}-ubuntu-podman"
 - "{{ .image.registry }}/{{ .Agent.Builder.Python.Image }}:{{ .Agent.Builder.Python.ImageTag }}-ubuntu-podman"
 - "{{ .trace.image.registry }}/{{ .trace.image.repository }}:{{ .trace.image.tag }}"
