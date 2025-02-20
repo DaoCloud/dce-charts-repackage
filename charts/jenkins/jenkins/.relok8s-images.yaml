@@ -2,7 +2,7 @@
 - "{{ .jenkins.image.registry }}/{{ .jenkins.Agent.Image }}:{{ .jenkins.Agent.ImageTag }}"
 - "{{ .jenkins.image.registry }}/{{ .jenkins.Agent.Builder.Base.Image }}:{{ .jenkins.Agent.Builder.Base.ImageTag }}-ubuntu-podman"
 - "{{ .jenkins.image.registry }}/{{ .jenkins.Agent.Builder.NodeJs.Image }}:{{ .jenkins.Agent.Builder.NodeJs.ImageTag }}-ubuntu-podman"
-- "{{ .jenkins.image.registry }}/{{ .jenkins.Agent.Builder.Maven.Image }}:{{ .jenkins.Agent.relok8sPlaceholder }}v0.4.12-jdk8-ubuntu-podman"
+- "{{ .jenkins.image.registry }}/{{ .jenkins.Agent.Builder.Maven.Image }}:{{ .jenkins.Agent.relok8sPlaceholder }}v0.5.0-jdk8-ubuntu-podman"
 - "{{ .jenkins.image.registry }}/{{ .jenkins.Agent.Builder.Golang.Image }}:{{ .jenkins.Agent.Builder.Golang.ImageTag }}-ubuntu-podman"
 - "{{ .jenkins.image.registry }}/{{ .jenkins.Agent.Builder.Python.Image }}:{{ .jenkins.Agent.Builder.Python.ImageTag }}-ubuntu-podman"
 - "{{ .jenkins.trace.image.registry }}/{{ .jenkins.trace.image.repository }}:{{ .jenkins.trace.image.tag }}"
