@@ -17,7 +17,12 @@ init:
   resources:
     requests:
       cpu: 50m
-  containerSecurityContext: {}
+  containerSecurityContext:
+    runAsUser: 1000
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    capabilities:
+      drop: ["ALL"]
 # Tolerations for pod scheduling
 tolerations: []
 monitoring:
@@ -99,8 +104,8 @@ ingress:
   # secretName:
   # smartcardSecretName:
   # enabled: true
-  annotations:
-    nginx.ingress.kubernetes.io/service-upstream: "true"
+  serviceUpstream: true
+  annotations: {}
   configureCertmanager:
   # Use this in combination of .deployments below
   requireBasePath: true
@@ -116,8 +121,8 @@ extraIngress:
   # secretName:
   # smartcardSecretName:
   # enabled: true
-  annotations:
-    nginx.ingress.kubernetes.io/service-upstream: "true"
+  serviceUpstream: true
+  annotations: {}
   configureCertmanager:
   # Use this in combination of .deployments below
   requireBasePath: true
@@ -189,7 +194,12 @@ workhorse:
     requests:
       cpu: 100m
       memory: 100M
-  containerSecurityContext: {}
+  containerSecurityContext:
+    runAsUser: 1000
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    capabilities:
+      drop: ["ALL"]
   # shutdownTimeout:
   # image: registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ee
   startupProbe: {}
@@ -433,14 +443,22 @@ securityContext:
   runAsUser: 1000
   fsGroup: 1000
   # fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: "RuntimeDefault"
 ## Allow to overwrite the specific security context under which the container is running.
 containerSecurityContext:
   runAsUser: 1000
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  capabilities:
+    drop: ["ALL"]
 ## Enable deployment to use a serviceAccount
 serviceAccount:
   enabled: false
   create: false
   annotations: {}
+  ## Used for local override of global ServiceAccount token mounting
+  # automountServiceAccountToken: false
   ## Name to be used for serviceAccount, otherwise defaults to chart fullname
   # name:
 ## Allow configuring pods' priorityClassName. This is used to control pod priority in case of eviction:
@@ -465,3 +483,12 @@ deployments: {}
 affinity:
   podAntiAffinity:
     topologyKey:
+## Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in.
+## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+topologySpreadConstraints: []
+# - labelSelector:
+#     matchLabels:
+#       app: name
+#     maxSkew: 1
+#     topologyKey: topology.kubernetes.io/zone
+#     whenUnsatisfiable: DoNotSchedule
