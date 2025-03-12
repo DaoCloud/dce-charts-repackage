@@ -93,6 +93,8 @@ spec:
                   fieldPath: spec.nodeName
             - name: ENV_SERVICE_NAME
               value: {{ include "project.name" . | trunc 63 | trimSuffix "-" | quote }}
+            - name: ENV_SSH_PORT
+              value: {{ .Values.ssh_port | quote }} 
             - name: ENV_POD_NAMESPACE
               valueFrom:
                 fieldRef:
