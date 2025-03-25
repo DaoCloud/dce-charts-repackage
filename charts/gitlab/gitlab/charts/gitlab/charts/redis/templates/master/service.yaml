@@ -1,3 +1,8 @@
+{{- /*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{- if not .Values.sentinel.enabled }}
 apiVersion: v1
 kind: Service
@@ -30,7 +35,7 @@ spec:
   loadBalancerIP: {{ .Values.master.service.loadBalancerIP }}
   {{- end }}
   {{- if and (eq .Values.master.service.type "LoadBalancer") (not (empty .Values.master.service.loadBalancerSourceRanges)) }}
-  loadBalancerSourceRanges: {{ .Values.master.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges: {{ toYaml .Values.master.service.loadBalancerSourceRanges | nindent 4 }}
   {{- end }}
   {{- if and .Values.master.service.clusterIP (eq .Values.master.service.type "ClusterIP") }}
   clusterIP: {{ .Values.master.service.clusterIP }}
@@ -40,6 +45,9 @@ spec:
   {{- end }}
   {{- if .Values.master.service.sessionAffinityConfig }}
   sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.master.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if .Values.master.service.externalIPs }}
+  externalIPs: {{- include "common.tplvalues.render" (dict "value" .Values.master.service.externalIPs "context" $) | nindent 4 }}
   {{- end }}
   ports:
     - name: tcp-redis

@@ -1,3 +1,8 @@
+{{- /*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{- if or (not (eq .Values.architecture "replication")) (not .Values.sentinel.enabled) }}
 apiVersion: {{ include "common.capabilities.statefulset.apiVersion" . }}
 kind: {{ .Values.master.kind }}
@@ -26,6 +31,9 @@ spec:
   {{- else }}
   updateStrategy: {{- toYaml .Values.master.updateStrategy | nindent 4 }}
   {{- end }}
+  {{- if and .Values.master.minReadySeconds (semverCompare ">= 1.23-0" (include "common.capabilities.kubeVersion" .)) }}
+  minReadySeconds: {{ .Values.master.minReadySeconds }}
+  {{- end }}
   {{- end }}
   template:
     metadata:
@@ -33,6 +41,9 @@ spec:
         app.kubernetes.io/component: master
         {{- if .Values.master.podLabels }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.master.podLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.commonLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 8 }}
         {{- end }}
         {{- if and .Values.metrics.enabled .Values.metrics.podLabels }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.metrics.podLabels "context" $ ) | nindent 8 }}
@@ -58,7 +69,8 @@ spec:
       {{- if .Values.master.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.master.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ template "redis.serviceAccountName" . }}
+      serviceAccountName: {{ template "redis.masterServiceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.master.serviceAccount.automountServiceAccountToken }}
       {{- if .Values.master.priorityClassName }}
       priorityClassName: {{ .Values.master.priorityClassName | quote }}
       {{- end }}
@@ -177,14 +189,16 @@ spec:
             - name: redis
               containerPort: {{ .Values.master.containerPorts.redis }}
           {{- if not .Values.diagnosticMode.enabled }}
-          {{- if .Values.master.startupProbe.enabled }}
+          {{- if .Values.master.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.master.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if .Values.master.startupProbe.enabled }}
           startupProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.master.startupProbe "enabled") "context" $) | nindent 12 }}
             tcpSocket:
               port: redis
-          {{- else if .Values.master.customStartupProbe }}
-          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.master.customStartupProbe "context" $) | nindent 12 }}
           {{- end }}
-          {{- if .Values.master.livenessProbe.enabled }}
+          {{- if .Values.master.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.master.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.master.livenessProbe.enabled }}
           livenessProbe:
             initialDelaySeconds: {{ .Values.master.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.master.livenessProbe.periodSeconds }}
@@ -197,10 +211,10 @@ spec:
                 - sh
                 - -c
                 - /health/ping_liveness_local.sh {{ .Values.master.livenessProbe.timeoutSeconds }}
-          {{- else if .Values.master.customLivenessProbe }}
-          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.master.customLivenessProbe "context" $) | nindent 12 }}
           {{- end }}
-          {{- if .Values.master.readinessProbe.enabled }}
+          {{- if .Values.master.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.master.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.master.readinessProbe.enabled }}
           readinessProbe:
             initialDelaySeconds: {{ .Values.master.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.master.readinessProbe.periodSeconds }}
@@ -212,8 +226,6 @@ spec:
                 - sh
                 - -c
                 - /health/ping_readiness_local.sh {{ .Values.master.readinessProbe.timeoutSeconds }}
-          {{- else if .Values.master.customReadinessProbe }}
-          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.master.customReadinessProbe "context" $) | nindent 12 }}
           {{- end }}
           {{- end }}
           {{- if .Values.master.resources }}
@@ -230,7 +242,11 @@ spec:
             {{- end }}
             - name: redis-data
               mountPath: {{ .Values.master.persistence.path }}
+              {{- if .Values.master.persistence.subPath }}
               subPath: {{ .Values.master.persistence.subPath }}
+              {{- else if .Values.master.persistence.subPathExpr }}
+              subPathExpr: {{ .Values.master.persistence.subPathExpr }}
+              {{- end }}
             - name: config
               mountPath: /opt/bitnami/redis/mounted-etc
             - name: redis-tmp-conf
@@ -254,6 +270,8 @@ spec:
           {{- end }}
           {{- if .Values.diagnosticMode.enabled }}
           command: {{- include "common.tplvalues.render" (dict "value" .Values.diagnosticMode.command "context" $) | nindent 12 }}
+          {{- else if .Values.metrics.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.metrics.command "context" $) | nindent 12 }}
           {{- else }}
           command:
             - /bin/bash
@@ -299,6 +317,30 @@ spec:
           ports:
             - name: metrics
               containerPort: 9121
+          {{- if not .Values.diagnosticMode.enabled }}
+          {{- if .Values.metrics.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.metrics.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if .Values.metrics.startupProbe.enabled }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.metrics.startupProbe "enabled") "context" $) | nindent 12 }}
+            tcpSocket:
+              port: metrics
+          {{- end }}
+          {{- if .Values.metrics.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.metrics.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.metrics.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.metrics.livenessProbe "enabled") "context" $) | nindent 12 }}
+            tcpSocket:
+              port: metrics
+          {{- end }}
+          {{- if .Values.metrics.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.metrics.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.metrics.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.metrics.readinessProbe "enabled") "context" $) | nindent 12 }}
+            httpGet:
+              path: /
+              port: metrics
+          {{- end }}
+          {{- end }}
           {{- if .Values.metrics.resources }}
           resources: {{- toYaml .Values.metrics.resources | nindent 12 }}
           {{- end }}
@@ -349,7 +391,11 @@ spec:
           volumeMounts:
             - name: redis-data
               mountPath: {{ .Values.master.persistence.path }}
+              {{- if .Values.master.persistence.subPath }}
               subPath: {{ .Values.master.persistence.subPath }}
+              {{- else if .Values.master.persistence.subPathExpr }}
+              subPathExpr: {{ .Values.master.persistence.subPathExpr }}
+              {{- end }}
         {{- end }}
         {{- if .Values.sysctl.enabled }}
         - name: init-sysctl
@@ -397,9 +443,11 @@ spec:
             path: /sys
         {{- end }}
         - name: redis-tmp-conf
-          {{- if .Values.master.persistence.medium }}
+          {{- if or .Values.master.persistence.medium .Values.master.persistence.sizeLimit }}
           emptyDir:
+            {{- if .Values.master.persistence.medium }}
             medium: {{ .Values.master.persistence.medium | quote }}
+            {{- end }}
             {{- if .Values.master.persistence.sizeLimit }}
             sizeLimit: {{ .Values.master.persistence.sizeLimit | quote }}
             {{- end }}
@@ -407,9 +455,11 @@ spec:
           emptyDir: {}
           {{- end }}
         - name: tmp
-          {{- if .Values.master.persistence.medium }}
+          {{- if or .Values.master.persistence.medium .Values.master.persistence.sizeLimit }}
           emptyDir:
+            {{- if .Values.master.persistence.medium }}
             medium: {{ .Values.master.persistence.medium | quote }}
+            {{- end }}
             {{- if .Values.master.persistence.sizeLimit }}
             sizeLimit: {{ .Values.master.persistence.sizeLimit | quote }}
             {{- end }}
@@ -430,10 +480,14 @@ spec:
         {{- end }}
   {{- if not .Values.master.persistence.enabled }}
         - name: redis-data
-          {{- if .Values.master.persistence.medium }}
-          emptyDir: {
+          {{- if or .Values.master.persistence.medium .Values.master.persistence.sizeLimit }}
+          emptyDir:
+            {{- if .Values.master.persistence.medium }}
             medium: {{ .Values.master.persistence.medium | quote }}
-          }
+            {{- end }}
+            {{- if .Values.master.persistence.sizeLimit }}
+            sizeLimit: {{ .Values.master.persistence.sizeLimit | quote }}
+            {{- end }}
           {{- else }}
           emptyDir: {}
           {{- end }}
@@ -447,10 +501,15 @@ spec:
             claimName: {{ printf "redis-data-%s-master" (include "common.names.fullname" .) }}
   {{- else }}
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: redis-data
         labels: {{- include "common.labels.matchLabels" . | nindent 10 }}
           app.kubernetes.io/component: master
+          {{- if .Values.master.persistence.labels }}
+          {{- toYaml .Values.master.persistence.labels | nindent 10 }}
+          {{- end }}
         {{- if .Values.master.persistence.annotations }}
         annotations: {{- toYaml .Values.master.persistence.annotations | nindent 10 }}
         {{- end }}
