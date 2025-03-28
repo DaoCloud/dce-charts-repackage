@@ -1,0 +1,68 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+	 "topohub": {
+	  "type": "object",
+	  "title": "Topohub Settings",
+	  "properties": {
+	   "defaultConfig": {
+	    "type": "object",
+	    "title": "Base Config",
+	    "properties": {
+	     "redfish": {
+		"type": "object",
+		"title": "BMC",
+		"description": "BMC is a component for managing and monitoring server hardware",
+		"properties": {
+		 "username": {
+		  "type": "string",
+		  "title": "Username"
+		 },
+		 "password": {
+		  "type": "string",
+		  "title": "Password"
+		 }
+		}
+	     },
+	     "dhcpServer": {
+		"type": "object",
+		"title": "DHCP Server",
+		"description": "DHCP server is a component for assigning IP addresses to network devices",
+		"required": [
+		 "interface"
+		],
+		"properties": {
+		 "interface": {
+		  "type": "string",
+		  "title": "Interface",
+		  "description": "Topohub component looking for the node's network interface to connect to the switch in trunk mode"
+		 }
+		}
+	     }
+	    }
+	   },
+	   "fileBrowser": {
+	    "type": "object",
+	    "title": "File Browser Configuration",
+	    "description": "File management application that allows users to upload ISO images through a web UI",
+	    "properties": {
+	     "enabled": {
+		"type": "boolean",
+		"default": true,
+		"title": "Enable File Browser"
+	     }
+	    }
+	   },
+	   "nodeName": {
+	    "type": "string",
+	    "title": "Topohub working node",
+	    "description": "Specify the node name where topohub will run. Only single-node deployment is supported."
+	   }
+	  },
+	  "required": [
+	   "nodeName"
+	  ]
+	 }
+	}
+}
