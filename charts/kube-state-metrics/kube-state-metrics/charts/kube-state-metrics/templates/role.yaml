@@ -51,6 +51,12 @@ rules:
   - endpoints
   verbs: ["list", "watch"]
 {{ end -}}
+{{ if has "endpointslices" $.Values.collectors }}
+- apiGroups: ["discovery.k8s.io"]
+  resources:
+  - endpointslices
+  verbs: ["list", "watch"]
+{{ end -}}
 {{ if has "horizontalpodautoscalers" $.Values.collectors }}
 - apiGroups: ["autoscaling"]
   resources:
@@ -97,6 +103,30 @@ rules:
 - apiGroups: ["networking.k8s.io"]
   resources:
   - networkpolicies
+  verbs: ["list", "watch"]
+{{ end -}}
+{{ if has "ingressclasses" $.Values.collectors }}
+- apiGroups: ["networking.k8s.io"]
+  resources:
+  - ingressclasses
+  verbs: ["list", "watch"]
+{{ end -}}
+{{ if has "clusterrolebindings" $.Values.collectors }}
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources:
+  - clusterrolebindings
+  verbs: ["list", "watch"]
+{{ end -}}
+{{ if has "clusterroles" $.Values.collectors }}
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources:
+  - clusterroles
+  verbs: ["list", "watch"]
+{{ end -}}
+{{ if has "roles" $.Values.collectors }}
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources:
+  - roles
   verbs: ["list", "watch"]
 {{ end -}}
 {{ if has "nodes" $.Values.collectors }}
@@ -183,12 +213,22 @@ rules:
     - volumeattachments
   verbs: ["list", "watch"]
 {{ end -}}
-{{ if has "verticalpodautoscalers" $.Values.collectors }}
-- apiGroups: ["autoscaling.k8s.io"]
+{{-  if $.Values.kubeRBACProxy.enabled  }}
+- apiGroups: ["authentication.k8s.io"]
   resources:
-    - verticalpodautoscalers
+    - tokenreviews
+  verbs: ["create"]
+- apiGroups: ["authorization.k8s.io"]
+  resources:
+    - subjectaccessreviews
+  verbs: ["create"]
+{{- end }}
+{{- if $.Values.customResourceState.enabled }}
+- apiGroups: ["apiextensions.k8s.io"]
+  resources:
+    - customresourcedefinitions
   verbs: ["list", "watch"]
-{{ end -}}
+{{- end }}
 {{ if $.Values.rbac.extraRules }}
 {{ toYaml $.Values.rbac.extraRules }}
 {{ end }}
