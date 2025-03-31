@@ -3,3 +3,5 @@ ingress-nginx:
   - "controller/resources/limits"
   - "controller/resources/limits/memory"
   - "controller/resources/limits/cpu"
+  - "controller/admissionWebhooks/patch/image/registry"
+  - "controller/image/registry"
