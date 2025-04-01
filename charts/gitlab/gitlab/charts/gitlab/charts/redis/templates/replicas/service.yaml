@@ -1,3 +1,8 @@
+{{- /*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{- if and (eq .Values.architecture "replication") (not .Values.sentinel.enabled) }}
 apiVersion: v1
 kind: Service
@@ -30,7 +35,7 @@ spec:
   loadBalancerIP: {{ .Values.replica.service.loadBalancerIP }}
   {{- end }}
   {{- if and (eq .Values.replica.service.type "LoadBalancer") (not (empty .Values.replica.service.loadBalancerSourceRanges)) }}
-  loadBalancerSourceRanges: {{ .Values.replica.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges: {{ toYaml .Values.replica.service.loadBalancerSourceRanges | nindent 4 }}
   {{- end }}
   {{- if and .Values.replica.service.clusterIP (eq .Values.replica.service.type "ClusterIP") }}
   clusterIP: {{ .Values.replica.service.clusterIP }}
