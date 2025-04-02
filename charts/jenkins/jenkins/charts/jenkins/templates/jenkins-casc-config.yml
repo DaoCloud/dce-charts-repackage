@@ -359,13 +359,8 @@ data:
                       fsGroup: 1000
       securityRealm:
       authorizationStrategy: loggedInUsersCanDoAnything
-
     unclassified:
       location:
         url: {{ include "location.url" . }}
-      gitLabServers:
-        servers:
-        - name: "https://gitlab.com"
-          serverUrl: "https://gitlab.com"
       eventDispatcher:
         receiver: {{ include "jenkins.event.receiver" . | quote }}
