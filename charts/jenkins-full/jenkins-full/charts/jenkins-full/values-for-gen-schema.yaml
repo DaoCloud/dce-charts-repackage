@@ -25,11 +25,12 @@ Master:
     -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true
     -Dio.jenkins.plugins.casc.ConfigurationAsCode.initialDelay=10000
     -Djenkins.install.runSetupWizard=false
-    -XX:+UseConcMarkSweepGC
     -XX:+UseStringDeduplication -XX:+ParallelRefProcEnabled
     -XX:+DisableExplicitGC -XX:+UnlockDiagnosticVMOptions
     -XX:+UnlockExperimentalVMOptions
     -javaagent:/otel-auto-instrumentation/javaagent.jar
+    -Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ALLOW_ADMIN_APPROVAL_ENABLED=true
+    -Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ADMIN_AUTO_APPROVAL_ENABLED=true
   ServicePort: 80
   ServiceType: ClusterIP
   NodePort: 31767
