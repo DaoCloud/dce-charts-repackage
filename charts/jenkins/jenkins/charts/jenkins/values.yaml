@@ -20,7 +20,7 @@ Master:
     SchedulerName: ""
   Name: jenkins-master
   Image: "amamba-io/jenkins"
-  ImageTag: "v0.5.0-2.413"
+  ImageTag: "v0.6.0-rc0-2.502"
   ImagePullPolicy: "IfNotPresent"
   ImagePullSecret: ""
   Component: "jenkins-master"
@@ -55,12 +55,13 @@ Master:
     -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true
     -Dio.jenkins.plugins.casc.ConfigurationAsCode.initialDelay=10000
     -Djenkins.install.runSetupWizard=false  
-    -XX:+UseConcMarkSweepGC
     -XX:+UseStringDeduplication
     -XX:+ParallelRefProcEnabled
     -XX:+DisableExplicitGC
     -XX:+UnlockDiagnosticVMOptions
     -XX:+UnlockExperimentalVMOptions
+    -Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ALLOW_ADMIN_APPROVAL_ENABLED=true
+    -Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ADMIN_AUTO_APPROVAL_ENABLED=true
   Deploy:
     NotWithApiServer: false
     # If the cluster where jenkins is deployed and amamba-apiserver are not in the same cluster, you need to fill in this item
@@ -208,7 +209,7 @@ Master:
       }
 
       // Make the method assignRole accessible
-      Method assignRoleMethod = RoleBasedAuthorizationStrategy.class.getDeclaredMethod("assignRole", RoleType.class, Role.class, String.class);
+      Method assignRoleMethod = RoleBasedAuthorizationStrategy.class.getDeclaredMethod("assignRole", RoleType.class, Role.class, PermissionEntry.class);
       assignRoleMethod.setAccessible(true);
 
       // Create admin set of permissions
@@ -249,7 +250,8 @@ Master:
       roleBasedAuthenticationStrategy.addRole(RoleType.Global, adminRole);
 
       // Assign the role
-      roleBasedAuthenticationStrategy.assignRole(RoleType.Global, adminRole, UserNameAdmin);
+      PermissionEntry adminUserEntry = new PermissionEntry(AuthorizationType.USER, UserNameAdmin);
+      roleBasedAuthenticationStrategy.assignRole(RoleType.Global, adminRole, adminUserEntry);
       println "Admin role created...OK"
 
       /// Read access for authenticated users
@@ -261,7 +263,8 @@ Master:
       roleBasedAuthenticationStrategy.addRole(RoleType.Global, authenticatedRole);
 
       // Assign the role
-      roleBasedAuthenticationStrategy.assignRole(RoleType.Global, authenticatedRole, 'authenticated');
+      PermissionEntry userEntry = new PermissionEntry(AuthorizationType.USER, 'authenticated');
+      roleBasedAuthenticationStrategy.assignRole(RoleType.Global, authenticatedRole, userEntry);
       println "Read role created...OK"
 
       // Save the state
@@ -323,7 +326,7 @@ Master:
 Agent:
   Enabled: true
   Image: "amamba-io/inbound-agent"
-  ImageTag: 4.10-2
+  ImageTag: jdk21
   CustomJenkinsLabels: []
   Component: "jenkins-inbound-agent"
   Privileged: false
@@ -360,21 +363,21 @@ Agent:
   Builder:
     Base:
       Image: amamba-io/jenkins-agent-base
-      ImageTag: v0.5.0
+      ImageTag: v0.6.0-rc0
     NodeJs:
       Image: amamba-io/jenkins-agent-nodejs
-      ImageTag: v0.5.0-16.20.2
+      ImageTag: v0.6.0-rc0-16.20.2
       # Versions for auto generator Jenkins CASC Config and relock_k8s images.
       # must build image first.
     Maven:
       Image: amamba-io/jenkins-agent-maven
-      ImageTag: v0.5.0-jdk8
+      ImageTag: v0.6.0-rc0-jdk8
     Golang:
       Image: amamba-io/jenkins-agent-go
-      ImageTag: v0.5.0-1.22.6
+      ImageTag: v0.6.0-rc0-1.22.6
     Python:
       Image: amamba-io/jenkins-agent-python
-      ImageTag: v0.5.0-3.8.19
+      ImageTag: v0.6.0-rc0-3.8.19
     ContainerRuntime: podman # Available values: docker, podman
 
 Persistence:
