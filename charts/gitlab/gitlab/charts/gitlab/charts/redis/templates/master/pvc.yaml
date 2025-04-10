@@ -1,3 +1,8 @@
+{{- /*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{- if and (eq .Values.architecture "standalone") (eq .Values.master.kind "Deployment") (.Values.master.persistence.enabled) (not .Values.master.persistence.existingClaim) }}
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -6,6 +11,9 @@ metadata:
   namespace: {{ .Release.Namespace | quote }}
   labels: {{- include "common.labels.matchLabels" . | nindent 4 }}
     app.kubernetes.io/component: master
+    {{- if .Values.master.persistence.labels }}
+    {{- toYaml .Values.master.persistence.labels | nindent 4 }}
+    {{- end }}
   {{- if .Values.master.persistence.annotations }}
   annotations: {{- toYaml .Values.master.persistence.annotations | nindent 4 }}
   {{- end }}
