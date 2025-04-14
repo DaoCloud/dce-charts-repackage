@@ -1,0 +1,113 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+		"topohub": {
+			"type": "object",
+			"title": "Topohub Settings",
+			"properties": {
+				"defaultConfig": {
+					"type": "object",
+                    "title": "Base Config",
+					"properties": {
+						"redfish": {
+							"type": "object",
+							"title": "Redfish",
+							"properties": {
+								"username": {
+									"type": "string",
+									"title": "Username"
+								},
+								"password": {
+									"type": "string",
+									"title": "Password"
+								}
+							}
+						},
+						"dhcpServer": {
+							"type": "object",
+							"title": "DHCP Server",
+							"required": [
+								"interface"
+							],
+							"properties": {
+								"interface": {
+									"type": "string",
+									"title": "Interface",
+									"description": "Topohub component looking for the node's network card to connect to the switch in trunk mode"
+								}
+							}
+						}
+					}
+				},
+				"fileBrowser": {
+					"type": "object",
+					"title": "File Browser Configuration",
+					"description": "File management application that allows users to upload ISO images through a web UI",
+					"properties": {
+						"enabled": {
+							"type": "boolean",
+							"default": true,
+							"title": "Enable File Browser"
+						}
+					}
+				},
+				"nodeAffinity": {
+					"type": "object",
+					"properties": {
+						"requiredDuringSchedulingIgnoredDuringExecution": {
+							"type": "object",
+							"properties": {
+								"nodeSelectorTerms": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"matchExpressions": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"key": {
+															"type": "string",
+															"default": "topohub.io/deployment"
+														},
+														"operator": {
+															"type": "string",
+															"default": "In"
+														},
+														"values": {
+															"type": "array",
+															"items": {
+																"type": "string",
+																"default": "true"
+															}
+														}
+													},
+													"required": [
+														"key",
+														"operator",
+														"values"
+													]
+												}
+											}
+										},
+										"required": [
+											"matchExpressions"
+										]
+									}
+								}
+							},
+							"required": [
+								"nodeSelectorTerms"
+							]
+						}
+					},
+					"required": [
+						"requiredDuringSchedulingIgnoredDuringExecution"
+					]
+				}
+			}
+		}
+	}
+}
