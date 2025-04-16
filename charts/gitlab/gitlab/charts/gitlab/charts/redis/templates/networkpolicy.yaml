@@ -1,3 +1,8 @@
+{{- /*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{- if .Values.networkPolicy.enabled }}
 kind: NetworkPolicy
 apiVersion: {{ template "networkPolicy.apiVersion" . }}
@@ -52,11 +57,15 @@ spec:
               {{ template "common.names.fullname" . }}-client: "true"
         - podSelector:
             matchLabels: {{- include "common.labels.matchLabels" . | nindent 14 }}
-        {{- if .Values.networkPolicy.ingressNSMatchLabels }}
+        {{- if or .Values.networkPolicy.ingressNSMatchLabels .Values.networkPolicy.ingressNSPodMatchLabels }}
         - namespaceSelector:
             matchLabels:
-              {{- range $key, $value := .Values.networkPolicy.ingressNSMatchLabels }}
-              {{ $key | quote }}: {{ $value | quote }}
+              {{- if .Values.networkPolicy.ingressNSMatchLabels }}
+                {{- range $key, $value := .Values.networkPolicy.ingressNSMatchLabels }}
+                {{ $key | quote }}: {{ $value | quote }}
+                {{- end }}
+              {{ else }}
+                {}
               {{- end }}
           {{- if .Values.networkPolicy.ingressNSPodMatchLabels }}
           podSelector:
