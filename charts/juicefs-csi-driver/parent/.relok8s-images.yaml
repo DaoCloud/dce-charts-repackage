@@ -1,0 +1,8 @@
+- "{{ .juicefs-csi-driver.image.registry }}/{{ .juicefs-csi-driver.image.repository }}:{{ .juicefs-csi-driver.image.tag }}"
+- "{{ .juicefs-csi-driver.dashboardImage.registry }}/{{ .juicefs-csi-driver.dashboardImage.repository }}:{{ .juicefs-csi-driver.dashboardImage.tag }}"
+- "{{ .juicefs-csi-driver.sidecars.livenessProbeImage.registry }}/{{ .juicefs-csi-driver.sidecars.livenessProbeImage.repository }}:{{ .juicefs-csi-driver.sidecars.livenessProbeImage.tag }}"
+- "{{ .juicefs-csi-driver.sidecars.nodeDriverRegistrarImage.registry }}/{{ .juicefs-csi-driver.sidecars.nodeDriverRegistrarImage.repository }}:{{ .juicefs-csi-driver.sidecars.nodeDriverRegistrarImage.tag }}"
+- "{{ .juicefs-csi-driver.sidecars.csiProvisionerImage.registry }}/{{ .juicefs-csi-driver.sidecars.csiProvisionerImage.repository }}:{{ .juicefs-csi-driver.sidecars.csiProvisionerImage.tag }}"
+- "{{ .juicefs-csi-driver.sidecars.csiResizerImage.registry }}/{{ .juicefs-csi-driver.sidecars.csiResizerImage.repository }}:{{ .juicefs-csi-driver.sidecars.csiResizerImage.tag }}"
+- "{{ .juicefs-csi-driver.mountPodImage.eeMountImage.registry }}/{{ .juicefs-csi-driver.mountPodImage.eeMountImage.repository }}:{{ .juicefs-csi-driver.mountPodImage.eeMountImage.tag }}"
+- "{{ .juicefs-csi-driver.mountPodImage.ceMountImage.registry }}/{{ .juicefs-csi-driver.mountPodImage.ceMountImage.repository }}:{{ .juicefs-csi-driver.mountPodImage.ceMountImage.tag }}"

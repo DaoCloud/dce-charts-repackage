@@ -1,0 +1,81 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "juicefs-csi-driver": {
+            "type": "object",
+            "properties": {
+                "storageClasses": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ],
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean",
+                                "description": "Whether to actually create this StorageClass"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "allowVolumeExpansion": {
+                                "type": "boolean",
+                                "description": "Whether the storage class allows for volume expansion."
+                            },
+                            "pathPattern": {
+                                "type": "string",
+                                "description": "Customize PV directory format, for zestu use, it must be: /userdata/{region-id}/${.PVC.namespace}/share"
+                            },
+                            "reclaimPolicy": {
+                                "type": "string"
+                            },
+                            "existingSecretName": {
+                                "type": "string",
+                                "description": "whether to use an existing secret. If it is empty, a secret will be created according to the backend configuration you provided below."
+                            },
+                            "backend": {
+                                "type": "object",
+                                "required": [
+                                    "accessKey",
+                                    "bucket",
+                                    "metaurl",
+                                    "name",
+                                    "secretKey",
+                                    "storage"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The JuiceFS file system name"
+                                    },
+                                    "metaurl": {
+                                        "type": "string",
+                                        "description": "Connection URL for metadata engine (e.g. Redis), redis cluster mode: redis://:mypassword@192.168.1.6:6379/1 redis sentinel mode: redis://:password@mymaster,1.2.3.4,1.2.5.6:26379/2"
+                                    },
+                                    "storage": {
+                                        "type": "string",
+                                        "description": "The storage type of object storage, e.g. s3, oss, cos, etc."
+                                    },
+                                    "accessKey": {
+                                        "type": "string",
+                                        "description": "Access key for object storage"
+                                    },
+                                    "secretKey": {
+                                        "type": "string",
+                                        "description": "Secret key for object storage"
+                                    },
+                                    "bucket": {
+                                        "type": "string",
+                                        "description": "Bucket URL for object storage"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

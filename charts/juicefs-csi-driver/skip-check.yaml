@@ -1,0 +1,16 @@
+juicefs-csi-driver:
+  - mountPodImage
+  - mountPodImage/eeMountImage
+  - mountPodImage/eeMountImage/registry
+  - mountPodImage/eeMountImage/repository
+  - mountPodImage/eeMountImage/tag
+  - mountPodImage/ceMountImage
+  - mountPodImage/ceMountImage/registry
+  - mountPodImage/ceMountImage/repository
+  - mountPodImage/ceMountImage/tag
+  - image/registry
+  - sidecars/nodeDriverRegistrarImage/registry
+  - sidecars/livenessProbeImage/registry
+  - dashboardImage/registry
+  - sidecars/csiResizerImage/registry
+  - sidecars/csiProvisionerImage/registry

@@ -1,0 +1,270 @@
+{{- if and (.Values.node.enabled) (ne .Values.mountMode "sidecar") (ne .Values.mountMode "serverless") }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app.kubernetes.io/component: node
+    {{- include "juicefs-csi.labels" . | nindent 4 }}
+    {{- if .Values.node.labels }}
+    {{- toYaml .Values.node.labels | nindent 4}}
+    {{- end}}
+  {{- with .Values.node.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  name: juicefs-csi-node
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  {{- with .Values.node.updateStrategy }}
+  updateStrategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: juicefs-csi-node
+      {{- include "juicefs-csi.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: juicefs-csi-node
+        {{- include "juicefs-csi.selectorLabels" . | nindent 8 }}
+        {{- if .Values.node.labels }}
+        {{- toYaml .Values.node.labels | nindent 8}}
+        {{- end}}
+      {{- with .Values.node.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- if .Values.hostAliases }}
+      hostAliases:
+      {{- toYaml .Values.hostAliases | nindent 6 }}
+    {{- end }}
+      containers:
+      - name: juicefs-plugin
+        image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+        {{- if .Values.image.pullPolicy }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- end }}
+        args:
+        - --endpoint=$(CSI_ENDPOINT)
+        - --logtostderr
+        - --nodeid=$(NODE_NAME)
+        {{- if .Values.node.debug }}
+        - --v=1
+        {{- end }}
+        {{- if eq .Values.mountMode "mountpod" }}
+        - --enable-manager=true
+        {{- end }}
+        {{- if eq .Values.mountMode "process" }}
+        - --by-process=true
+        {{- end }}
+        {{- if .Values.globalConfig.enabled }}
+        - --config=/etc/config/config.yaml
+        {{- end }}
+        env:
+        - name: CSI_ENDPOINT
+          value: unix:/csi/csi.sock
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        {{- if ne .Values.mountMode "process" }}
+        - name: JUICEFS_MOUNT_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        {{- if .Values.node.ifPollingKubelet }}
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: KUBELET_PORT
+          value: "10250"
+        {{- end }}
+        - name: JUICEFS_MOUNT_PATH
+          value: {{ .Values.jfsMountDir }}
+        - name: JUICEFS_CONFIG_PATH
+          value: {{ .Values.jfsConfigDir }}
+        {{- if .Values.node.storageClassShareMount }}
+        - name: STORAGE_CLASS_SHARE_MOUNT
+          value: "true"
+        {{- end }}
+        {{- if .Values.node.mountPodNonPreempting }}
+        - name: JUICEFS_MOUNT_PRIORITY_NAME
+          value: "juicefs-mount-priority-nonpreempting"
+        - name: JUICEFS_MOUNT_PREEMPTION_POLICY
+          value: "Never"
+        {{- end }}
+        {{- if .Values.defaultMountImage.ce }}
+        - name: JUICEFS_CE_MOUNT_IMAGE
+          value: {{ .Values.defaultMountImage.ce }}
+        {{- end }}
+        {{- if .Values.defaultMountImage.ee }}
+        - name: JUICEFS_EE_MOUNT_IMAGE
+          value: {{ .Values.defaultMountImage.ee }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.immutable }}
+        - name: JUICEFS_IMMUTABLE
+          value: "true"
+        {{- end }}
+        {{- if .Values.node.metricsPort }}
+        - name: JUICEFS_CSI_WEB_PORT
+          value: "{{ .Values.node.metricsPort }}"
+        {{- end }}
+        {{- if .Values.node.envs }}
+{{ toYaml .Values.node.envs | trim | indent 8 }}
+        {{- end }}
+        {{- with .Values.node.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.node.resources | nindent 10 }}
+        ports:
+        - containerPort: {{ .Values.node.livenessProbe.httpGet.port }}
+          protocol: TCP
+        - containerPort: {{ .Values.node.metricsPort }}
+          name: metrics
+          protocol: TCP
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: {{ .Values.kubeletDir }}
+          mountPropagation: Bidirectional
+          name: kubelet-dir
+        - mountPath: /csi
+          name: plugin-dir
+        - mountPath: /dev
+          name: device-dir
+        {{- if ne .Values.mountMode "process" }}
+        - mountPath: /jfs
+          mountPropagation: Bidirectional
+          name: jfs-dir
+        - mountPath: /root/.juicefs
+          mountPropagation: Bidirectional
+          name: jfs-root-dir
+        - mountPath: /tmp
+          name: jfs-fuse-fd
+        {{- end }}
+        {{- if .Values.globalConfig.enabled }}
+        - name: juicefs-config
+          mountPath: /etc/config
+        {{- end }}
+      - name: node-driver-registrar
+        image: {{ printf "%s/%s:%s" .Values.sidecars.nodeDriverRegistrarImage.registry .Values.sidecars.nodeDriverRegistrarImage.repository .Values.sidecars.nodeDriverRegistrarImage.tag }}
+        {{- if .Values.sidecars.nodeDriverRegistrarImage.pullPolicy }}
+        imagePullPolicy: {{ .Values.sidecars.nodeDriverRegistrarImage.pullPolicy }}
+        {{- end }}
+        args:
+        - --csi-address=$(ADDRESS)
+        - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
+        - --v=5
+        {{- if gt .Values.sidecars.nodeDriverRegistrarImage.tag "v2.4.0" }}
+        - --health-port=9809
+        ports:
+          - containerPort: 9809
+            name: healthz
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: healthz
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+       {{- end }}
+        env:
+        - name: ADDRESS
+          value: /csi/csi.sock
+        - name: DRIVER_REG_SOCK_PATH
+          value: {{ .Values.kubeletDir }}/csi-plugins/csi.juicefs.com/csi.sock
+        volumeMounts:
+        - mountPath: /csi
+          name: plugin-dir
+        - mountPath: /registration
+          name: registration-dir
+      - name: liveness-probe
+        image: {{ printf "%s/%s:%s" .Values.sidecars.livenessProbeImage.registry .Values.sidecars.livenessProbeImage.repository .Values.sidecars.livenessProbeImage.tag }}
+        {{- if .Values.sidecars.livenessProbeImage.pullPolicy }}
+        imagePullPolicy: {{ .Values.sidecars.livenessProbeImage.pullPolicy }}
+        {{- end }}
+        args:
+        - --csi-address=$(ADDRESS)
+        - --health-port=$(HEALTH_PORT)
+        env:
+        - name: ADDRESS
+          value: /csi/csi.sock
+        - name: HEALTH_PORT
+          value: "{{ .Values.node.livenessProbe.httpGet.port }}"
+        volumeMounts:
+        - mountPath: /csi
+          name: plugin-dir
+      {{- if .Values.node.hostNetwork }}
+      hostNetwork: true
+      {{- end }}
+      {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+      {{- end }}
+      {{- with .Values.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      priorityClassName: {{ .Values.node.priorityClassName }}
+      {{- with .Values.node.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.node.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.node.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccount: {{ include "juicefs-csi.node.serviceAccountName" . }}
+      volumes:
+      - hostPath:
+          path: {{ .Values.kubeletDir }}
+          type: Directory
+        name: kubelet-dir
+      - hostPath:
+          path: {{ .Values.kubeletDir }}/csi-plugins/csi.juicefs.com/
+          type: DirectoryOrCreate
+        name: plugin-dir
+      - hostPath:
+          path: {{ .Values.kubeletDir }}/plugins_registry/
+          type: Directory
+        name: registration-dir
+      - hostPath:
+          path: /dev
+          type: Directory
+        name: device-dir
+      {{- if ne .Values.mountMode "process" }}
+      - hostPath:
+          path: {{ .Values.jfsMountDir }}
+          type: DirectoryOrCreate
+        name: jfs-dir
+      - hostPath:
+          path: {{ .Values.jfsConfigDir }}
+          type: DirectoryOrCreate
+        name: jfs-root-dir
+      - hostPath:
+          path: /var/run/juicefs-csi
+          type: DirectoryOrCreate
+        name: jfs-fuse-fd
+      {{- end }}
+      {{- if .Values.globalConfig.enabled }}
+      - name: juicefs-config
+        configMap:
+          name: {{ include "juicefs-csi.fullname" . }}-config
+      {{- end }}
+{{- end }}

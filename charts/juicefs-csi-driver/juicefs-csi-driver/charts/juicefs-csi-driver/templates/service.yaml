@@ -1,0 +1,64 @@
+{{- if .Values.metrics.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "juicefs-csi.fullname" . }}-metrics
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: service
+    {{- include "juicefs-csi.labels" . | nindent 4 }}
+{{- if .Values.metrics.service.annotations }}
+  annotations: {{ toYaml .Values.metrics.service.annotations | nindent 4 }}
+{{- end }}
+spec:
+  ports:
+    - name: metrics
+      port: {{ .Values.metrics.service.servicePort }}
+      targetPort: {{ .Values.metrics.port }}
+  selector:
+    app: juicefs-csi-node
+    {{- include "juicefs-csi.selectorLabels" . | nindent 4 }}
+{{- end }}
+
+{{- if or (eq .Values.mountMode "sidecar") (.Values.validatingWebhook.enabled) (eq .Values.mountMode "serverless") }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: juicefs-admission-webhook
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: service
+    {{- include "juicefs-csi.labels" . | nindent 4 }}
+spec:
+  ports:
+    - name: https-rest
+      port: 443
+      targetPort: 9444
+  selector:
+    app: juicefs-csi-controller
+    {{- include "juicefs-csi.selectorLabels" . | nindent 4 }}
+{{ end }}
+
+{{- if and (.Values.dashboard.enabled) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: juicefs-csi-dashboard
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: dashboard
+    {{- include "juicefs-csi.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.dashboard.service.type }}
+  ports:
+    - port: {{ .Values.dashboard.service.port }}
+      targetPort: 8088
+      protocol: TCP
+      name: http
+  selector:
+    app: juicefs-csi-dashboard
+    {{- include "juicefs-csi.selectorLabels" . | nindent 4 }}
+{{- end }}
