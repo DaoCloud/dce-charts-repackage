@@ -16,7 +16,8 @@
             "replicaCount": {
               "type": "integer",
               "default": 1,
-              "title": "Replica Count"
+              "title": "Replica Count",
+              "minimum": 0
             },
             "metrics": {
               "type": "object",
