@@ -4,7 +4,7 @@ rdma-tools:
   image:
     registry: ghcr.m.daocloud.io
     repository: spidernet-io/rdma-tools
-    tag: "v12.5.3"
+    tag: "v12.5.7"
     #registry: ghcr.io
     #repository: coreweave/nccl-tests
     #tag: "12.4.1-cudnn-devel-ubuntu22.04-nccl2.21.5-1-85f9143"
@@ -53,3 +53,6 @@ rdma-tools:
 
   service:
     type: ClusterIP
+  ssh_port: 2022
+  # echo server for http and udp
+  echo_server_port: 80
