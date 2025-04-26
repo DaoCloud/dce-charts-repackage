@@ -1,0 +1,4 @@
+- "{{ .koordinator.imageRepositoryHost }}/{{ .koordinator.koordlet.image.repository }}:{{ .koordinator.koordlet.image.tag }}"
+- "{{ .koordinator.imageRepositoryHost }}/{{ .koordinator.manager.image.repository }}:{{ .koordinator.manager.image.tag }}"
+- "{{ .koordinator.imageRepositoryHost }}/{{ .koordinator.scheduler.image.repository }}:{{ .koordinator.scheduler.image.tag }}"
+- "{{ .koordinator.imageRepositoryHost }}/{{ .koordinator.descheduler.image.repository }}:{{ .koordinator.descheduler.image.tag }}"
