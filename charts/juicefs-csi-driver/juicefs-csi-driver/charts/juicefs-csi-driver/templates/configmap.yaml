@@ -1,0 +1,23 @@
+{{- if .Values.globalConfig.enabled }}
+{{- if or .Values.globalConfig.manageByHelm .Release.IsInstall }}
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: {{ include "juicefs-csi.fullname" . }}-config
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: config
+    {{- include "juicefs-csi.labels" . | nindent 4 }}
+  annotations:
+{{- if not .Values.globalConfig.manageByHelm }}
+    helm.sh/resource-policy: keep
+{{- end }}
+data:
+  config.yaml: |-
+    {{- $val := omit .Values.globalConfig "enabled" "manageByHelm"  }}
+    {{- toYaml $val | nindent 4 }}
+    mountPodPatch:
+      - eeMountImage: {{ printf "%s/%s:%s" .Values.mountPodImage.eeMountImage.registry .Values.mountPodImage.eeMountImage.repository .Values.mountPodImage.eeMountImage.tag }}
+        ceMountImage: {{ printf "%s/%s:%s" .Values.mountPodImage.ceMountImage.registry .Values.mountPodImage.ceMountImage.repository .Values.mountPodImage.ceMountImage.tag }}
+{{- end }}
+{{- end }}
