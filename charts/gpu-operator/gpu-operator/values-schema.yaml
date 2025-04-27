@@ -5,13 +5,13 @@ gpu-operator:
     initContainer:
       image: nvidia/cuda
       repository: nvcr.m.daocloud.io
-      version: 12.2.2-base-ubi8
+      version: 12.8.1-base-ubi9
   driver:
     enabled: true
     usePrecompiled: false
     repository: nvcr.m.daocloud.io
     image: nvidia/driver
-    version: "535.104.12"
+    version: "550.163.01"
     repoConfig:
       configMapName: ""
     rdma:
