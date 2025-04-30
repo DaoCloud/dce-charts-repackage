@@ -69,6 +69,7 @@ yq -i '
     .spiderpool.spiderpoolController.resources.requests.cpu=strenv(CUSTOM_SPIDERPOOL_CONTROLLER_CPU) |
     .spiderpool.spiderpoolController.resources.requests.memory=strenv(CUSTOM_SPIDERPOOL_CONTROLLER_MEMORY) |
     .spiderpool.spiderpoolController.tolerations[0].effect = "NoSchedule" |
+    .spiderpool.spiderpoolController.enableValidatingResourcesDeletedWebhook=true |
     .spiderpool.spiderpoolInit.image.registry="ghcr.m.daocloud.io" | 
     .spiderpool.plugins.image.registry="ghcr.m.daocloud.io" |
     .spiderpool.rdma.rdmaSharedDevicePlugin.image.registry="ghcr.m.daocloud.io" |
