@@ -57,6 +57,7 @@ This is output as YAML, it can be read back in as a dict via `toYaml`.
   proxyConnectTimeout: {{ $v.proxyConnectTimeout }}
   proxyReadTimeout: {{ $v.proxyReadTimeout }}
   proxyBodySize: {{ $v.proxyBodySize | quote }}
+  serviceUpstream: {{ $v.serviceUpstream | quote }}
   useGeoClass: {{ $v.useGeoClass }}
 {{- end }}
 common:
