@@ -1,0 +1,124 @@
+# child values
+topohub:
+  replicaCount: 1
+  registryOverride: ""
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+  image:
+    registry: "ghcr.m.daocloud.io"
+    repository: "infrastructure-io/topohub"
+    pullPolicy: IfNotPresent
+    # tag will be overridden by version from Chart.yaml
+    tag: "v0.4.3"
+    # Optional: image digest
+    digest: ""
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  defaultConfig:
+    redfish:
+      # Port for the endpoint (default: 443)
+      port: 443
+      # Enable HTTPS (default: true)
+      https: true
+      # Optional: Authentication credentials
+      username: "admin"
+      password: "secret"
+      # 状态更新间隔，它决定了多久向主机发送一次redfish请求，来更新 hostStatus 对象中的信息，默认 60 秒
+      hostStatusUpdateInterval: 60
+    dhcpServer:
+      # 宿主机网卡名，最好是 trunk 模式接入网络，从而接入到各种子网中
+      interface: ""
+      # 1 day
+      expireTime: "1d"
+    # for iso and ztp in dchp subnet
+    httpServer:
+      enabled: true
+      # Port for the endpoint (default: 10080)
+      port: 80
+  # Storage configuration for DHCP lease files、DHCP configuration files、sftp storage、http storage（ISO）
+  storage:
+    # Storage type: "pvc" or "hostPath"
+    type: "hostPath"
+    # PVC configuration (used when type is "pvc")
+    # this should be used when production environment
+    pvc:
+      # Storage class for new PVC
+      storageClass: ""
+      # Storage size for new PVC, it is used to store config files and ISO files
+      size: "10Gi"
+      # Access modes for PVC
+      accessModes:
+        - ReadWriteOnce
+    # HostPath configuration (used when type is "hostPath")
+    # this should be used only when POC environment, and it should designate the node name
+    hostPath:
+      # Path on the host
+      path: "/var/lib/topohub"
+  # Log level configuration
+  # Available values: debug, info, error
+  logLevel: "info"
+  # Port for metrics server
+  metricsPort: 8083
+  # Health probe port
+  healthProbePort: 8081
+  # Webhook configuration
+  webhook:
+    # Port for webhook server to listen on and service to expose
+    webhookPort: 8082
+    # Timeout in seconds for webhook calls
+    timeoutSeconds: 5
+    # Failure policy for webhook
+    failurePolicy: Fail
+    # Certificate configuration
+    certificate:
+      # Validity duration in days
+      validityDays: 36500
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    annotations: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  # Specify a specific node by name
+  nodeName: ""
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: topohub.io/deployment
+              operator: In
+              values:
+                - "true"
+  ## @param topohub.extraArgs the additional arguments of topohub container
+  extraArgs: []
+  ## @skip spiderpoolAgent.tolerations
+  tolerations:
+    - operator: Exists
+  ## this is used to manage the files for the administrator
+  fileBrowser:
+    enabled: true
+    image:
+      registry: "docker.m.daocloud.io"
+      repository: "filebrowser/filebrowser"
+      pullPolicy: IfNotPresent
+      # tag will be overridden by version from Chart.yaml
+      tag: "v2.32.0"
+      # Optional: image digest
+      digest: ""
+    port: 8080
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi

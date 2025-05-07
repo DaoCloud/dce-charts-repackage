@@ -1,0 +1,168 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "topohub.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "topohub.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "topohub.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "topohub.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "topohub.serviceAccountName" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeName }}
+      nodeName: {{ .Values.nodeName }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                {{- include "topohub.selectorLabels" . | nindent 16 }}
+            topologyKey: kubernetes.io/hostname
+        {{- with .Values.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      hostNetwork: true
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ include "topohub.image" . | quote }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+        command: ["topohub"]
+        args:
+        - --metrics-port={{ .Values.metricsPort }}
+        - --health-probe-port={{ .Values.healthProbePort }}
+        - --webhook-port={{ .Values.webhook.webhookPort }}
+        {{- with .Values.extraArgs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: LOG_LEVEL
+          value: {{ .Values.logLevel | default "info" | quote }}
+        - name: STORAGE_PATH
+          value: /var/lib/topohub
+        - name: WEBHOOK_CERT_DIR
+          value: /tmp/k8s-webhook-server/serving-certs  
+        - name: FEATURE_CONFIG_PATH
+          value: /var/lib/feature
+        - name: DHCP_CONFIG_TEMPLATE_PATH
+          value: /var/lib/dhcp
+        ports:
+        - name: webhook
+          containerPort: {{ .Values.webhook.webhookPort }}
+          protocol: TCP
+        - name: metrics
+          containerPort: {{ .Values.metricsPort }}
+          protocol: TCP
+        - name: health-probe
+          containerPort: {{ .Values.healthProbePort }}
+          protocol: TCP
+        volumeMounts:
+        - name: webhook-certs
+          mountPath: /tmp/k8s-webhook-server/serving-certs
+          readOnly: true
+        - name: storage-data
+          mountPath: /var/lib/topohub
+        - name: feature-config
+          mountPath: /var/lib/feature  
+        - name: dhcp-config
+          mountPath: /var/lib/dhcp
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ .Values.healthProbePort }}
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: {{ .Values.healthProbePort }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.fileBrowser.enabled }}
+      - name: http-server
+        image:  {{ include "fileBrowser.image" . | quote }}
+        imagePullPolicy: {{ .Values.fileBrowser.image.pullPolicy }}
+        command: ["/filebrowser"]
+        args:
+        - --port={{ .Values.fileBrowser.port }}
+        - --root=/var/lib/topohub
+        - --database=/var/lib/topohub/filebrowser/filebrowser.db
+        ports:
+        - name: http
+          containerPort: {{ .Values.fileBrowser.port }}
+          protocol: TCP
+        volumeMounts:
+        - name: storage-data
+          mountPath: /var/lib/topohub
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.fileBrowser.port }}
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.fileBrowser.port }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          {{- toYaml .Values.fileBrowser.resources | nindent 12 }}
+      {{- end }}
+      volumes:
+      - name: webhook-certs
+        secret:
+          secretName: {{ include "topohub.fullname" . }}-webhook-server-cert
+      - name: dhcp-config
+        configMap:
+          name: {{ include "topohub.fullname" . }}-dhcp
+      - name: feature-config
+        configMap:
+          name: {{ include "topohub.fullname" . }}-feature
+      - name: storage-data
+      {{- if eq .Values.storage.type "pvc" }}
+        persistentVolumeClaim:
+          claimName: {{ include "topohub.fullname" . }}-data
+      {{- else }}
+        hostPath:
+          path: {{ .Values.storage.hostPath.path }}
+          type: DirectoryOrCreate
+      {{- end }}

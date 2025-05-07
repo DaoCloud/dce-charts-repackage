@@ -1,0 +1,83 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: (unknown)
+  name: bindingips.topohub.infrastructure.io
+spec:
+  group: topohub.infrastructure.io
+  names:
+    kind: BindingIp
+    listKind: BindingIpList
+    plural: bindingips
+    singular: bindingip
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.subnet
+      name: SUBNET
+      type: string
+    - jsonPath: .spec.ipAddr
+      name: IPADDR
+      type: string
+    - jsonPath: .spec.macAddr
+      name: MACADDR
+      type: string
+    - jsonPath: .status.valid
+      name: VALID
+      type: string
+    name: v1beta1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              ipAddr:
+                description: IP address (required)
+                pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}$
+                type: string
+              macAddr:
+                description: Mac address (required)
+                pattern: ^([0-9a-fA-F]{2}:){5}([0-9a-fA-F]{2})$
+                type: string
+              subnet:
+                description: subnet name (required)
+                type: string
+            required:
+            - ipAddr
+            - macAddr
+            - subnet
+            type: object
+          status:
+            properties:
+              valid:
+                description: taking effect
+                type: boolean
+            required:
+            - valid
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

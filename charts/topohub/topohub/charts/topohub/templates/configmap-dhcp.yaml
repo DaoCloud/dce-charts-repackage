@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "topohub.fullname" . }}-dhcp
+  labels:
+    {{- include "topohub.labels" . | nindent 4 }}
+data:
+  dnsmasq.conf.tmpl: |
+    # Basic DHCP configuration
+    dhcp-authoritative
+    dhcp-leasefile={{ "{{ .LeaseFile }}" }}
+    log-facility={{ "{{ .LogFile }}" }}
+    log-dhcp
+    bind-interfaces
+    interface={{ "{{ .Interface }}" }}
+    listen-address={{ "{{ .SelfIP }}" }}
+
+    # DHCP range configuration
+    # format: <start_ip>,<end_ip>,<lease_time>  or <start_ip>,<end_ip>
+    {{ "{{ range .IPRanges }}" }}
+    dhcp-range={{ "{{ . }}" }},{{ .Values.defaultConfig.dhcpServer.expireTime }}
+    {{ "{{ end }}" }}
+
+    # Gateway configuration
+    {{ "{{ if .Gateway }}" }}
+    dhcp-option=3,{{ "{{ .Gateway }}" }}  # Default gateway
+    {{ "{{ end }}" }}
+
+    # DNS configuration
+    {{ "{{ if .DNS }}" }}
+    dhcp-option=6,{{ "{{ .DNS }}" }}  # DNS server
+    {{ "{{ end }}" }}
+
+    # PXE boot configuration
+    {{ "{{ if .EnablePxe }}" }}
+    # Enable TFTP server
+    enable-tftp
+    tftp-root={{ "{{ .TftpServerDir }}" }}
+    
+    # PXE boot menu
+    dhcp-match=set:efi-x86_64,option:client-arch,7
+    dhcp-boot=tag:efi-x86_64,{{ "{{ .PxeEfiInTftpServerDir }}" }}/core.efi
+    {{ "{{ end }}" }}
+
+    
+    {{ "{{ if .EnableZtp }}" }}
+    # DHCP options for ZTP
+    dhcp-option=67,http://{{ "{{ .SelfIP }}" }}/ztp/ztp.json
+    {{ "{{ end }}" }}
+
+    conf-file={{ "{{ .HostIpBindingsConfigPath }}" }}
+
+    # Additional options
+    # Disable DNS server functionality
+    port=0
+    # Disable re-use of the DHCP servername and filename fields as extra option space
+    dhcp-no-override
+    # Don't read /etc/hosts
+    no-hosts
+
+    # Logging configuration
+    log-queries
+    log-dhcp
+    quiet-dhcp6
+
+    # Performance tuning
+    # cache-size=150
+    no-resolv
+    no-poll
