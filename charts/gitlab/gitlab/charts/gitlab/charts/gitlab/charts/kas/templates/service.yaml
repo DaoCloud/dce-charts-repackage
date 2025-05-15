@@ -42,7 +42,12 @@ spec:
       protocol: TCP
       name: http-metrics
   {{- end }}
+  {{- if (.Values.autoflow).enabled }}
+    - port: {{ .Values.service.autoflowCodecServerApiPort }}
+      targetPort: {{ .Values.service.autoflowCodecServerApiPort }}
+      protocol: TCP
+      name: tcp-{{ template "name" . }}-autoflow-codec-server-api
+  {{- end }}
   selector:
-    app: {{ template "name" . }}
-    release: {{ .Release.Name }}
+    {{- include "kas.podSelectorLabels" . | nindent 4 }}
 {{- end -}}
