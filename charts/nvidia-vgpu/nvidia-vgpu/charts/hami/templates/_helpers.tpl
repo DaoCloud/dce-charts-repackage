@@ -85,3 +85,24 @@ Image registry secret name
 imagePullSecrets: {{ toYaml .Values.imagePullSecrets | nindent 2 }}
 {{- end }}
 
+{{/*
+    Resolve the tag for kubeScheduler.
+*/}}
+{{- define "resolvedKubeSchedulerTag" -}}
+{{- if .Values.scheduler.kubeScheduler.imageTag }}
+{{- .Values.scheduler.kubeScheduler.imageTag | trim -}}
+{{- else }}
+{{- include "strippedKubeVersion" . | trim -}}
+{{- end }}
+{{- end }}
+
+
+{{/*
+    Return the stripped Kubernetes version string by removing extra parts after semantic version number.
+    v1.31.1+k3s1 -> v1.31.1
+    v1.30.8-eks-2d5f260 -> v1.30.8
+    v1.31.1 -> v1.31.1
+*/}}
+{{- define "strippedKubeVersion" -}}
+{{ regexReplaceAll "^(v[0-9]+\\.[0-9]+\\.[0-9]+)(.*)$" .Capabilities.KubeVersion.Version "$1" }}
+{{- end -}}

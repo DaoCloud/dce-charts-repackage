@@ -41,7 +41,7 @@ if [ $os == "Darwin" ];then
      sed -i "" "$((line+1)) i\\
       repository: kubernetes/kube-scheduler
       " values.yaml
-      sed -i "" "s/image: {{ .Values.scheduler.kubeScheduler.image }}:{{ .Values.scheduler.kubeScheduler.imageTag }}/image: \"{{ .Values.scheduler.kubeScheduler.registry }}\/{{ .Values.scheduler.kubeScheduler.repository }}:{{ .Values.scheduler.kubeScheduler.imageTag }}\"/" charts/hami/templates/scheduler/deployment.yaml
+      sed -i "" "s/image: \"{{ .Values.scheduler.kubeScheduler.image }}:{{ include \"resolvedKubeSchedulerTag\" . }}\"/image: \"{{ .Values.scheduler.kubeScheduler.registry }}\/{{ .Values.scheduler.kubeScheduler.repository }}:{{ .Values.scheduler.kubeScheduler.imageTag }}\"/" charts/hami/templates/scheduler/deployment.yaml
 elif [ $os == "Linux" ];then
      sed -i "$line"d values.yaml
      sed -i "$line i\\
@@ -50,7 +50,7 @@ elif [ $os == "Linux" ];then
      sed -i "$((line+1)) i\\
       repository: kubernetes/kube-scheduler
            " values.yaml
-    sed -i "s/image: {{ .Values.scheduler.kubeScheduler.image }}:{{ .Values.scheduler.kubeScheduler.imageTag }}/image: \"{{ .Values.scheduler.kubeScheduler.registry }}\/{{ .Values.scheduler.kubeScheduler.repository }}:{{ .Values.scheduler.kubeScheduler.imageTag }}\"/" charts/hami/templates/scheduler/deployment.yaml
+    sed -i "s/image: \"{{ .Values.scheduler.kubeScheduler.image }}:{{ include \"resolvedKubeSchedulerTag\" . }}\"/image: \"{{ .Values.scheduler.kubeScheduler.registry }}\/{{ .Values.scheduler.kubeScheduler.repository }}:{{ .Values.scheduler.kubeScheduler.imageTag }}\"/" charts/hami/templates/scheduler/deployment.yaml
 fi
 
 # set scheduler imageTag v1.20.0 to "v1.28.0"
@@ -312,6 +312,10 @@ yq -i '.hami.devicePlugin.deviceMemoryScaling=1.0' values.yaml
 #yq -i '.hami.version="v2.3.11"' values.yaml
 #yq -i '.version="v2.3.11"' charts/hami/values.yaml
 
-# update devicePlugin.registry to release.daocloud.io
-yq -i '.hami.devicePlugin.registry="release.daocloud.io"' values.yaml
-yq -i '.devicePlugin.registry="release.daocloud.io"' charts/hami/values.yaml
+# update devicePlugin.registry to release.daocloud.io, from 2.5.1 version use hami repo
+#yq -i '.hami.devicePlugin.registry="release.daocloud.io"' values.yaml
+#yq -i '.devicePlugin.registry="release.daocloud.io"' charts/hami/values.yaml
+
+
+yq -i '.hami.scheduler.kubeScheduler.imageTag="v1.28.0"' values.yaml
+yq -i '.hami.scheduler.kubeScheduler.imageTag="v1.28.0"' charts/hami/values.yaml
