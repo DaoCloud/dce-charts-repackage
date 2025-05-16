@@ -5,6 +5,10 @@
         "hami": {
             "type": "object",
             "properties": {
+                "schedulerName": {
+                    "type": "string",
+                    "default": "hami-scheduler"
+                },
                 "devicePlugin": {
                     "type": "object",
                     "properties": {
