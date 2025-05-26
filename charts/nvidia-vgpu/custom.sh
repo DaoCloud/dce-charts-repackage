@@ -308,9 +308,6 @@ yq -i '.devicePlugin.deviceMemoryScaling=1.0' charts/hami/values.yaml
 
 yq -i '.hami.devicePlugin.deviceMemoryScaling=1.0' values.yaml
 
-# fix version to 2.3.11
-#yq -i '.hami.version="v2.3.11"' values.yaml
-#yq -i '.version="v2.3.11"' charts/hami/values.yaml
 
 # update devicePlugin.registry to release.daocloud.io, from 2.5.1 version use hami repo
 #yq -i '.hami.devicePlugin.registry="release.daocloud.io"' values.yaml
