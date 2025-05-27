@@ -1,0 +1,20 @@
+console:
+  replicaCount: 1
+  image:
+    registry: m.daocloud.io/docker.io
+    repository: redpandadata/console
+    tag: "v3.1.0"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 500Mi
+    requests:
+      cpu: 100m
+      memory: 50Mi
+  config:
+    kafka:
+      brokers: ["mcamel-common-kafka-cluster-minquan-kafka-plain-bootstrap.mcamel-system.svc.cluster.local:9092"]
+  secret:
+    create: false
+  tests:
+    enabled: false
