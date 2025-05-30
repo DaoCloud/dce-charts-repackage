@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/Welcome3",
+  "definitions": {
+    "Welcome3": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "console": {
+          "$ref": "#/definitions/Console"
+        }
+      }
+    },
+    "Console": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "replicaCount": {
+          "type": "integer",
+          "default": 1
+        },
+        "image": {
+          "$ref": "#/definitions/Image"
+        },
+        "config": {
+          "$ref": "#/definitions/Config"
+        }
+      },
+      "required": [
+        "config",
+        "image",
+        "replicaCount"
+      ],
+      "title": "Console"
+    },
+    "Config": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": " ",
+      "properties": {
+        "kafka": {
+          "$ref": "#/definitions/Kafka"
+        }
+      }
+    },
+    "Kafka": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "brokers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "mcamel-common-kafka-cluster-minquan-kafka-plain-bootstrap.mcamel-system.svc.cluster.local:9092"
+          ],
+          "title": "Kafka brokers"
+        }
+      },
+      "required": [
+        "brokers"
+      ],
+      "title": " "
+    },
+    "Image": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "registry": {
+          "type": "string",
+          "default": "m.daocloud.io/docker.io"
+        },
+        "repository": {
+          "type": "string",
+          "default": "redpandadata/console"
+        },
+        "tag": {
+          "type": "string",
+          "default": "v3.1.0"
+        }
+      },
+      "required": [
+        "registry",
+        "repository",
+        "tag"
+      ],
+      "title": "Image"
+    }
+  }
+}
