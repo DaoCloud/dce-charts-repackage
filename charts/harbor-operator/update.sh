@@ -119,6 +119,12 @@ elif [ $os == "Darwin" ];then
     sed -i "" "s/installCRDs: false/installCRDs: true/g" harbor-operator/values.yaml
 fi
 
+if [ $os == "Linux" ];then
+    sed -i "s/tag: \"v1.4.0-rc1\"/tag: \"v1.4.1\"/g" harbor-operator/values.yaml
+elif [ $os == "Darwin" ];then
+    sed -i "" "s/tag: \"v1.4.0-rc1\"/tag: \"v1.4.1\"/g" harbor-operator/values.yaml
+fi
+
 # replace values.schema.json
 cp ./parent/values.schema.json ./harbor-operator/values.schema.json
 
