@@ -127,22 +127,23 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 
 ### ipam parameters
 
-| Name                                                  | Description                                                                                      | Value   |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------- |
-| `ipam.enableIPv4`                                     | enable ipv4                                                                                      | `true`  |
-| `ipam.enableIPv6`                                     | enable ipv6                                                                                      | `true`  |
-| `ipam.enableStatefulSet`                              | the network mode                                                                                 | `true`  |
-| `ipam.enableKubevirtStaticIP`                         | the feature to keep kubevirt vm pod static IP                                                    | `true`  |
-| `ipam.enableIPConflictDetection`                      | enable IP conflict detection                                                                     | `false` |
-| `ipam.enableGatewayDetection`                         | enable gateway detection                                                                         | `false` |
-| `ipam.spiderSubnet.enable`                            | SpiderSubnet feature.                                                                            | `true`  |
-| `ipam.spiderSubnet.autoPool.enable`                   | SpiderSubnet Auto IPPool feature.                                                                | `true`  |
-| `ipam.spiderSubnet.autoPool.defaultRedundantIPNumber` | the default redundant IP number of SpiderSubnet feature auto-created IPPools                     | `1`     |
-| `ipam.gc.enabled`                                     | enable retrieve IP in spiderippool CR                                                            | `true`  |
-| `ipam.gc.gcAll.intervalInSecond`                      | the gc all interval duration                                                                     | `600`   |
-| `ipam.gc.statelessPod.zombieOnReadyNode`              | enable reclaim IP for the stateless pod who is over deleting graceful period on a ready node     | `true`  |
-| `ipam.gc.statelessPod.zombieOnNotReadyNode`           | enable reclaim IP for the stateless pod who is over deleting graceful period on a not-ready node | `true`  |
-| `ipam.gc.gcDeletingTimeOutPodDelay`                   | the gc delay seconds after the pod times out of deleting graceful period                         | `0`     |
+| Name                                                         | Description                                                                                      | Value   |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ | ------- |
+| `ipam.enableIPv4`                                            | enable ipv4                                                                                      | `true`  |
+| `ipam.enableIPv6`                                            | enable ipv6                                                                                      | `true`  |
+| `ipam.enableStatefulSet`                                     | the network mode                                                                                 | `true`  |
+| `ipam.enableKubevirtStaticIP`                                | the feature to keep kubevirt vm pod static IP                                                    | `true`  |
+| `ipam.enableIPConflictDetection`                             | enable IP conflict detection                                                                     | `false` |
+| `ipam.enableGatewayDetection`                                | enable gateway detection                                                                         | `false` |
+| `ipam.spiderSubnet.enable`                                   | SpiderSubnet feature.                                                                            | `true`  |
+| `ipam.spiderSubnet.autoPool.enable`                          | SpiderSubnet Auto IPPool feature.                                                                | `true`  |
+| `ipam.spiderSubnet.autoPool.defaultRedundantIPNumber`        | the default redundant IP number of SpiderSubnet feature auto-created IPPools                     | `1`     |
+| `ipam.gc.enabled`                                            | enable retrieve IP in spiderippool CR                                                            | `true`  |
+| `ipam.gc.gcAll.intervalInSecond`                             | the gc all interval duration                                                                     | `600`   |
+| `ipam.gc.statelessPod.zombieOnReadyNode`                     | enable reclaim IP for the stateless pod who is over deleting graceful period on a ready node     | `true`  |
+| `ipam.gc.statelessPod.zombieOnNotReadyNode`                  | enable reclaim IP for the stateless pod who is over deleting graceful period on a not-ready node | `true`  |
+| `ipam.gc.statelessPod.enableGcRunningPodOnEmptyPodStatusIPs` | enable reclaim IP for the stateless pod who is running and empty pod status IPs                  | `false` |
+| `ipam.gc.gcDeletingTimeOutPodDelay`                          | the gc delay seconds after the pod times out of deleting graceful period                         | `0`     |
 
 ### grafanaDashboard parameters
 
@@ -224,7 +225,7 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `plugins.image.repository`       | the image repository of plugins                            | `spidernet-io/spiderpool/spiderpool-plugins` |
 | `plugins.image.pullPolicy`       | the image pullPolicy of plugins                            | `IfNotPresent`                               |
 | `plugins.image.digest`           | the image digest of plugins                                | `""`                                         |
-| `plugins.image.tag`              | the image tag of plugins                                   | `27c4f118b1cec3773f2679b772e7583fc77e5686`   |
+| `plugins.image.tag`              | the image tag of plugins                                   | `7ad9f866a97642059132b1a2cd3a3e2b4289a541`   |
 | `plugins.image.imagePullSecrets` | the image imagePullSecrets of plugins                      | `[]`                                         |
 
 ### clusterDefaultPool parameters
@@ -289,7 +290,7 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `spiderpoolAgent.prometheus.serviceMonitor.namespace`                                | the serviceMonitor namespace. Default to the namespace of helm instance                                                                                                          | `""`                                       |
 | `spiderpoolAgent.prometheus.serviceMonitor.annotations`                              | the additional annotations of spiderpoolAgent serviceMonitor                                                                                                                     | `{}`                                       |
 | `spiderpoolAgent.prometheus.serviceMonitor.labels`                                   | the additional label of spiderpoolAgent serviceMonitor                                                                                                                           | `{}`                                       |
-| `spiderpoolAgent.prometheus.serviceMonitor.interval`                                 | represents the interval of spiderpoolAgent serviceMonitor's scraping action                                                                                                      | `10s`                                      |
+| `spiderpoolAgent.prometheus.serviceMonitor.interval`                                 | represents the interval of spiderpoolAgent serviceMonitor's scraping action                                                                                                      | `5s`                                       |
 | `spiderpoolAgent.prometheus.prometheusRule.install`                                  | install prometheusRule for spiderpool agent. This requires the prometheus CRDs to be available                                                                                   | `false`                                    |
 | `spiderpoolAgent.prometheus.prometheusRule.namespace`                                | the prometheusRule namespace. Default to the namespace of helm instance                                                                                                          | `""`                                       |
 | `spiderpoolAgent.prometheus.prometheusRule.annotations`                              | the additional annotations of spiderpoolAgent prometheusRule                                                                                                                     | `{}`                                       |
