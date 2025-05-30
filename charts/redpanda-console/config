@@ -1,0 +1,18 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+export REPO_URL=https://charts.redpanda.com
+export REPO_NAME=redpanda-data
+export CHART_NAME=console
+export VERSION=3.1.0
+
+# pr, issue, none
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=Frapschen
+export TEST_ASSIGNER=Frapschen
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=community
+
+# NO_TRIVY
+export NO_TRIVY=true
