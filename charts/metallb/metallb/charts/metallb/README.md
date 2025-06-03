@@ -1,6 +1,6 @@
 # metallb
 
-![Version: 0.14.9](https://img.shields.io/badge/Version-0.14.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.14.9](https://img.shields.io/badge/AppVersion-v0.14.9-informational?style=flat-square)
+![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.15.0](https://img.shields.io/badge/AppVersion-v0.15.0-informational?style=flat-square)
 
 A network load-balancer implementation for Kubernetes using standard routing protocols
 
@@ -16,8 +16,8 @@ Kubernetes: `>= 1.19.0-0`
 
 | Repository | Name | Version |
 |------------|------|---------|
-|  | crds | 0.14.9 |
-| https://metallb.github.io/frr-k8s | frr-k8s | 0.0.16 |
+|  | crds | 0.15.0 |
+| https://metallb.github.io/frr-k8s | frr-k8s | 0.0.20 |
 
 ## Values
 
@@ -79,8 +79,10 @@ Kubernetes: `>= 1.19.0-0`
 | prometheus.podMonitor.relabelings | list | `[]` |  |
 | prometheus.prometheusRule.additionalLabels | object | `{}` |  |
 | prometheus.prometheusRule.addressPoolExhausted.enabled | bool | `true` |  |
+| prometheus.prometheusRule.addressPoolExhausted.excludePools | string | `""` |  |
 | prometheus.prometheusRule.addressPoolExhausted.labels.severity | string | `"critical"` |  |
 | prometheus.prometheusRule.addressPoolUsage.enabled | bool | `true` |  |
+| prometheus.prometheusRule.addressPoolUsage.excludePools | string | `""` |  |
 | prometheus.prometheusRule.addressPoolUsage.thresholds[0].labels.severity | string | `"warning"` |  |
 | prometheus.prometheusRule.addressPoolUsage.thresholds[0].percent | int | `75` |  |
 | prometheus.prometheusRule.addressPoolUsage.thresholds[1].labels.severity | string | `"warning"` |  |
@@ -138,7 +140,7 @@ Kubernetes: `>= 1.19.0-0`
 | speaker.livenessProbe.successThreshold | int | `1` |  |
 | speaker.livenessProbe.timeoutSeconds | int | `1` |  |
 | speaker.logLevel | string | `"info"` | Speaker log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none` |
-| speaker.memberlist.enabled | bool | `true` |  |
+| speaker.memberlist.enabled | bool | `true` | When enabled: false, the speaker pods must run on all nodes |
 | speaker.memberlist.mlBindAddrOverride | string | `""` |  |
 | speaker.memberlist.mlBindPort | int | `7946` |  |
 | speaker.memberlist.mlSecretKeyPath | string | `"/etc/ml_secret_key"` |  |
