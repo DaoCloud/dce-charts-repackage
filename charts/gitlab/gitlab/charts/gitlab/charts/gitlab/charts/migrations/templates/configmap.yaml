@@ -19,12 +19,17 @@ data:
     production: &base
       gitlab:
         host: {{ template "gitlab.gitlab.hostname" . }}
+        https: {{ hasPrefix "https://" (include "gitlab.gitlab.url" .) }}
         {{- if hasKey .Values.global.appConfig.initialDefaults "signupEnabled" }}
         signup_enabled: {{ .Values.global.appConfig.initialDefaults.signupEnabled }}
+        {{- end }}
+        {{- if hasKey .Values.global.appConfig.initialDefaults "gitlabProductUsageData" }}
+        initial_gitlab_product_usage_data: {{ .Values.global.appConfig.initialDefaults.gitlabProductUsageData }}
         {{- end }}
       {{- include "gitlab.appConfig.gitaly" . | nindent 6 }}
       {{- include "gitlab.appConfig.repositories" . | nindent 6 }}
       {{- include "gitlab.appConfig.sidekiq.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.oidcProvider.configuration" $ | nindent 6 }}
       {{- include "gitlab.geo.config" $ | nindent 6 }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict "required" "rails-secrets migrations gitaly") | nindent 4 }}

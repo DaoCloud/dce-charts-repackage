@@ -28,23 +28,8 @@ metadata:
       {{- include "ingress.class.annotation" .ingressCfg | nindent 4 }}
     {{- end }}
     kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" .ingressCfg }}"
-    {{- if eq "nginx" (default $global.ingress.provider .ingressCfg.local.provider) }}
-    {{-   if $global.workhorse.tls.enabled }}
-    nginx.ingress.kubernetes.io/backend-protocol: https
-    {{-     if pluck "verify" .deployment.workhorse.tls (dict "verify" true) | first }}
-    nginx.ingress.kubernetes.io/proxy-ssl-verify: 'on'
-    nginx.ingress.kubernetes.io/proxy-ssl-name: {{ include "webservice.fullname.withSuffix" .deployment }}.{{ .root.Release.Namespace }}.svc
-    {{-       if .deployment.workhorse.tls.caSecretName }}
-    nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ .root.Release.Namespace }}/{{ .deployment.workhorse.tls.caSecretName }}
-    {{-       end }}
-    {{-     end }}
-    {{-   end }}
-    nginx.ingress.kubernetes.io/proxy-body-size: {{ .ingressCfg.local.proxyBodySize | quote }}
-    nginx.ingress.kubernetes.io/proxy-read-timeout: {{ .ingressCfg.local.proxyReadTimeout | quote }}
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: {{ .ingressCfg.local.proxyConnectTimeout | quote }}
-    {{- end }}
     {{- include "gitlab.certmanager_annotations" .root | nindent 4 }}
-  {{- range $key, $value := merge .ingressCfg.local.annotations $global.ingress.annotations }}
+  {{- range $key, $value := merge .ingressCfg.local.annotations $global.ingress.annotations (include "webservice.ingress.nginx.annotations" . | fromYaml)}}
     {{ $key }}: {{ $value | quote }}
   {{- end }}
 spec:
@@ -80,4 +65,3 @@ spec:
   {{- end }}
 {{- end }}
 {{- end -}}
-
