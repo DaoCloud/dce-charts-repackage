@@ -134,7 +134,7 @@ gpu-operator:
     usePrecompiled: false
     repository: nvcr.m.daocloud.io
     image: nvidia/driver
-    version: "550.163.01"
+    version: "570.148.08"
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     startupProbe:
@@ -217,7 +217,7 @@ gpu-operator:
     # kernel module configuration for NVIDIA driver
     kernelModuleConfig:
       name: ""
-    versionubunt20: 550.163.01
+    versionubunt20: 570.148.08
   toolkit:
     enabled: true
     repository: nvcr.m.daocloud.io
