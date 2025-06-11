@@ -98,16 +98,16 @@ yq -i '
     .gpu-operator.toolkit.version="v1.17.5-ubi8" |
     .gpu-operator.toolkit.versionubuntu20="v1.17.5-ubuntu20.04" |
     .gpu-operator.gds.version="2.20.5-ubuntu22.04" |
-    .gpu-operator.driver.version="550.163.01" |
-    .gpu-operator.driver.versionubunt20="550.163.01"
+    .gpu-operator.driver.version="570.148.08" |
+    .gpu-operator.driver.versionubunt20="570.148.08"
 ' values.yaml
 
 yq -i '
     .toolkit.version="v1.17.5-ubi8" |
     .toolkit.versionubuntu20="v1.17.5-ubuntu20.04" |
     .gds.version="2.20.5-ubuntu22.04" |
-    .driver.version="550.163.01" |
-    .driver.versionubunt20="550.163.01"
+    .driver.version="570.148.08" |
+    .driver.versionubunt20="570.148.08"
 ' charts/gpu-operator/values.yaml
 
 # set serviceMonitor
