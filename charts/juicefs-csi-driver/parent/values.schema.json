@@ -33,7 +33,7 @@
                             },
                             "existingSecretName": {
                                 "type": "string",
-                                "description": "whether to use an existing secret. If it is empty, a secret named {sc-name}-secret will be created according to the backend configuration you provided below."
+                                "description": "whether to use an existing secret, it must be in the namespace where the juicefs-csi-driver is located. If it is empty, a secret named {sc-name}-secret will be created according to the backend configuration you provided below."
                             },
                             "backend": {
                                 "type": "object",
