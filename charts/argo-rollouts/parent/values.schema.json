@@ -17,7 +17,34 @@
                     "type": "boolean"
                 },
                 "containerSecurityContext": {
-                    "type": "object"
+                    "type": "object",
+                    "properties": {
+                        "allowPrivilegeEscalation": {
+                            "type": "boolean"
+                        },
+                        "capabilities": {
+                            "type": "object",
+                            "properties": {
+                                "drop": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "readOnlyRootFilesystem": {
+                            "type": "boolean"
+                        },
+                        "seccompProfile": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
                 },
                 "controller": {
                     "type": "object",
@@ -77,6 +104,9 @@
                         "initContainers": {
                             "type": "array"
                         },
+                        "lifecycle": {
+                            "type": "object"
+                        },
                         "livenessProbe": {
                             "type": "object",
                             "properties": {
@@ -123,7 +153,7 @@
                             }
                         },
                         "metricProviderPlugins": {
-                            "type": "object"
+                            "type": "array"
                         },
                         "metrics": {
                             "type": "object",
@@ -239,6 +269,12 @@
                         "resources": {
                             "type": "object"
                         },
+                        "stepPlugins": {
+                            "type": "array"
+                        },
+                        "terminationGracePeriodSeconds": {
+                            "type": "integer"
+                        },
                         "tolerations": {
                             "type": "array"
                         },
@@ -246,7 +282,7 @@
                             "type": "array"
                         },
                         "trafficRouterPlugins": {
-                            "type": "object"
+                            "type": "array"
                         },
                         "volumeMounts": {
                             "type": "array"
@@ -416,6 +452,9 @@
                                 "labels": {
                                     "type": "object"
                                 },
+                                "loadBalancerClass": {
+                                    "type": "string"
+                                },
                                 "loadBalancerIP": {
                                     "type": "string"
                                 },
@@ -514,12 +553,23 @@
                 "notifications": {
                     "type": "object",
                     "properties": {
+                        "configmap": {
+                            "type": "object",
+                            "properties": {
+                                "create": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
                         "notifiers": {
                             "type": "object"
                         },
                         "secret": {
                             "type": "object",
                             "properties": {
+                                "annotations": {
+                                    "type": "object"
+                                },
                                 "create": {
                                     "type": "boolean"
                                 },
@@ -527,6 +577,9 @@
                                     "type": "object"
                                 }
                             }
+                        },
+                        "subscriptions": {
+                            "type": "array"
                         },
                         "templates": {
                             "type": "object"
