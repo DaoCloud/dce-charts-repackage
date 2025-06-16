@@ -56,6 +56,7 @@ yq -i '.kubeVersion=">=1.23.0-0"' Chart.yaml
 yq -i '
   .argo-cd.global.image.registry = "quay.m.daocloud.io" |
   .argo-cd.global.image.repository = "argoproj/argocd" |
+  .argo-cd.global.nodeSelector = {} |
   .argo-cd.dex.image.registry = "ghcr.m.daocloud.io" |
   .argo-cd.dex.image.repository = "dexidp/dex" |
   .argo-cd.redis.image.registry = "docker.m.daocloud.io" |
