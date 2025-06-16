@@ -111,6 +111,30 @@
                         }
                     }
                 },
+                "core": {
+                    "type": "object",
+                    "properties": {
+                        "metrics": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "serviceMonitor": {
+                                    "type": "object",
+                                    "properties": {
+                                        "additionalLabels": {
+                                            "type": "object"
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "definitionRevisionLimit": {
                     "type": "integer"
                 },
@@ -127,6 +151,9 @@
                             "type": "boolean"
                         },
                         "disableWorkflowContextConfigMapCache": {
+                            "type": "boolean"
+                        },
+                        "enableCueValidation": {
                             "type": "boolean"
                         },
                         "gzipApplicationRevision": {
@@ -318,6 +345,17 @@
                                         },
                                         "certPath": {
                                             "type": "string"
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
+                                "serviceMonitor": {
+                                    "type": "object",
+                                    "properties": {
+                                        "additionalLabels": {
+                                            "type": "object"
                                         },
                                         "enabled": {
                                             "type": "boolean"
@@ -528,6 +566,12 @@
                                     }
                                 }
                             }
+                        },
+                        "enableExternalPackageForDefaultCompiler": {
+                            "type": "boolean"
+                        },
+                        "enableExternalPackageWatchForDefaultCompiler": {
+                            "type": "boolean"
                         },
                         "enableSuspendOnFailure": {
                             "type": "boolean"
