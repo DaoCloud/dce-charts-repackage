@@ -1697,6 +1697,7 @@ argo-cd:
       # -- Image pull policy for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.imagePullPolicy)
       imagePullPolicy: "" # IfNotPresent
+      registry: quay.m.daocloud.io
     # -- Secrets with credentials to pull images from a private registry
     # @default -- `[]` (defaults to global.imagePullSecrets)
     imagePullSecrets: []
@@ -2669,6 +2670,8 @@ argo-cd:
       port: 8081
       # -- Repo server service port name
       portName: tcp-repo-server
+      # -- Traffic distribution preference for the repo server service. If the field is not set, the implementation will apply its default routing strategy.
+      trafficDistribution: ""
     ## Repo server metrics service configuration
     metrics:
       # -- Deploy metrics service
