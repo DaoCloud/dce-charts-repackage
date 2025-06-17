@@ -3033,6 +3033,9 @@
                                 "imagePullPolicy": {
                                     "type": "string"
                                 },
+                                "registry": {
+                                    "type": "string"
+                                },
                                 "repository": {
                                     "type": "string"
                                 },
@@ -3484,6 +3487,9 @@
                                     "type": "integer"
                                 },
                                 "portName": {
+                                    "type": "string"
+                                },
+                                "trafficDistribution": {
                                     "type": "string"
                                 }
                             }
