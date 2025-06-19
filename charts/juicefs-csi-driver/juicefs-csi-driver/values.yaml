@@ -10,12 +10,12 @@ juicefs-csi-driver:
   # fullnameOverride: ""
   image:
     repository: juicedata/juicefs-csi-driver
-    tag: "v0.27.0"
+    tag: "v0.28.2"
     pullPolicy: ""
     registry: m.daocloud.io/docker.io
   dashboardImage:
     repository: juicedata/csi-dashboard
-    tag: "v0.27.0"
+    tag: "v0.28.2"
     pullPolicy: ""
     registry: m.daocloud.io/docker.io
   sidecars:
@@ -47,6 +47,8 @@ juicefs-csi-driver:
   # - serverless: a special "sidecar" mode that requires no privilege, creates no hostPath volumes, to allow full serverless deployment
   # Ref: https://juicefs.com/docs/csi/introduction/
   mountMode: mountpod
+  # The name of the JuiceFS CSI driver
+  driverName: "csi.juicefs.com"
   # This file contains the configuration options for the JuiceFS CSI driver
   # Ref: https://juicefs.com/docs/zh/csi/guide/configurations#configmap
   globalConfig:
@@ -196,13 +198,15 @@ juicefs-csi-driver:
     # Example:
     #  - name: ENABLE_APISERVER_LIST_CACHE
     #    value: "true"
-    envs:
+    envs: []
   node:
     # CSI Node Service will be deployed in every node
     enabled: true
     # Enable verbose logging
     debug: false
     hostNetwork: false
+    # Set to true to run node-driver-registrar and liveness-probe sidecar in privileged mode (e.g. for SELinux systems)
+    sidecarPrivileged: false
     resources:
       limits:
         cpu: 1000m
@@ -314,6 +318,26 @@ juicefs-csi-driver:
       #      - chart-example.local
     priorityClassName: system-node-critical
     envs: []
+    updateStrategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+        maxSurge: 25%
+    # Configure the pod level securityContext.
+    podSecurityContext: {}
+    # Configure SecurityContext for Pod.
+    # Ensure that required linux capability to bind port number below 1024 is assigned (`CAP_NET_BIND_SERVICE`).
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+    hostAliases: []
+    # - ip: "127.0.0.1"
+    #   hostnames:
+    #   - "foo.local"
+    #   - "bar.local"
   # Override mount image, ref: https://juicefs.com/docs/csi/guide/custom-image/
   defaultMountImage:
     ce: ""
