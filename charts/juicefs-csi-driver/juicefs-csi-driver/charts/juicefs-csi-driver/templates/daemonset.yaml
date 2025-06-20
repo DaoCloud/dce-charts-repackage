@@ -44,6 +44,29 @@ spec:
       hostAliases:
       {{- toYaml .Values.hostAliases | nindent 6 }}
     {{- end }}
+  {{- if .Values.node.tuneTransparentHugePage }}
+      initContainers:
+      - name: setup-thp
+        image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+        {{- if .Values.image.pullPolicy }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- end }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          if [ -f /host-sys/kernel/mm/transparent_hugepage/defrag ]; then
+            echo "Setting transparent hugepage defrag to defer"
+            echo defer > /host-sys/kernel/mm/transparent_hugepage/defrag 2>/dev/null || echo "Failed to set THP defrag"
+          else
+            echo "Transparent hugepage defrag file not found, skipping"
+          fi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: host-sys
+          mountPath: /host-sys
+  {{- end }}
       containers:
       - name: juicefs-plugin
         image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
@@ -121,6 +144,10 @@ spec:
         - name: JUICEFS_CSI_WEB_PORT
           value: "{{ .Values.node.metricsPort }}"
         {{- end }}
+        {{- if .Values.driverName }}
+        - name: DRIVER_NAME
+          value: "{{ .Values.driverName }}"
+        {{- end }}
         {{- if .Values.node.envs }}
 {{ toYaml .Values.node.envs | trim | indent 8 }}
         {{- end }}
@@ -185,7 +212,9 @@ spec:
         - name: ADDRESS
           value: /csi/csi.sock
         - name: DRIVER_REG_SOCK_PATH
-          value: {{ .Values.kubeletDir }}/csi-plugins/csi.juicefs.com/csi.sock
+          value: {{ .Values.kubeletDir }}/csi-plugins/{{ include "driverName" . }}/csi.sock
+        securityContext:
+          privileged: {{ .Values.node.sidecarPrivileged }}
         volumeMounts:
         - mountPath: /csi
           name: plugin-dir
@@ -204,6 +233,8 @@ spec:
           value: /csi/csi.sock
         - name: HEALTH_PORT
           value: "{{ .Values.node.livenessProbe.httpGet.port }}"
+        securityContext:
+          privileged: {{ .Values.node.sidecarPrivileged }}
         volumeMounts:
         - mountPath: /csi
           name: plugin-dir
@@ -237,7 +268,7 @@ spec:
           type: Directory
         name: kubelet-dir
       - hostPath:
-          path: {{ .Values.kubeletDir }}/csi-plugins/csi.juicefs.com/
+          path: {{ .Values.kubeletDir }}/csi-plugins/{{ include "driverName" . }}/
           type: DirectoryOrCreate
         name: plugin-dir
       - hostPath:
@@ -266,5 +297,11 @@ spec:
       - name: juicefs-config
         configMap:
           name: {{ include "juicefs-csi.fullname" . }}-config
+      {{- end }}
+      {{- if .Values.node.tuneTransparentHugePage }}
+      - hostPath:
+          path: /sys
+          type: Directory
+        name: host-sys
       {{- end }}
 {{- end }}
