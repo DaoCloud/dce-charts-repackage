@@ -1,4 +1,4 @@
-# Koordinator v1.5.0
+# Koordinator v1.6.0
 
 ## Configuration
 
@@ -19,7 +19,7 @@ The following table lists the configurable parameters of the chart and their def
 | `manager.log.level`                                | Log level that koord-manager printed                             | `4`                             |
 | `manager.replicas`                                 | Replicas of koord-manager deployment                             | `2`                             |
 | `manager.image.repository`                         | Repository for koord-manager image                               | `koordinatorsh/koord-manager`   |
-| `manager.image.tag`                                | Tag for koord-manager image                                      | `v1.5.0`                        |
+| `manager.image.tag`                                | Tag for koord-manager image                                      | `v1.6.0`                        |
 | `manager.resources.limits.cpu`                     | CPU resource limit of koord-manager container                    | `1000m`                         |
 | `manager.resources.limits.memory`                  | Memory resource limit of koord-manager container                 | `1Gi`                           |
 | `manager.resources.requests.cpu`                   | CPU resource request of koord-manager container                  | `500m`                          |
@@ -34,7 +34,7 @@ The following table lists the configurable parameters of the chart and their def
 | `scheduler.log.level`                              | Log level that koord-scheduler printed                           | `4`                             |
 | `scheduler.replicas`                               | Replicas of koord-scheduler deployment                           | `2`                             |
 | `scheduler.image.repository`                       | Repository for koord-scheduler image                             | `koordinatorsh/koord-scheduler` |
-| `scheduler.image.tag`                              | Tag for koord-scheduler image                                    | `v1.5.0`                        |
+| `scheduler.image.tag`                              | Tag for koord-scheduler image                                    | `v1.6.0`                        |
 | `scheduler.resources.limits.cpu`                   | CPU resource limit of koord-scheduler container                  | `1000m`                         |
 | `scheduler.resources.limits.memory`                | Memory resource limit of koord-scheduler container               | `1Gi`                           |
 | `scheduler.resources.requests.cpu`                 | CPU resource request of koord-scheduler container                | `500m`                          |
@@ -46,7 +46,7 @@ The following table lists the configurable parameters of the chart and their def
 | `scheduler.hostNetwork`                            | Whether koord-scheduler pod should run with hostnetwork          | `false`                         |
 | `koordlet.log.level`                               | Log level that koordlet printed                                  | `4`                             |
 | `koordlet.image.repository`                        | Repository for koordlet image                                    | `koordinatorsh/koordlet`        |
-| `koordlet.image.tag`                               | Tag for koordlet image                                           | `v1.5.0`                        |
+| `koordlet.image.tag`                               | Tag for koordlet image                                           | `v1.6.0`                        |
 | `koordlet.resources.limits.cpu`                    | CPU resource limit of koordlet container                         | `500m`                          |
 | `koordlet.resources.limits.memory`                 | Memory resource limit of koordlet container                      | `256Mi`                         |
 | `koordlet.resources.requests.cpu`                  | CPU resource request of koordlet container                       | `0`                             |
