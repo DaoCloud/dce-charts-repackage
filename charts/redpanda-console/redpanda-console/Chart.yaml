@@ -10,19 +10,19 @@ annotations:
       url: https://helm.sh/docs/intro/install/
 apiVersion: v2
 appVersion: v3.1.0
+dependencies:
+- name: console
+  repository: https://charts.redpanda.com
+  version: 3.1.0
 description: Helm chart to deploy Redpanda Console.
 icon: https://go.redpanda.com/hubfs/Redpandas/skate-stand-panda.svg
 keywords:
-  - redpanda-console
+- redpanda-console
 maintainers:
-  - name: redpanda-data
-    url: https://github.com/orgs/redpanda-data/people
+- name: redpanda-data
+  url: https://github.com/orgs/redpanda-data/people
 name: redpanda-console
 sources:
-  - https://github.com/redpanda-data/redpanda-operator/tree/main/charts/console
+- https://github.com/redpanda-data/redpanda-operator/tree/main/charts/console
 type: application
 version: 3.1.0
-dependencies:
-  - name: console
-    version: "3.1.0"
-    repository: "https://charts.redpanda.com"
