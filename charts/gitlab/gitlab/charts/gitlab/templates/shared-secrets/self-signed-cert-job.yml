@@ -1,11 +1,12 @@
 {{- $sharedSecretValues := index .Values "shared-secrets" -}}
 {{- if $sharedSecretValues.enabled }}
-{{-   if not .Values.global.ingress.configureCertmanager -}}
-{{-     if not (include "gitlab.ingress.tls.configured" .) }}
-{{-       $imageCfgSelfsign := dict "global" .Values.global.image "local" $sharedSecretValues.selfsign.image -}}
-{{-       $imageCfgKubectl := dict "global" .Values.global.image "local" .Values.global.kubectl.image -}}
-{{-       $jointPullSecrets := concat (default (list) $sharedSecretValues.selfsign.image.pullSecrets) (default (list) .Values.global.kubectl.image.pullSecrets) -}}
-{{-       $imageCfg := dict "global" .Values.global.image "local" (dict "pullSecrets" $jointPullSecrets) -}}
+{{-   if not .Values.global.ingress.configureCertmanager }}
+{{-     if (eq (include "gitlab.global.ingress.tls.enabled" .) "true") }}
+{{-       if not (eq (include "gitlab.ingress.tls.configured" .) "true") }}
+{{-         $imageCfgSelfsign := dict "global" .Values.global.image "local" $sharedSecretValues.selfsign.image -}}
+{{-         $imageCfgKubectl := dict "global" .Values.global.image "local" .Values.global.kubectl.image -}}
+{{-         $jointPullSecrets := concat (default (list) $sharedSecretValues.selfsign.image.pullSecrets) (default (list) .Values.global.kubectl.image.pullSecrets) -}}
+{{-         $imageCfg := dict "global" .Values.global.image "local" (dict "pullSecrets" $jointPullSecrets) -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -21,8 +22,9 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "name" . }}
-        release: {{ .Release.Name }}
+        {{- include "gitlab.standardLabels" . | nindent 8 }}
+        {{- include "gitlab.commonLabels" . | nindent 8 }}
+        {{- include "gitlab.podLabels" . | nindent 8 }}
       annotations:
       {{- range $key, $value := $sharedSecretValues.annotations }}
         {{ $key }}: {{ $value | quote }}
@@ -112,6 +114,7 @@ spec:
       volumes:
       - name: certs-path
         emptyDir: {}
+{{-       end -}}
 {{-     end -}}
 {{-   end -}}
 {{- end }}
