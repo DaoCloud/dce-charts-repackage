@@ -13,7 +13,7 @@ Some of the key benefits of this chart and [corresponding containers](https://gi
 
 ## Detailed documentation
 
-See the [repository documentation](doc/index.md) for how to install GitLab and
+See the [repository documentation](doc/_index.md) for how to install GitLab and
 other information on charts, tools, and advanced configuration.
 
 For easy of reading, you can find this documentation rendered on
@@ -31,12 +31,8 @@ jumping directly into the settings list.
 
 ## Architecture and goals
 
-See [architecture documentation](doc/architecture/index.md) for an overview
+See [architecture documentation](doc/architecture/_index.md) for an overview
 of this project goals and architecture.
-
-## Known issues and limitations
-
-See [limitations](doc/index.md#limitations).
 
 ## Release Notes
 
@@ -46,4 +42,4 @@ and see the [changelog](CHANGELOG.md) for the full details on any release.
 ## Contributing
 
 See the [contribution guidelines](CONTRIBUTING.md) and then check out the
-[development styleguide](doc/development/index.md).
+[development styleguide](doc/development/_index.md).
