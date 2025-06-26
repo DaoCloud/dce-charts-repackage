@@ -67,6 +67,8 @@ global:
   statefulsetAnnotations: {}
   # -- Annotations for the all deployed Deployments
   deploymentAnnotations: {}
+  # -- Labels for the all deployed Deployments
+  deploymentLabels: {}
   # -- Annotations for the all deployed pods
   podAnnotations: {}
   # -- Labels for the all deployed pods
@@ -806,6 +808,8 @@ controller:
   statefulsetAnnotations: {}
   # -- Annotations for the application controller Deployment
   deploymentAnnotations: {}
+  # -- Labels for the application controller Deployment
+  deploymentLabels: {}
   # -- Annotations to be added to application controller pods
   podAnnotations: {}
   # -- Labels to be added to application controller pods
@@ -1121,6 +1125,8 @@ dex:
     crt: ''
   # -- Annotations to be added to the Dex server Deployment
   deploymentAnnotations: {}
+  # -- Labels for the Dex server Deployment
+  deploymentLabels: {}
   # -- Annotations to be added to the Dex server pods
   podAnnotations: {}
   # -- Labels to be added to the Dex server pods
@@ -1405,6 +1411,8 @@ redis:
   volumes: []
   # -- Annotations to be added to the Redis server Deployment
   deploymentAnnotations: {}
+  # -- Labels for the Redis server Deployment
+  deploymentLabels: {}
   # -- Annotations to be added to the Redis server pods
   podAnnotations: {}
   # -- Labels to be added to the Redis server pods
@@ -1881,6 +1889,8 @@ server:
     # sizeLimit: "1Gi"
   # -- Annotations to be added to server Deployment
   deploymentAnnotations: {}
+  # -- Labels for the server Deployment
+  deploymentLabels: {}
   # -- Annotations to be added to server pods
   podAnnotations: {}
   # -- Labels to be added to server pods
@@ -2480,6 +2490,8 @@ repoServer:
   useEphemeralHelmWorkingDir: true
   # -- Annotations to be added to repo server Deployment
   deploymentAnnotations: {}
+  # -- Labels for the repo server Deployment
+  deploymentLabels: {}
   # -- Annotations to be added to repo server pods
   podAnnotations: {}
   # -- Labels to be added to repo server pods
@@ -2815,6 +2827,8 @@ applicationSet:
     automountServiceAccountToken: true
   # -- Annotations to be added to ApplicationSet controller Deployment
   deploymentAnnotations: {}
+  # -- Labels for the ApplicationSet controller Deployment
+  deploymentLabels: {}
   # -- Annotations for the ApplicationSet controller pods
   podAnnotations: {}
   # -- Labels for the ApplicationSet controller pods
@@ -3157,6 +3171,8 @@ notifications:
 
   # -- Annotations to be applied to the notifications controller Deployment
   deploymentAnnotations: {}
+  # -- Labels for the notifications controller Deployment
+  deploymentLabels: {}
   # -- Annotations to be applied to the notifications controller Pods
   podAnnotations: {}
   # -- Labels to be applied to the notifications controller Pods
@@ -3610,6 +3626,8 @@ commitServer:
     automountServiceAccountToken: true
   # -- Annotations to be added to commit server Deployment
   deploymentAnnotations: {}
+  # -- Labels for the commit server Deployment
+  deploymentLabels: {}
   # -- Annotations for the commit server pods
   podAnnotations: {}
   # -- Labels for the commit server pods
