@@ -60,6 +60,22 @@ spec:
         - --metrics-port={{ .Values.metricsPort }}
         - --health-probe-port={{ .Values.healthProbePort }}
         - --webhook-port={{ .Values.webhook.webhookPort }}
+        {{- if .Values.debug.pyroscope.enabled }}
+        {{- if .Values.debug.pyroscope.address }}
+        - --pyroscope-address={{ .Values.debug.pyroscope.address }}
+        {{- end }}
+        {{- if .Values.debug.pyroscope.tag }}
+        - --pyroscope-tag={{ .Values.debug.pyroscope.tag }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.debug.pprof.enabled }}
+        {{- if .Values.debug.pprof.host }}
+        - --pprof-address={{ .Values.debug.pprof.host }}
+        {{- end }}
+        {{- if .Values.debug.pprof.port }}
+        - --pprof-port={{ .Values.debug.pprof.port }}
+        {{- end }}
+        {{- end }}
         {{- with .Values.extraArgs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -92,6 +108,11 @@ spec:
         - name: health-probe
           containerPort: {{ .Values.healthProbePort }}
           protocol: TCP
+        {{- if and .Values.debug.pprof.enabled .Values.debug.pprof.port }}
+        - name: pprof
+          containerPort: {{ .Values.debug.pprof.port }}
+          protocol: TCP
+        {{- end }}
         volumeMounts:
         - name: webhook-certs
           mountPath: /tmp/k8s-webhook-server/serving-certs

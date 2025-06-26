@@ -78,7 +78,7 @@ webhooks:
     operations: ["CREATE", "UPDATE"]
     resources: ["hostoperations"]
     scope: "Cluster"
-- name: hoststatus.topohub.infrastructure.io
+- name: redfishstatus.topohub.infrastructure.io
   admissionReviewVersions: ["v1"]
   sideEffects: None
   timeoutSeconds: 5
@@ -87,14 +87,32 @@ webhooks:
     service:
       name: {{ include "topohub.fullname" . }}-webhook-service
       namespace: {{ .Release.Namespace }}
-      path: /validate-topohub-infrastructure-io-v1beta1-hoststatus
+      path: /validate-topohub-infrastructure-io-v1beta1-redfishstatus
       port: {{ .Values.webhook.webhookPort }}
     caBundle: {{ $ca.Cert | b64enc }}
   rules:
   - apiGroups: ["topohub.infrastructure.io"]
     apiVersions: ["v1beta1"]
     operations: ["CREATE", "UPDATE"]
-    resources: ["hoststatuses"]
+    resources: ["redfishstatuses"]
+    scope: "Cluster"
+- name: sshstatus.topohub.infrastructure.io
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 5
+  failurePolicy: Fail
+  clientConfig:
+    service:
+      name: {{ include "topohub.fullname" . }}-webhook-service
+      namespace: {{ .Release.Namespace }}
+      path: /validate-topohub-infrastructure-io-v1beta1-sshstatus
+      port: {{ .Values.webhook.webhookPort }}
+    caBundle: {{ $ca.Cert | b64enc }}
+  rules:
+  - apiGroups: ["topohub.infrastructure.io"]
+    apiVersions: ["v1beta1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["sshstatuses"]
     scope: "Cluster"
 - name: bindingip.topohub.infrastructure.io
   admissionReviewVersions: ["v1"]
@@ -176,7 +194,7 @@ webhooks:
     operations: ["CREATE", "UPDATE"]
     resources: ["subnets"]
     scope: "Cluster"
-- name: hoststatus.topohub.infrastructure.io
+- name: redfishstatus.topohub.infrastructure.io
   admissionReviewVersions: ["v1"]
   sideEffects: None
   timeoutSeconds: 5
@@ -185,14 +203,14 @@ webhooks:
     service:
       name: {{ include "topohub.fullname" . }}-webhook-service
       namespace: {{ .Release.Namespace }}
-      path: /mutate-topohub-infrastructure-io-v1beta1-hoststatus
+      path: /mutate-topohub-infrastructure-io-v1beta1-redfishstatus
       port: {{ .Values.webhook.webhookPort }}
     caBundle: {{ $ca.Cert | b64enc }}
   rules:
   - apiGroups: ["topohub.infrastructure.io"]
     apiVersions: ["v1beta1"]
     operations: ["CREATE", "UPDATE"]
-    resources: ["hoststatuses"]
+    resources: ["redfishstatuses"]
     scope: "Cluster"
 - name: bindingip.topohub.infrastructure.io
   admissionReviewVersions: ["v1"]
@@ -211,4 +229,22 @@ webhooks:
     apiVersions: ["v1beta1"]
     operations: ["CREATE", "UPDATE"]
     resources: ["bindingips"]
+    scope: "Cluster"
+- name: sshstatus.topohub.infrastructure.io
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 5
+  failurePolicy: Fail
+  clientConfig:
+    service:
+      name: {{ include "topohub.fullname" . }}-webhook-service
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-topohub-infrastructure-io-v1beta1-sshstatus
+      port: {{ .Values.webhook.webhookPort }}
+    caBundle: {{ $ca.Cert | b64enc }}
+  rules:
+  - apiGroups: ["topohub.infrastructure.io"]
+    apiVersions: ["v1beta1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["sshstatuses"]
     scope: "Cluster"

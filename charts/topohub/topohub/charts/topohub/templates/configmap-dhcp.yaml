@@ -7,6 +7,9 @@ metadata:
 data:
   dnsmasq.conf.tmpl: |
     # Basic DHCP configuration
+    {{ "{{ if .EnableDhcpTrustedOnly }}" }}
+    dhcp-ignore=tag:!trusted
+    {{ "{{ end }}" }}
     dhcp-authoritative
     dhcp-leasefile={{ "{{ .LeaseFile }}" }}
     log-facility={{ "{{ .LogFile }}" }}
@@ -48,7 +51,7 @@ data:
     dhcp-option=67,http://{{ "{{ .SelfIP }}" }}/ztp/ztp.json
     {{ "{{ end }}" }}
 
-    conf-file={{ "{{ .HostIpBindingsConfigPath }}" }}
+    dhcp-hostsfile={{ "{{ .HostIpBindingsConfigPath }}" }}
 
     # Additional options
     # Disable DNS server functionality

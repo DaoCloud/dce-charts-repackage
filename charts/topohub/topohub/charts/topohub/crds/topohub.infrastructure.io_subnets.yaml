@@ -30,8 +30,8 @@ spec:
     - jsonPath: .status.dhcpStatus.dhcpIpBindAmount
       name: IP_RESERVED
       type: integer
-    - jsonPath: .spec.feature.syncHoststatus.enabled
-      name: SYNC_HOSTSTATUS
+    - jsonPath: .spec.feature.syncRedfishstatus.enabled
+      name: SYNC_redfishStatus
       type: boolean
     - jsonPath: .spec.feature.enablePxe
       name: PXE
@@ -67,6 +67,10 @@ spec:
               feature:
                 description: Feature configuration
                 properties:
+                  enableDhcpTrustedOnly:
+                    default: false
+                    description: Enable DHCP trusted only mode (dhcp-ignore=tag:!trusted)
+                    type: boolean
                   enablePxe:
                     default: false
                     description: Enable PXE boot support
@@ -75,8 +79,8 @@ spec:
                     default: false
                     description: Enable ZTP configuration for switch
                     type: boolean
-                  syncHoststatus:
-                    description: SyncHoststatus configuration
+                  syncRedfishstatus:
+                    description: SyncRedfishstatus configuration
                     properties:
                       defaultClusterName:
                         description: Default cluster name
@@ -87,8 +91,9 @@ spec:
                         type: boolean
                       enabled:
                         default: false
-                        description: Enable automatically create the hoststatus object
-                          for the dhcp client. Notice, it will not be deleted automatically
+                        description: Enable automatically create the redfishstatus
+                          object for the dhcp client. Notice, it will not be deleted
+                          automatically
                         type: boolean
                     required:
                     - enableBindDhcpIP
@@ -97,7 +102,7 @@ spec:
                 required:
                 - enablePxe
                 - enableZtp
-                - syncHoststatus
+                - syncRedfishstatus
                 type: object
               interface:
                 description: Interface configuration

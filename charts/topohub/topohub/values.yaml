@@ -10,7 +10,7 @@ topohub:
     repository: "infrastructure-io/topohub"
     pullPolicy: IfNotPresent
     # tag will be overridden by version from Chart.yaml
-    tag: "v0.4.3"
+    tag: "v0.5.0"
     # Optional: image digest
     digest: ""
   resources:
@@ -29,12 +29,20 @@ topohub:
       # Optional: Authentication credentials
       username: "admin"
       password: "secret"
-      # 状态更新间隔，它决定了多久向主机发送一次redfish请求，来更新 hostStatus 对象中的信息，默认 60 秒
-      hostStatusUpdateInterval: 60
+      # redfishStatusUpdateInterval defines the interval of redfishStatusUpdateInterval
+      redfishStatusUpdateInterval: 60
+    ssh:
+      # Port for the endpoint (default: 443)
+      port: 22
+      # Optional: Authentication credentials
+      username: "admin"
+      password: "admin"
+      # sshStatusUpdateInterval defines the interval of sshStatusUpdateInterval
+      sshStatusUpdateInterval: 60
     dhcpServer:
-      # 宿主机网卡名，最好是 trunk 模式接入网络，从而接入到各种子网中
+      # interface defines the interface of dhcpServer, it should be a trunk mode interface
       interface: ""
-      # 1 day
+      # expireTime defines the expire time of dhcpServer
       expireTime: "1d"
     # for iso and ztp in dchp subnet
     httpServer:
@@ -67,6 +75,24 @@ topohub:
   metricsPort: 8083
   # Health probe port
   healthProbePort: 8081
+  # Debug configuration
+  debug:
+    # Pyroscope configuration for profiling
+    pyroscope:
+      # Enable pyroscope profiling
+      enabled: false
+      # The server address where the pyroscope data is pushed
+      address: "http://pyroscope-server:4040"
+      # The tag used for pyroscope
+      tag: "topohub"
+    # pprof configuration for profiling
+    pprof:
+      # Enable pprof profiling
+      enabled: false
+      # The host address the pprof endpoint binds to
+      host: "0.0.0.0"
+      # The port used for pprof
+      port: "8084"
   # Webhook configuration
   webhook:
     # Port for webhook server to listen on and service to expose
