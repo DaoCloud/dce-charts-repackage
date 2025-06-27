@@ -4,14 +4,14 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
-  name: hoststatuses.topohub.infrastructure.io
+  name: sshstatuses.topohub.infrastructure.io
 spec:
   group: topohub.infrastructure.io
   names:
-    kind: HostStatus
-    listKind: HostStatusList
-    plural: hoststatuses
-    singular: hoststatus
+    kind: SSHStatus
+    listKind: SSHStatusList
+    plural: sshstatuses
+    singular: sshstatus
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -26,9 +26,6 @@ spec:
       type: string
     - jsonPath: .status.basic.type
       name: TYPE
-      type: string
-    - jsonPath: .status.log.warningLogAccount
-      name: WARNING
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: AGE
@@ -57,22 +54,11 @@ spec:
           status:
             properties:
               basic:
+                description: SSHBasicInfo incluse SSH connection basic info
                 properties:
-                  activeDhcpClient:
-                    description: ActiveDhcpClient specifies this host is an active
-                      dhcp client when type is dhcp
-                    type: boolean
                   clusterName:
                     type: string
-                  dhcpExpireTime:
-                    type: string
-                  hostname:
-                    type: string
-                  https:
-                    type: boolean
                   ipAddr:
-                    type: string
-                  mac:
                     type: string
                   port:
                     format: int32
@@ -81,13 +67,16 @@ spec:
                     type: string
                   secretNamespace:
                     type: string
+                  sshKeyAuth:
+                    type: boolean
                   subnetName:
+                    description: SubnetName is the name of the subnet this host belongs
+                      to
                     type: string
                   type:
                     type: string
                 required:
                 - clusterName
-                - https
                 - ipAddr
                 - port
                 - secretName
@@ -102,44 +91,11 @@ spec:
                 type: object
               lastUpdateTime:
                 type: string
-              log:
-                properties:
-                  lastestLog:
-                    properties:
-                      message:
-                        type: string
-                      time:
-                        type: string
-                    required:
-                    - message
-                    - time
-                    type: object
-                  lastestWarningLog:
-                    properties:
-                      message:
-                        type: string
-                      time:
-                        type: string
-                    required:
-                    - message
-                    - time
-                    type: object
-                  totalLogAccount:
-                    format: int32
-                    type: integer
-                  warningLogAccount:
-                    format: int32
-                    type: integer
-                required:
-                - totalLogAccount
-                - warningLogAccount
-                type: object
             required:
             - basic
             - healthy
             - info
             - lastUpdateTime
-            - log
             type: object
         type: object
     served: true

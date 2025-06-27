@@ -69,6 +69,13 @@ spec:
                 description: SecretNamespace is the namespace of the secret containing
                   credentials
                 type: string
+              type:
+                default: redfish
+                description: Type specifies the endpoint type, either redfish or ssh
+                enum:
+                - redfish
+                - ssh
+                type: string
             required:
             - ipAddr
             type: object

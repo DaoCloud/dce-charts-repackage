@@ -32,14 +32,16 @@ rules:
   resources:
   - hostendpoints
   - hostendpoints/status
-  - hoststatuses
-  - hoststatuses/status
+  - redfishstatuses
+  - redfishstatuses/status
   - hostoperations
   - hostoperations/status
   - subnets
   - subnets/status
   - bindingips
   - bindingips/status
+  - sshstatuses
+  - sshstatuses/status
   verbs:
   - "*"
 - apiGroups:

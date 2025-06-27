@@ -60,11 +60,11 @@ spec:
                 - GracefulRestart
                 - PxeReboot
                 type: string
-              hostStatusName:
+              redfishStatusName:
                 type: string
             required:
             - action
-            - hostStatusName
+            - redfishStatusName
             type: object
           status:
             properties:

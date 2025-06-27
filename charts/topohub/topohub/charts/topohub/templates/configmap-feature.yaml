@@ -5,12 +5,13 @@ metadata:
   labels:
     {{- include "topohub.labels" . | nindent 4 }}
 data:
-  redfishPort: {{ .Values.defaultConfig.redfish.port | quote }}
-  redfishHttps: {{ .Values.defaultConfig.redfish.https | quote }}
-  redfishSecretname: {{ include "topohub.fullname" . }}-redfish-auth
-  redfishSecretNamespace: {{ .Release.Namespace }}
-  redfishHostStatusUpdateInterval: {{ .Values.defaultConfig.redfish.hostStatusUpdateInterval | quote }}
-  dhcpServerInterface: {{ .Values.defaultConfig.dhcpServer.interface | quote }}
-  httpServerPort: {{ .Values.defaultConfig.httpServer.port | quote }}
-  httpServerEnabled: {{ .Values.defaultConfig.httpServer.enabled | quote }}
-
+  feature-config.yaml: |
+    redfishPort: {{ .Values.defaultConfig.redfish.port }}
+    redfishHttps: {{ .Values.defaultConfig.redfish.https }}
+    redfishSecretname: {{ include "topohub.fullname" . }}-redfish-auth
+    redfishSecretNamespace: {{ .Release.Namespace }}
+    redfishStatusUpdateInterval: {{ .Values.defaultConfig.redfish.redfishStatusUpdateInterval }}
+    sshStatusUpdateInterval: {{ .Values.defaultConfig.ssh.sshStatusUpdateInterval }}
+    dhcpServerInterface: {{ .Values.defaultConfig.dhcpServer.interface }}
+    httpServerPort: {{ .Values.defaultConfig.httpServer.port }}
+    httpServerEnabled: {{ .Values.defaultConfig.httpServer.enabled }}
