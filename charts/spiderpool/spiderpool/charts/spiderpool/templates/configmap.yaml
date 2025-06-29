@@ -20,11 +20,11 @@ data:
     enableIPv6: {{ .Values.ipam.enableIPv6 }}
     enableStatefulSet: {{ .Values.ipam.enableStatefulSet }}
     enableKubevirtStaticIP: {{ .Values.ipam.enableKubevirtStaticIP }}
+    enableCleanOutdatedEndpoint: {{ .Values.ipam.enableCleanOutdatedEndpoint }}
     enableSpiderSubnet: {{ .Values.ipam.spiderSubnet.enable }}
     enableAutoPoolForApplication: {{ .Values.ipam.spiderSubnet.autoPool.enable }}
     enableIPConflictDetection: {{ .Values.ipam.enableIPConflictDetection }}
     enableGatewayDetection: {{ .Values.ipam.enableGatewayDetection }}
-    enableValidatingResourcesDeletedWebhook: {{ .Values.spiderpoolController.enableValidatingResourcesDeletedWebhook }}
     {{- if and .Values.ipam.spiderSubnet.enable .Values.ipam.spiderSubnet.autoPool.enable }}
     clusterSubnetDefaultFlexibleIPNumber: {{ .Values.ipam.spiderSubnet.autoPool.defaultRedundantIPNumber }}
     {{- else}}
