@@ -49,6 +49,7 @@ yq -i '
     .spiderpool.ipam.enableIPv6=false |
     .spiderpool.ipam.enableIPConflictDetection = true |
     .spiderpool.ipam.enableGatewayDetection = true | 
+    .spiderpool.ipam.enableCleanOutdatedEndpoint = true |
     .spiderpool.multus.multusCNI.uninstall=true |
     .spiderpool.multus.multusCNI.defaultCniCRName="" |
     .spiderpool.multus.multusCNI.image.registry="ghcr.m.daocloud.io" |

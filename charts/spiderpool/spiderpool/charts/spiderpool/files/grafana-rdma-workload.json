@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 16,
+  "id": 20,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -91,7 +91,7 @@
               }
             ]
           },
-          "unit": "bps"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -121,13 +121,13 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (owner_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])\n  +\n  rate(rdma_rx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])\n) * 8",
-          "legendFormat": "Read",
+          "expr": "sum by (owner_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n  +\n  rate(rdma_rx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Workload Read by Workload",
+      "title": "Total Read Throughput",
       "type": "timeseries"
     },
     {
@@ -181,7 +181,7 @@
               }
             ]
           },
-          "unit": "bps"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -211,13 +211,13 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (owner_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])\n  +\n  rate(rdma_tx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])\n) * 8",
-          "legendFormat": "Write",
+          "expr": "sum by (owner_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n  +\n  rate(rdma_tx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Write Throughput by Workload",
+      "title": "Total Write Throughput",
       "type": "timeseries"
     },
     {
@@ -251,7 +251,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -284,9 +284,25 @@
               }
             ]
           },
-          "unit": "bps"
+          "unit": "bytes"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rdma-test-gpu-tool-n792j"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -299,12 +315,12 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "right",
+          "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
           "mode": "single",
-          "sort": "desc"
+          "sort": "none"
         }
       },
       "targets": [
@@ -314,14 +330,14 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (pod_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval]) +\n  rate(rdma_rx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])\n) * 8",
+          "expr": "sum by (pod_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n  +\n  rate(rdma_rx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "interval": "",
           "legendFormat": "{{pod_name}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Read Throughput by Pod",
+      "title": "Read Throughput",
       "type": "timeseries"
     },
     {
@@ -341,7 +357,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -374,9 +390,25 @@
               }
             ]
           },
-          "unit": "bps"
+          "unit": "bytes"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rdma-test-gpu-tool-n792j"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -389,12 +421,12 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "right",
+          "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
           "mode": "single",
-          "sort": "desc"
+          "sort": "none"
         }
       },
       "targets": [
@@ -404,14 +436,14 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval]) +\n  rate(rdma_tx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])\n) * 8",
+          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n  +\n  rate(rdma_tx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "interval": "",
           "legendFormat": "{{pod_name}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Write Throughput by Pod",
+      "title": "Write Throughput",
       "type": "timeseries"
     },
     {
@@ -433,7 +465,7 @@
             "axisSoftMin": 0,
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -468,7 +500,23 @@
           },
           "unit": "pps"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rdma-test-gpu-tool-n792j"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -498,7 +546,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (pod_name) (\n  rate(rdma_rx_vport_rdma_unicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])\n)",
+          "expr": "sum by (pod_name) (\n  rate(rdma_rx_vport_rdma_unicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -529,7 +577,7 @@
             "axisSoftMin": 0,
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -610,7 +658,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_unicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])\n)",
+          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_unicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -641,7 +689,7 @@
             "axisSoftMin": 0,
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -676,7 +724,23 @@
           },
           "unit": "pps"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rdma-test-gpu-tool-n792j"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -706,7 +770,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_multicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])\n)",
+          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_multicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -737,7 +801,7 @@
             "axisSoftMin": 0,
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -772,7 +836,23 @@
           },
           "unit": "pps"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rdma-test-gpu-tool-n792j"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -802,7 +882,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_multicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])\n)",
+          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_multicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -861,7 +941,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           }
@@ -883,8 +964,8 @@
           "showLegend": true
         },
         "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -895,7 +976,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "rate(rdma_out_of_sequence_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])",
+          "expr": "rate(rdma_out_of_sequence_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -954,7 +1035,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           }
@@ -976,8 +1058,8 @@
           "showLegend": true
         },
         "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -988,7 +1070,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "rate(rdma_packet_seq_err_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[$__rate_interval])",
+          "expr": "rate(rdma_packet_seq_err_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -1020,7 +1102,7 @@
         "name": "datasource",
         "options": [],
         "query": "prometheus",
-        "refresh": 2,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "type": "datasource"
@@ -1047,7 +1129,7 @@
           "query": "label_values(global_cluster_info, cluster_name)",
           "refId": "StandardVariableQuery"
         },
-        "refresh": 2,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -1075,7 +1157,7 @@
           "query": "label_values(global_cluster_info{cluster_name=\"$cluster_name\"}, cluster)",
           "refId": "StandardVariableQuery"
         },
-        "refresh": 2,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
@@ -1083,10 +1165,9 @@
       },
       {
         "current": {
-          "isNone": true,
           "selected": false,
-          "text": "None",
-          "value": ""
+          "text": "DaemonSet",
+          "value": "DaemonSet"
         },
         "datasource": {
           "type": "prometheus",
@@ -1102,7 +1183,7 @@
           "query": "label_values(rdma_vport_speed_mbps_total{cluster=~\"$cluster\"}, owner_kind)",
           "refId": "StandardVariableQuery"
         },
-        "refresh": 2,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
@@ -1110,10 +1191,9 @@
       },
       {
         "current": {
-          "isNone": true,
           "selected": false,
-          "text": "None",
-          "value": ""
+          "text": "huailou",
+          "value": "huailou"
         },
         "datasource": {
           "type": "prometheus",
@@ -1129,7 +1209,7 @@
           "query": "label_values(rdma_vport_speed_mbps_total{owner_kind=~\"$kind\",cluster=~\"$cluster\"}, owner_namespace)",
           "refId": "StandardVariableQuery"
         },
-        "refresh": 2,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -1137,10 +1217,9 @@
       },
       {
         "current": {
-          "isNone": true,
           "selected": false,
-          "text": "None",
-          "value": ""
+          "text": "rdma-test-gpu-tool",
+          "value": "rdma-test-gpu-tool"
         },
         "datasource": {
           "type": "prometheus",
@@ -1156,7 +1235,7 @@
           "query": "label_values(rdma_vport_speed_mbps_total{owner_kind=~\"$kind\", owner_namespace=~\"$namespace\",cluster=~\"$cluster\"}, owner_name)",
           "refId": "StandardVariableQuery"
         },
-        "refresh": 2,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -1165,13 +1244,13 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-90d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Spiderpool RDMA AI Workload",
+  "title": "Spiderpool RDMA | AI Workload",
   "uid": "AAT6f2ZNz",
-  "version": 5,
+  "version": 45,
   "weekStart": ""
 }
