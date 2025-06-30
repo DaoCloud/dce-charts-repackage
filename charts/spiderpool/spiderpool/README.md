@@ -135,6 +135,7 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `ipam.enableKubevirtStaticIP`                                | the feature to keep kubevirt vm pod static IP                                                    | `true`  |
 | `ipam.enableIPConflictDetection`                             | enable IP conflict detection                                                                     | `false` |
 | `ipam.enableGatewayDetection`                                | enable gateway detection                                                                         | `false` |
+| `ipam.enableCleanOutdatedEndpoint`                           | enable clean outdated endpoint                                                                   | `false` |
 | `ipam.spiderSubnet.enable`                                   | SpiderSubnet feature.                                                                            | `true`  |
 | `ipam.spiderSubnet.autoPool.enable`                          | SpiderSubnet Auto IPPool feature.                                                                | `true`  |
 | `ipam.spiderSubnet.autoPool.defaultRedundantIPNumber`        | the default redundant IP number of SpiderSubnet feature auto-created IPPools                     | `1`     |
@@ -225,7 +226,7 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `plugins.image.repository`       | the image repository of plugins                            | `spidernet-io/spiderpool/spiderpool-plugins` |
 | `plugins.image.pullPolicy`       | the image pullPolicy of plugins                            | `IfNotPresent`                               |
 | `plugins.image.digest`           | the image digest of plugins                                | `""`                                         |
-| `plugins.image.tag`              | the image tag of plugins                                   | `7ad9f866a97642059132b1a2cd3a3e2b4289a541`   |
+| `plugins.image.tag`              | the image tag of plugins                                   | `27c4f118b1cec3773f2679b772e7583fc77e5686`   |
 | `plugins.image.imagePullSecrets` | the image imagePullSecrets of plugins                      | `[]`                                         |
 
 ### clusterDefaultPool parameters
@@ -290,7 +291,7 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `spiderpoolAgent.prometheus.serviceMonitor.namespace`                                | the serviceMonitor namespace. Default to the namespace of helm instance                                                                                                          | `""`                                       |
 | `spiderpoolAgent.prometheus.serviceMonitor.annotations`                              | the additional annotations of spiderpoolAgent serviceMonitor                                                                                                                     | `{}`                                       |
 | `spiderpoolAgent.prometheus.serviceMonitor.labels`                                   | the additional label of spiderpoolAgent serviceMonitor                                                                                                                           | `{}`                                       |
-| `spiderpoolAgent.prometheus.serviceMonitor.interval`                                 | represents the interval of spiderpoolAgent serviceMonitor's scraping action                                                                                                      | `5s`                                       |
+| `spiderpoolAgent.prometheus.serviceMonitor.interval`                                 | represents the interval of spiderpoolAgent serviceMonitor's scraping action                                                                                                      | `10s`                                      |
 | `spiderpoolAgent.prometheus.prometheusRule.install`                                  | install prometheusRule for spiderpool agent. This requires the prometheus CRDs to be available                                                                                   | `false`                                    |
 | `spiderpoolAgent.prometheus.prometheusRule.namespace`                                | the prometheusRule namespace. Default to the namespace of helm instance                                                                                                          | `""`                                       |
 | `spiderpoolAgent.prometheus.prometheusRule.annotations`                              | the additional annotations of spiderpoolAgent prometheusRule                                                                                                                     | `{}`                                       |
