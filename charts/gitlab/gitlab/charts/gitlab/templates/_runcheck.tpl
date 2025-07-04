@@ -35,8 +35,8 @@ if [ -d "${secrets_dir}" ]; then
     fi
   fi
 fi
-MIN_VERSION=16.3
-CHART_MIN_VERSION=7.3
+MIN_VERSION=17.11
+CHART_MIN_VERSION=8.11
 
 # Remove 'v' prefix from GitLab version if present (set in Chart.yaml appVersions)
 GITLAB_VERSION=${GITLAB_VERSION#v}
@@ -54,7 +54,7 @@ NEW_CHART_MINOR_VERSION=$(echo $CHART_VERSION | awk -F "." '{print $1"."$2}')
 
 if [ ! -f /chart-info/gitlabVersion ]; then
   notify "It seems you are attempting an unsupported upgrade path."
-  notify "Please follow the upgrade documentation at https://docs.gitlab.com/ee/update/#upgrade-paths"
+  notify "Please follow the upgrade documentation at https://docs.gitlab.com/update/#upgrade-paths"
   exit 1
 fi
 
@@ -78,7 +78,7 @@ if ( ! greater_version "$OLD_MINOR_VERSION" "$MIN_VERSION" ) || ( ! greater_vers
   notify "It is required to upgrade to the latest ${CHART_MIN_VERSION}.x version first before proceeding."
   # Link to upgrade docs if it is a major version jump
   if [ "${OLD_MAJOR_VERSION}" -lt "${NEW_MAJOR_VERSION}" ] || [ "${OLD_CHART_MAJOR_VERSION}" -lt "${NEW_CHART_MAJOR_VERSION}" ]; then
-    notify "Please follow the upgrade documentation at https://docs.gitlab.com/charts/releases/7_0.html"
+    notify "Please follow the upgrade documentation at https://docs.gitlab.com/charts/releases/8_0.html"
     notify "and upgrade to GitLab Helm Chart version ${CHART_MIN_VERSION}.x before upgrading to ${CHART_VERSION}."
   fi
   exit 1
