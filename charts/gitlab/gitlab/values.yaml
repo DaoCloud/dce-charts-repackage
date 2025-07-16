@@ -50,7 +50,7 @@ gitlab:
     ## https://docs.gitlab.com/charts/installation/deployment#deploy-the-community-edition
     edition: ee
     ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-    gitlabVersion: "16.5.0"
+    gitlabVersion: "18.1.2"
     ## https://docs.gitlab.com/charts/charts/globals#application-resource
     application:
       create: false
@@ -62,7 +62,7 @@ gitlab:
       hostSuffix:
       https: true
       externalIP:
-      ssh: ~
+      ssh:
       gitlab: {}
       minio: {}
       registry: {}
@@ -70,10 +70,12 @@ gitlab:
       smartcard: {}
       kas: {}
       pages: {}
+      openbao: {}
     ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
     ingress:
       apiVersion: ""
       configureCertmanager: true
+      useNewIngressForCerts: false
       provider: nginx
       # class:
       annotations: {}
@@ -133,18 +135,42 @@ gitlab:
       # applicationName:
       # preparedStatements: false
       # databaseTasks: true
+      main: {}
+      # host: postgresql.hostedsomewhere.else
+      # port: 123
+      # username: gitlab
+      # database: gitlabhq_production
+      # applicationName:
+      # preparedStatements: false
+      # databaseTasks: true
+      ci: {}
+      # host: postgresql.hostedsomewhere.else
+      # port: 123
+      # username: gitlab
+      # database: gitlabhq_production_ci
+      # applicationName:
+      # preparedStatements: false
+      # databaseTasks: false
     ## https://docs.gitlab.com/charts/charts/globals#configure-redis-settings
     redis:
       auth:
         enabled: true
         # secret:
         # key:
+      # connectTimeout: 1
+      # readTimeout: 1
+      # writeTimeout: 1
       # host: redis.hostedsomewhere.else
       # port: 6379
+      # database: 0
       # user: webservice
       # sentinels:
       #   - host:
       #     port:
+      sentinelAuth:
+        enabled: false
+        # secret:
+        # key:
     ## https://docs.gitlab.com/charts/charts/globals#configure-gitaly-settings
     gitaly:
       enabled: true
@@ -208,6 +234,8 @@ gitlab:
       usernameChangingEnabled: true
       issueClosingPattern:
       defaultTheme:
+      defaultColorMode:
+      defaultSyntaxHighlightingTheme:
       defaultProjectsFeatures:
         issues: true
         mergeRequests: true
@@ -224,7 +252,7 @@ gitlab:
       #   cron: "0 * * * *"
       ## Schedule pipelines in the near future
       # pipeline_schedule_worker:
-      #   cron: "19 * * * *"
+      #   cron: "3-59/10 * * * *"
       ## Remove expired build artifacts
       # expire_build_artifacts_worker:
       #   cron: "*/7 * * * *"
@@ -251,6 +279,9 @@ gitlab:
       ## Periodically clean up stale ci_runner_machines records
       # ci_runners_stale_machines_cleanup_worker:
       #   cron: "36 * * * *"
+      # ci_click_house_finished_pipelines_sync_worker:
+      #   cron: "*/4 * * * *"
+      #   args: [0, 1]
       ### GitLab Geo
       # Geo Primary only!
       # geo_prune_event_log_worker:
@@ -442,7 +473,20 @@ gitlab:
       # enabled:
       # externalUrl:
       # internalUrl:
+      # clientTimeoutSeconds:
 
+      ## Configure GitLab Cells. Cells is a GitLab internal-use experiment.
+      ## https://docs.gitlab.com/administration/cells/
+      cell:
+        enabled: false
+        # id:
+        database:
+          skipSequenceAlteration: false
+        topologyServiceClient:
+        # address:
+        # caFile:
+        # privateKeyFile:
+        # certificateFile:
       ## https://docs.gitlab.com/charts/charts/globals#suggested-reviewers-settings
       suggested_reviewers: {}
       # secret:
@@ -486,6 +530,8 @@ gitlab:
       gitlab_docs:
         enabled: false
         host: ""
+      oidcProvider:
+        openidIdTokenExpireInSeconds: 120
       smartcard:
         enabled: false
         CASecret:
@@ -497,6 +543,7 @@ gitlab:
       # Config that only applies to the defaults on initial install
       initialDefaults: {}
       # signupEnabled:
+      # gitlabProductUsageData: true
     ## End of global.appConfig
 
     oauth:
@@ -514,7 +561,7 @@ gitlab:
       ## Geo Secondary only
       # nodeName allows multiple instances behind a load balancer.
       nodeName: # defaults to `gitlab.gitlab.host`
-      # ingressClass: 
+      # ingressClass:
       # PostgreSQL connection details only needed for `secondary`
       psql:
         password: {}
@@ -567,6 +614,8 @@ gitlab:
     rails:
       bootsnap: # Enable / disable Shopify/Bootsnap cache
         enabled: true
+      sessionStore:
+        sessionCookieTokenPrefix: ""
     ## https://docs.gitlab.com/charts/charts/globals#configure-registry-settings
     registry:
       bucket: registry
@@ -584,13 +633,18 @@ gitlab:
       redis:
         cache:
           password: {}
+        rateLimiting:
+          password: {}
+        loadBalancing:
+          password: {}
       # https://docs.docker.com/registry/notifications/#configuration
       notifications: {}
       # endpoints:
       #   - name: FooListener
       #     url: https://foolistener.com/event
       #     timeout: 500ms
-      #     threshold: 10
+      #     threshold: 10 # DEPRECATED: use maxretries instead https://gitlab.com/gitlab-org/container-registry/-/issues/1243.
+      #     maxretries: 5
       #     backoff: 1s
       #     headers:
       #       FooBar: ['1', '2']
@@ -619,6 +673,7 @@ gitlab:
       https: # default true
       externalHttp: []
       externalHttps: []
+      customDomainMode:
       artifactsServer: true
       localStore:
         enabled: false
@@ -636,6 +691,7 @@ gitlab:
       authSecret: {}
       # secret:
       # key:
+      namespaceInPath: false
     ## GitLab Runner
     ## Secret created according to https://docs.gitlab.com/charts/installation/secrets#gitlab-runner-secret
     ## If allowing shared-secrets generation, this is OPTIONAL.
@@ -681,10 +737,16 @@ gitlab:
     ## Global Deployment Annotations
     deployment:
       annotations: {}
+    # Setting a global nodeAffinity only applies to the registry chart for now.
+    # See issue https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/issues/25403 for more information
+    nodeAffinity:
     antiAffinity: soft
     affinity:
       podAntiAffinity:
         topologyKey: "kubernetes.io/hostname"
+      nodeAffinity:
+        key: topology.kubernetes.io/zone
+        values: []
     # Priority class assigned to pods, may be overridden for individual components
     # https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
     priorityClassName: ""
@@ -737,6 +799,8 @@ gitlab:
         # in most base images, this is `nobody:nogroup`
         runAsUser: 65534
         fsGroup: 65534
+        seccompProfile:
+          type: "RuntimeDefault"
     gitlabBase:
       image:
         repository: gitlab-org/build/cng/gitlab-base
@@ -753,6 +817,7 @@ gitlab:
       enabled: false
       create: true
       annotations: {}
+      automountServiceAccountToken: false
       ## Name to be used for serviceAccount, otherwise defaults to chart fullname
       # name:
     ## https://docs.gitlab.com/charts/charts/globals/#tracing
@@ -763,6 +828,15 @@ gitlab:
     zoekt:
       gateway:
         basicAuth: {}
+      indexer:
+        internalApi: {}
+    ## https://docs.gitlab.com/ci/secrets/
+    ## Experimental, unsupported
+    openbao:
+      enabled: false
+      host:
+      https:
+      url: # If present, must be a complete URI
     ## https://docs.gitlab.com/charts/charts/globals
     extraEnv: {}
     #   SOME_KEY: some_value
@@ -787,8 +861,13 @@ gitlab:
     #       name: useful-config
     #       key: some-string
     #       # optional: boolean
-  ## End of global
 
+    ## https://docs.gitlab.com/charts/charts/globals/#jobs
+    job:
+      nameSuffixOverride:
+    traefik:
+      apiVersion: "" # newer apiVersion: "traefik.io/v1alpha1"
+  ## End of global
   upgradeCheck:
     enabled: true
     image: {}
@@ -800,6 +879,15 @@ gitlab:
       # in alpine/debian/busybox based images, this is `nobody:nogroup`
       runAsUser: 65534
       fsGroup: 65534
+      seccompProfile:
+        type: "RuntimeDefault"
+    ## Allow to overwrite the specific security context under which the container is running.
+    containerSecurityContext:
+      runAsUser: 65534
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      capabilities:
+        drop: ["ALL"]
     tolerations: []
     annotations: {}
     configMapAnnotations: {}
@@ -807,20 +895,20 @@ gitlab:
       requests:
         cpu: 50m
     priorityClassName: ""
-  ## Settings to for the Let's Encrypt ACME Issuer
+  ## Settings for the Let's Encrypt ACME Issuer
   # certmanager-issuer:
   #   # The email address to register certificates requested from Let's Encrypt.
   #   # Required if using Let's Encrypt.
   #   email: email@example.com
 
-  ## Installation & configuration of jetstack/cert-manager
-  ## See requirements.yaml for current version
+  ## Installation of certmananger.
+  ## This value replaces `certmanager.install` to allow certmanager schema validation to pass.
+  ## See dependencies in Chart.yaml for current version
+  installCertmanager: true
+  ## Configuration of jetstack/cert-manager
   certmanager:
     installCRDs: true
     nameOverride: certmanager
-    # Install cert-manager chart. Set to false if you already have cert-manager
-    # installed or if you are not using cert-manager.
-    install: true
     # Other cert-manager configurations from upstream
     # See https://github.com/jetstack/cert-manager/blob/master/deploy/charts/cert-manager/README#configuration
     rbac:
@@ -906,6 +994,8 @@ gitlab:
       ingressClassResource:
         name: '{{ include "gitlab.geo.ingress.class.name" $ | quote }}'
         controllerValue: 'k8s.io/nginx-ingress-geo'
+    # A pre-defined/static external IP can be configured with global.hosts.externalGeoIP.
+    externalIpTpl: '{{ .Values.global.hosts.externalGeoIP }}'
   haproxy:
     install: false
     controller:
@@ -918,27 +1008,43 @@ gitlab:
       extraArgs:
         - --configmap-tcp-services=$(POD_NAMESPACE)/$(POD_NAMESPACE)-haproxy-tcp
   ## Installation & configuration of stable/prometheus
-  ## See requirements.yaml for current version
+  ## See dependencies in Chart.yaml for current version
   prometheus:
     install: true
     rbac:
       create: true
     alertmanager:
       enabled: false
-    alertmanagerFiles:
-      alertmanager.yml: {}
-    kubeStateMetrics:
+    kube-state-metrics:
       enabled: false
-    nodeExporter:
+    prometheus-node-exporter:
       enabled: false
-    pushgateway:
+    prometheus-pushgateway:
       enabled: false
     server:
       retention: 15d
       strategy:
         type: Recreate
-      image:
-        tag: v2.38.0
+      containerSecurityContext:
+        runAsUser: 1000
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        capabilities:
+          drop: ["ALL"]
+        seccompProfile:
+          type: "RuntimeDefault"
+    podSecurityPolicy:
+      enabled: false
+    configmapReload:
+      prometheus:
+        containerSecurityContext:
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop: ["ALL"]
+          seccompProfile:
+            type: "RuntimeDefault"
     serverFiles:
       prometheus.yml:
         scrape_configs:
@@ -1074,8 +1180,8 @@ gitlab:
     sysctl:
       image:
         registry: docker.m.daocloud.io
-  ## Installation & configuration of stable/prostgresql
-  ## See requirements.yaml for current version
+  ## Installation & configuration of stable/postgresql
+  ## See dependencies in Chart.yaml for current version
   postgresql:
     install: true
     auth:
@@ -1090,7 +1196,7 @@ gitlab:
         adminPasswordKey: postgresql-postgres-password
         userPasswordKey: '{{ include "gitlab.psql.password.key" $ }}'
     image:
-      tag: 14.8.0
+      tag: 16.6.0
       registry: docker.m.daocloud.io
     primary:
       initdb:
@@ -1152,17 +1258,27 @@ gitlab:
       # in debian/alpine based images, this is `nobody:nogroup`
       runAsUser: 65534
       fsGroup: 65534
+      seccompProfile:
+        type: "RuntimeDefault"
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      capabilities:
+        drop: ["ALL"]
     tolerations: []
     podLabels: {}
     annotations: {}
   ## Installation & configuration of gitlab/gitlab-runner
-  ## See requirements.yaml for current version
+  ## See dependencies in Chart.yaml for current version
   gitlab-runner:
     install: true
     rbac:
       create: true
     runners:
       locked: false
+      # Set secret to an arbitrary value because the runner chart renders the gitlab-runner.secret template only if it is not empty.
+      # The parent/GitLab chart overrides the template to render the actual secret name.
+      secret: "nonempty"
       config: |
         [[runners]]
           [runners.kubernetes]
@@ -1181,6 +1297,9 @@ gitlab:
     podAnnotations:
       gitlab.com/prometheus_scrape: "true"
       gitlab.com/prometheus_port: 9252
+    podSecurityContext:
+      seccompProfile:
+        type: "RuntimeDefault"
   traefik:
     install: false
     ports:
@@ -1264,6 +1383,12 @@ gitlab:
       basicAuth:
         enabled: true
         secretName: '{{ include "gitlab.zoekt.gateway.basicAuth.secretName" $ }}'
+    indexer:
+      internalApi:
+        enabled: true
+        secretName: '{{ include "gitlab.zoekt.indexer.internalApi.secretName" $ }}'
+        secretKey: '{{ include "gitlab.zoekt.indexer.internalApi.secretKey" $ }}'
+        gitlabUrl: '{{ include "gitlab.zoekt.indexer.internalApi.gitlabUrl" $ }}'
   minio:
     minioMc:
       registry: docker.m.daocloud.io
