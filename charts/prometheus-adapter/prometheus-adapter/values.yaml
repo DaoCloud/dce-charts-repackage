@@ -5,8 +5,11 @@ prometheus-adapter:
   image:
     repository: prometheus-adapter/prometheus-adapter
     # if not set appVersion field from Chart.yaml is used
-    tag: "v0.11.2"
+    tag: "v0.12.0"
     pullPolicy: IfNotPresent
+    pullSecrets: []
+    # - foo
+
     registry: k8s.m.daocloud.io
   logLevel: 4
   metricsRelistInterval: 1m
@@ -62,6 +65,8 @@ prometheus-adapter:
     ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#apparmor
     ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#seccomp
     ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#sysctl
+  # If false then the user will opt out of automounting API credentials.
+  automountServiceAccountToken: true
   serviceAccount:
     # Specifies whether a service account should be created
     create: true
@@ -72,6 +77,8 @@ prometheus-adapter:
     # Use case: AWS EKS IAM roles for service accounts
     # ref: https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html
     annotations: {}
+    # If false then the user will opt out of automounting API credentials.
+    automountServiceAccountToken: true
   # Custom DNS configuration to be added to prometheus-adapter pods
   dnsConfig: {}
   # nameservers:
@@ -253,3 +260,17 @@ prometheus-adapter:
     enabled: false
     caCertDuration: 43800h0m0s
     certDuration: 8760h0m0s
+    # -- Set the revisionHistoryLimit on the Certificates. See
+    # https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CertificateSpec
+    # Defaults to nil.
+    caCertRevisionHistoryLimit:
+    certRevisionHistoryLimit:
+  ## Extra manifests to deploy as an array
+  extraManifests: []
+  # - apiVersion: v1
+  #   kind: ConfigMap
+  #   metadata:
+  #   labels:
+  #     name: prometheus-extra
+  #   data:
+  #     extra-data: "value"
