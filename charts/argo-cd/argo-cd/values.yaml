@@ -54,7 +54,7 @@ argo-cd:
       # -- If defined, a repository applied to all Argo CD deployments
       repository: argoproj/argocd
       # -- Overrides the global Argo CD image tag whose default is the chart appVersion
-      tag: "v3.0.6"
+      tag: "v3.0.11"
       # -- If defined, a imagePullPolicy applied to all Argo CD deployments
       imagePullPolicy: IfNotPresent
       registry: quay.m.daocloud.io
@@ -70,6 +70,8 @@ argo-cd:
     statefulsetAnnotations: {}
     # -- Annotations for the all deployed Deployments
     deploymentAnnotations: {}
+    # -- Labels for the all deployed Deployments
+    deploymentLabels: {}
     # -- Annotations for the all deployed pods
     podAnnotations: {}
     # -- Labels for the all deployed pods
@@ -812,6 +814,8 @@ argo-cd:
     statefulsetAnnotations: {}
     # -- Annotations for the application controller Deployment
     deploymentAnnotations: {}
+    # -- Labels for the application controller Deployment
+    deploymentLabels: {}
     # -- Annotations to be added to application controller pods
     podAnnotations: {}
     # -- Labels to be added to application controller pods
@@ -1134,6 +1138,8 @@ argo-cd:
       crt: ''
     # -- Annotations to be added to the Dex server Deployment
     deploymentAnnotations: {}
+    # -- Labels for the Dex server Deployment
+    deploymentLabels: {}
     # -- Annotations to be added to the Dex server pods
     podAnnotations: {}
     # -- Labels to be added to the Dex server pods
@@ -1426,6 +1432,8 @@ argo-cd:
     volumes: []
     # -- Annotations to be added to the Redis server Deployment
     deploymentAnnotations: {}
+    # -- Labels for the Redis server Deployment
+    deploymentLabels: {}
     # -- Annotations to be added to the Redis server pods
     podAnnotations: {}
     # -- Labels to be added to the Redis server pods
@@ -1693,7 +1701,7 @@ argo-cd:
       repository: "argoproj/argocd" # defaults to global.image.repository
       # -- Tag to use for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.tag)
-      tag: "v3.0.6" # defaults to global.image.tag
+      tag: "v3.0.11" # defaults to global.image.tag
       # -- Image pull policy for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.imagePullPolicy)
       imagePullPolicy: "" # IfNotPresent
@@ -1943,6 +1951,8 @@ argo-cd:
       # sizeLimit: "1Gi"
     # -- Annotations to be added to server Deployment
     deploymentAnnotations: {}
+    # -- Labels for the server Deployment
+    deploymentLabels: {}
     # -- Annotations to be added to server pods
     podAnnotations: {}
     # -- Labels to be added to server pods
@@ -2548,6 +2558,8 @@ argo-cd:
     useEphemeralHelmWorkingDir: true
     # -- Annotations to be added to repo server Deployment
     deploymentAnnotations: {}
+    # -- Labels for the repo server Deployment
+    deploymentLabels: {}
     # -- Annotations to be added to repo server pods
     podAnnotations: {}
     # -- Labels to be added to repo server pods
@@ -2889,6 +2901,8 @@ argo-cd:
       automountServiceAccountToken: true
     # -- Annotations to be added to ApplicationSet controller Deployment
     deploymentAnnotations: {}
+    # -- Labels for the ApplicationSet controller Deployment
+    deploymentLabels: {}
     # -- Annotations for the ApplicationSet controller pods
     podAnnotations: {}
     # -- Labels for the ApplicationSet controller pods
@@ -3237,6 +3251,8 @@ argo-cd:
 
     # -- Annotations to be applied to the notifications controller Deployment
     deploymentAnnotations: {}
+    # -- Labels for the notifications controller Deployment
+    deploymentLabels: {}
     # -- Annotations to be applied to the notifications controller Pods
     podAnnotations: {}
     # -- Labels to be applied to the notifications controller Pods
@@ -3681,6 +3697,10 @@ argo-cd:
       annotations: {}
       # -- commit server service labels
       labels: {}
+      # -- commit server service port
+      port: 8086
+      # -- commit server service port name
+      portName: server
     # -- Automount API credentials for the Service Account into the pod.
     automountServiceAccountToken: false
     serviceAccount:
@@ -3696,6 +3716,8 @@ argo-cd:
       automountServiceAccountToken: true
     # -- Annotations to be added to commit server Deployment
     deploymentAnnotations: {}
+    # -- Labels for the commit server Deployment
+    deploymentLabels: {}
     # -- Annotations for the commit server pods
     podAnnotations: {}
     # -- Labels for the commit server pods
