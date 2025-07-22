@@ -112,7 +112,9 @@ Returns the minio url.
 {{- define "gitlab.certmanager_annotations" -}}
 {{- if (pluck "configureCertmanager" .Values.ingress .Values.global.ingress (dict "configureCertmanager" false) | first) -}}
 cert-manager.io/issuer: "{{ .Release.Name }}-issuer"
+{{-   if not .Values.global.ingress.useNewIngressForCerts }}
 acme.cert-manager.io/http01-edit-in-place: "true"
+{{-   end -}}
 {{- end -}}
 {{- end -}}
 
@@ -128,7 +130,7 @@ use the name of the service the upstream chart creates
 */}}
 {{- define "gitlab.psql.host" -}}
 {{- $local := pluck "psql" $.Values | first -}}
-{{- coalesce (pluck "host" $local .Values.global.psql | first) (printf "%s.%s.svc" (include "postgresql.primary.fullname" .) $.Release.Namespace) -}}
+{{- coalesce (pluck "host" $local .Values.global.psql | first) (printf "%s.%s.svc" (include "postgresql.v1.primary.fullname" .) $.Release.Namespace) -}}
 {{- end -}}
 
 {{/*
@@ -144,7 +146,7 @@ use the name of the initdb scripts ConfigMap the upstream chart creates
 {{/*
 Overrides the full name of PostegreSQL in the upstream chart.
 */}}
-{{- define "postgresql.primary.fullname" -}}
+{{- define "postgresql.v1.primary.fullname" -}}
 {{- $local := pluck "psql" $.Values | first -}}
 {{- coalesce (pluck "serviceName" $local .Values.global.psql | first) (printf "%s-%s" $.Release.Name "postgresql") -}}
 {{- end -}}
@@ -154,7 +156,7 @@ Overrides the username of PostegreSQL in the upstream chart.
 
 Alias of gitlab.psql.username
 */}}
-{{- define "postgresql.username" -}}
+{{- define "postgresql.v1.username" -}}
 {{- template "gitlab.psql.username" . -}}
 {{- end -}}
 
@@ -163,7 +165,7 @@ Overrides the database name of PostegreSQL in the upstream chart.
 
 Alias of gitlab.psql.database
 */}}
-{{- define "postgresql.database" -}}
+{{- define "postgresql.v1.database" -}}
 {{- template "gitlab.psql.database" . -}}
 {{- end -}}
 
@@ -401,19 +403,30 @@ true
 
 {{/*
 Detect if `.Values.ingress.tls.enabled` is set
+Returns `global.ingress.tls.enabled` if it is a boolean.
+Return true in any other case.
+*/}}
+{{- define "gitlab.global.ingress.tls.enabled" -}}
+{{- $globalSet := and (hasKey .Values.global.ingress "tls") (and (hasKey .Values.global.ingress.tls "enabled") (kindIs "bool" .Values.global.ingress.tls.enabled)) -}}
+{{- if $globalSet }}
+{{-  .Values.global.ingress.tls.enabled }}
+{{- else }}
+{{-   true }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Detect if `.Values.ingress.tls.enabled` is set
 Returns `ingress.tls.enabled` if it is a boolean,
 Returns `global.ingress.tls.enabled` if it is a boolean, and `ingress.tls.enabled` is not.
 Return true in any other case.
 */}}
 {{- define "gitlab.ingress.tls.enabled" -}}
-{{- $globalSet := and (hasKey .Values.global.ingress "tls") (and (hasKey .Values.global.ingress.tls "enabled") (kindIs "bool" .Values.global.ingress.tls.enabled)) -}}
-{{- $localSet := and (hasKey .Values.ingress "tls") (and (hasKey .Values.ingress.tls "enabled") (kindIs "bool" .Values.ingress.tls.enabled)) -}}
+{{- $localSet := and (hasKey .Values "ingress") (hasKey .Values.ingress "tls") (and (hasKey .Values.ingress.tls "enabled") (kindIs "bool" .Values.ingress.tls.enabled)) -}}
 {{- if $localSet }}
 {{-   .Values.ingress.tls.enabled }}
-{{- else if $globalSet }}
-{{-  .Values.global.ingress.tls.enabled }}
 {{- else }}
-{{-   true }}
+{{-   include "gitlab.global.ingress.tls.enabled" . }}
 {{- end -}}
 {{- end -}}
 
@@ -466,15 +479,10 @@ Return the name template for shared-secrets job.
 
 {{/*
 Create a default fully qualified job name for shared-secrets.
-Due to the job only being allowed to run once, we add the chart revision so helm
-upgrades don't cause errors trying to create the already ran job.
-Due to the helm delete not cleaning up these jobs, we add a randome value to
-reduce collision
 */}}
 {{- define "shared-secrets.jobname" -}}
 {{- $name := include "shared-secrets.fullname" . | trunc 55 | trimSuffix "-" -}}
-{{- $rand := randAlphaNum 3 | lower }}
-{{- printf "%s-%d-%s" $name .Release.Revision $rand | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" $name ( include "gitlab.jobNameSuffix" . ) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -487,6 +495,15 @@ Create the name of the service account to use for shared-secrets job
 {{- else -}}
     {{ coalesce $sharedSecretValues.serviceAccount.name .Values.global.serviceAccount.name "default" }}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Set if the default ServiceAccount token should be mounted by Kubernetes or not.
+
+Default is 'false'
+*/}}
+{{- define "gitlab.automountServiceAccountToken" -}}
+automountServiceAccountToken: {{ pluck "automountServiceAccountToken" .Values.serviceAccount .Values.global.serviceAccount | first }}
 {{- end -}}
 
 {{/*
@@ -503,6 +520,16 @@ emptyDir: {}
 emptyDir: {{ toYaml $values | nindent 2 }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Return upgradeCheck container specific securityContext template
+*/}}
+{{- define "upgradeCheck.containerSecurityContext" }}
+{{- if .Values.upgradeCheck.containerSecurityContext }}
+securityContext:
+  {{- toYaml .Values.upgradeCheck.containerSecurityContext | nindent 2 }}
+{{- end }}
+{{- end }}
 
 {{/*
 Return init container specific securityContext template
@@ -523,6 +550,8 @@ securityContext:
   {{- toYaml .Values.containerSecurityContext | nindent 2 }}
 {{- end }}
 {{- end }}
+
+{{/*
 Return a PodSecurityContext definition.
 
 Usage:
@@ -544,5 +573,98 @@ securityContext:
 {{-   if not (empty $psc.fsGroupChangePolicy) }}
   fsGroupChangePolicy: {{ $psc.fsGroupChangePolicy }}
 {{-   end }}
+{{-   if $psc.seccompProfile }}
+  seccompProfile:
+    {{- toYaml $psc.seccompProfile | nindent 4 }}
 {{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Return a PodSecurityContext definition that allows to it to run as root.
+
+Usage:
+  {{ include "gitlab.podSecurityContextRoot" .Values.securityContext }}
+*/}}
+{{- define "gitlab.podSecurityContextRoot" -}}
+{{- $psc := . }}
+{{- if $psc }}
+securityContext:
+{{-   if not (eq $psc.runAsUser nil) }}
+  runAsUser: {{ $psc.runAsUser }}
+{{-   end }}
+{{-   if not (eq $psc.runAsGroup nil) }}
+  runAsGroup: {{ $psc.runAsGroup }}
+{{-   end }}
+{{-   if not (eq $psc.fsGroup nil) }}
+  fsGroup: {{ $psc.fsGroup }}
+{{-   end }}
+{{-   if not (eq $psc.fsGroupChangePolicy nil) }}
+  fsGroupChangePolicy: {{ $psc.fsGroupChangePolicy }}
+{{-   end }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Returns `.Values.global.job.nameSuffixOverride` if set.
+
+If `.Values.global.job.nameSuffixOverride` is not set, job names will be
+suffixed by a hash that is based on the chart's app version and the chart's
+values (which also might contain the global.gitlabVersion) to make sure that
+the job is run at least once everytime GitLab is updated.
+
+In order to make sure that the hash is stable for `helm template`
+and `helm upgrade --install`, we need to remove the `local` block injected
+by the template file `charts/gitlab/templates/_databaseDatamodel.tpl`.
+
+This local block contains the values of the Helm "built-in object"
+(see https://helm.sh/docs/chart_template_guide/builtin_objects) which would
+result in different hash values due to fields like `Release.IsUpgrade`,
+`Release.IsInstall` and especially `Release.Revision`.
+*/}}
+{{- define "gitlab.jobNameSuffix" -}}
+{{-   if .Values.global.job.nameSuffixOverride -}}
+{{-     tpl .Values.global.job.nameSuffixOverride . -}}
+{{-   else -}}
+{{-     $values := unset ( deepCopy .Values ) "local" -}}
+{{-     printf "%s-%s-%s" .Chart.Version .Chart.AppVersion ( $values | toYaml | b64enc ) | sha256sum | trunc 7 -}}
+{{-   end -}}
+{{- end -}}
+
+{{/*
+Return a boolean value that indicates whether a given key exists in the provided environment
+variables from either local or global scope.
+
+Usage: {{- include checkDuplicateKeyFromEnv (dict "rootScope" $ "keyToFind" "MY_KEY") -}}
+*/}}
+{{- define "checkDuplicateKeyFromEnv" -}}
+  {{- $keyToFind := .keyToFind -}}
+  {{- $rootScope := .rootScope -}}
+  {{- $localHasKey := and $rootScope.Values.extraEnv (hasKey $rootScope.Values.extraEnv $keyToFind) -}}
+  {{- $globalHasKey := and $rootScope.Values.global.extraEnv (hasKey $rootScope.Values.global.extraEnv $keyToFind) -}}
+  {{- $localHasKeyFrom := and $rootScope.Values.extraEnvFrom (hasKey $rootScope.Values.extraEnvFrom $keyToFind) -}}
+  {{- $globalHasKeyFrom := and $rootScope.Values.global.extraEnvFrom (hasKey $rootScope.Values.global.extraEnvFrom $keyToFind) -}}
+  {{- if or $localHasKey $globalHasKey $localHasKeyFrom $globalHasKeyFrom -}}
+true
+  {{- else -}}
+false
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Render GODEBUG environment variable if not already defined in extraEnv
+*/}}
+{{- define "gitlab.godebug.env" -}}
+{{- $godebugIsDuplicate := include "checkDuplicateKeyFromEnv" (dict "rootScope" . "keyToFind" "GODEBUG") }}
+{{- if eq $godebugIsDuplicate "false" }}
+- name: GODEBUG
+  value: 'tlsmlkem=0,tlskyber=0'
+{{- end }}
+{{- end -}}
+
+{{/*
+Return the Topology Service TLS Secret name
+*/}}
+{{- define "topology-service.tls.secret" -}}
+{{- default (printf "%s-topology-service-tls" .Release.Name) $.Values.global.appConfig.cell.topologyServiceClient.tls.secret | quote -}}
 {{- end -}}
