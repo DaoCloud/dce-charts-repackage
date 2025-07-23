@@ -12,6 +12,9 @@ argo-rollouts:
   nameOverride:
   # -- String to fully override "argo-rollouts.fullname" template
   fullnameOverride:
+  # -- Override the namespace
+  # @default -- `.Release.Namespace`
+  namespaceOverride: ""
   ## Override APIVersions
   ## If you want to template helm charts but cannot access k8s API server
   ## you can set api versions here
