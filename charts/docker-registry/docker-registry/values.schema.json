@@ -122,6 +122,57 @@
                         }
                     }
                 },
+                "containerSecurityContext": {
+                    "type": "object",
+                    "properties": {
+                        "allowPrivilegeEscalation": {
+                            "type": "boolean"
+                        },
+                        "capabilities": {
+                            "type": "object",
+                            "properties": {
+                                "drop": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "privileged": {
+                            "type": "boolean"
+                        },
+                        "readOnlyRootFilesystem": {
+                            "type": "boolean"
+                        },
+                        "runAsGroup": {
+                            "type": "integer"
+                        },
+                        "runAsNonRoot": {
+                            "type": "boolean"
+                        },
+                        "runAsUser": {
+                            "type": "integer"
+                        },
+                        "seLinuxOptions": {
+                            "type": "object"
+                        },
+                        "seccompProfile": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "deployment": {
+                    "type": "object"
+                },
                 "extraEnvVars": {
                     "type": "array"
                 },
@@ -139,6 +190,15 @@
                         },
                         "enabled": {
                             "type": "boolean"
+                        },
+                        "podAnnotations": {
+                            "type": "object"
+                        },
+                        "podLabels": {
+                            "type": "object"
+                        },
+                        "resources": {
+                            "type": "object"
                         },
                         "schedule": {
                             "type": "string"
@@ -302,8 +362,14 @@
                         "fsGroup": {
                             "type": "integer"
                         },
-                        "runAsUser": {
-                            "type": "integer"
+                        "fsGroupChangePolicy": {
+                            "type": "string"
+                        },
+                        "supplementalGroups": {
+                            "type": "array"
+                        },
+                        "sysctls": {
+                            "type": "array"
                         }
                     }
                 },
@@ -311,6 +377,9 @@
                     "type": "object",
                     "properties": {
                         "annotations": {
+                            "type": "object"
+                        },
+                        "labels": {
                             "type": "object"
                         },
                         "name": {
