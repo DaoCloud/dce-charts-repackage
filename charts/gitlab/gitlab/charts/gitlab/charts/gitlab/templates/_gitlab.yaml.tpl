@@ -50,6 +50,27 @@ gitlab_kas:
   secret_file: /etc/gitlab/kas/.gitlab_kas_secret
   external_url: {{ include "gitlab.appConfig.kas.externalUrl" . | quote }}
   internal_url: {{ include "gitlab.appConfig.kas.internalUrl" . | quote }}
+  {{- include "gitlab.appConfig.kas.clientTimeoutSeconds" . | nindent 2 }}
+{{- end -}}
+{{- end -}}
+
+{{- define "gitlab.appConfig.cell" -}}
+{{- if eq .Values.global.appConfig.cell.enabled true -}}
+{{- with .Values.global.appConfig.cell -}}
+cell:
+  enabled: true
+  id: {{ .id }}
+  database:
+    skip_sequence_alteration: {{ eq .database.skipSequenceAlteration true }}
+  topology_service_client:
+    address: {{ .topologyServiceClient.address | quote }}
+  {{- if .topologyServiceClient.tls.enabled }}
+    private_key_file: "/srv/gitlab/config/topology-service/tls.key"
+    certificate_file: "/srv/gitlab/config/topology-service/tls.crt"
+    tls:
+      enabled: true
+  {{- end }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 
@@ -172,3 +193,28 @@ gitlab_docs:
   enabled: {{ eq $.Values.global.appConfig.gitlab_docs.enabled true }}
   host: {{ $.Values.global.appConfig.gitlab_docs.host | quote }}
 {{- end -}}{{/* "gitlab.appConfig.gitlab_docs.configuration" */}}
+
+{{/*
+Generates oidc_provider configuration.
+
+Usage:
+{{ include "gitlab.appConfig.oidcProvider.configuration" $ }}
+*/}}
+{{- define "gitlab.appConfig.oidcProvider.configuration" -}}
+oidc_provider:
+  openid_id_token_expire_in_seconds: {{ $.Values.global.appConfig.oidcProvider.openidIdTokenExpireInSeconds }}
+{{- end -}}{{/* "gitlab.appConfig.oidcProvider.configuration" */}}
+
+
+{{/*
+Generates OpenBao configuration.
+
+Usage:
+{{ include "gitlab.appConfig.openbao.configuration" $ }}
+*/}}
+{{- define "gitlab.appConfig.openbao.configuration" -}}
+{{- if $.Values.global.openbao.enabled }}
+openbao:
+  url: {{ include "gitlab.openbao.url" $ | quote }}
+{{- end }}
+{{- end -}}{{/* "gitlab.appConfig.openbao.configuration" */}}
