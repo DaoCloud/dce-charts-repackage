@@ -1,6 +1,107 @@
+---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: endpoints.submariner.io
+spec:
+  group: submariner.io
+  names:
+    kind: Endpoint
+    listKind: EndpointList
+    plural: endpoints
+    singular: endpoint
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              backend:
+                type: string
+              backend_config:
+                additionalProperties:
+                  type: string
+                type: object
+              cable_name:
+                type: string
+              cluster_id:
+                maxLength: 63
+                minLength: 1
+                type: string
+              healthCheckIP:
+                description: 'Deprecated: Get/SetHealthCheckIP() or, if necessary,
+                  HealthCheckIPs'
+                type: string
+              healthCheckIPs:
+                items:
+                  type: string
+                maxItems: 2
+                type: array
+              hostname:
+                type: string
+              nat_enabled:
+                type: boolean
+              private_ip:
+                description: 'Deprecated: Use Get/SetPrivateIP() or, if necessary,
+                  PrivateIPs'
+                type: string
+              privateIPs:
+                items:
+                  type: string
+                maxItems: 2
+                type: array
+              public_ip:
+                description: 'Deprecated: Set/SetPublicIP() or, if necessary, PublicIPs'
+                type: string
+              publicIPs:
+                items:
+                  type: string
+                maxItems: 2
+                type: array
+              subnets:
+                items:
+                  type: string
+                type: array
+            required:
+            - backend
+            - cable_name
+            - cluster_id
+            - hostname
+            - nat_enabled
+            - subnets
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.2
   name: clusters.submariner.io
 spec:
   group: submariner.io
@@ -16,14 +117,19 @@ spec:
       openAPIV3Schema:
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -34,6 +140,8 @@ spec:
                   type: string
                 type: array
               cluster_id:
+                maxLength: 63
+                minLength: 1
                 type: string
               color_codes:
                 items:
@@ -50,7 +158,6 @@ spec:
             required:
             - cluster_cidr
             - cluster_id
-            - color_codes
             - global_cidr
             - service_cidr
             type: object
@@ -59,93 +166,12 @@ spec:
         type: object
     served: true
     storage: true
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: endpoints.submariner.io
-spec:
-  group: submariner.io
-  names:
-    kind: Endpoint
-    listKind: EndpointList
-    plural: endpoints
-    singular: endpoint
-  scope: Namespaced
-  versions:
-  - name: v1
-    schema:
-      openAPIV3Schema:
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          spec:
-            properties:
-              backend:
-                type: string
-              backend_config:
-                additionalProperties:
-                  type: string
-                type: object
-              cable_name:
-                type: string
-              cluster_id:
-                type: string
-              healthCheckIP:
-                type: string
-              hostname:
-                type: string
-              nat_enabled:
-                type: boolean
-              private_ip:
-                type: string
-              public_ip:
-                type: string
-              subnets:
-                items:
-                  type: string
-                type: array
-            required:
-            - backend
-            - cable_name
-            - cluster_id
-            - hostname
-            - nat_enabled
-            - private_ip
-            - public_ip
-            - subnets
-            type: object
-        required:
-        - spec
-        type: object
-    served: true
-    storage: true
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
----
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.2
   name: gateways.submariner.io
 spec:
   group: submariner.io
@@ -166,14 +192,19 @@ spec:
       openAPIV3Schema:
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -193,17 +224,40 @@ spec:
                         cable_name:
                           type: string
                         cluster_id:
+                          maxLength: 63
+                          minLength: 1
                           type: string
                         healthCheckIP:
+                          description: 'Deprecated: Get/SetHealthCheckIP() or, if
+                            necessary, HealthCheckIPs'
                           type: string
+                        healthCheckIPs:
+                          items:
+                            type: string
+                          maxItems: 2
+                          type: array
                         hostname:
                           type: string
                         nat_enabled:
                           type: boolean
                         private_ip:
+                          description: 'Deprecated: Use Get/SetPrivateIP() or, if
+                            necessary, PrivateIPs'
                           type: string
+                        privateIPs:
+                          items:
+                            type: string
+                          maxItems: 2
+                          type: array
                         public_ip:
+                          description: 'Deprecated: Set/SetPublicIP() or, if necessary,
+                            PublicIPs'
                           type: string
+                        publicIPs:
+                          items:
+                            type: string
+                          maxItems: 2
+                          type: array
                         subnets:
                           items:
                             type: string
@@ -214,37 +268,12 @@ spec:
                       - cluster_id
                       - hostname
                       - nat_enabled
-                      - private_ip
-                      - public_ip
                       - subnets
                       type: object
-                    latency:
-                      description: LatencySpec describes the round trip time information
-                        in nanoseconds for a packet between the gateway pods of two
-                        clusters.
-                      properties:
-                        averageRTT:
-                          format: int64
-                          type: integer
-                        lastRTT:
-                          description: TODO This shall be deleted once the operator
-                            is using the latest. Using Optional to avoid validation
-                            errors when this field is not used.
-                          format: int64
-                          type: integer
-                        maxRTT:
-                          format: int64
-                          type: integer
-                        minRTT:
-                          format: int64
-                          type: integer
-                        stddevRTT:
-                          format: int64
-                          type: integer
-                      type: object
                     latencyRTT:
-                      description: LatencySpec describes the round trip time information
-                        for a packet between the gateway pods of two clusters.
+                      description: |-
+                        LatencySpec describes the round trip time information for a packet
+                        between the gateway pods of two clusters.
                       properties:
                         average:
                           type: string
@@ -261,6 +290,10 @@ spec:
                       type: string
                     statusMessage:
                       type: string
+                    usingIP:
+                      type: string
+                    usingNAT:
+                      type: boolean
                   required:
                   - endpoint
                   - status
@@ -280,17 +313,40 @@ spec:
                   cable_name:
                     type: string
                   cluster_id:
+                    maxLength: 63
+                    minLength: 1
                     type: string
                   healthCheckIP:
+                    description: 'Deprecated: Get/SetHealthCheckIP() or, if necessary,
+                      HealthCheckIPs'
                     type: string
+                  healthCheckIPs:
+                    items:
+                      type: string
+                    maxItems: 2
+                    type: array
                   hostname:
                     type: string
                   nat_enabled:
                     type: boolean
                   private_ip:
+                    description: 'Deprecated: Use Get/SetPrivateIP() or, if necessary,
+                      PrivateIPs'
                     type: string
+                  privateIPs:
+                    items:
+                      type: string
+                    maxItems: 2
+                    type: array
                   public_ip:
+                    description: 'Deprecated: Set/SetPublicIP() or, if necessary,
+                      PublicIPs'
                     type: string
+                  publicIPs:
+                    items:
+                      type: string
+                    maxItems: 2
+                    type: array
                   subnets:
                     items:
                       type: string
@@ -301,8 +357,6 @@ spec:
                 - cluster_id
                 - hostname
                 - nat_enabled
-                - private_ip
-                - public_ip
                 - subnets
                 type: object
               statusFailure:
@@ -322,12 +376,6 @@ spec:
     served: true
     storage: true
     subresources: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -352,8 +400,8 @@ spec:
         - name: Age
           type: date
           jsonPath: .metadata.creationTimestamp
-      "schema":
-        "openAPIV3Schema":
+      schema:
+        openAPIV3Schema:
           description: ServiceExport declares that the Service with the same name and
             namespace as this export should be consumable from other clusters.
           type: object
@@ -441,8 +489,8 @@ spec:
         - name: Age
           type: date
           jsonPath: .metadata.creationTimestamp
-      "schema":
-        "openAPIV3Schema":
+      schema:
+        openAPIV3Schema:
           description: ServiceImport describes a service imported from clusters in a
             ClusterSet.
           type: object
