@@ -1,0 +1,45 @@
+dependencies:
+- name: gitlab
+  repository: ""
+  version: '*.*.*'
+- name: certmanager-issuer
+  repository: ""
+  version: '*.*.*'
+- name: minio
+  repository: ""
+  version: '*.*.*'
+- name: registry
+  repository: ""
+  version: '*.*.*'
+- name: cert-manager
+  repository: https://charts.jetstack.io/
+  version: v1.12.17
+- name: prometheus
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 27.23.0
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 13.4.4
+- name: gitlab-runner
+  repository: https://charts.gitlab.io/
+  version: 0.79.1
+- name: redis
+  repository: https://charts.bitnami.com/bitnami
+  version: 18.19.4
+- name: nginx-ingress
+  repository: ""
+  version: '*.*.*'
+- name: nginx-ingress
+  repository: ""
+  version: '*.*.*'
+- name: gitlab-zoekt
+  repository: https://charts.gitlab.io/
+  version: 2.7.0
+- name: traefik
+  repository: https://helm.traefik.io/traefik
+  version: 10.19.4
+- name: kubernetes-ingress
+  repository: https://haproxytech.github.io/helm-charts
+  version: 1.32.0
+digest: sha256:4e9dbf076b5555ae084b9f686f956e0d9b54a9ab60006392c5b2b8154d3981ab
+generated: "2025-08-04T10:15:33.698886-04:00"
