@@ -16,20 +16,23 @@ data:
     bin_dir = "/usr/local/bin"
 
     # listen on a TCP socket. This is insecure (no authentication)
-    listen_addr = "0.0.0.0:{{ coalesce .Values.service.internalPort .Values.global.gitaly.service.internalPort }}"
+    listen_addr = ":{{ coalesce .Values.service.internalPort .Values.global.gitaly.service.internalPort }}"
 
     # Directory where internal sockets reside
     # note: no value will result in a `/tmp/gitlab-internal-*` path
     # internal_socket_dir = "/home/git"
 
     {{- if $.Values.global.gitaly.tls.enabled }}
-    tls_listen_addr = "0.0.0.0:{{ coalesce .Values.service.tls.internalPort .Values.global.gitaly.service.tls.internalPort }}"
+    tls_listen_addr = ":{{ coalesce .Values.service.tls.internalPort .Values.global.gitaly.service.tls.internalPort }}"
     {{- end }}
 
     # If metrics collection is enabled, inform gitaly about that
     {{- if .Values.metrics.enabled }}
-    prometheus_listen_addr = "0.0.0.0:{{ default .Values.metrics.port .Values.metrics.metricsPort }}"
+    prometheus_listen_addr = ":{{ default .Values.metrics.port .Values.metrics.metricsPort }}"
     {{- end }}
+
+    # Graceful shutdown timeout, how long to wait for in-flight requests to complete
+    graceful_restart_timeout = "{{ .Values.gracefulRestartTimeout | toString | duration }}"
 
     {{- if $.Values.global.gitaly.tls.enabled }}
     [tls]
@@ -37,16 +40,16 @@ data:
     key_path = '/etc/gitlab-secrets/gitaly/gitaly.key'
     {{- end }}
 
+    # Storage configuration
     {{- if .storage }}
 
     {{- /*
     Passing in "skipStorages=true" below prevents changes in the Gitaly replica counts from modifying
     the contents of the ConfigMap, which would cause existing pods to restart unnecessarily.
     */}}
-    {{ if not .skipStorages }}
+    {{- if not .skipStorages }}
     {% $storages := coll.Slice {{ include "gitlab.praefect.gitaly.storageNames" . }} %}
     {{- end }}
-
     {% $hostname := .Env.HOSTNAME | strings.TrimSpace %}
     {% if coll.Has $storages $hostname %}
     [[storage]]
@@ -62,10 +65,9 @@ data:
     Passing in "skipStorages=true" below prevents changes in the Gitaly replica counts from modifying
     the contents of the ConfigMap, which would cause existing pods to restart unnecessarily.
     */}}
-    {{ if not .skipStorages }}
+    {{- if not .skipStorages }}
     {% $storages := coll.Slice {{ include "gitlab.gitaly.storageNames" . }} %}
     {{- end }}
-
     {% $index := index (.Env.HOSTNAME | strings.Split "-" | coll.Reverse) 0 | conv.ToInt64 %}
     {% if len $storages | lt $index %}
     [[storage]]
@@ -143,15 +145,10 @@ data:
     # directory containing custom hooks
     custom_hooks_dir = "/home/git/custom_hooks"
 
-    {{- if .Values.shell.concurrency }}
-    {{-   range .Values.shell.concurrency }}
-    {{-     if and .rpc .maxPerRepo }}
-    [[concurrency]]
-    rpc = "{{ .rpc }}"
-    max_per_repo = {{ .maxPerRepo }}
-    {{-     end }}
-    {{-   end }}
-    {{- end }}
+    {{ with .Values.shell.concurrency }}
+    {{-  include "gitlab.keysToSnakeCase" . }}
+    {% `{{ dict "concurrency" . | toJson }}` | data.JSON | data.ToTOML | strings.TrimSpace %}
+    {{ end }}
 
     {{- if .Values.packObjectsCache.enabled }}
     [pack_objects_cache]
@@ -161,7 +158,91 @@ data:
     dir = {{ .dir | quote }}
     {{-     end }}
     {{-     if .max_age }}
-    max_age = {{ .max_age }}
+    max_age = {{ .max_age | quote }}
+    {{-     end }}
+    {{-     if .min_occurrences }}
+    min_occurrences = {{ .min_occurrences }}
     {{-     end }}
     {{-   end }}
+    {{- end }}
+
+    {{- if .Values.backup.goCloudUrl }}
+    [backup]
+    go_cloud_url = "{{ .Values.backup.goCloudUrl }}"
+    {{- end }}
+
+    {{- if .Values.cgroups.enabled }}
+    {{-   with .Values.cgroups }}
+    [cgroups]
+    {{-     if .mountpoint }}
+    mountpoint = "{{ .mountpoint }}"
+    {{-     end }}
+    {{-     if .hierarchyRoot }}
+    hierarchy_root = {{ .hierarchyRoot | quote }}
+    {{-     end }}
+    {{-     if .memoryBytes }}
+    memory_bytes = {{ .memoryBytes | int64 }}
+    {{-     end }}
+    {{-     if .cpuShares }}
+    cpu_shares = {{ .cpuShares | int64 }}
+    {{-     end }}
+    {{-     if .cpuQuotaUs }}
+    cpu_quota_us = {{ .cpuQuotaUs | int64 }}
+    {{-     end }}
+    {{-  end }}
+
+    {{-   with .Values.cgroups.repositories }}
+    [cgroups.repositories]
+    {{-     if .count }}
+    count = {{ .count | int64 }}
+    {{-     end }}
+    {{-     if .memoryBytes }}
+    memory_bytes = {{ .memoryBytes | int64 }}
+    {{-     end }}
+    {{-     if .cpuShares }}
+    cpu_shares = {{ .cpuShares | int64 }}
+    {{-     end }}
+    {{-     if .cpuQuotaUs }}
+    cpu_quota_us = {{ .cpuQuotaUs | int64 }}
+    {{-     end }}
+    {{-     if .maxCgroupsPerRepo }}
+    max_cgroups_per_repo = {{ .maxCgroupsPerRepo | int64 }}
+    {{-     end }}
+    {{-   end }}
+    {{- end }}
+    
+    {{- with .Values.timeout }}
+    [timeout]
+    {{- with .uploadPackNegotiation }}
+    upload_pack_negotiation = {{ . | quote }}
+    {{- end }}
+    {{- with .uploadArchiveNegotiation }}
+    upload_archive_negotiation = {{ . | quote }}
+    {{- end }}
+    {{- end }}
+
+    {{- with .Values.dailyMaintenance }}
+    [daily_maintenance]
+    {{- if hasKey . "disabled" }}
+    disabled = {{ eq .disabled true }}
+    {{- end }}
+    {{- with .startHour }}
+    start_hour = {{ . | int }}
+    {{- end }}
+    {{- with .startMinute }}
+    start_minute = {{ . | int }}
+    {{- end }}
+    {{- with .duration }}
+    duration = {{ . | quote }}
+    {{- end }}
+    {{- with .storages }}
+      {{- if kindIs "slice" . }}
+    storages = {{ . | toJson }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
+    
+    {{- with .Values.bundleUri }}
+    [bundle_uri]
+    go_cloud_url = "{{ .goCloudUrl }}"
     {{- end }}
