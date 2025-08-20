@@ -1096,6 +1096,70 @@
                         "customStartupProbe": {
                             "type": "object"
                         },
+                        "defaultInitContainers": {
+                            "type": "object",
+                            "properties": {
+                                "initConfig": {
+                                    "type": "object",
+                                    "properties": {
+                                        "containerSecurityContext": {
+                                            "type": "object",
+                                            "properties": {
+                                                "allowPrivilegeEscalation": {
+                                                    "type": "boolean"
+                                                },
+                                                "capabilities": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "drop": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "privileged": {
+                                                    "type": "boolean"
+                                                },
+                                                "readOnlyRootFilesystem": {
+                                                    "type": "boolean"
+                                                },
+                                                "runAsGroup": {
+                                                    "type": "integer"
+                                                },
+                                                "runAsNonRoot": {
+                                                    "type": "boolean"
+                                                },
+                                                "runAsUser": {
+                                                    "type": "integer"
+                                                },
+                                                "seLinuxOptions": {
+                                                    "type": "object"
+                                                },
+                                                "seccompProfile": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "resources": {
+                                            "type": "object"
+                                        },
+                                        "resourcesPreset": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
                         "dnsPolicy": {
                             "type": "string"
                         },
@@ -1174,59 +1238,6 @@
                                 },
                                 "tag": {
                                     "type": "string"
-                                }
-                            }
-                        },
-                        "initConfig": {
-                            "type": "object",
-                            "properties": {
-                                "containerSecurityContext": {
-                                    "type": "object",
-                                    "properties": {
-                                        "allowPrivilegeEscalation": {
-                                            "type": "boolean"
-                                        },
-                                        "capabilities": {
-                                            "type": "object",
-                                            "properties": {
-                                                "drop": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "enabled": {
-                                            "type": "boolean"
-                                        },
-                                        "privileged": {
-                                            "type": "boolean"
-                                        },
-                                        "readOnlyRootFilesystem": {
-                                            "type": "boolean"
-                                        },
-                                        "runAsGroup": {
-                                            "type": "integer"
-                                        },
-                                        "runAsNonRoot": {
-                                            "type": "boolean"
-                                        },
-                                        "runAsUser": {
-                                            "type": "integer"
-                                        },
-                                        "seLinuxOptions": {
-                                            "type": "object"
-                                        },
-                                        "seccompProfile": {
-                                            "type": "object",
-                                            "properties": {
-                                                "type": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        }
-                                    }
                                 }
                             }
                         },
