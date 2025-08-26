@@ -4,6 +4,15 @@
 Returns the pages entry for gitlab.yml of Rails-based containers.
 */}}
 {{- define "gitlab.pages.config" -}}
+{{/* Setup custom_domain_mode */}}
+{{- $custom_domain_mode := "" -}}
+{{- if not (empty $.Values.global.pages.externalHttps) }}
+{{-   $custom_domain_mode = "https" }}
+{{- else if not (empty $.Values.global.pages.externalHttp) }}
+{{-   $custom_domain_mode = "http" }}
+{{- else if or (eq $.Values.global.pages.customDomainMode "http") (eq $.Values.global.pages.customDomainMode "https") }}
+{{-   $custom_domain_mode = $.Values.global.pages.customDomainMode }}
+{{- end }}
 pages:
   enabled: {{ or (eq $.Values.global.pages.enabled true) (not (empty $.Values.global.pages.host)) }}
   access_control: {{ eq $.Values.global.pages.accessControl true }}
@@ -15,12 +24,16 @@ pages:
   secret_file: /etc/gitlab/pages/secret
   external_http: {{ not (empty $.Values.global.pages.externalHttp) }}
   external_https: {{ not (empty $.Values.global.pages.externalHttps) }}
+  {{- if $custom_domain_mode }}
+  custom_domain_mode: {{ $custom_domain_mode }}
+  {{- end }}
   {{- if not $.Values.global.appConfig.object_store.enabled }}
   {{-   include "gitlab.appConfig.objectStorage.configuration" (dict "name" "pages" "config" $.Values.global.pages.objectStore "context" $ ) | nindent 2 }}
   {{- end }}
   local_store:
     enabled: {{ $.Values.global.pages.localStore.enabled }}
     path: {{ $.Values.global.pages.localStore.path }}
+  namespace_in_path: {{ $.Values.global.pages.namespaceInPath }}
 {{- end -}}
 
 {{- define "gitlab.pages.mountSecrets" }}
