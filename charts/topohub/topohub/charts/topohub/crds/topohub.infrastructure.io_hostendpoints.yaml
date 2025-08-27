@@ -62,6 +62,12 @@ spec:
                 description: Port specifies the port number for communication
                 format: int32
                 type: integer
+              pxeBootType:
+                description: PXE boot type, either "ipmi" or "redfish"
+                enum:
+                - ipmi
+                - redfish
+                type: string
               secretName:
                 description: SecretName is the name of the secret containing credentials
                 type: string

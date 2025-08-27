@@ -79,6 +79,12 @@ spec:
                     default: false
                     description: Enable ZTP configuration for switch
                     type: boolean
+                  pxeBootType:
+                    description: PXE boot type, either "ipmi" or "redfish"
+                    enum:
+                    - ipmi
+                    - redfish
+                    type: string
                   syncRedfishstatus:
                     description: SyncRedfishstatus configuration
                     properties:

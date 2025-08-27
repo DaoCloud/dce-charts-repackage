@@ -10,7 +10,7 @@ topohub:
     repository: "infrastructure-io/topohub"
     pullPolicy: IfNotPresent
     # tag will be overridden by version from Chart.yaml
-    tag: "v0.5.0"
+    tag: "v0.6.0"
     # Optional: image digest
     digest: ""
   resources:
@@ -29,8 +29,10 @@ topohub:
       # Optional: Authentication credentials
       username: "admin"
       password: "secret"
-      # redfishStatusUpdateInterval defines the interval of redfishStatusUpdateInterval
-      redfishStatusUpdateInterval: 60
+      # redfishStatusBasicUpdateInterval defines the interval for updating critical fields (PowerState, BmcStatus, healthy)
+      redfishStatusBasicUpdateInterval: 60
+      # redfishStatusInfoUpdateInterval defines the interval for updating detailed information and logs,86400 is default 1d
+      redfishStatusInfoUpdateInterval: 86400
     ssh:
       # Port for the endpoint (default: 443)
       port: 22
@@ -116,14 +118,15 @@ topohub:
   nodeSelector: {}
   # Specify a specific node by name
   nodeName: ""
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: topohub.io/deployment
-              operator: In
-              values:
-                - "true"
+  # nodeAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #     nodeSelectorTerms:
+  #     - matchExpressions:
+  #       - key: infrastructure.io/deploy
+  #         operator: In
+  #         values:
+  #         - "true"
+
   ## @param topohub.extraArgs the additional arguments of topohub container
   extraArgs: []
   ## @skip spiderpoolAgent.tolerations

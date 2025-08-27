@@ -15,24 +15,21 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .status.basic.clusterName
-      name: CLUSTERNAME
-      type: string
     - jsonPath: .status.healthy
       name: HEALTHY
       type: boolean
-    - jsonPath: .status.basic.ipAddr
-      name: IPADDR
-      type: string
-    - jsonPath: .status.basic.type
-      name: TYPE
-      type: string
     - jsonPath: .status.log.warningLogAccount
       name: WARNING
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
+    - jsonPath: .status.basic.subnetName
+      name: SUBNETNAME
+      type: string
+    - jsonPath: .status.basic.clusterName
+      name: CLUSTERNAME
+      type: string
     name: v1beta1
     schema:
       openAPIV3Schema:
@@ -58,41 +55,10 @@ spec:
             properties:
               basic:
                 properties:
-                  activeDhcpClient:
-                    description: ActiveDhcpClient specifies this host is an active
-                      dhcp client when type is dhcp
-                    type: boolean
                   clusterName:
-                    type: string
-                  dhcpExpireTime:
-                    type: string
-                  hostname:
-                    type: string
-                  https:
-                    type: boolean
-                  ipAddr:
-                    type: string
-                  mac:
-                    type: string
-                  port:
-                    format: int32
-                    type: integer
-                  secretName:
-                    type: string
-                  secretNamespace:
                     type: string
                   subnetName:
                     type: string
-                  type:
-                    type: string
-                required:
-                - clusterName
-                - https
-                - ipAddr
-                - port
-                - secretName
-                - secretNamespace
-                - type
                 type: object
               healthy:
                 type: boolean
