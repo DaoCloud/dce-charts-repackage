@@ -7,6 +7,8 @@ metadata:
     {{- include "topohub.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "topohub.selectorLabels" . | nindent 6 }}
@@ -31,17 +33,6 @@ spec:
       {{- if .Values.nodeName }}
       nodeName: {{ .Values.nodeName }}
       {{- end }}
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchLabels:
-                {{- include "topohub.selectorLabels" . | nindent 16 }}
-            topologyKey: kubernetes.io/hostname
-        {{- with .Values.nodeAffinity }}
-        nodeAffinity:
-          {{- toYaml . | nindent 10 }}
-        {{- end }}
       hostNetwork: true
       {{- with .Values.tolerations }}
       tolerations:

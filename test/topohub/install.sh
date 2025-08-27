@@ -21,10 +21,7 @@ HELM_MUST_OPTION=" --version ${CHART_VERSION} --timeout 10m0s --wait --debug --k
 set -x
 
 helm install topohub chart-museum/topohub ${HELM_MUST_OPTION}  --namespace topohub --create-namespace \
-  --set topohub.defaultConfig.dhcpServer.interface="eth0" \
-  --set topohub.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key=beta.kubernetes.io/os \
-  --set topohub.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator=In \
-  --set topohub.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0]=linux
+  --set topohub.defaultConfig.dhcpServer.interface="eth0"
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"

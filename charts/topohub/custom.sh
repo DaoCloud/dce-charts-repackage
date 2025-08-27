@@ -50,10 +50,7 @@ yq -i '
   .topohub.image.repository = "infrastructure-io/topohub" |
   .topohub.fileBrowser.enabled = true |
   .topohub.fileBrowser.image.registry = "docker.m.daocloud.io" |
-  .topohub.fileBrowser.image.repository = "filebrowser/filebrowser" |
-  .topohub.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key="topohub.io/deployment" |
-  .topohub.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator="In" |
-  .topohub.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0]="true"
+  .topohub.fileBrowser.image.repository = "filebrowser/filebrowser"
 ' values.yaml
 
 exit 0

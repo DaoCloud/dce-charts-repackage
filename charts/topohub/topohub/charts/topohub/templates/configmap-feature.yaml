@@ -10,7 +10,8 @@ data:
     redfishHttps: {{ .Values.defaultConfig.redfish.https }}
     redfishSecretname: {{ include "topohub.fullname" . }}-redfish-auth
     redfishSecretNamespace: {{ .Release.Namespace }}
-    redfishStatusUpdateInterval: {{ .Values.defaultConfig.redfish.redfishStatusUpdateInterval }}
+    redfishStatusBasicUpdateInterval: {{ .Values.defaultConfig.redfish.redfishStatusBasicUpdateInterval }}
+    redfishStatusInfoUpdateInterval: {{ .Values.defaultConfig.redfish.redfishStatusInfoUpdateInterval }}
     sshStatusUpdateInterval: {{ .Values.defaultConfig.ssh.sshStatusUpdateInterval }}
     dhcpServerInterface: {{ .Values.defaultConfig.dhcpServer.interface }}
     httpServerPort: {{ .Values.defaultConfig.httpServer.port }}

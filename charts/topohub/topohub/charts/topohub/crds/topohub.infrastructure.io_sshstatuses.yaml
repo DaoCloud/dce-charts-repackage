@@ -21,12 +21,6 @@ spec:
     - jsonPath: .status.healthy
       name: HEALTHY
       type: boolean
-    - jsonPath: .status.basic.ipAddr
-      name: IPADDR
-      type: string
-    - jsonPath: .status.basic.type
-      name: TYPE
-      type: string
     - jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
@@ -58,30 +52,12 @@ spec:
                 properties:
                   clusterName:
                     type: string
-                  ipAddr:
-                    type: string
-                  port:
-                    format: int32
-                    type: integer
-                  secretName:
-                    type: string
-                  secretNamespace:
-                    type: string
-                  sshKeyAuth:
-                    type: boolean
                   subnetName:
                     description: SubnetName is the name of the subnet this host belongs
                       to
                     type: string
-                  type:
-                    type: string
                 required:
                 - clusterName
-                - ipAddr
-                - port
-                - secretName
-                - secretNamespace
-                - type
                 type: object
               healthy:
                 type: boolean
