@@ -33,6 +33,7 @@ yq -i '
    .global.security.allowInsecureImages=true |
    .contour.contour.manageCRDs=true |
    .contour.contour.image.registry="docker.m.daocloud.io" |
+   .contour.contour.image.repository="bitnamilegacy/contour" |
    .contour.contour.image.pullPolicy="IfNotPresent" |
    .contour.contour.replicaCount=2 |
    .contour.contour.ingressClass.name="contour" |
@@ -49,6 +50,7 @@ yq -i '
    .contour.envoy.useHostPort.metrics=false |
    .contour.envoy.replicaCount=2 |
    .contour.envoy.image.registry="docker.m.daocloud.io" |
+   .contour.envoy.image.repository="bitnamilegacy/envoy" |
    .contour.envoy.image.pullPolicy="IfNotPresent" |
    .contour.envoy.kind="deployment" |
    .contour.envoy.hostNetwork=false |
