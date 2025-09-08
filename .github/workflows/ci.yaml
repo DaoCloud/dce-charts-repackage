@@ -56,7 +56,7 @@ jobs:
       pro_version_changed: ${{ env.PRO_CHANGED_VERSION }}
     steps:
       - name: "Setup go"
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v6
         with:
           go-version: '1.19'
 
