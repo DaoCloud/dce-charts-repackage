@@ -46,7 +46,7 @@ gpu-operator:
     repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/gpu-operator-validator
     # If version is not specified, then default is to use chart.AppVersion
-    version: "v25.3.0"
+    version: "v25.3.2"
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     env: []
@@ -60,7 +60,7 @@ gpu-operator:
     repository: nvcr.m.daocloud.io
     image: nvidia/gpu-operator
     # If version is not specified, then default is to use chart.AppVersion
-    version: "v25.3.0"
+    version: "v25.3.2"
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     priorityClassName: system-node-critical
@@ -233,7 +233,7 @@ gpu-operator:
     enabled: true
     repository: nvcr.m.daocloud.io
     image: nvidia/k8s-device-plugin
-    version: v0.17.1
+    version: v0.17.3
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     args: []
@@ -290,7 +290,7 @@ gpu-operator:
     enabled: false
     repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/dcgm
-    version: 4.1.1-2-ubuntu22.04
+    version: 4.2.3-1-ubuntu22.04
     imagePullPolicy: IfNotPresent
     args: []
     env: []
@@ -299,7 +299,7 @@ gpu-operator:
     enabled: true
     repository: nvcr.m.daocloud.io
     image: nvidia/k8s/dcgm-exporter
-    version: 4.1.1-4.0.4-ubuntu22.04
+    version: 4.2.3-4.1.3-ubuntu22.04
     imagePullPolicy: IfNotPresent
     env:
       - name: DCGM_EXPORTER_LISTEN
@@ -307,6 +307,8 @@ gpu-operator:
       - name: DCGM_EXPORTER_KUBERNETES
         value: "true"
     resources: {}
+    service:
+      internalTrafficPolicy: Cluster
     serviceMonitor:
       enabled: true
       interval: 15s
@@ -351,7 +353,7 @@ gpu-operator:
     enabled: true
     repository: nvcr.m.daocloud.io
     image: nvidia/k8s-device-plugin
-    version: v0.17.1
+    version: v0.17.3
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     env:
@@ -364,7 +366,7 @@ gpu-operator:
     enabled: true
     repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/k8s-mig-manager
-    version: v0.12.1-ubuntu20.04
+    version: v0.12.2-ubuntu20.04
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     env:
@@ -417,7 +419,7 @@ gpu-operator:
     repository: nvcr.m.daocloud.io
     image: nvidia/cloud-native/gpu-operator-validator
     # If version is not specified, then default is to use chart.AppVersion
-    version: "v25.3.0"
+    version: "v25.3.2"
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     resources: {}
@@ -434,7 +436,7 @@ gpu-operator:
     enabled: false
     repository: nvcr.io/nvidia/cloud-native
     image: gdrdrv
-    version: "v2.4.4"
+    version: "v2.5"
     imagePullPolicy: IfNotPresent
     imagePullSecrets: []
     env: []
@@ -538,7 +540,6 @@ gpu-operator:
         value: "0x2339,0x2331,0x2330,0x2324,0x2322,0x233d"
     resources: {}
   node-feature-discovery:
-    enableNodeFeatureApi: true
     priorityClassName: system-node-critical
     gc:
       enable: true
@@ -587,5 +588,5 @@ gpu-operator:
     image:
       registry: k8s.m.daocloud.io
       repository: nfd/node-feature-discovery
-      tag: v0.17.2
+      tag: v0.17.3
   systemOS: ubuntu22.04
