@@ -26,6 +26,8 @@ data:
   click_house.yml.erb: |
     {{- include "gitlab.clickhouse.yml" . | nindent 4 }}
   {{- end }}
+  session_store.yml.erb: |
+    {{- include "gitlab.session_store.yml" . | nindent 4 }}
   krb5.conf: |
     {{- .Values.global.appConfig.kerberos.krb5Config | nindent 4 }}
   smtp_settings.rb: |
@@ -51,9 +53,14 @@ data:
         username_changing_enabled: {{ eq .usernameChangingEnabled true }}
         issue_closing_pattern: {{ .issueClosingPattern | quote }}
         default_theme: {{ .defaultTheme }}
+        default_color_mode: {{ .defaultColorMode }}
+        default_syntax_highlighting_theme: {{ .defaultSyntaxHighlightingTheme }}
         {{- include "gitlab.appConfig.defaultProjectsFeatures.configuration" $ | nindent 8 }}
         {{- if hasKey .initialDefaults "signupEnabled" }}
         signup_enabled: {{ .initialDefaults.signupEnabled }}
+        {{- end }}
+        {{- if hasKey .initialDefaults "gitlabProductUsageData" }}
+        initial_gitlab_product_usage_data: {{ .initialDefaults.gitlabProductUsageData }}
         {{- end }}
         graphql_timeout: {{ .graphQlTimeout }}
         webhook_timeout: {{ .webhookTimeout }}
@@ -96,6 +103,7 @@ data:
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "ci_secure_files" "config" $.Values.global.appConfig.ciSecureFiles) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 10 -}}
       {{- end }}
       {{- include "gitlab.appConfig.artifacts.configuration" (dict "config" $.Values.global.appConfig.artifacts "context" $) | nindent 6 }}
@@ -110,7 +118,9 @@ data:
       {{- include "gitlab.appConfig.sentry.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.gitlab_docs.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.sidekiq.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.oidcProvider.configuration" $ | nindent 6 }}
       {{- include "gitlab.pages.config" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.ciIdTokens.configuration" $ | nindent 6 }}
       mattermost:
         enabled: false
       gitlab_ci:
@@ -124,6 +134,7 @@ data:
       backup:
         path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
       {{- include "gitlab.appConfig.kas" . | nindent 6 }}
+      {{- include "gitlab.appConfig.cell" . | nindent 6 }}
       {{- include "gitlab.appConfig.suggested_reviewers" . | nindent 6 }}
       {{- include "gitlab.appConfig.zoekt" . | nindent 6 }}
       {{- include "gitlab.appConfig.shell" . | nindent 6 }}
@@ -137,11 +148,13 @@ data:
       monitoring:
         ip_whitelist:
           {{- if kindIs "slice" .Values.monitoring.ipWhitelist }}
-          {{ toYaml .Values.monitoring.ipWhitelist | nindent 10 | trim }}
+          {{- range $ip := .Values.monitoring.ipWhitelist }}
+          - {{ $ip | trim | quote }}
+          {{- end }}
           {{- end }}
         web_exporter:
           enabled: {{ or .Values.monitoring.exporter.enabled (and .Values.metrics.enabled (eq .Values.metrics.port .Values.monitoring.exporter.port)) }}
-          address: 0.0.0.0
+          address: {{ .Values.monitoring.exporter.listenAddr | quote }}
           port: {{ .Values.monitoring.exporter.port }}
           {{- if eq (include "webservice-metrics.tls.enabled" $) "true" }}
           tls_enabled: true
@@ -155,6 +168,7 @@ data:
       ## Registry Integration
       {{- include "gitlab.appConfig.registry.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.smartcard.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.openbao.configuration" . | nindent 6 }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict) | nindent 4 }}
     {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
@@ -168,6 +182,15 @@ data:
       mkdir -p /init-secrets/webservice-metrics
       cp -v -L /init-config/webservice-metrics/webservice-metrics.crt /init-secrets/webservice-metrics/webservice-metrics.crt
       cp -v -L /init-config/webservice-metrics/webservice-metrics.key /init-secrets/webservice-metrics/webservice-metrics.key
+    {{- end }}
+    {{- if $.Values.global.appConfig.cell.enabled }}
+      if [ -d /init-config/topology-service ]; then
+        mkdir -p /init-secrets/topology-service
+        {{- if $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+        cp -v -L /init-config/topology-service/tls.key /init-secrets/topology-service/tls.key
+        cp -v -L /init-config/topology-service/tls.crt /init-secrets/topology-service/tls.crt
+        {{- end }}
+      fi
     {{- end }}
 
 {{- include "webservice.datamodel.prepare" $ -}}
@@ -199,6 +222,11 @@ data:
     trusted_cidrs_for_x_forwarded_for = {{ $.Values.workhorse.trustedCIDRsForXForwardedFor | toStrings | toJson }}
     {{- end }}
 
+    {{- if ($.Values.workhorse.metadata).zipReaderLimitBytes }}
+    [metadata]
+    zip_reader_limit_bytes = {{ $.Values.workhorse.metadata.zipReaderLimitBytes | int64 }}
+    {{- end }}
+
     {{- if .workhorse.keywatcher }}
     {{- include "workhorse.redis.config" $ | nindent 4 }}
     {{- end }}
@@ -208,7 +236,7 @@ data:
     max_filesize = {{ $.Values.workhorse.imageScaler.maxFileSizeBytes | int }}
     [[listeners]]
     network = "tcp"
-    addr = "0.0.0.0:{{ default 8181 $.Values.service.workhorseInternalPort | int }}"
+    addr = ":{{ default 8181 $.Values.service.workhorseInternalPort | int }}"
     {{- if $.Values.global.workhorse.tls.enabled }}
     [listeners.tls]
     certificate = "/etc/gitlab/gitlab-workhorse/tls.crt"
@@ -217,7 +245,7 @@ data:
     {{- if or $.Values.workhorse.monitoring.exporter.enabled $.Values.workhorse.metrics.enabled }}
     [metrics_listener]
     network = "tcp"
-    addr = "0.0.0.0:{{ $.Values.workhorse.monitoring.exporter.port }}"
+    addr = ":{{ $.Values.workhorse.monitoring.exporter.port }}"
     {{- $workhorseExporterTlsEnabled := eq (include "workhorse.monitoring.exporter.tls.enabled" $ ) "true" }}
     {{- if $workhorseExporterTlsEnabled }}
     [metrics_listener.tls]

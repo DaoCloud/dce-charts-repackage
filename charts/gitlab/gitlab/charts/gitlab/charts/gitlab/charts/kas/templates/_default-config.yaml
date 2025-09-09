@@ -14,6 +14,7 @@ agent:
       key_file: /etc/kas/tls.key
       {{- end }}
     url_path_prefix: "{{ .Values.ingress.k8sApiPath }}"
+    websocket_token_secret_file: "/etc/kas/.gitlab_kas_websocket_token_secret"
 gitlab:
   address: "{{ template "gitlab.workhorse.url" . }}"
   external_url: "{{- template "gitlab.gitlab.url" . -}}"
@@ -39,9 +40,43 @@ private_api:
   listen:
     address: ":{{ .Values.service.privateApiPort }}"
     authentication_secret_file: "/etc/kas/.gitlab_kas_private_api_secret"
-    {{- if or .Values.privateApi.tls.enabled $.Values.global.kas.tls.enabled }}
+    {{- if $.Values.global.kas.tls.enabled }}
     certificate_file: "/etc/kas/tls.crt"
     key_file: "/etc/kas/tls.key"
     ca_certificate_file: "/etc/ssl/certs/ca-certificates.crt"
     {{- end }}
 
+{{- if (.Values.autoflow).enabled }}
+autoflow:
+  temporal:
+    host_port: "{{ ((.Values.autoflow).temporal).namespace }}.tmprl.cloud:7233"
+    namespace: "{{ ((.Values.autoflow).temporal).namespace }}"
+
+    enable_tls: true
+    certificate_file: "/etc/kas/temporal-worker-client-mtls.crt"
+    key_file: "/etc/kas/temporal-worker-client-mtls.key"
+
+    workflow_data_encryption:
+      secret_key_file: "/etc/kas/.gitlab_kas_autoflow_temporal_workflow_data_encryption_secret"
+      codec_server:
+        listen:
+          network: "tcp"
+          address: ":{{ .Values.service.autoflowCodecServerApiPort }}"
+          {{- if $.Values.global.kas.tls.enabled }}
+          certificate_file: /etc/kas/tls.crt
+          key_file: /etc/kas/tls.key
+          {{- end }}
+        temporal_web_ui_url: "https://cloud.temporal.io"
+        temporal_oidc_url: "https://login.tmprl.cloud/.well-known/openid-configuration"
+        authorized_user_emails: {{ default list ((((.Values.autoflow).temporal).workflowDataEncryption).codecServer).authorizedUserEmails | toJson }}
+{{- end }}
+
+{{- if (.Values.workspaces).enabled }}
+workspaces:
+  enabled: {{ .Values.workspaces.enabled }}
+  listen:
+    network: "tcp"
+    address: ":{{ .Values.service.workspacesServerPort }}"
+    listen_grace_period: {{ .Values.workspaces.listenGracePeriod | quote }}
+    shutdown_grace_period: {{ .Values.workspaces.shutdownGracePeriod | quote }}
+{{- end }}

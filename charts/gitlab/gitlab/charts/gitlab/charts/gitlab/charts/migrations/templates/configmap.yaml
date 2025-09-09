@@ -19,12 +19,41 @@ data:
     production: &base
       gitlab:
         host: {{ template "gitlab.gitlab.hostname" . }}
+        https: {{ hasPrefix "https://" (include "gitlab.gitlab.url" .) }}
         {{- if hasKey .Values.global.appConfig.initialDefaults "signupEnabled" }}
         signup_enabled: {{ .Values.global.appConfig.initialDefaults.signupEnabled }}
         {{- end }}
+        {{- if hasKey .Values.global.appConfig.initialDefaults "gitlabProductUsageData" }}
+        initial_gitlab_product_usage_data: {{ .Values.global.appConfig.initialDefaults.gitlabProductUsageData }}
+        {{- end }}
+
+      {{- if $.Values.global.appConfig.object_store.enabled }}
+      # Consolidated object storage configuration
+      ## property local configuration will override object_store
+      {{- include "gitlab.appConfig.objectStorage.configuration" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store "context" $) | nindent 6 }}
+        objects:
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "artifacts" "config" $.Values.global.appConfig.artifacts) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "lfs" "config" $.Values.global.appConfig.lfs) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "uploads" "config" $.Values.global.appConfig.uploads) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "packages" "config" $.Values.global.appConfig.packages) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "ci_secure_files" "config" $.Values.global.appConfig.ciSecureFiles) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 10 -}}
+      {{- end }}
+      {{- include "gitlab.appConfig.artifacts.configuration" (dict "config" $.Values.global.appConfig.artifacts "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.lfs.configuration" (dict "config" $.Values.global.appConfig.lfs "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.uploads.configuration" (dict "config" $.Values.global.appConfig.uploads "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.packages.configuration" (dict "config" $.Values.global.appConfig.packages "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.external_diffs.configuration" (dict "config" $.Values.global.appConfig.externalDiffs "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.terraformState.configuration" (dict "config" $.Values.global.appConfig.terraformState "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.ciSecureFiles.configuration" (dict "config" $.Values.global.appConfig.ciSecureFiles "context" $) | nindent 6 }}
+
       {{- include "gitlab.appConfig.gitaly" . | nindent 6 }}
       {{- include "gitlab.appConfig.repositories" . | nindent 6 }}
       {{- include "gitlab.appConfig.sidekiq.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.oidcProvider.configuration" $ | nindent 6 }}
       {{- include "gitlab.geo.config" $ | nindent 6 }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict "required" "rails-secrets migrations gitaly") | nindent 4 }}
