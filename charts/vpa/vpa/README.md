@@ -202,8 +202,8 @@ recommender:
 | admissionController.certGen.image.pullPolicy | string | `"Always"` | The pull policy for the certgen image. Recommend not changing this |
 | admissionController.certGen.env | object | `{}` | Additional environment variables to be added to the certgen container. Format is KEY: Value format |
 | admissionController.certGen.resources | object | `{}` | The resources block for the certgen pod |
-| admissionController.certGen.securityContext | object | `{}` | The securityContext block for the certgen container(s) |
-| admissionController.certGen.podSecurityContext | object | `{}` | The securityContext block for the certgen pod(s) |
+| admissionController.certGen.podSecurityContext | object | `{"runAsNonRoot":true,"runAsUser":65534,"seccompProfile":{"type":"RuntimeDefault"}}` | The securityContext block for the certgen pod(s) |
+| admissionController.certGen.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | The securityContext block for the certgen container(s) |
 | admissionController.certGen.nodeSelector | object | `{}` |  |
 | admissionController.certGen.tolerations | list | `[]` |  |
 | admissionController.certGen.affinity | object | `{}` |  |
@@ -233,8 +233,8 @@ recommender:
 | admissionController.httpPort | int | `8000` | Port of the admission controller for the mutating webhooks |
 | admissionController.metricsPort | int | `8944` | Port of the admission controller where metrics can be received from |
 | tests.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"runAsUser":10324}` | The security context for the containers run as helm hook tests |
-| tests.image.repository | string | `"bitnami/kubectl"` | An image used for testing containing bash, cat and kubectl |
-| tests.image.tag | string | `""` | An image tag for the tests image |
+| tests.image.repository | string | `"alpine/kubectl"` | An image used for testing containing sh, cat and kubectl |
+| tests.image.tag | string | `"1.33.3"` | An image tag for the tests image |
 | tests.image.pullPolicy | string | `"Always"` | The pull policy for the tests image. |
 | metrics-server | object | `{"enabled":false}` | configuration options for the [metrics server Helm chart](https://github.com/kubernetes-sigs/metrics-server/tree/master/charts/metrics-server). See the projects [README.md](https://github.com/kubernetes-sigs/metrics-server/tree/master/charts/metrics-server#configuration) for all available options |
 | metrics-server.enabled | bool | `false` | Whether or not the metrics server Helm chart should be installed |

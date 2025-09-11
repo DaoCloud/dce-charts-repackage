@@ -224,10 +224,19 @@ vpa:
       env: {}
       # admissionController.certGen.resources -- The resources block for the certgen pod
       resources: {}
-      # admissionController.certGen.securityContext -- The securityContext block for the certgen container(s)
-      securityContext: {}
       # admissionController.certGen.podSecurityContext -- The securityContext block for the certgen pod(s)
-      podSecurityContext: {}
+      podSecurityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      # admissionController.certGen.securityContext -- The securityContext block for the certgen container(s)
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
       nodeSelector: {}
       tolerations: []
       affinity: {}
@@ -330,10 +339,10 @@ vpa:
         drop:
           - ALL
     image:
-      # tests.image.repository -- An image used for testing containing bash, cat and kubectl
-      repository: bitnami/kubectl
+      # tests.image.repository -- An image used for testing containing sh, cat and kubectl
+      repository: alpine/kubectl
       # tests.image.tag -- An image tag for the tests image
-      tag: ""
+      tag: "1.33.3"
       # tests.image.pullPolicy -- The pull policy for the tests image.
       pullPolicy: Always
   # metrics-server -- configuration options for the [metrics server Helm chart](https://github.com/kubernetes-sigs/metrics-server/tree/master/charts/metrics-server). See the projects [README.md](https://github.com/kubernetes-sigs/metrics-server/tree/master/charts/metrics-server#configuration) for all available options
