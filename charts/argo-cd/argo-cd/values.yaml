@@ -34,7 +34,7 @@ argo-cd:
     keep: true
     # -- Annotations to be added to all CRDs
     annotations: {}
-    # -- Addtional labels to be added to all CRDs
+    # -- Additional labels to be added to all CRDs
     additionalLabels: {}
   ## Globally shared configuration
   global:
@@ -54,7 +54,7 @@ argo-cd:
       # -- If defined, a repository applied to all Argo CD deployments
       repository: argoproj/argocd
       # -- Overrides the global Argo CD image tag whose default is the chart appVersion
-      tag: "v3.0.6"
+      tag: "v3.1.5"
       # -- If defined, a imagePullPolicy applied to all Argo CD deployments
       imagePullPolicy: IfNotPresent
       registry: quay.m.daocloud.io
@@ -70,6 +70,8 @@ argo-cd:
     statefulsetAnnotations: {}
     # -- Annotations for the all deployed Deployments
     deploymentAnnotations: {}
+    # -- Labels for the all deployed Deployments
+    deploymentLabels: {}
     # -- Annotations for the all deployed pods
     podAnnotations: {}
     # -- Labels for the all deployed pods
@@ -812,6 +814,8 @@ argo-cd:
     statefulsetAnnotations: {}
     # -- Annotations for the application controller Deployment
     deploymentAnnotations: {}
+    # -- Labels for the application controller Deployment
+    deploymentLabels: {}
     # -- Annotations to be added to application controller pods
     podAnnotations: {}
     # -- Labels to be added to application controller pods
@@ -996,6 +1000,11 @@ argo-cd:
       enabled: false
       # -- List of custom rules for the application controller's ClusterRole resource
       rules: []
+    # Default application controller's network policy
+    networkPolicy:
+      # -- Default network policy rules used by application controller
+      # @default -- `false` (defaults to global.networkPolicy.create)
+      create: false
   ## Dex
   dex:
     # -- Enable dex
@@ -1062,7 +1071,7 @@ argo-cd:
       # -- Dex image repository
       repository: dexidp/dex
       # -- Dex image tag
-      tag: v2.43.1
+      tag: v2.44.0
       # -- Dex imagePullPolicy
       # @default -- `""` (defaults to global.image.imagePullPolicy)
       imagePullPolicy: ""
@@ -1134,6 +1143,8 @@ argo-cd:
       crt: ''
     # -- Annotations to be added to the Dex server Deployment
     deploymentAnnotations: {}
+    # -- Labels for the Dex server Deployment
+    deploymentLabels: {}
     # -- Annotations to be added to the Dex server pods
     podAnnotations: {}
     # -- Labels to be added to the Dex server pods
@@ -1263,13 +1274,23 @@ argo-cd:
 
     # -- Deployment strategy to be added to the Dex server Deployment
     deploymentStrategy: {}
-    # DEPRECATED - Use configs.params to override
-    # -- Dex log format. Either `text` or `json`
-    # @default -- `""` (defaults to global.logging.format)
-    # logFormat: ""
-    # -- Dex log level. One of: `debug`, `info`, `warn`, `error`
-    # @default -- `""` (defaults to global.logging.level)
-    # logLevel: ""
+    # type: RollingUpdate
+    # rollingUpdate:
+    #   maxSurge: 25%
+    #   maxUnavailable: 25%
+
+    # Default Dex server's network policy
+    networkPolicy:
+      # -- Default network policy rules used by Dex server
+      # @default -- `false` (defaults to global.networkPolicy.create)
+      create: false
+      # DEPRECATED - Use configs.params to override
+      # -- Dex log format. Either `text` or `json`
+      # @default -- `""` (defaults to global.logging.format)
+      # logFormat: ""
+      # -- Dex log level. One of: `debug`, `info`, `warn`, `error`
+      # @default -- `""` (defaults to global.logging.level)
+      # logLevel: ""
   ## Redis
   redis:
     # -- Enable redis
@@ -1426,6 +1447,8 @@ argo-cd:
     volumes: []
     # -- Annotations to be added to the Redis server Deployment
     deploymentAnnotations: {}
+    # -- Labels for the Redis server Deployment
+    deploymentLabels: {}
     # -- Annotations to be added to the Redis server pods
     podAnnotations: {}
     # -- Labels to be added to the Redis server pods
@@ -1556,6 +1579,11 @@ argo-cd:
       image:
         registry: docker.m.daocloud.io
         repository: oliver006/redis_exporter
+    # Default redis's network policy
+    networkPolicy:
+      # -- Default network policy rules used by redis
+      # @default -- `false` (defaults to global.networkPolicy.create)
+      create: false
   ## Redis-HA subchart replaces custom redis deployment when `redis-ha.enabled=true`
   # Ref: https://github.com/DandyDeveloper/charts/blob/master/charts/redis-ha/values.yaml
   redis-ha:
@@ -1574,7 +1602,7 @@ argo-cd:
       # -- Enable Prometheus redis-exporter sidecar
       enabled: false
       # -- Tag to use for the redis-exporter
-      tag: v1.69.0
+      tag: v1.75.0
       image:
         registry: docker.m.daocloud.io
         repository: oliver006/redis_exporter
@@ -1693,7 +1721,7 @@ argo-cd:
       repository: "argoproj/argocd" # defaults to global.image.repository
       # -- Tag to use for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.tag)
-      tag: "v3.0.6" # defaults to global.image.tag
+      tag: "v3.1.5" # defaults to global.image.tag
       # -- Image pull policy for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.imagePullPolicy)
       imagePullPolicy: "" # IfNotPresent
@@ -1943,6 +1971,8 @@ argo-cd:
       # sizeLimit: "1Gi"
     # -- Annotations to be added to server Deployment
     deploymentAnnotations: {}
+    # -- Labels for the server Deployment
+    deploymentLabels: {}
     # -- Annotations to be added to server pods
     podAnnotations: {}
     # -- Labels to be added to server pods
@@ -2382,6 +2412,11 @@ argo-cd:
       enabled: false
       # -- List of custom rules for the server's ClusterRole resource
       rules: []
+    # Default ArgoCD Server's network policy
+    networkPolicy:
+      # -- Default network policy rules used by ArgoCD Server
+      # @default -- `false` (defaults to global.networkPolicy.create)
+      create: false
   ## Repo Server
   repoServer:
     # -- Repo server name
@@ -2548,6 +2583,8 @@ argo-cd:
     useEphemeralHelmWorkingDir: true
     # -- Annotations to be added to repo server Deployment
     deploymentAnnotations: {}
+    # -- Labels for the repo server Deployment
+    deploymentLabels: {}
     # -- Annotations to be added to repo server pods
     podAnnotations: {}
     # -- Labels to be added to repo server pods
@@ -2749,6 +2786,12 @@ argo-cd:
     #     - get
     #     - list
     #     - watch
+
+    # Default repo server's network policy
+    networkPolicy:
+      # -- Default network policy rules used by repo server
+      # @default -- `false` (defaults to global.networkPolicy.create)
+      create: false
   ## ApplicationSet controller
   applicationSet:
     # -- ApplicationSet controller name string
@@ -2889,6 +2932,8 @@ argo-cd:
       automountServiceAccountToken: true
     # -- Annotations to be added to ApplicationSet controller Deployment
     deploymentAnnotations: {}
+    # -- Labels for the ApplicationSet controller Deployment
+    deploymentLabels: {}
     # -- Annotations for the ApplicationSet controller pods
     podAnnotations: {}
     # -- Labels for the ApplicationSet controller pods
@@ -3088,6 +3133,11 @@ argo-cd:
       #     - argocd-applicationset.example.com
     # -- Enable ApplicationSet in any namespace feature
     allowAnyNamespace: false
+    # Default ApplicationSet controller's network policy
+    networkPolicy:
+      # -- Default network policy rules used by ApplicationSet controller
+      # @default -- `false` (defaults to global.networkPolicy.create)
+      create: false
   ## Notifications controller
   notifications:
     # -- Enable notifications controller
@@ -3237,6 +3287,8 @@ argo-cd:
 
     # -- Annotations to be applied to the notifications controller Deployment
     deploymentAnnotations: {}
+    # -- Labels for the notifications controller Deployment
+    deploymentLabels: {}
     # -- Annotations to be applied to the notifications controller Pods
     podAnnotations: {}
     # -- Labels to be applied to the notifications controller Pods
@@ -3621,6 +3673,12 @@ argo-cd:
     # For more information: https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/triggers/#default-triggers
     # defaultTriggers: |
     #   - on-sync-status-unknown
+
+    # Default notifications controller's network policy
+    networkPolicy:
+      # -- Default network policy rules used by notifications controller
+      # @default -- `false` (defaults to global.networkPolicy.create)
+      create: false
   commitServer:
     # -- Enable commit server
     enabled: false
@@ -3681,6 +3739,10 @@ argo-cd:
       annotations: {}
       # -- commit server service labels
       labels: {}
+      # -- commit server service port
+      port: 8086
+      # -- commit server service port name
+      portName: server
     # -- Automount API credentials for the Service Account into the pod.
     automountServiceAccountToken: false
     serviceAccount:
@@ -3696,6 +3758,8 @@ argo-cd:
       automountServiceAccountToken: true
     # -- Annotations to be added to commit server Deployment
     deploymentAnnotations: {}
+    # -- Labels for the commit server Deployment
+    deploymentLabels: {}
     # -- Annotations for the commit server pods
     podAnnotations: {}
     # -- Labels for the commit server pods
@@ -3778,3 +3842,8 @@ argo-cd:
     # -- Priority class for the commit server pods
     # @default -- `""` (defaults to global.priorityClassName)
     priorityClassName: ""
+    # Default commit server's network policy
+    networkPolicy:
+      # -- Default network policy rules used by commit server
+      # @default -- `false` (defaults to global.networkPolicy.create)
+      create: false
