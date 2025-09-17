@@ -1,0 +1,11 @@
+{{- if .Values.unsealer.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openbao.fullname" . }}-unseal
+  labels:
+    {{- include "openbao.labels" . | nindent 4 }}
+data:
+  unsealer.sh: |
+    {{- .Files.Get "scripts/unseal/unsealer.sh" | nindent 4 }}
+{{- end }}
