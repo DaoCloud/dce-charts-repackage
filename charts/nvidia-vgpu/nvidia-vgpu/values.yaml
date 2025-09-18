@@ -3,8 +3,9 @@ hami:
   # Default values for hami-vgpu.
   nameOverride: ""
   fullnameOverride: ""
+  namespaceOverride: ""
   imagePullSecrets: []
-  version: "v2.5.2"
+  version: "v2.6.1"
   #Nvidia GPU Parameters
   resourceName: "nvidia.com/vgpu"
   resourceMem: "nvidia.com/gpumem"
@@ -23,6 +24,10 @@ hami:
   iluvatarResourceName: "iluvatar.ai/vgpu"
   iluvatarResourceMem: "iluvatar.ai/vcuda-memory"
   iluvatarResourceCore: "iluvatar.ai/vcuda-core"
+  #Metax SGPU Parameters
+  metaxResourceName: "metax-tech.com/sgpu"
+  metaxResourceCore: "metax-tech.com/vcore"
+  metaxResourceMem: "metax-tech.com/vmemory"
   schedulerName: "hami-scheduler"
   podSecurityPolicy:
     enabled: false
@@ -47,6 +52,8 @@ hami:
     metricsBindAddress: ":9395"
     livenessProbe: false
     leaderElect: true
+    # when leaderElect is true, replicas is available, otherwise replicas is 1.
+    replicas: 1
     kubeScheduler:
       # @param enabled indicate whether to run kube-scheduler container in the scheduler pod, it's true by default.
       enabled: true
@@ -105,7 +112,14 @@ hami:
       # - istio-system
       reinvocationPolicy: Never
       failurePolicy: Ignore
+    ## TLS Certificate Option 1: Use cert-manager to generate self-signed certificate.
+    ## If enabled, always takes precedence over options 2.
+    certManager:
+      enabled: false
+    ## TLS Certificate Option 2: Use kube-webhook-certgen to generate self-signed certificate.
+    ## If true and certManager.enabled is false, Helm will automatically create a self-signed cert and secret for you.
     patch:
+      enabled: true
       registry: docker.m.daocloud.io
       repository: jettech/kube-webhook-certgen
       tag: v1.5.2
@@ -118,9 +132,11 @@ hami:
       tolerations: []
       runAsUser: 2000
     service:
-      httpPort: 443
-      schedulerPort: 31998
-      monitorPort: 31993
+      type: NodePort # Default type is NodePort, can be changed to ClusterIP
+      httpPort: 443 # HTTP port
+      schedulerPort: 31998 # NodePort for HTTP
+      monitorPort: 31993 # Monitoring port
+      monitorTargetPort: 9395
       labels: {}
       annotations: {}
     nodeSelector:
@@ -136,14 +152,20 @@ hami:
     deviceSplitCount: 10
     deviceMemoryScaling: 1.0
     deviceCoreScaling: 1.0
+    # The runtime class name to be used by the device plugin, and added to the pod.spec.runtimeClassName of applications utilizing NVIDIA GPUs
     runtimeClassName: ""
+    # Whether to create runtime class, name comes from runtimeClassName when it is set
+    createRuntimeClass: false
     migStrategy: "none"
     disablecorelimit: "false"
     passDeviceSpecsEnabled: false
     extraArgs:
       - -v=4
     service:
+      type: NodePort # Default type is NodePort, can be changed to ClusterIP
       httpPort: 31992
+      labels: {}
+      annotations: {}
     pluginPath: /var/lib/kubelet/device-plugins
     libPath: /usr/local/vgpu
     podAnnotations: {}
@@ -181,10 +203,18 @@ hami:
   #        memory: 100Mi
 
   devices:
+    enflame:
+      enabled: false
+      customresources:
+        - enflame.com/vgcu
+        - enflame.com/vgcu-percentage
     mthreads:
       enabled: false
       customresources:
         - mthreads.com/vgpu
+    nvidia:
+      gpuCorePolicy: default
+      libCudaLogLevel: 1
     ascend:
       enabled: false
       image: ""
@@ -196,6 +226,8 @@ hami:
       customresources:
         - huawei.com/Ascend910A
         - huawei.com/Ascend910A-memory
+        - huawei.com/Ascend910B2
+        - huawei.com/Ascend910B2-memory
         - huawei.com/Ascend910B
         - huawei.com/Ascend910B-memory
         - huawei.com/Ascend910B4
