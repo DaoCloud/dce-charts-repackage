@@ -27,45 +27,51 @@ if ! which yq &>/dev/null ; then
     mv /tmp/${YQ_BINARY} /usr/bin/yq
 fi
 
+BUSYBOX_VERSION="1.32"
+CURL_VERSION="8.2.0"
+SONARQUBE_VERSION="10.2.0-community"
+
+# We set postgres image tag force cause the default is missing in bitnamilegacy repo
+# ref: https://github.com/bitnami/charts/issues/35164
 yq -i '
   .sonarqube.image.registry = "docker.m.daocloud.io" |
   .sonarqube.image.repository = "library/sonarqube" |
-  .sonarqube.image.tag = "10.2.0-community" |
+  .sonarqube.image.tag = "'$SONARQUBE_VERSION'" |
   .sonarqube.initContainers.registry = "docker.m.daocloud.io" |
   .sonarqube.initContainers.repository = "library/busybox" |
-  .sonarqube.initContainers.tag = "1.32" |
+  .sonarqube.initContainers.tag = "'$BUSYBOX_VERSION'" |
   .sonarqube.initSysctl.registry = "docker.m.daocloud.io" |
   .sonarqube.initSysctl.repository = "library/busybox" |
-  .sonarqube.initSysctl.tag = "1.32" |
+  .sonarqube.initSysctl.tag = "'$BUSYBOX_VERSION'" |
   .sonarqube.initFs.registry = "docker.m.daocloud.io" |
   .sonarqube.initFs.repository = "library/busybox" |
-  .sonarqube.initFs.tag = "1.32" |
+  .sonarqube.initFs.tag = "'$BUSYBOX_VERSION'" |
   .sonarqube.caCerts.registry = "docker.m.daocloud.io" |
   .sonarqube.caCerts.repository = "adoptopenjdk/openjdk11" |
   .sonarqube.caCerts.tag = "alpine" |
   .sonarqube.prometheusExporter.registry = "docker.m.daocloud.io" |
   .sonarqube.prometheusExporter.repository = "curlimages/curl" |
-  .sonarqube.prometheusExporter.tag = "8.2.0" |
+  .sonarqube.prometheusExporter.tag = "'$CURL_VERSION'" |
   .sonarqube.plugins.registry = "docker.m.daocloud.io" |
   .sonarqube.plugins.repository = "curlimages/curl" |
-  .sonarqube.plugins.tag = "8.2.0" |
+  .sonarqube.plugins.tag = "'$CURL_VERSION'" |
   .sonarqube.tests.image.registry="docker.m.daocloud.io" |
   .sonarqube.tests.image.repository = "library/sonarqube" |
-  .sonarqube.tests.image.tag = "10.2.0-community" |
+  .sonarqube.tests.image.tag = "'$SONARQUBE_VERSION'" |
   .sonarqube.persistence.storageClass = "" |
-  .sonarqube.postgresql.persistence.storageClass = ""
-' values.yaml
-
-# copy from ingress-nginx and modified
-yq -i '
-   .sonarqube.ingress-nginx.controller.image.registry="k8s.m.daocloud.io" |
-   .sonarqube.ingress-nginx.controller.admissionWebhooks.patch.image.registry="k8s.m.daocloud.io"
-' values.yaml
-
-yq -i '
+  .sonarqube.postgresql.persistence.storageClass = "" |
+  .sonarqube.ingress-nginx.controller.image.registry="k8s.m.daocloud.io" |
+  .sonarqube.ingress-nginx.controller.admissionWebhooks.patch.image.registry="k8s.m.daocloud.io" |
   .sonarqube.postgresql.volumePermissions.image.registry="docker.m.daocloud.io" |
   .sonarqube.postgresql.image.registry="docker.m.daocloud.io" |
-  .sonarqube.postgresql.metrics.image.registry="docker.m.daocloud.io"
+  .sonarqube.postgresql.image.repository="bitnamilegacy/postgresql" |
+  .sonarqube.postgresql.image.tag="15.3.0-debian-11-r0" |
+  .sonarqube.postgresql.metrics.image.registry="docker.m.daocloud.io" |
+  .sonarqube.postgresql.metrics.image.repository="bitnamilegacy/postgres-exporter" |
+  .sonarqube.postgresql.metrics.image.tag="0.12.0-debian-11-r86" |
+  .sonarqube.postgresql.volumePermissions.image.registry="docker.m.daocloud.io" |
+  .sonarqube.postgresql.volumePermissions.image.repository="bitnamilegacy/os-shell" |
+  .sonarqube.postgresql.volumePermissions.image.tag="11-debian-11-r112"
 ' values.yaml
 
 #change the image style of relok8s style
