@@ -1063,17 +1063,24 @@ gitlab:
       enabled: true
       image:
         registry: docker.m.daocloud.io
+        repository: bitnamilegacy/redis-exporter
     image:
       registry: docker.m.daocloud.io
+      repository: bitnamilegacy/redis
     sentinel:
       image:
         registry: docker.m.daocloud.io
+        repository: bitnamilegacy/redis-sentinel
     volumePermissions:
       image:
         registry: docker.m.daocloud.io
+        repository: bitnamilegacy/os-shell
+        tag: 11-debian-11-r112
     sysctl:
       image:
         registry: docker.m.daocloud.io
+        repository: bitnamilegacy/os-shell
+        tag: 11-debian-11-r112
   ## Installation & configuration of stable/prostgresql
   ## See requirements.yaml for current version
   postgresql:
@@ -1092,6 +1099,7 @@ gitlab:
     image:
       tag: 14.8.0
       registry: docker.m.daocloud.io
+      repository: bitnamilegacy/postgresql
     primary:
       initdb:
         scriptsConfigMap: '{{ include "gitlab.psql.initdbscripts" $}}'
@@ -1113,9 +1121,12 @@ gitlab:
           ## ref: https://github.com/wrouesnel/postgres_exporter#adding-new-metrics-via-a-config-file
       image:
         registry: docker.m.daocloud.io
+        repository: bitnamilegacy/postgres-exporter
     volumePermissions:
       image:
         registry: docker.m.daocloud.io
+        repository: bitnamilegacy/os-shell
+        tag: 11-debian-11-r112
   ## Installation & configuration charts/registry
   ## https://docs.gitlab.com/charts/architecture/decisions#registry
   ## https://docs.gitlab.com/charts/charts/registry/
