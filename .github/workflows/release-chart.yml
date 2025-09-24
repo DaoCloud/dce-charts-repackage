@@ -142,9 +142,10 @@ jobs:
           SUCCEED_CHART=""
           for ITEM in ${{ steps.package.outputs.project_list }} ; do
               DAO_PROJECT=` grep "DAOCLOUD_REPO_PROJECT" ${ROOT_DIR}/charts/${ITEM}/config | awk -F= '{print $2}' | tr -d ' ' `
-              [ -z "$DAO_PROJECT" ] && echo "error, failed to find DAOCLOUD_REPO_PROJECT config in charts/${ITEM}/config " && exit 1
-              CHART_FILE=` ls | grep -o -E "^${ITEM}-[v0-9]+.[0-9]+.[0-9]+.*.tgz" `
-              [ ! -f "${CHART_FILE}" ] && echo "error, failed to find chart.tgz for $ITEM " && ls && exit 2
+              [ -z "$DAO_PROJECT" ] && echo "error, failed to find DAOCLOUD_REPO_PROJECT config in charts/${ITEM}/config " && FAILED_CHART+=" ${ITEM}" && continue
+              # 支持 kuberhealthy-90.tgz 这种格式
+              CHART_FILE=$(ls | grep -E "^${ITEM}-.*\.tgz$" | head -n 1)
+              [ ! -f "${CHART_FILE}" ] && echo "error, failed to find chart.tgz for $ITEM " && ls && FAILED_CHART+=" ${ITEM}" && continue
               DAO_ADDRESS=${{ env.DAOCLOUD_HARBOR_URL }}/chartrepo/${DAO_PROJECT}
               echo "push $CHART_FILE to $DAO_ADDRESS "
               BAD=true
@@ -153,18 +154,18 @@ jobs:
                   BAD="" && break
               done
               if [ "$BAD" != "true" ] ; then
-                  BAD=true
-                  for ((N=0;N<RETRY_NUMBER;N++)); do
+              BAD=true
+              for ((N=0;N<RETRY_NUMBER;N++)); do
                       helm cm-push ${CHART_FILE}  daocloud-${DAO_PROJECT} --username=${{ secrets.DAOCLOUD_HARBOR_USER }}  --password=${{ secrets.DAOCLOUD_HARBOR_PASSWORD }} || { sleep 2 ; continue  ; }
                       BAD="" && break
-                  done
+              done
               fi
               if [ "$BAD" == "true" ] ; then 
-                  echo "error, failed to helm push ${CHART_FILE} "
-                  FAILED_CHART+=" ${CHART_FILE} "
+              echo "error, failed to helm push ${CHART_FILE} "
+              FAILED_CHART+=" ${CHART_FILE} "
               else
-                  echo "succeeded to helm push ${CHART_FILE} "
-                  SUCCEED_CHART+=" ${CHART_FILE} "
+              echo "succeeded to helm push ${CHART_FILE} "
+              SUCCEED_CHART+=" ${CHART_FILE} "
               fi
           done
           echo "============== result =========="
