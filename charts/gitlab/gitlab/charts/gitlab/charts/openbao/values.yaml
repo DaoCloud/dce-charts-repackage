@@ -1,0 +1,180 @@
+# Default values for openbao.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  ingress:
+    annotations: {}
+    provider: nginx
+
+image:
+  # For now use UBI OpenBao, but we switch to CNG build once available.
+  # https://gitlab.com/groups/gitlab-org/distribution/-/epics/113.
+  repository: quay.io/openbao/openbao-ubi
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+role:
+  create: true
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  fsGroup: 1000
+  runAsUser: 1000
+  seccompProfile:
+    type: "RuntimeDefault"
+  capabilities:
+    drop:
+      - ALL
+
+securityContext:
+  capabilities:
+    drop: [ "ALL" ]
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  fsGroup: 1000
+  runAsUser: 1000
+
+serviceActive:
+  type: ClusterIP
+  annotations: {}
+
+serviceInactive:
+  type: ClusterIP
+  annotations: {}
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hostname: "openbao.example.com"
+  tls:
+    enabled: true
+    secretName: ''
+  configureCertmanager: true
+  certmanagerIssuerRef:
+    name: ''
+    kind: Issuer
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+config:
+  ui: true
+  clusterPort: 8201
+  apiPort: 8200
+  tlsDisable: false
+  telemetry:
+    # Enable/disable telemetry on all listeners.
+    enabled: true
+    disableHostname: true
+    prometheusRetentionTime: "24h"
+    metricsPrefix: openbao
+  # Configure additional listener for metrics. Implicitly disabled if telemetry is disabled.
+  # Note: This listener serves the regular OpenBao API but needs no authentication of the metrics path by default.
+  metricsListener:
+    enabled: true
+    tlsDisable: false
+    port: 8209
+    unauthenticatedMetricsAccess: true
+  storage:
+    postgresql:
+      # table:
+      # maxIdleConnections:
+      # maxParallel:
+      # haTable:
+      # skipCreateTable
+      # maxConnectRetries
+      haEnabled: true
+
+      connection:
+        host: "localhost"
+        port: 5432
+        database: openbao
+        username: openbao
+        connectTimeout:
+        keepalives:
+        keepalivesIdle:
+        keepalivesInterval:
+        keepalivesCount:
+        tcpUserTimeout:
+        sslMode: "disable"
+        password: {}
+        # secret:
+        # key:
+
+unsealer:
+  enabled: true
+  sources:
+    - secret:
+        name: openbao-unseal-keys
+        optional: true
+        items:
+          - key: unseal-key-0
+            path: key_0
+          - key: unseal-key-1
+            path: key-1
+          - key: unseal-key-2
+            path: key-2
+
+livenessProbe:
+  httpGet:
+    path: "/v1/sys/health?standbyok=true"
+    port: api
+    scheme: HTTPS
+  failureThreshold: 30
+  initialDelaySeconds: 5
+  periodSeconds: 2
+  successThreshold: 1
+  timeoutSeconds: 3
+readinessProbe:
+  httpGet:
+    path: "/v1/sys/health?standbyok=true"
+    port: api
+    scheme: HTTPS
+  failureThreshold: 20
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  successThreshold: 1
+  timeoutSeconds: 3
+
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
