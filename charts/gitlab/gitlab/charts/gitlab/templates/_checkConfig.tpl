@@ -64,7 +64,6 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{/* _checkConfig_object_storage.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.consolidatedConfig" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.typeSpecificConfig" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.ciSecureFiles" .) -}}
 
 {{/* _checkConfig_postgresql.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.postgresql.deprecatedVersion" .) -}}
@@ -75,12 +74,15 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.sentry.dsn" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.notifications" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.database" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.registry.database.loadBalancing" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.registry.database.metrics" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.redis.cache" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.registry.redis.rateLimiting" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.registry.redis.loadBalancing" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.tls" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.debug.tls" .) -}}
 
 {{/* _checkConfig_sidekiq.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.queues.mixed" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.queues" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.timeout" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.routingRules" .) -}}
@@ -92,6 +94,7 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 
 {{/* _checkConfig_webservice.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.appConfig.maxRequestDurationSeconds" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.appConfig.relativeUrlRoot" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.webservice.gracePeriod" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.webservice.loadBalancer" .) -}}
 
@@ -105,6 +108,10 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{/* _checkConfig_omniauth.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.omniauth.providerFormat" .) -}}
 
+{{/* _checkConfig_kas.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.kas.autoflowTemporalNamespace" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.kas.autoflowTemporalWorkerMtls" .) -}}
+
 {{/* other checks */}}
 {{- $messages = append $messages (include "gitlab.checkConfig.multipleRedis" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.redisYmlOverride" .) -}}
@@ -115,6 +122,8 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.smtp.tls_kind" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.globalServiceAccount" .) -}}
 {{- $messages = append $messages (include "gitlab.duoAuth.checkConfig" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.prometheus" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.clickhouseMainPasswordKey" .) -}}
 
 {{- /* prepare output */}}
 {{- $messages = without $messages "" -}}
@@ -238,3 +247,18 @@ serviceAccount:
 {{-   end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.globalServiceAccount */}}
+
+{{/*
+Ensure that ClickHouse password key is specified at main.key
+*/}}
+{{- define "gitlab.checkConfig.clickhouseMainPasswordKey" -}}
+{{-   if and .Values.global.clickhouse .Values.global.clickhouse.enabled -}}
+{{-     if and .Values.global.clickhouse.main .Values.global.clickhouse.main.key }}
+ClickHouse:
+  `global.clickhouse.main.key` is set to {{ .Values.global.clickhouse.main.key }}.
+  Please set `global.clickhouse.main.password.key` instead in order to specify the key within the
+  {{.Values.global.clickhouse.main.password.secret }} Secret which contains the ClickHouse password.
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.clickhouseMainPasswordKey */}}
