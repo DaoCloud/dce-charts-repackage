@@ -32,7 +32,7 @@ crds:
   keep: true
   # -- Annotations to be added to all CRDs
   annotations: {}
-  # -- Addtional labels to be added to all CRDs
+  # -- Additional labels to be added to all CRDs
   additionalLabels: {}
 ## Globally shared configuration
 global:
@@ -67,6 +67,8 @@ global:
   statefulsetAnnotations: {}
   # -- Annotations for the all deployed Deployments
   deploymentAnnotations: {}
+  # -- Labels for the all deployed Deployments
+  deploymentLabels: {}
   # -- Annotations for the all deployed pods
   podAnnotations: {}
   # -- Labels for the all deployed pods
@@ -186,19 +188,44 @@ configs:
     # oidc.config: |
     #   name: AzureAD
     #   issuer: https://login.microsoftonline.com/TENANT_ID/v2.0
-    #   clientID: CLIENT_ID
+    #   clientID: aaaabbbbccccddddeee
     #   clientSecret: $oidc.azuread.clientSecret
+
+    # Some OIDC providers require a separate clientID for different callback URLs.
+    # For example, if configuring Argo CD with self-hosted Dex, you will need a separate client ID
+    # for the 'localhost' (CLI) client to Dex. This field is optional. If omitted, the CLI will
+    # use the same clientID as the Argo CD server
+    #   cliClientID: vvvvwwwwxxxxyyyyzzzz
+
     #   rootCA: |
     #     -----BEGIN CERTIFICATE-----
     #     ... encoded certificate data here ...
     #     -----END CERTIFICATE-----
+
+    # Optional list of allowed aud claims. If omitted or empty, defaults to the clientID value above (and the
+    # cliClientID, if that is also specified). If you specify a list and want the clientID to be allowed, you must
+    # explicitly include it in the list.
+    # Token verification will pass if any of the token's audiences matches any of the audiences in this list.
+    #   allowedAudiences:
+    #     - aaaabbbbccccddddeee
+    #     - qqqqwwwweeeerrrrttt
+
+    # Optional set of OIDC claims to request on the ID token.
     #   requestedIDTokenClaims:
     #     groups:
     #       essential: true
+
+    # Optional set of OIDC scopes to request. If omitted, defaults to: ["openid", "profile", "email", "groups"]
     #   requestedScopes:
     #     - openid
     #     - profile
     #     - email
+
+    # PKCE authentication flow processes authorization flow from browser only - default false
+    # uses the clientID
+    # make sure the Identity Provider (IdP) is public and doesn't need clientSecret
+    # make sure the Identity Provider (IdP) has this redirect URI registered: https://argocd.example.com/pkce/verify
+    #   enablePKCEAuthentication: true
 
     # Extension Configuration
     ## Ref: https://argo-cd.readthedocs.io/en/latest/developer-guide/extensions/proxy-extensions/
@@ -739,6 +766,29 @@ controller:
     # -- Number of pods that are unavailable after eviction as number or percentage (eg.: 50%).
     ## Has higher precedence over `controller.pdb.minAvailable`
     maxUnavailable: ""
+  ## Application controller Vertical Pod Autoscaler
+  ## Ref: https://kubernetes.io/docs/concepts/workloads/autoscaling/#scaling-workloads-vertically/
+  vpa:
+    # -- Deploy a [VerticalPodAutoscaler](https://kubernetes.io/docs/concepts/workloads/autoscaling/#scaling-workloads-vertically/) for the application controller
+    enabled: false
+    # -- Labels to be added to application controller vpa
+    labels: {}
+    # -- Annotations to be added to application controller vpa
+    annotations: {}
+    # -- One of the VPA operation modes
+    ## Ref: https://kubernetes.io/docs/concepts/workloads/autoscaling/#scaling-workloads-vertically
+    ## Note: Recreate update mode requires more than one replica unless the min-replicas VPA controller flag is overridden
+    updateMode: Initial
+    # -- Controls how VPA computes the recommended resources for application controller container
+    ## Ref: https://github.com/kubernetes/autoscaler/blob/master/vertical-pod-autoscaler/examples/hamster.yaml
+    containerPolicy: {}
+    # controlledResources: ["cpu", "memory"]
+    # minAllowed:
+    #   cpu: 250m
+    #   memory: 256Mi
+    # maxAllowed:
+    #   cpu: 1
+    #   memory: 1Gi
   ## Application controller image
   image:
     # -- Repository to use for the application controller
@@ -806,6 +856,8 @@ controller:
   statefulsetAnnotations: {}
   # -- Annotations for the application controller Deployment
   deploymentAnnotations: {}
+  # -- Labels for the application controller Deployment
+  deploymentLabels: {}
   # -- Annotations to be added to application controller pods
   podAnnotations: {}
   # -- Labels to be added to application controller pods
@@ -984,6 +1036,15 @@ controller:
     enabled: false
     # -- List of custom rules for the application controller's ClusterRole resource
     rules: []
+  ## Enable this and set the rules: to whatever custom rules you want for the Role resource.
+  ## Defaults to off
+  # -- List of custom rules for the application controller's Role resource
+  roleRules: []
+  # Default application controller's network policy
+  networkPolicy:
+    # -- Default network policy rules used by application controller
+    # @default -- `false` (defaults to global.networkPolicy.create)
+    create: false
 ## Dex
 dex:
   # -- Enable dex
@@ -1050,7 +1111,7 @@ dex:
     # -- Dex image repository
     repository: ghcr.io/dexidp/dex
     # -- Dex image tag
-    tag: v2.43.1
+    tag: v2.44.0
     # -- Dex imagePullPolicy
     # @default -- `""` (defaults to global.image.imagePullPolicy)
     imagePullPolicy: ""
@@ -1121,6 +1182,8 @@ dex:
     crt: ''
   # -- Annotations to be added to the Dex server Deployment
   deploymentAnnotations: {}
+  # -- Labels for the Dex server Deployment
+  deploymentLabels: {}
   # -- Annotations to be added to the Dex server pods
   podAnnotations: {}
   # -- Labels to be added to the Dex server pods
@@ -1244,13 +1307,23 @@ dex:
 
   # -- Deployment strategy to be added to the Dex server Deployment
   deploymentStrategy: {}
-  # DEPRECATED - Use configs.params to override
-  # -- Dex log format. Either `text` or `json`
-  # @default -- `""` (defaults to global.logging.format)
-  # logFormat: ""
-  # -- Dex log level. One of: `debug`, `info`, `warn`, `error`
-  # @default -- `""` (defaults to global.logging.level)
-  # logLevel: ""
+  # type: RollingUpdate
+  # rollingUpdate:
+  #   maxSurge: 25%
+  #   maxUnavailable: 25%
+
+  # Default Dex server's network policy
+  networkPolicy:
+    # -- Default network policy rules used by Dex server
+    # @default -- `false` (defaults to global.networkPolicy.create)
+    create: false
+    # DEPRECATED - Use configs.params to override
+    # -- Dex log format. Either `text` or `json`
+    # @default -- `""` (defaults to global.logging.format)
+    # logFormat: ""
+    # -- Dex log level. One of: `debug`, `info`, `warn`, `error`
+    # @default -- `""` (defaults to global.logging.level)
+    # logLevel: ""
 ## Redis
 redis:
   # -- Enable redis
@@ -1281,7 +1354,7 @@ redis:
     repository: ecr-public.aws.com/docker/library/redis
     # -- Redis tag
     ## Do not upgrade to >= 7.4.0, otherwise you are no longer using an open source version of Redis
-    tag: 7.2.8-alpine
+    tag: 7.2.11-alpine
     # -- Redis image pull policy
     # @default -- `""` (defaults to global.image.imagePullPolicy)
     imagePullPolicy: ""
@@ -1296,7 +1369,7 @@ redis:
       # -- Repository to use for the redis-exporter
       repository: ghcr.io/oliver006/redis_exporter
       # -- Tag to use for the redis-exporter
-      tag: v1.74.0
+      tag: v1.78.0
       # -- Image pull policy for the redis-exporter
       # @default -- `""` (defaults to global.image.imagePullPolicy)
       imagePullPolicy: ""
@@ -1405,6 +1478,8 @@ redis:
   volumes: []
   # -- Annotations to be added to the Redis server Deployment
   deploymentAnnotations: {}
+  # -- Labels for the Redis server Deployment
+  deploymentLabels: {}
   # -- Annotations to be added to the Redis server pods
   podAnnotations: {}
   # -- Labels to be added to the Redis server pods
@@ -1526,6 +1601,11 @@ redis:
       additionalLabels: {}
       # -- Prometheus ServiceMonitor annotations
       annotations: {}
+  # Default redis's network policy
+  networkPolicy:
+    # -- Default network policy rules used by redis
+    # @default -- `false` (defaults to global.networkPolicy.create)
+    create: false
 ## Redis-HA subchart replaces custom redis deployment when `redis-ha.enabled=true`
 # Ref: https://github.com/DandyDeveloper/charts/blob/master/charts/redis-ha/values.yaml
 redis-ha:
@@ -1537,13 +1617,13 @@ redis-ha:
     repository: ecr-public.aws.com/docker/library/redis
     # -- Redis tag
     ## Do not upgrade to >= 7.4.0, otherwise you are no longer using an open source version of Redis
-    tag: 7.2.8-alpine
+    tag: 7.2.11-alpine
   ## Prometheus redis-exporter sidecar
   exporter:
     # -- Enable Prometheus redis-exporter sidecar
     enabled: false
     # -- Tag to use for the redis-exporter
-    tag: v1.69.0
+    tag: v1.75.0
     image:
       registry: docker.m.daocloud.io
       repository: oliver006/redis_exporter
@@ -1691,7 +1771,7 @@ redisSecretInit:
   image:
     registry: quay.m.daocloud.io
     repository: argoproj/argocd
-    tag: v3.0.6
+    tag: v3.1.8
     imagePullPolicy: ""
 ## Server
 server:
@@ -1881,6 +1961,8 @@ server:
     # sizeLimit: "1Gi"
   # -- Annotations to be added to server Deployment
   deploymentAnnotations: {}
+  # -- Labels for the server Deployment
+  deploymentLabels: {}
   # -- Annotations to be added to server pods
   podAnnotations: {}
   # -- Labels to be added to server pods
@@ -2307,6 +2389,103 @@ server:
     termination_type: passthrough
     # -- Termination policy of Openshift Route
     termination_policy: None
+  # Gateway API HTTPRoute configuration
+  # NOTE: Gateway API support is in EXPERIMENTAL status
+  # Support depends on your Gateway controller implementation
+  # Some controllers may require additional configuration (e.g., BackendTLSPolicy for HTTPS backends)
+  # Refer to https://gateway-api.sigs.k8s.io/implementations/ for controller-specific details
+  httproute:
+    # -- Enable HTTPRoute resource for Argo CD server (Gateway API)
+    enabled: false
+    # -- Additional HTTPRoute labels
+    labels: {}
+    # -- Additional HTTPRoute annotations
+    annotations: {}
+    # -- Gateway API parentRefs for the HTTPRoute
+    ## Must reference an existing Gateway
+    # @default -- `[]` (See [values.yaml])
+    parentRefs: []
+    # - name: example-gateway
+    #   namespace: example-gateway-namespace
+    #   sectionName: https
+    # -- List of hostnames for the HTTPRoute
+    # @default -- `[]` (See [values.yaml])
+    hostnames: []
+    # - argocd.example.com
+    # -- HTTPRoute rules configuration
+    # @default -- `[]` (See [values.yaml])
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
+              # filters: []
+              #   - type: RequestHeaderModifier
+              #     requestHeaderModifier:
+              #       add:
+              #         - name: X-Custom-Header
+              #           value: custom-value
+  # Gateway API GRPCRoute configuration
+  # NOTE: Gateway API support is in EXPERIMENTAL status
+  # Support depends on your Gateway controller implementation
+  # Refer to https://gateway-api.sigs.k8s.io/implementations/ for controller-specific details
+  grpcroute:
+    # -- Enable GRPCRoute resource for Argo CD server (Gateway API)
+    enabled: false
+    # -- Additional GRPCRoute labels
+    labels: {}
+    # -- Additional GRPCRoute annotations
+    annotations: {}
+    # -- Gateway API parentRefs for the GRPCRoute
+    ## Must reference an existing Gateway
+    # @default -- `[]` (See [values.yaml])
+    parentRefs: []
+    # - name: example-gateway
+    #   namespace: example-gateway-namespace
+    #   sectionName: grpc
+    # -- List of hostnames for the GRPCRoute
+    # @default -- `[]` (See [values.yaml])
+    hostnames: []
+    # - grpc.argocd.example.com
+    # -- GRPCRoute rules configuration
+    # @default -- `[]` (See [values.yaml])
+    rules:
+      - matches:
+          - method:
+              type: Exact
+              # filters: []
+              #   - type: RequestHeaderModifier
+              #     requestHeaderModifier:
+              #       add:
+              #         - name: X-Custom-Header
+              #           value: custom-value
+  # Gateway API BackendTLSPolicy configuration
+  # NOTE: BackendTLSPolicy is in EXPERIMENTAL status (v1alpha3)
+  # Required for HTTPS backends when using Gateway API
+  # Not all Gateway controllers support this resource (e.g., Cilium does not support it yet)
+  backendTLSPolicy:
+    # -- Enable BackendTLSPolicy resource for Argo CD server (Gateway API)
+    enabled: false
+    # -- Additional BackendTLSPolicy labels
+    labels: {}
+    # -- Additional BackendTLSPolicy annotations
+    annotations: {}
+    # -- Target references for the BackendTLSPolicy
+    # @default -- `[]` (See [values.yaml])
+    targetRefs: []
+    # - group: ""
+    #   kind: Service
+    #   name: argocd-server
+    #   sectionName: https
+    # -- TLS validation configuration
+    # @default -- `{}` (See [values.yaml])
+    validation: {}
+    # hostname: argocd-server.argocd.svc.cluster.local
+    # caCertificateRefs:
+    #   - name: example-ca-cert
+    #     group: ""
+    #     kind: ConfigMap
+    # wellKnownCACertificates: System
   ## Enable this and set the rules: to whatever custom rules you want for the Cluster Role resource.
   ## Defaults to off
   clusterRoleRules:
@@ -2314,6 +2493,11 @@ server:
     enabled: false
     # -- List of custom rules for the server's ClusterRole resource
     rules: []
+  # Default ArgoCD Server's network policy
+  networkPolicy:
+    # -- Default network policy rules used by ArgoCD Server
+    # @default -- `false` (defaults to global.networkPolicy.create)
+    create: false
 ## Repo Server
 repoServer:
   # -- Repo server name
@@ -2442,6 +2626,15 @@ repoServer:
 
   # -- Init containers to add to the repo server pods
   initContainers: []
+  copyutil:
+    # -- Resource limits and requests for the repo server copyutil initContainer
+    resources: {}
+    #  limits:
+    #    cpu: 100m
+    #    memory: 128Mi
+    #  requests:
+    #    cpu: 50m
+    #    memory: 64Mi
   # -- Additional volumeMounts to the repo server main container
   volumeMounts: []
   # -- Additional volumes to the repo server pod
@@ -2480,6 +2673,8 @@ repoServer:
   useEphemeralHelmWorkingDir: true
   # -- Annotations to be added to repo server Deployment
   deploymentAnnotations: {}
+  # -- Labels for the repo server Deployment
+  deploymentLabels: {}
   # -- Annotations to be added to repo server pods
   podAnnotations: {}
   # -- Labels to be added to repo server pods
@@ -2675,6 +2870,12 @@ repoServer:
   #     - get
   #     - list
   #     - watch
+
+  # Default repo server's network policy
+  networkPolicy:
+    # -- Default network policy rules used by repo server
+    # @default -- `false` (defaults to global.networkPolicy.create)
+    create: false
 ## ApplicationSet controller
 applicationSet:
   # -- ApplicationSet controller name string
@@ -2815,6 +3016,8 @@ applicationSet:
     automountServiceAccountToken: true
   # -- Annotations to be added to ApplicationSet controller Deployment
   deploymentAnnotations: {}
+  # -- Labels for the ApplicationSet controller Deployment
+  deploymentLabels: {}
   # -- Annotations for the ApplicationSet controller pods
   podAnnotations: {}
   # -- Labels for the ApplicationSet controller pods
@@ -3008,6 +3211,11 @@ applicationSet:
     #     - argocd-applicationset.example.com
   # -- Enable ApplicationSet in any namespace feature
   allowAnyNamespace: false
+  # Default ApplicationSet controller's network policy
+  networkPolicy:
+    # -- Default network policy rules used by ApplicationSet controller
+    # @default -- `false` (defaults to global.networkPolicy.create)
+    create: false
 ## Notifications controller
 notifications:
   # -- Enable notifications controller
@@ -3157,6 +3365,8 @@ notifications:
 
   # -- Annotations to be applied to the notifications controller Deployment
   deploymentAnnotations: {}
+  # -- Labels for the notifications controller Deployment
+  deploymentLabels: {}
   # -- Annotations to be applied to the notifications controller Pods
   podAnnotations: {}
   # -- Labels to be applied to the notifications controller Pods
@@ -3535,6 +3745,12 @@ notifications:
   # For more information: https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/triggers/#default-triggers
   # defaultTriggers: |
   #   - on-sync-status-unknown
+
+  # Default notifications controller's network policy
+  networkPolicy:
+    # -- Default network policy rules used by notifications controller
+    # @default -- `false` (defaults to global.networkPolicy.create)
+    create: false
 commitServer:
   # -- Enable commit server
   enabled: false
@@ -3595,6 +3811,10 @@ commitServer:
     annotations: {}
     # -- commit server service labels
     labels: {}
+    # -- commit server service port
+    port: 8086
+    # -- commit server service port name
+    portName: server
   # -- Automount API credentials for the Service Account into the pod.
   automountServiceAccountToken: false
   serviceAccount:
@@ -3610,6 +3830,8 @@ commitServer:
     automountServiceAccountToken: true
   # -- Annotations to be added to commit server Deployment
   deploymentAnnotations: {}
+  # -- Labels for the commit server Deployment
+  deploymentLabels: {}
   # -- Annotations for the commit server pods
   podAnnotations: {}
   # -- Labels for the commit server pods
@@ -3692,3 +3914,8 @@ commitServer:
   # -- Priority class for the commit server pods
   # @default -- `""` (defaults to global.priorityClassName)
   priorityClassName: ""
+  # Default commit server's network policy
+  networkPolicy:
+    # -- Default network policy rules used by commit server
+    # @default -- `false` (defaults to global.networkPolicy.create)
+    create: false
