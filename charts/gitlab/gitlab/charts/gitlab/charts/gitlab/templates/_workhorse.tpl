@@ -4,7 +4,7 @@
 Return the workhorse url
 */}}
 {{- define "gitlab.workhorse.url" -}}
-{{ template "gitlab.workhorse.scheme" . }}://{{ template "gitlab.workhorse.host" . }}:{{ template "gitlab.workhorse.port" . }}
+{{ template "gitlab.workhorse.scheme" . }}://{{ template "gitlab.workhorse.host" . }}:{{ template "gitlab.workhorse.port" . }}{{ .Values.global.appConfig.relativeUrlRoot }}
 {{- end -}}
 
 {{- define "gitlab.workhorse.scheme" -}}
