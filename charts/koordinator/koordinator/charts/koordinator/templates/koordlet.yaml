@@ -89,6 +89,9 @@ spec:
             - mountPath: /var/lib/kubelet
               name: host-kubelet-rootdir
               readOnly: true
+            - mountPath: /var/run/koordlet/pod-resources/
+              mountPropagation: Bidirectional
+              name: pod-resources-proxy
 {{- if contains "TerwayQoS=true" .Values.koordlet.features }}
             - mountPath: /host-var-lib/terway/qos
               name: host-terway-qos
@@ -160,6 +163,10 @@ spec:
             path: /dev
             type: ""
           name: host-dev
+        - hostPath:
+            path:  {{ .Values.koordlet.hostDirs.podResourcesProxyPath }}
+            type: DirectoryOrCreate
+          name: pod-resources-proxy
 {{- if contains "TerwayQoS=true" .Values.koordlet.features }}
         - hostPath:
             path: /var/lib/terway/qos
