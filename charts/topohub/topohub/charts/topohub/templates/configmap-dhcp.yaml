@@ -41,8 +41,7 @@ data:
     tftp-root={{ "{{ .TftpServerDir }}" }}
     
     # PXE boot menu
-    dhcp-match=set:efi-x86_64,option:client-arch,7
-    dhcp-boot=tag:efi-x86_64,{{ "{{ .PxeEfiInTftpServerDir }}" }}/core.efi
+    dhcp-boot={{ "{{ .PxeEfiInTftpServerDir }}" }}/core.efi
     {{ "{{ end }}" }}
 
     
