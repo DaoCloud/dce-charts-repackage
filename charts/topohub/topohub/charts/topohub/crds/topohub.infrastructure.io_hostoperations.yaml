@@ -52,19 +52,27 @@ spec:
             properties:
               action:
                 enum:
-                - ForceOn
                 - "On"
+                - ForceOn
                 - ForceOff
                 - GracefulShutdown
                 - ForceRestart
                 - GracefulRestart
                 - PxeReboot
+                - Shutdown
+                - Restart
                 type: string
-              redfishStatusName:
+              hostType:
+                enum:
+                - redfish
+                - ssh
+                type: string
+              statusName:
                 type: string
             required:
             - action
-            - redfishStatusName
+            - hostType
+            - statusName
             type: object
           status:
             properties:

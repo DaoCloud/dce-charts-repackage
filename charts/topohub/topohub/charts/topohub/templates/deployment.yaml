@@ -49,7 +49,6 @@ spec:
         command: ["topohub"]
         args:
         - --metrics-port={{ .Values.metricsPort }}
-        - --health-probe-port={{ .Values.healthProbePort }}
         - --webhook-port={{ .Values.webhook.webhookPort }}
         {{- if .Values.debug.pyroscope.enabled }}
         {{- if .Values.debug.pyroscope.address }}
@@ -96,9 +95,6 @@ spec:
         - name: metrics
           containerPort: {{ .Values.metricsPort }}
           protocol: TCP
-        - name: health-probe
-          containerPort: {{ .Values.healthProbePort }}
-          protocol: TCP
         {{- if and .Values.debug.pprof.enabled .Values.debug.pprof.port }}
         - name: pprof
           containerPort: {{ .Values.debug.pprof.port }}
@@ -114,18 +110,6 @@ spec:
           mountPath: /var/lib/feature  
         - name: dhcp-config
           mountPath: /var/lib/dhcp
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: {{ .Values.healthProbePort }}
-          initialDelaySeconds: 15
-          periodSeconds: 20
-        readinessProbe:
-          httpGet:
-            path: /readyz
-            port: {{ .Values.healthProbePort }}
-          initialDelaySeconds: 5
-          periodSeconds: 10
         resources:
           {{- toYaml .Values.resources | nindent 12 }}
       {{- if .Values.fileBrowser.enabled }}

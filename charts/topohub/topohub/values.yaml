@@ -10,7 +10,7 @@ topohub:
     repository: "infrastructure-io/topohub"
     pullPolicy: IfNotPresent
     # tag will be overridden by version from Chart.yaml
-    tag: "v0.6.0"
+    tag: "v0.7.0"
     # Optional: image digest
     digest: ""
   resources:
@@ -75,8 +75,6 @@ topohub:
   logLevel: "info"
   # Port for metrics server
   metricsPort: 8083
-  # Health probe port
-  healthProbePort: 8081
   # Debug configuration
   debug:
     # Pyroscope configuration for profiling
