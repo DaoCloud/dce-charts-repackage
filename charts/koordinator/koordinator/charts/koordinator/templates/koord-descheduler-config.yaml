@@ -9,8 +9,8 @@ data:
     kind: DeschedulerConfiguration
     enableContentionProfiling: true
     enableProfiling: true
-    healthzBindAddress: 0.0.0.0:10251
-    metricsBindAddress: 0.0.0.0:10251
+    healthzBindAddress: 0.0.0.0:{{ .Values.descheduler.port }}
+    metricsBindAddress: 0.0.0.0:{{ .Values.descheduler.port }}
     leaderElection:
       resourceLock: leases
       resourceName: koord-descheduler
