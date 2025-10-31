@@ -125,6 +125,10 @@ spec:
         - name: JUICEFS_CSI_WEB_PORT
           value: "{{ .Values.controller.metricsPort }}"
         {{- end }}
+        {{- if .Values.driverName }}
+        - name: DRIVER_NAME
+          value: "{{ .Values.driverName }}"
+        {{- end }}
         {{- if .Values.controller.envs }}
 {{ toYaml .Values.controller.envs | trim | indent 8 }}
         {{- end }}
@@ -149,7 +153,9 @@ spec:
           capabilities:
             add:
             - SYS_ADMIN
+          runAsNonRoot: false
           {{- if ne .Values.mountMode "serverless" }}
+          allowPrivilegeEscalation: true
           privileged: true
           {{- end }}
         volumeMounts:
@@ -214,6 +220,8 @@ spec:
         env:
           - name: ADDRESS
             value: /var/lib/csi/sockets/pluginproxy/csi.sock
+        securityContext:
+          runAsNonRoot: false
         image: {{ printf "%s/%s:%s" .Values.sidecars.csiResizerImage.registry .Values.sidecars.csiResizerImage.repository .Values.sidecars.csiResizerImage.tag }}
         {{- if .Values.sidecars.csiResizerImage.pullPolicy }}
         imagePullPolicy: {{ .Values.sidecars.csiResizerImage.pullPolicy }}
@@ -238,6 +246,8 @@ spec:
         volumeMounts:
         - mountPath: /csi
           name: socket-dir
+        securityContext:
+          runAsNonRoot: false
       priorityClassName: {{ .Values.controller.priorityClassName }}
       serviceAccount: {{ include "juicefs-csi.controller.serviceAccountName" . }}
       {{- with .Values.controller.affinity }}
