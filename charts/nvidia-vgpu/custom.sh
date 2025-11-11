@@ -22,141 +22,43 @@ echo "custom.sh"
 script_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 bash ${script_path}/custom-sub.sh $@
 
-# sed resourceName: "nvidia.com/gpu" to resourceName: "nvidia.com/vgpu"
-
-if [ $os == "Darwin" ];then
-    sed -i "" "s/resourceName: \"nvidia.com\/gpu\"/resourceName: \"nvidia.com\/vgpu\"/g" values.yaml
-elif [ $os == "Linux" ];then
-    sed -i "s/resourceName: \"nvidia.com\/gpu\"/resourceName: \"nvidia.com\/vgpu\"/g" values.yaml
-fi
+# 适配新 chart 结构：直接更新 .hami 下的字段
+# 1) 资源名改为 vgpu
+yq -i '.hami.resourceName="nvidia.com/vgpu"' values.yaml
 
 
-# sed scheduler.kubeScheduler.registry and scheduler.kubeScheduler.repository
-line=`sed -n -e '/image: registry.cn-hangzhou/=' values.yaml`
-if [ $os == "Darwin" ];then
-     sed -i "" "$line"d values.yaml
-     sed -i "" "$line i\\
-      registry: k8s-gcr.m.daocloud.io
-      " values.yaml
-     sed -i "" "$((line+1)) i\\
-      repository: kubernetes/kube-scheduler
-      " values.yaml
-      sed -i "" "s/image: \"{{ .Values.scheduler.kubeScheduler.image }}:{{ include \"resolvedKubeSchedulerTag\" . }}\"/image: \"{{ .Values.scheduler.kubeScheduler.registry }}\/{{ .Values.scheduler.kubeScheduler.repository }}:{{ .Values.scheduler.kubeScheduler.imageTag }}\"/" charts/hami/templates/scheduler/deployment.yaml
-elif [ $os == "Linux" ];then
-     sed -i "$line"d values.yaml
-     sed -i "$line i\\
-      registry: k8s-gcr.m.daocloud.io
-           " values.yaml
-     sed -i "$((line+1)) i\\
-      repository: kubernetes/kube-scheduler
-           " values.yaml
-    sed -i "s/image: \"{{ .Values.scheduler.kubeScheduler.image }}:{{ include \"resolvedKubeSchedulerTag\" . }}\"/image: \"{{ .Values.scheduler.kubeScheduler.registry }}\/{{ .Values.scheduler.kubeScheduler.repository }}:{{ .Values.scheduler.kubeScheduler.imageTag }}\"/" charts/hami/templates/scheduler/deployment.yaml
-fi
+# 2) kube-scheduler 镜像仓库/仓库名/标签
+yq -i '
+  .hami.scheduler.kubeScheduler.image.registry = "k8s-gcr.m.daocloud.io" |
+  .hami.scheduler.kubeScheduler.image.repository = "kubernetes/kube-scheduler"
+' values.yaml
 
-# set scheduler imageTag v1.20.0 to "v1.28.0"
-if [ $os == "Darwin" ];then
-        sed -i "" "s/imageTag: \"v1.20.0\"/imageTag: \"v1.28.0\"/g" values.yaml
-elif [ $os == "Linux" ];then
-        sed -i "s/imageTag: \"v1.20.0\"/imageTag: \"v1.28.0\"/g" values.yaml
-fi
+# 默认将 kube-scheduler tag 设为 v1.28.0（新结构字段为 image.tag）
+yq -i '.hami.scheduler.kubeScheduler.image.tag = "v1.28.0"' values.yaml
 
-# sed scheduler.extender.image
-line=$(sed -n -e '/ image: "projecthami\/hami"/=' values.yaml  | head -n 1)
-if [ $os == "Darwin" ];then
-     sed -i "" "$line"d values.yaml
-     sed -i "" "$line i\\
-      registry: docker.m.daocloud.io
-          " values.yaml
-     sed -i "" "$((line+1)) i\\
-      repository: projecthami/hami
-           " values.yaml
-     sed -i "" "s/image: {{ .Values.scheduler.extender.image }}:{{ .Values.version }}/image: \"{{ .Values.scheduler.extender.registry }}\/{{ .Values.scheduler.extender.repository }}:{{ .Values.version }}\"/" charts/hami/templates/scheduler/deployment.yaml
-elif [ $os == "Linux" ];then
-    sed -i "$line"d values.yaml
-    sed -i  "$line i\\
-      registry: docker.m.daocloud.io
-            " values.yaml
-    sed -i  "$((line+1)) i\\
-      repository: projecthami/hami
-            " values.yaml
-    sed -i  "s/image: {{ .Values.scheduler.extender.image }}:{{ .Values.version }}/image: \"{{ .Values.scheduler.extender.registry }}\/{{ .Values.scheduler.extender.repository }}:{{ .Values.version }}\"/" charts/hami/templates/scheduler/deployment.yaml
-fi
+# 3) extender 镜像 registry 调整（仓库名保持为 projecthami/hami）
+yq -i '.hami.scheduler.extender.image.registry = "docker.m.daocloud.io"' values.yaml
 
 
-line=$(sed -n -e '/ image: "projecthami\/hami"/=' values.yaml  | head -n 1)
-if [ $os == "Darwin" ];then
-     sed -i "" "$line"d values.yaml
-     sed -i "" "$line i\\
-    registry: docker.m.daocloud.io
-          " values.yaml
-     sed -i "" "$((line+1)) i\\
-    repository: projecthami/hami
-           " values.yaml
-     sed -i "" "s/image: {{ .Values.devicePlugin.image }}:{{ .Values.version }}/image: \"{{ .Values.devicePlugin.registry }}\/{{ .Values.devicePlugin.repository }}:{{ .Values.version }}\"/" charts/hami/templates/device-plugin/daemonsetnvidia.yaml
-elif [ $os == "Linux" ];then
-    sed -i "$line"d values.yaml
-    sed -i  "$line i\\
-    registry: docker.m.daocloud.io
-            " values.yaml
-    sed -i  "$((line+1)) i\\
-    repository: projecthami/hami
-            " values.yaml
-    sed -i  "s/image: {{ .Values.devicePlugin.image }}:{{ .Values.version }}/image: \"{{ .Values.devicePlugin.registry }}\/{{ .Values.devicePlugin.repository }}:{{ .Values.version }}\"/" charts/hami/templates/device-plugin/daemonsetnvidia.yaml
-fi
+# 4) devicePlugin 与 monitor 镜像 registry 调整
+yq -i '
+  .hami.devicePlugin.image.registry = "docker.m.daocloud.io" |
+  .hami.devicePlugin.monitor.image.registry = "docker.m.daocloud.io"
+' values.yaml
 
-# sed patch image
-line=$(sed -n -e '/ image: docker.io\/jettech\/kube-webhook-certgen/=' values.yaml  | head -n 1)
-if [ $os == "Darwin" ];then
-     sed -i "" "$line"d values.yaml
-     sed -i "" "$line i\\
-      registry: docker.m.daocloud.io
-          " values.yaml
-     sed -i "" "$((line+1)) i\\
-      repository: jettech/kube-webhook-certgen
-           " values.yaml
-     sed -i "" "$((line+2)) i\\
-      tag: v1.5.2
-          " values.yaml
-     sed -i "" "s/image: {{ .Values.scheduler.patch.image }}/image: \"{{ .Values.scheduler.patch.registry }}\/{{ .Values.scheduler.patch.repository }}:{{ .Values.scheduler.patch.tag }}\"/" charts/hami/templates/scheduler/job-patch/job-createSecret.yaml
-     sed -i "" "s/image: {{ .Values.scheduler.patch.image }}/image: \"{{ .Values.scheduler.patch.registry }}\/{{ .Values.scheduler.patch.repository }}:{{ .Values.scheduler.patch.tag }}\"/" charts/hami/templates/scheduler/job-patch/job-patchWebhook.yaml
-elif [ $os == "Linux" ];then
-    sed -i "$line"d values.yaml
-    sed -i  "$line i\\
-      registry: docker.m.daocloud.io
-            " values.yaml
-    sed -i  "$((line+1)) i\\
-      repository: jettech/kube-webhook-certgen
-            " values.yaml
-    sed -i "$((line+2)) i\\
-      tag: v1.5.2
-              " values.yaml
-    sed -i  "s/image: {{ .Values.scheduler.patch.image }}/image: \"{{ .Values.scheduler.patch.registry }}\/{{ .Values.scheduler.patch.repository }}:{{ .Values.scheduler.patch.tag }}\"/" charts/hami/templates/scheduler/job-patch/job-createSecret.yaml
-    sed -i  "s/image: {{ .Values.scheduler.patch.image }}/image: \"{{ .Values.scheduler.patch.registry }}\/{{ .Values.scheduler.patch.repository }}:{{ .Values.scheduler.patch.tag }}\"/" charts/hami/templates/scheduler/job-patch/job-patchWebhook.yaml
-fi
+# 5) webhook patch 镜像切换到镜像代理
+yq -i '
+  .hami.scheduler.patch.image.registry = "docker.m.daocloud.io" |
+  .hami.scheduler.patch.image.repository = "jettech/kube-webhook-certgen" |
+  .hami.scheduler.patch.image.tag = "v1.5.2"
+' values.yaml
 
-# sed patch imageNew
-line=$(sed -n -e '/ imageNew: liangjw\/kube-webhook-certgen/=' values.yaml  | head -n 1)
-if [ $os == "Darwin" ];then
-    sed -i "" "$line"d values.yaml
-     sed -i "" "$((line)) i\\
-      newRepository: liangjw/kube-webhook-certgen
-           " values.yaml
-     sed -i "" "$((line+1)) i\\
-      newTag: v1.1.1
-          " values.yaml
-    sed -i "" "s/image: {{ .Values.scheduler.patch.imageNew }}/image: \"{{ .Values.scheduler.patch.registry }}\/{{ .Values.scheduler.patch.newRepository }}:{{ .Values.scheduler.patch.newTag }}\"/" charts/hami/templates/scheduler/job-patch/job-createSecret.yaml
-    sed -i "" "s/image: {{ .Values.scheduler.patch.imageNew }}/image: \"{{ .Values.scheduler.patch.registry }}\/{{ .Values.scheduler.patch.newRepository }}:{{ .Values.scheduler.patch.newTag }}\"/" charts/hami/templates/scheduler/job-patch/job-patchWebhook.yaml
-elif [ $os == "Linux" ];then
-     sed -i "$line"d values.yaml
-     sed -i  "$((line)) i\\
-      newRepository: liangjw/kube-webhook-certgen
-           " values.yaml
-     sed -i  "$((line+1)) i\\
-      newTag: v1.1.1
-          " values.yaml
-    sed -i  "s/image: {{ .Values.scheduler.patch.imageNew }}/image: \"{{ .Values.scheduler.patch.registry }}\/{{ .Values.scheduler.patch.newRepository }}:{{ .Values.scheduler.patch.newTag }}\"/" charts/hami/templates/scheduler/job-patch/job-createSecret.yaml
-    sed -i  "s/image: {{ .Values.scheduler.patch.imageNew }}/image: \"{{ .Values.scheduler.patch.registry }}\/{{ .Values.scheduler.patch.newRepository }}:{{ .Values.scheduler.patch.newTag }}\"/" charts/hami/templates/scheduler/job-patch/job-patchWebhook.yaml
-fi
+# 6) webhook patch 备用镜像（imageNew）
+yq -i '
+  .hami.scheduler.patch.imageNew.registry = "docker.m.daocloud.io" |
+  .hami.scheduler.patch.imageNew.repository = "liangjw/kube-webhook-certgen" |
+  .hami.scheduler.patch.imageNew.tag = "v1.1.1"
+' values.yaml
 
 # add device-cores-scaling config key
 # line=$(sed -n -e '/deviceMemoryScaling: 1/=' values.yaml  | head -n 1)
@@ -188,57 +90,6 @@ cp ${script_path}/parent/README.md .
 cp ${script_path}/parent/values.schema.json .
 
 
-# add resources deployment.yaml
-line=$(sed -n -e '/volumeMounts:/=' charts/hami/templates/scheduler/deployment.yaml | head -n 1)
-  echo "Processing line number: $line"
-  if [ $os == "Darwin" ];then
-     sed -i "" "$((line)) i\\
-          resources: {{ toYaml .Values.resources | nindent 12 }}
-      " charts/hami/templates/scheduler/deployment.yaml
-  elif [ $os == "Linux" ];then
-    sed -i "$((line)) i\\
-          resources: {{ toYaml .Values.resources | nindent 12 }}
-    " charts/hami/templates/scheduler/deployment.yaml
-  fi
-
-
-
-line=$(sed -n -e '/volumeMounts:/=' charts/hami/templates/scheduler/deployment.yaml | sed -n '2p')
-  echo "Processing line number: $line"
-  if [ $os == "Darwin" ];then
-     sed -i "" "$((line)) i\\
-          resources: {{ toYaml .Values.resources | nindent 12 }}
-      " charts/hami/templates/scheduler/deployment.yaml
-  elif [ $os == "Linux" ];then
-    sed -i "$((line)) i\\
-          resources: {{ toYaml .Values.resources | nindent 12 }}
-    " charts/hami/templates/scheduler/deployment.yaml
-  fi
-
-
-# add resources daemonsetnvidia.yaml
-line=$(sed -n -e '/volumeMounts:/=' charts/hami/templates/device-plugin/daemonsetnvidia.yaml  | head -n 1)
-  if [ $os == "Darwin" ];then
-     sed -i "" "$((line)) i\\
-          resources: {{ toYaml .Values.resources | nindent 12 }}
-      " charts/hami/templates/device-plugin/daemonsetnvidia.yaml
-  elif [ $os == "Linux" ];then
-    sed -i "$((line)) i\\
-          resources: {{ toYaml .Values.resources | nindent 12 }}
-    " charts/hami/templates/device-plugin/daemonsetnvidia.yaml
-  fi
-
-
-# add resources to values.yaml
-cat >> values.yaml << EOL
-  resources:
-    limits:
-      cpu: 500m
-      memory: 720Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
-EOL
 
 # update chart name hami to nvidia-vgpu
 if [ $os == "Darwin" ];then
@@ -308,11 +159,75 @@ yq -i '.devicePlugin.deviceMemoryScaling=1.0' charts/hami/values.yaml
 
 yq -i '.hami.devicePlugin.deviceMemoryScaling=1.0' values.yaml
 
+yq -i '
+  .hami.scheduler.kubeScheduler.resources.limits.cpu = "500m" |
+  .hami.scheduler.kubeScheduler.resources.limits.memory = "720Mi" |
+  .hami.scheduler.kubeScheduler.resources.requests.cpu = "100m" |
+  .hami.scheduler.kubeScheduler.resources.requests.memory = "128Mi"
+' values.yaml
+
+yq -i '
+  .hami.scheduler.extender.resources.limits.cpu = "500m" |
+  .hami.scheduler.extender.resources.limits.memory = "720Mi" |
+  .hami.scheduler.extender.resources.requests.cpu = "100m" |
+  .hami.scheduler.extender.resources.requests.memory = "128Mi"
+' values.yaml
+
+yq -i '
+  .hami.devicePlugin.resources.limits.cpu = "500m" |
+  .hami.devicePlugin.resources.limits.memory = "720Mi" |
+  .hami.devicePlugin.resources.requests.cpu = "100m" |
+  .hami.devicePlugin.resources.requests.memory = "128Mi"
+' values.yaml
+
+yq -i '
+  .hami.devicePlugin.monitor.resources.limits.cpu = "500m" |
+  .hami.devicePlugin.monitor.resources.limits.memory = "720Mi" |
+  .hami.devicePlugin.monitor.resources.requests.cpu = "100m" |
+  .hami.devicePlugin.monitor.resources.requests.memory = "128Mi"
+' values.yaml
+yq -i '
+  .hami.devicePlugin.vgpuMonitor.resources.limits.cpu = "500m" |
+  .hami.devicePlugin.vgpuMonitor.resources.limits.memory = "720Mi" |
+  .hami.devicePlugin.vgpuMonitor.resources.requests.cpu = "100m" |
+  .hami.devicePlugin.vgpuMonitor.resources.requests.memory = "128Mi"
+' values.yaml
+
 
 # update devicePlugin.registry to release.daocloud.io, from 2.5.1 version use hami repo
 #yq -i '.hami.devicePlugin.registry="release.daocloud.io"' values.yaml
 #yq -i '.devicePlugin.registry="release.daocloud.io"' charts/hami/values.yaml
 
 
-yq -i '.hami.scheduler.kubeScheduler.imageTag="v1.28.0"' values.yaml
-yq -i '.hami.scheduler.kubeScheduler.imageTag="v1.28.0"' charts/hami/values.yaml
+yq -i '.hami.scheduler.kubeScheduler.image.tag="v1.28.0"' values.yaml
+yq -i '.scheduler.kubeScheduler.image.tag="v1.28.0"' charts/hami/values.yaml
+
+
+# ---- Inject Helm logic into scheduler ClusterRoleBinding roleRef.name ----
+target_file="charts/hami/templates/scheduler/clusterrolebinding.yaml"
+if [ -f "$target_file" ]; then
+  tmp_block="$(mktemp)"
+  cat > "$tmp_block" <<'EOF'
+  {{- $crbName := include "hami-vgpu.scheduler" . }}
+  {{- $existing := lookup "rbac.authorization.k8s.io/v1" "ClusterRoleBinding" "" $crbName }}
+  {{- $keepClusterAdmin := and .Release.IsUpgrade (and $existing (eq $existing.roleRef.name "cluster-admin")) }}
+  name: {{ ternary "cluster-admin" (include "hami-vgpu.scheduler" .) $keepClusterAdmin }}
+EOF
+  tmp_out="$(mktemp)"
+  awk -v blockfile="$tmp_block" '
+    BEGIN {
+      while ((getline line < blockfile) > 0) {
+        block[++n] = line
+      }
+      close(blockfile)
+    }
+    {
+      if ($0 == "  name: hami-scheduler") {
+        for (i = 1; i <= n; i++) print block[i]
+        next
+      }
+      print
+    }
+  ' "$target_file" > "$tmp_out" && mv "$tmp_out" "$target_file"
+  rm -f "$tmp_block"
+fi
