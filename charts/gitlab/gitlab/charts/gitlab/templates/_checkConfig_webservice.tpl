@@ -48,3 +48,16 @@ webservice:
 {{-   end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.webservice.loadBalancer */}}
+
+{{/*
+Ensure relativeUrlRoot is properly formatted using regex pattern validation
+*/}}
+{{- define "gitlab.checkConfig.appConfig.relativeUrlRoot" -}}
+{{- $relativeUrlRoot := $.Values.global.appConfig.relativeUrlRoot }}
+{{- if and $relativeUrlRoot (not (regexMatch "^(/[a-zA-Z0-9]+)+$" $relativeUrlRoot)) }}
+gitlab: relativeUrlRoot has unexpected pattern
+        The current value of global.appConfig.relativeUrlRoot ({{ $relativeUrlRoot }}) does not match the expected pattern.
+        Make sure to specify a subpath without any special characters. For example: /gitlab
+{{- end }}
+{{- end }}
+{{/* END gitlab.checkConfig.appConfig.relativeUrlRoot */}}
