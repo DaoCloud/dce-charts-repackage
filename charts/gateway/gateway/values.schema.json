@@ -5,182 +5,256 @@
         "gateway": {
             "type": "object",
             "properties": {
-                "affinity": {
-                    "type": "object"
-                },
-                "annotations": {
-                    "type": "object"
-                },
-                "autoscaling": {
+                "_internal_defaults_do_not_set": {
                     "type": "object",
                     "properties": {
-                        "enabled": {
-                            "type": "boolean"
+                        "additionalContainers": {
+                            "type": "array"
                         },
-                        "maxReplicas": {
-                            "type": "integer"
+                        "affinity": {
+                            "type": "object"
                         },
-                        "minReplicas": {
-                            "type": "integer"
-                        },
-                        "targetCPUUtilizationPercentage": {
-                            "type": "integer"
-                        }
-                    }
-                },
-                "containerSecurityContext": {
-                    "type": "null"
-                },
-                "env": {
-                    "type": "object"
-                },
-                "imagePullPolicy": {
-                    "type": "string"
-                },
-                "imagePullSecrets": {
-                    "type": "array"
-                },
-                "kind": {
-                    "type": "string"
-                },
-                "labels": {
-                    "type": "object"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "networkGateway": {
-                    "type": "string"
-                },
-                "nodeSelector": {
-                    "type": "object"
-                },
-                "podAnnotations": {
-                    "type": "object",
-                    "properties": {
-                        "inject.istio.io/templates": {
-                            "type": "string"
-                        },
-                        "prometheus.io/path": {
-                            "type": "string"
-                        },
-                        "prometheus.io/port": {
-                            "type": "string"
-                        },
-                        "prometheus.io/scrape": {
-                            "type": "string"
-                        },
-                        "sidecar.istio.io/inject": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "rbac": {
-                    "type": "object",
-                    "properties": {
-                        "enabled": {
-                            "type": "boolean"
-                        }
-                    }
-                },
-                "replicaCount": {
-                    "type": "integer"
-                },
-                "resources": {
-                    "type": "object",
-                    "properties": {
-                        "limits": {
-                            "type": "object",
-                            "properties": {
-                                "cpu": {
-                                    "type": "string"
-                                },
-                                "memory": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "requests": {
-                            "type": "object",
-                            "properties": {
-                                "cpu": {
-                                    "type": "string"
-                                },
-                                "memory": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                },
-                "revision": {
-                    "type": "string"
-                },
-                "securityContext": {
-                    "type": "null"
-                },
-                "service": {
-                    "type": "object",
-                    "properties": {
                         "annotations": {
                             "type": "object"
                         },
-                        "externalIPs": {
+                        "autoscaling": {
+                            "type": "object",
+                            "properties": {
+                                "autoscaleBehavior": {
+                                    "type": "object"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "maxReplicas": {
+                                    "type": "integer"
+                                },
+                                "minReplicas": {
+                                    "type": "integer"
+                                },
+                                "targetCPUUtilizationPercentage": {
+                                    "type": "integer"
+                                },
+                                "targetMemoryUtilizationPercentage": {
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "containerSecurityContext": {
+                            "type": "object"
+                        },
+                        "env": {
+                            "type": "object"
+                        },
+                        "envVarFrom": {
                             "type": "array"
                         },
-                        "externalTrafficPolicy": {
-                            "type": "string"
-                        },
-                        "loadBalancerIP": {
-                            "type": "string"
-                        },
-                        "loadBalancerSourceRanges": {
-                            "type": "array"
-                        },
-                        "ports": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "port": {
-                                        "type": "integer"
-                                    },
-                                    "protocol": {
-                                        "type": "string"
-                                    },
-                                    "targetPort": {
-                                        "type": "integer"
+                        "global": {
+                            "type": "object",
+                            "properties": {
+                                "networkPolicy": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
                                     }
                                 }
                             }
                         },
-                        "type": {
+                        "imagePullPolicy": {
                             "type": "string"
-                        }
-                    }
-                },
-                "serviceAccount": {
-                    "type": "object",
-                    "properties": {
-                        "annotations": {
+                        },
+                        "imagePullSecrets": {
+                            "type": "array"
+                        },
+                        "initContainers": {
+                            "type": "array"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "labels": {
+                            "type": "object",
+                            "properties": {
+                                "istio.io/dataplane-mode": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "lifecycle": {
                             "type": "object"
                         },
-                        "create": {
-                            "type": "boolean"
+                        "minReadySeconds": {
+                            "type": "null"
                         },
                         "name": {
                             "type": "string"
+                        },
+                        "networkGateway": {
+                            "type": "string"
+                        },
+                        "nodeSelector": {
+                            "type": "object"
+                        },
+                        "podAnnotations": {
+                            "type": "object",
+                            "properties": {
+                                "inject.istio.io/templates": {
+                                    "type": "string"
+                                },
+                                "prometheus.io/path": {
+                                    "type": "string"
+                                },
+                                "prometheus.io/port": {
+                                    "type": "string"
+                                },
+                                "prometheus.io/scrape": {
+                                    "type": "string"
+                                },
+                                "sidecar.istio.io/inject": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "podDisruptionBudget": {
+                            "type": "object"
+                        },
+                        "priorityClassName": {
+                            "type": "string"
+                        },
+                        "rbac": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "readinessProbe": {
+                            "type": "object"
+                        },
+                        "replicaCount": {
+                            "type": "null"
+                        },
+                        "resources": {
+                            "type": "object",
+                            "properties": {
+                                "limits": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "requests": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "revision": {
+                            "type": "string"
+                        },
+                        "securityContext": {
+                            "type": "object"
+                        },
+                        "service": {
+                            "type": "object",
+                            "properties": {
+                                "annotations": {
+                                    "type": "object"
+                                },
+                                "clusterIP": {
+                                    "type": "string"
+                                },
+                                "externalIPs": {
+                                    "type": "array"
+                                },
+                                "externalTrafficPolicy": {
+                                    "type": "string"
+                                },
+                                "ipFamilies": {
+                                    "type": "array"
+                                },
+                                "ipFamilyPolicy": {
+                                    "type": "string"
+                                },
+                                "loadBalancerIP": {
+                                    "type": "string"
+                                },
+                                "loadBalancerSourceRanges": {
+                                    "type": "array"
+                                },
+                                "ports": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "port": {
+                                                "type": "integer"
+                                            },
+                                            "protocol": {
+                                                "type": "string"
+                                            },
+                                            "targetPort": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    }
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "serviceAccount": {
+                            "type": "object",
+                            "properties": {
+                                "annotations": {
+                                    "type": "object"
+                                },
+                                "create": {
+                                    "type": "boolean"
+                                },
+                                "name": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "strategy": {
+                            "type": "object"
+                        },
+                        "terminationGracePeriodSeconds": {
+                            "type": "integer"
+                        },
+                        "tolerations": {
+                            "type": "array"
+                        },
+                        "topologySpreadConstraints": {
+                            "type": "array"
+                        },
+                        "volumeMounts": {
+                            "type": "array"
+                        },
+                        "volumes": {
+                            "type": "array"
                         }
                     }
-                },
-                "tolerations": {
-                    "type": "array"
-                },
-                "topologySpreadConstraints": {
-                    "type": "array"
                 }
             }
         }
