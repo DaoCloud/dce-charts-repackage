@@ -40,10 +40,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  {{- $crbName := include "hami-vgpu.scheduler" . }}
-  {{- $existing := lookup "rbac.authorization.k8s.io/v1" "ClusterRoleBinding" "" $crbName }}
-  {{- $keepClusterAdmin := and .Release.IsUpgrade (and $existing (eq $existing.roleRef.name "cluster-admin")) }}
-  name: {{ ternary "cluster-admin" (include "hami-vgpu.scheduler" .) $keepClusterAdmin }}
+  name: {{ include "hami-vgpu.scheduler" . }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "hami-vgpu.scheduler" . }}
