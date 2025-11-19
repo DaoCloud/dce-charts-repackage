@@ -1,0 +1,16 @@
+{{- if eq "true" (include "gitlab.openbao.configureCertmanager" .) }}
+{{- $hostname := include "gitlab.openbao.hostname" . -}}
+{{- $tlsSecret := include "gitlab.openbao.tlsSecret" . -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "openbao.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "openbao.labels" . | nindent 4 }}
+spec:
+  secretName: {{ $tlsSecret | quote }}
+  {{- include "gitlab.certmanagerIssuerRef" . | nindent 2 }}
+  dnsNames:
+  - {{ $hostname }}
+{{- end }}
