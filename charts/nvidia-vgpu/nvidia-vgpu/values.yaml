@@ -11,7 +11,7 @@ hami:
     ##   - myRegistryKeySecretName
     ## @param global.imagePullSecrets Global Docker image pull secrets
     imagePullSecrets: []
-    imageTag: "v2.7.0"
+    imageTag: "v2.7.1"
     gpuHookPath: /usr/local
     labels: {}
     annotations: {}
@@ -35,10 +35,6 @@ hami:
   dcuResourceName: "hygon.com/dcunum"
   dcuResourceMem: "hygon.com/dcumem"
   dcuResourceCores: "hygon.com/dcucores"
-  #Iluvatar GPU Parameters
-  iluvatarResourceName: "iluvatar.ai/vgpu"
-  iluvatarResourceMem: "iluvatar.ai/vcuda-memory"
-  iluvatarResourceCore: "iluvatar.ai/vcuda-core"
   #Metax sGPU Parameters
   metaxResourceName: "metax-tech.com/sgpu"
   metaxResourceCore: "metax-tech.com/vcore"
@@ -369,6 +365,10 @@ hami:
   #        memory: 100Mi
 
   devices:
+    amd:
+      customresources:
+        - amd.com/gpu
+        - amd.com/gpu-memory
     awsneuron:
       customresources:
         - aws.amazon.com/neuron
@@ -413,3 +413,18 @@ hami:
         - huawei.com/Ascend910B4-1-memory
         - huawei.com/Ascend310P
         - huawei.com/Ascend310P-memory
+    iluvatar:
+      enabled: false
+      customresources:
+        - iluvatar.ai/BI-V100-vgpu
+        - iluvatar.ai/BI-V100.vCore
+        - iluvatar.ai/BI-V100.vMem
+        - iluvatar.ai/BI-V150-vgpu
+        - iluvatar.ai/BI-V150.vCore
+        - iluvatar.ai/BI-V150.vMem
+        - iluvatar.ai/MR-V100-vgpu
+        - iluvatar.ai/MR-V100.vCore
+        - iluvatar.ai/MR-V100.vMem
+        - iluvatar.ai/MR-V50-vgpu
+        - iluvatar.ai/MR-V50.vCore
+        - iluvatar.ai/MR-V50.vMem
