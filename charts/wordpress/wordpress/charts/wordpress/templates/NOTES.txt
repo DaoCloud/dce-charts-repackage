@@ -2,6 +2,10 @@ CHART NAME: {{ .Chart.Name }}
 CHART VERSION: {{ .Chart.Version }}
 APP VERSION: {{ .Chart.AppVersion }}
 
+⚠ WARNING: Since August 28th, 2025, only a limited subset of images/charts are available for free.
+    Subscribe to Bitnami Secure Images to receive continued support and security updates.
+    More info at https://bitnami.com and https://github.com/bitnami/containers/issues/83267
+
 ** Please be patient while the chart is being deployed **
 
 {{- if .Values.diagnosticMode.enabled }}
@@ -30,7 +34,17 @@ Your WordPress site can be accessed through the following DNS name from within y
 
 To access your WordPress site from outside the cluster follow the steps below:
 
-{{- if .Values.ingress.enabled }}
+{{- if .Values.httpRoute.enabled }}
+
+1. Get the WordPress URL and associate its hostname to your Gateway' service external IP:
+
+    GATEWAY_NAME=$(kubectl get --namespace {{ include "common.names.namespace" . }} httproute {{ include "common.names.fullname" . }} -o jsonpath="{.spec.parentRefs[0].name}")
+    GATEWAY_NAMESPACE=$(kubectl get --namespace {{ include "common.names.namespace" . }} httproute {{ include "common.names.fullname" .}} -o jsonpath="{.spec.parentRefs[0].namespace}")
+    GATEWAY_IP=$(kubectl get gateway --namespace $GATEWAY_NAMESPACE $GATEWAY_NAME -o jsonpath="{.status.addresses[0].value}")
+    echo "WordPress URL: https://{{ .Values.httpRoute.hostnames | first }}"
+    echo "$GATEWAY_IP {{ .Values.httpRoute.hostnames | first }}" | sudo tee -a /etc/hosts
+
+{{- else if .Values.ingress.enabled }}
 
 1. Get the WordPress URL and associate WordPress hostname to your cluster external IP:
 
@@ -93,3 +107,6 @@ You can access Apache Prometheus metrics following the steps below:
 {{- include "common.warnings.rollingTag" .Values.image }}
 {{- include "common.warnings.rollingTag" .Values.metrics.image }}
 {{- include "common.warnings.rollingTag" .Values.volumePermissions.image }}
+{{- include "common.warnings.resources" (dict "sections" (list "metrics" "" "volumePermissions") "context" $) }}
+{{- include "common.warnings.modifiedImages" (dict "images" (list .Values.image .Values.volumePermissions.image .Values.metrics.image) "context" $) }}
+{{- include "common.errors.insecureImages" (dict "images" (list .Values.image .Values.volumePermissions.image .Values.metrics.image) "context" $) }}
