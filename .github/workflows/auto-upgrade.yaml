@@ -57,7 +57,9 @@ jobs:
 
       - name: Set up Helm
         uses: azure/setup-helm@v4.3.0
-
+        with: 
+          version: 'v3.19.2'
+          
       - name: upgrade
         env:
           GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
