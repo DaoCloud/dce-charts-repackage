@@ -38,6 +38,8 @@ jobs:
 
       - name: Set up Helm
         uses: azure/setup-helm@v4.3.0
+        with: 
+          version: 'v3.19.2'
 
       - name: Install helm-schema-gen
         run: |
