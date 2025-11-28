@@ -36,14 +36,24 @@ Returns the KAS external URL (for external agentk connections)
 {{-   end -}}
 {{- end -}}
 
-{{- define "gitlab.kas.internal.scheme" -}}
-{{- $tlsEnabled := "" -}}
-{{- if eq .Chart.Name "kas" -}}
-{{-    $tlsEnabled = .Values.privateApi.tls.enabled -}}
-{{-    printf "%s" (ternary "grpcs" "grpc" (or (eq $tlsEnabled true) (eq $.Values.global.kas.tls.enabled true))) -}}
-{{- else -}}
-{{-    printf "%s" (ternary "grpcs" "grpc" (eq $.Values.global.kas.tls.enabled true)) -}}
+{{/*
+Returns the workspaces external hostname
+*/}}
+{{- define "gitlab.workspaces.hostname" -}}
+{{- $hostname := $.Values.global.hosts.workspaces.name | required "Missing required workspaces host. Make sure to set `.Values.global.hosts.workspaces.name`" -}}
+{{- $hostname -}}
 {{- end -}}
+
+{{/*
+Returns the workspaces wildcard hostname
+*/}}
+{{- define "gitlab.workspaces.wildcardHostname" -}}
+{{- $hostname := include "gitlab.workspaces.hostname" . -}}
+{{- print "*." $hostname -}}
+{{- end -}}
+
+{{- define "gitlab.kas.internal.scheme" -}}
+{{- printf "%s" (ternary "grpcs" "grpc" (eq $.Values.global.kas.tls.enabled true)) -}}
 {{- end -}}
 
 {{/*
@@ -61,6 +71,15 @@ Returns the KAS internal URL (for GitLab backend connections)
 {{- end -}}
 
 {{/*
+Returns the KAS client timeout in seconds
+*/}}
+{{- define "gitlab.appConfig.kas.clientTimeoutSeconds" -}}
+{{- with .Values.global.appConfig.gitlab_kas.clientTimeoutSeconds -}}
+client_timeout_seconds: {{ . }}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return the KAS service host
 */}}
 {{- define "gitlab.kas.serviceHost" -}}
@@ -74,5 +93,4 @@ Return the KAS service name
 {{- define "gitlab.kas.serviceName" -}}
 {{- include "gitlab.other.fullname" (dict "context" . "chartName" "kas") -}}
 {{- end -}}
-
 

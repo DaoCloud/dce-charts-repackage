@@ -1,6 +1,8 @@
 {{- if $.Values.enabled }}
 {{- $imageCfg := dict "global" $.Values.global.image "local" $.Values.image -}}
 {{- $initImageCfg := include "gitlab.configure.config" $.Values | fromYaml -}}
+{{- $affinityMode := coalesce $.Values.antiAffinity $.Values.global.antiAffinity -}}
+{{- $topologyKey := coalesce $.Values.affinity.podAntiAffinity.topologyKey $.Values.global.affinity.podAntiAffinity.topologyKey -}}
 {{- include "database.datamodel.prepare" $ -}}
 {{- include "webservice.datamodel.prepare" $ -}}
 {{/* BEGIN range deployments */}}
@@ -19,6 +21,7 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" $ | nindent 4 }}
     {{- include "webservice.labels" . | nindent 4 }}
+    {{- include "gitlab.app.kubernetes.io.labels" $ | nindent 4 }}
     {{- include "webservice.commonLabels" . | nindent 4 }}
     {{- if .deployment.labels -}}
     {{-   toYaml .deployment.labels | nindent 4 }}
@@ -43,6 +46,7 @@ spec:
     metadata:
       labels:
         {{- include "gitlab.standardLabels" $ | nindent 8 }}
+        {{- include "gitlab.app.kubernetes.io.labels" $ | nindent 8 }}
         {{- include "webservice.labels" . | nindent 8 }}
         {{- include "gitlab.podLabels" $ | nindent 8 }}
         {{- include "webservice.commonLabels" . | nindent 8 }}
@@ -70,31 +74,34 @@ spec:
       {{- end }}
       {{- end }}
     spec:
+      {{- if $.Values.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml $.Values.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
       {{- if .tolerations }}
       tolerations:
         {{- toYaml .tolerations | nindent 8 }}
       {{- end }}
       {{- $nodeSelectors := dict "Values" (dict "global" (dict "nodeSelector" $.Values.global.nodeSelector) "nodeSelector" .nodeSelector) -}}
       {{- include "gitlab.nodeSelector" $nodeSelectors | nindent 6 }}
-      {{- $priorityClassName := dict "Values" (dict "global" (dict "priorityClassName" $.Values.global.priorityClassName) "priorityClassName" $.Values.priorityClassName) -}}
+      {{- $priorityClassName := dict "Values" (dict "global" (dict "priorityClassName" $.Values.global.priorityClassName) "priorityClassName" (default $.Values.priorityClassName .priorityClassName)) -}}
       {{- include "gitlab.priorityClassName" $priorityClassName | nindent 6 }}
       {{- include "gitlab.podSecurityContext" $.Values.securityContext | nindent 6 }}
-      {{- if eq (default $.Values.global.antiAffinity $.Values.antiAffinity) "hard" }}
+      {{- if eq $affinityMode "hard" }}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-            - topologyKey: {{ default $.Values.global.affinity.podAntiAffinity.topologyKey $.Values.affinity.podAntiAffinity.topologyKey | quote }}
+            - topologyKey: {{ $topologyKey | quote }}
               labelSelector:
                 matchLabels:
                   {{- include "gitlab.selectorLabels" $ | nindent 18 }}
                   {{- include "webservice.labels" . | nindent 18}}
-      {{- else if eq (default $.Values.global.antiAffinity $.Values.antiAffinity) "soft" }}
+      {{- else if eq $affinityMode "soft" }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 1
             podAffinityTerm:
-              topologyKey: {{ default $.Values.global.affinity.podAntiAffinity.topologyKey $.Values.affinity.podAntiAffinity.topologyKey | quote }}
+              topologyKey: {{ $topologyKey | quote }}
               labelSelector:
                 matchLabels:
                   {{- include "gitlab.selectorLabels" $ | nindent 18 }}
@@ -103,7 +110,7 @@ spec:
       {{- if or $.Values.serviceAccount.enabled $.Values.global.serviceAccount.enabled }}
       serviceAccountName: {{ include "gitlab.serviceAccount.name" $ }}
       {{- end }}
-      automountServiceAccountToken: false
+      {{- include "gitlab.automountServiceAccountToken" $ | nindent 6 }}
       initContainers:
         {{- include "gitlab.extraInitContainers" $ | nindent 8 }}
         {{- include "gitlab.certificates.initContainer" $ | nindent 8 }}
@@ -114,6 +121,7 @@ spec:
           {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
           {{- include "gitlab.init.containerSecurityContext" $ | indent 10 }}
           env:
+            {{- include "gitlab.timeZone.env" $ | nindent 12 }}
             {{- include "webservice.extraEnv" (dict "global" $.Values.global "local" .) | nindent 12 }}
             {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 12 }}
           volumeMounts:
@@ -147,8 +155,7 @@ spec:
           args:
             - /scripts/wait-for-deps
           env:
-            - name: GITALY_FEATURE_DEFAULT_ON
-              value: "1"
+            {{- include "gitlab.timeZone.env" $ | nindent 12 }}
             - name: CONFIG_TEMPLATE_DIRECTORY
               value: '/var/opt/gitlab/templates'
             - name: CONFIG_DIRECTORY
@@ -196,12 +203,11 @@ spec:
               name: http-metrics-ws
           {{- end }}
           env:
+            {{- include "gitlab.timeZone.env" $ | nindent 12 }}
             - name: GITLAB_WEBSERVER
               value: {{ $.Values.webServer }}
             - name: TMPDIR
               value: "/tmp/gitlab"
-            - name: GITALY_FEATURE_DEFAULT_ON
-              value: "1"
             - name: CONFIG_TEMPLATE_DIRECTORY
               value: '/var/opt/gitlab/templates'
             - name: CONFIG_DIRECTORY
@@ -239,6 +245,10 @@ spec:
               value: "{{ .puma.workerMaxMemory }}"
             - name: DISABLE_PUMA_WORKER_KILLER
               value: "{{ .puma.disableWorkerKiller }}"
+            - name: BIND_IP6
+              value: {{ eq .puma.bindIp6 true | quote }}
+            - name: PUMA_CONTROL_PORT
+              value: "{{ default 9293 .puma.controlPort | int }}"
             {{- end }}
             - name: SHUTDOWN_BLACKOUT_SECONDS
               value: "{{ .shutdown.blackoutSeconds }}"
@@ -249,6 +259,10 @@ spec:
             {{- end }}
             - name: WORKHORSE_ARCHIVE_CACHE_DISABLED
               value: "true"
+            {{- if $.Values.global.appConfig.relativeUrlRoot }}
+            - name: RAILS_RELATIVE_URL_ROOT
+              value: {{ $.Values.global.appConfig.relativeUrlRoot | quote }}
+            {{- end }}
             {{- include "webservice.extraEnv" (dict "global" $.Values.global "local" .) | nindent 12 }}
             {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 12 }}
           volumeMounts:
@@ -276,6 +290,7 @@ spec:
               mountPath: /srv/gitlab/config/puma.key
               subPath: puma/puma.key
            {{- end }}
+           {{- include "gitlab.topologyService.volumeMounts" (dict "context" $ "secretsVolumeName" "webservice-secrets") | nindent 12 }}
             - name: webservice-config
               mountPath: '/etc/krb5.conf'
               subPath: krb5.conf
@@ -305,7 +320,7 @@ spec:
           {{- end }}
           livenessProbe:
             httpGet:
-              path: /-/liveness
+              path: {{ $.Values.global.appConfig.relativeUrlRoot }}/-/liveness
               {{- if and (not $.Values.http.enabled) $.Values.tls.enabled }}
               scheme: HTTPS
               port: {{ $.Values.service.tls.internalPort }}
@@ -317,9 +332,10 @@ spec:
             timeoutSeconds: {{ .deployment.livenessProbe.timeoutSeconds }}
             successThreshold: {{ .deployment.livenessProbe.successThreshold }}
             failureThreshold: {{ .deployment.livenessProbe.failureThreshold }}
+          {{- if not .workhorse.healthcheckListener.enabled }}
           readinessProbe:
             httpGet:
-              path: /-/readiness
+              path: {{ $.Values.global.appConfig.relativeUrlRoot }}/-/readiness
               {{- if and (not $.Values.http.enabled) $.Values.tls.enabled }}
               scheme: HTTPS
               port: {{ $.Values.service.tls.internalPort }}
@@ -331,6 +347,7 @@ spec:
             timeoutSeconds: {{ .deployment.readinessProbe.timeoutSeconds }}
             successThreshold: {{ .deployment.readinessProbe.successThreshold }}
             failureThreshold: {{ .deployment.readinessProbe.failureThreshold }}
+          {{- end }}
           lifecycle:
             preStop:
               exec:
@@ -352,10 +369,12 @@ spec:
               name: http-metrics-wh
           {{- end }}
           env:
+            {{- include "gitlab.timeZone.env" $ | nindent 12 }}
+            {{- include "gitlab.godebug.env" (dict "rootScope" $ "deploymentScope" .) | nindent 12 }}
             - name: TMPDIR
               value: "/tmp/gitlab"
             - name: GITLAB_WORKHORSE_AUTH_BACKEND
-              value: "http://localhost:{{ $.Values.service.internalPort }}"
+              value: "http://localhost:{{ $.Values.service.internalPort }}{{ $.Values.global.appConfig.relativeUrlRoot }}"
             - name: GITLAB_WORKHORSE_EXTRA_ARGS
               value: {{ .workhorse.extraArgs | quote }}
             - name: GITLAB_WORKHORSE_LISTEN_PORT
@@ -372,6 +391,10 @@ spec:
             {{- end }}
             - name: SHUTDOWN_BLACKOUT_SECONDS
               value: "{{ .shutdown.blackoutSeconds }}"
+            {{- if eq $.Values.webServer "puma" }}
+            - name: PUMA_CONTROL_PORT
+              value: "{{ default 9293 .puma.controlPort | int }}"
+            {{- end }}
             {{- include "gitlab.tracing.env" $ | nindent 12 }}
             {{- include "webservice.extraEnv" (dict "global" $.Values.global "local" .) | nindent 12 }}
             {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 12 }}
@@ -394,6 +417,7 @@ spec:
           startupProbe:
             {{- toYaml .workhorse.startupProbe | nindent 12 }}
           {{- end }}
+          {{ if not .workhorse.healthcheckListener.enabled }}
           lifecycle:
             preStop:
               exec:
@@ -401,6 +425,7 @@ spec:
                 - /bin/bash
                 - -c
                 - sleep $SHUTDOWN_BLACKOUT_SECONDS
+          {{- end }}
           livenessProbe:
             exec:
               command:
@@ -411,9 +436,15 @@ spec:
             successThreshold: {{ .workhorse.livenessProbe.successThreshold }}
             failureThreshold: {{ .workhorse.livenessProbe.failureThreshold }}
           readinessProbe:
+            {{ if .workhorse.healthcheckListener.enabled }}
+            httpGet:
+              path: /readiness
+              port: {{ default 8182 .workhorse.healthcheckListener.port | int }}
+            {{- else }}
             exec:
               command:
               - /scripts/healthcheck
+            {{- end }}
             initialDelaySeconds: {{ .workhorse.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .workhorse.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .workhorse.readinessProbe.timeoutSeconds }}
@@ -477,6 +508,7 @@ spec:
                 - key: "tls.key"
                   path: "gitlab-workhorse/tls.key"
           {{- end }}
+          {{- include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
           {{- if eq (include "webservice-metrics.tls.enabled" $) "true" }}
           - secret:
               name: {{ template "webservice-metrics.tls.secret" $ }}
@@ -494,6 +526,7 @@ spec:
             {{- include "gitlab.clickhouse.main.secrets" $ | nindent 10 }}
           {{- end }}
           {{- include "gitlab.redis.secrets" (dict "globalContext" $) | nindent 10 }}
+          {{- include "gitlab.redisSentinel.secret" $ | nindent 10 }}
           {{- range $.Values.local.psql }}
           {{-   include "gitlab.psql.secret" . | nindent 10 }}
           {{- end }}
@@ -540,6 +573,13 @@ spec:
               items:
                 - key: "ca.crt"
                   path: rails-secrets/smartcard-ca.crt
+          {{- end }}
+          {{- if $.Values.global.openbao.enabled }}
+          - secret:
+              name: {{ template "gitlab.openbao.authenticationTokenSecretFilePath.secret" $ }}
+              items:
+                - key: {{ template "gitlab.openbao.authenticationTokenSecretFilePath.key" $ }}
+                  path: openbao/.gitlab_openbao_authentication_token_secret
           {{- end }}
       {{- if $.Values.global.email.smime.enabled }}
       - name: smime-creds
