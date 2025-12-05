@@ -10,7 +10,7 @@ echo "KIND_KUBECONFIG: $KIND_KUBECONFIG"
 helm repo update chart-museum  --kubeconfig ${KIND_KUBECONFIG}
 # not need wait the redpanda console ready
 # it need connect a kafka instance to get ready
-HELM_MUST_OPTION="${KIND_KUBECONFIG} "
+HELM_MUST_OPTION="--kubeconfig ${KIND_KUBECONFIG} "
 
 #==================== add your deploy code bellow =============
 
