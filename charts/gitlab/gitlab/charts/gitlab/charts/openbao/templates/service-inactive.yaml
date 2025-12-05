@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "openbao.fullname" . }}-inactive
+  labels:
+    {{- include "openbao.labels" . | nindent 4 }}
+  {{- with .Values.serviceInactive.annotations }}
+  annotations:
+    {{ . | toYaml | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.serviceInactive.type }}
+  ports:
+    - port: {{ .Values.config.apiPort }}
+      targetPort: api
+      protocol: TCP
+      name: api
+  selector:
+    {{- include "openbao.selectorLabels" . | nindent 4 }}
+    openbao-active: "false"
