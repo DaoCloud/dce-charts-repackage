@@ -1,0 +1,10 @@
+# When adding a group as a code owner, make sure to invite the group to the project as described
+# in https://docs.gitlab.com/user/project/codeowners/reference/#add-a-group-as-a-code-owner
+
+# Shared ownership between group::operate and group::pipeline security individuals.
+@cipherboy-gitlab @clemensbeck @fcatteau @iamricecake @niskhakova @srajadas @WarheadsSE
+
+## Files that are excluded from required approval
+!/doc/*.md
+!/.gitlab/**/*.md
+!/README.md
