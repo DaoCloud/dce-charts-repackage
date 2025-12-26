@@ -13,7 +13,6 @@ data:
     dhcp-authoritative
     dhcp-leasefile={{ "{{ .LeaseFile }}" }}
     log-facility={{ "{{ .LogFile }}" }}
-    log-dhcp
     bind-interfaces
     interface={{ "{{ .Interface }}" }}
     listen-address={{ "{{ .SelfIP }}" }}
@@ -62,7 +61,8 @@ data:
 
     # Logging configuration
     log-queries
-    log-dhcp
+    #log-dhcp
+    quiet-dhcp
     quiet-dhcp6
 
     # Performance tuning
