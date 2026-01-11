@@ -11,6 +11,9 @@ metadata:
   namespace: {{ include  "argo-cd.namespace" . }}
   labels:
     {{- include "argo-cd.labels" (dict "context" . "component" .Values.repoServer.name "name" .Values.repoServer.name) | nindent 4 }}
+    {{- with (mergeOverwrite (deepCopy .Values.global.deploymentLabels) .Values.repoServer.deploymentLabels) }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   {{- with include "argo-cd.strategy" (mergeOverwrite (deepCopy .Values.global.deploymentStrategy) .Values.repoServer.deploymentStrategy) }}
   strategy:
@@ -163,6 +166,7 @@ spec:
                 name: argocd-cmd-params-cm
                 key: reposerver.repo.cache.expiration
                 optional: true
+          {{- if or .Values.redis.enabled .Values.externalRedis.host }}
           - name: REDIS_SERVER
             valueFrom:
               configMapKeyRef:
@@ -201,6 +205,7 @@ spec:
                 name: {{ default (include "argo-cd.redis.fullname" .) .Values.externalRedis.existingSecret }}
                 key: redis-sentinel-password
                 optional: true
+          {{- end }}
           - name: ARGOCD_DEFAULT_CACHE_EXPIRATION
             valueFrom:
               configMapKeyRef:
@@ -297,10 +302,40 @@ spec:
                 key: reposerver.git.request.timeout
                 name: argocd-cmd-params-cm
                 optional: true
+          - name: ARGOCD_REPO_SERVER_OCI_MANIFEST_MAX_EXTRACTED_SIZE
+            valueFrom:
+              configMapKeyRef:
+                key: reposerver.oci.manifest.max.extracted.size
+                name: argocd-cmd-params-cm
+                optional: true
+          - name: ARGOCD_REPO_SERVER_DISABLE_OCI_MANIFEST_MAX_EXTRACTED_SIZE
+            valueFrom:
+              configMapKeyRef:
+                key: reposerver.disable.oci.manifest.max.extracted.size
+                name: argocd-cmd-params-cm
+                optional: true
+          - name: ARGOCD_REPO_SERVER_OCI_LAYER_MEDIA_TYPES
+            valueFrom:
+              configMapKeyRef:
+                key: reposerver.oci.layer.media.types
+                name: argocd-cmd-params-cm
+                optional: true
           - name: ARGOCD_REVISION_CACHE_LOCK_TIMEOUT
             valueFrom:
               configMapKeyRef:
                 key: reposerver.revision.cache.lock.timeout
+                name: argocd-cmd-params-cm
+                optional: true
+          - name: ARGOCD_REPO_SERVER_ENABLE_BUILTIN_GIT_CONFIG
+            valueFrom:
+              configMapKeyRef:
+                name: argocd-cmd-params-cm
+                key: reposerver.enable.builtin.git.config
+                optional: true
+          - name: ARGOCD_GRPC_MAX_SIZE_MB
+            valueFrom:
+              configMapKeyRef:
+                key: reposerver.grpc.max.size
                 name: argocd-cmd-params-cm
                 optional: true
           - name: ARGOCD_REPO_SERVER_INCLUDE_HIDDEN_DIRECTORIES
@@ -350,6 +385,7 @@ spec:
         - name: metrics
           containerPort: {{ .Values.repoServer.containerPorts.metrics }}
           protocol: TCP
+        {{- if .Values.repoServer.livenessProbe.enabled }}
         livenessProbe:
           httpGet:
             path: /healthz?full=true
@@ -359,6 +395,8 @@ spec:
           timeoutSeconds: {{ .Values.repoServer.livenessProbe.timeoutSeconds }}
           successThreshold: {{ .Values.repoServer.livenessProbe.successThreshold }}
           failureThreshold: {{ .Values.repoServer.livenessProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.repoServer.readinessProbe.enabled }}
         readinessProbe:
           httpGet:
             path: /healthz
@@ -368,6 +406,7 @@ spec:
           timeoutSeconds: {{ .Values.repoServer.readinessProbe.timeoutSeconds }}
           successThreshold: {{ .Values.repoServer.readinessProbe.successThreshold }}
           failureThreshold: {{ .Values.repoServer.readinessProbe.failureThreshold }}
+        {{- end }}
         resources:
           {{- toYaml .Values.repoServer.resources | nindent 10 }}
         {{- with .Values.repoServer.containerSecurityContext }}
@@ -384,14 +423,14 @@ spec:
       initContainers:
       - command:
         - /bin/cp
-        - -n
+        - --update=none
         - /usr/local/bin/argocd
         - /var/run/argocd/argocd-cmp-server
         image: {{ include "global.images.image" (dict "imageRoot" .Values.repoServer.image "global" .Values.global ) }}
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.repoServer.image.imagePullPolicy }}
         name: copyutil
         resources:
-          {{- toYaml .Values.repoServer.resources | nindent 10 }}
+          {{- toYaml (default .Values.repoServer.resources .Values.repoServer.copyutil.resources) | nindent 10 }}
         {{- with .Values.repoServer.containerSecurityContext }}
         securityContext:
           {{- toYaml . | nindent 10 }}
