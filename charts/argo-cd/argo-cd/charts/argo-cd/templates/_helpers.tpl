@@ -232,13 +232,18 @@ NOTE: Configuration keys must be stored as dict because YAML treats dot as separ
 {{- $presets := dict -}}
 {{- $_ := set $presets "repo.server" (printf "%s:%s" (include "argo-cd.repoServer.fullname" .) (.Values.repoServer.service.port | toString)) -}}
 {{- $_ := set $presets "server.repo.server.strict.tls" (.Values.repoServer.certificateSecret.enabled | toString ) -}}
+{{- if or .Values.redis.enabled .Values.externalRedis.host -}}
 {{- $_ := set $presets "redis.server" (include "argo-cd.redis.server" .) -}}
+{{- end -}}
 {{- $_ := set $presets "applicationsetcontroller.enable.leader.election" (gt ((.Values.applicationSet.replicas | default .Values.applicationSet.replicaCount) | int64) 1) -}}
 {{- if .Values.dex.enabled -}}
 {{- $_ := set $presets "server.dex.server" (include "argo-cd.dex.server" .) -}}
 {{- $_ := set $presets "server.dex.server.strict.tls" .Values.dex.certificateSecret.enabled -}}
 {{- end -}}
-{{- range $component := tuple "applicationsetcontroller" "controller" "server" "reposerver" "notificationscontroller" "dexserver" -}}
+{{- if .Values.commitServer.enabled -}}
+{{- $_ := set $presets "commit.server" (printf "%s:%s" (include "argo-cd.commitServer.fullname" .) (.Values.commitServer.service.port | toString)) -}}
+{{- end -}}
+{{- range $component := tuple "applicationsetcontroller" "controller" "server" "reposerver" "notificationscontroller" "dexserver" "commitserver" -}}
 {{- $_ := set $presets (printf "%s.log.format" $component) $.Values.global.logging.format -}}
 {{- $_ := set $presets (printf "%s.log.level" $component) $.Values.global.logging.level -}}
 {{- end -}}
@@ -315,6 +320,24 @@ name: "argocd-redis"
 key: auth
 optional: true
     {{- end -}}
+{{- end -}}
+
+{{/*
+Return the target Kubernetes version
+*/}}
+{{- define "argo-cd.kubeVersion" -}}
+  {{- default .Capabilities.KubeVersion.Version .Values.kubeVersionOverride }}
+{{- end -}}
+
+{{/*
+Return the appropriate apiVersion for monitoring CRDs
+*/}}
+{{- define "argo-cd.apiVersions.monitoring" -}}
+{{- if .Values.apiVersionOverrides.monitoring -}}
+{{- print .Values.apiVersionOverrides.monitoring -}}
+{{- else -}}
+{{- print "monitoring.coreos.com/v1" -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "global.images.image" -}}
