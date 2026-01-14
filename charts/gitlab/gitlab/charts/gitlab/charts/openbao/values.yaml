@@ -1,0 +1,325 @@
+# Default values for openbao.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  image:
+    tagSuffix: ""
+  ingress:
+    useNewIngressForCerts: false
+    annotations: {}
+    provider: nginx
+
+# @schema additionalProperties: false
+image:
+  # For now use UBI OpenBao, but we switch to CNG build once available.
+  # https://gitlab.com/groups/gitlab-org/distribution/-/epics/113.
+  # @schema required:true
+  repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-openbao
+  # @schema required:true
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# @schema additionalProperties: false
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# @schema additionalProperties: false
+role:
+  create: true
+
+podAnnotations: {}
+podLabels: {}
+
+# @schema $ref: $k8s/_definitions.json#/definitions/io.k8s.api.core.v1.PodSecurityContext
+podSecurityContext:
+  fsGroup: 1000
+  runAsUser: 1000
+  seccompProfile:
+    type: "RuntimeDefault"
+
+# @schema $ref: $k8s/_definitions.json#/definitions/io.k8s.api.core.v1.SecurityContext
+securityContext:
+  capabilities:
+    drop: [ "ALL" ]
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  runAsUser: 1000
+
+# @schema additionalProperties: false
+serviceActive:
+  # @schema enum:[ClusterIP, LoadBalancer, NodePort]
+  type: ClusterIP
+  annotations: {}
+
+# @schema additionalProperties: false
+serviceInactive:
+  # @schema enum:[ClusterIP, LoadBalancer, NodePort]
+  type: ClusterIP
+  annotations: {}
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hostname: "openbao.example.com"
+  sslPassthroughNginx: false
+  tls:
+    enabled: true
+    secretName: ''
+  # @schema type:[boolean, null]
+  configureCertmanager: null
+  certmanagerIssuer: '{{ printf "%s-issuer" .Release.Name }}'
+
+# @schema $ref: $k8s/_definitions.json#/definitions/io.k8s.api.core.v1.ResourceRequirements
+resources: {}
+
+# initializeTpl is evaluated as a helm/go template and converted from YAML to JSON
+# before being passed as OpenBao Self-Initialization configuration:
+#   https://openbao.org/docs/configuration/self-init/
+initializeTpl: |
+  - gitlab-auth:
+      request:
+      - oidc:
+          operation: create
+          path: sys/auth/gitlab_rails_jwt
+          allow_failure: false
+          data:
+            type: jwt
+      - oidc-config:
+          operation: create
+          path: auth/gitlab_rails_jwt/config
+          allow_failure: false
+          data:
+            oidc_discovery_url: {{ tpl .Values.config.initialize.oidcDiscoveryUrl . }}
+            bound_issuer: {{ tpl .Values.config.initialize.boundIssuer . }}
+            skip_jwks_validation: true
+      - manager-policy:
+          operation: create
+          path: sys/policies/acl/secrets_manager
+          allow_failure: false
+          data:
+            policy: 'path "*" { capabilities = ["create", "read", "update", "delete", "list", "sudo"] }'
+      - manager-role:
+          operation: create
+          path: auth/gitlab_rails_jwt/role/app
+          allow_failure: false
+          data:
+            role_type: jwt
+            bound_audiences: {{ tpl .Values.config.initialize.boundAudiences . }}
+            user_claim: user_id
+            token_policies: secrets_manager
+            bound_claims:
+              secrets_manager_scope: privileged
+            bound_subject: gitlab_secrets_manager
+            claim_mappings:
+              correlation_id: correlation_id
+              project_id: project_id
+              group_id: group_id
+              namespace_id: namespace_id
+              user_id: user_id
+
+auditTpl: |
+  - file:
+      stdout:
+        description: "Stdout audit device"
+        options:
+          file_path: "/dev/stdout"
+  {{- with .Values.config.audit.http }}
+    {{- if .enabled }}
+  - http:
+      gitlab_stream:
+        description: "Audit device for GitLab rails audit event streaming"
+        options:
+          uri: "{{ tpl .streamingUri $ }}"
+          headers: |
+            {
+              "Gitlab-Openbao-Auth-Token": ["file://{{ .authTokenPath }}"],
+              "Content-Type": ["application/json"]
+            }
+    {{- end }}
+  {{- end }}
+
+config:
+  # @schema enum:[error, warn, info, debug, trace]
+  logLevel: "info"
+  # @schema enum:[error, warn, info, debug, trace, off]
+  logRequestsLevel: "off"
+  # @schema enum:[json, standard]
+  logFormat: "json"
+  ui: false
+  clusterPort: 8201
+  apiPort: 8200
+  tlsDisable: true
+  maxRequestSize: 786432
+  maxRequestJsonMemory: 1048576
+  cacheSize: 2560
+  telemetry:
+    # Enable/disable telemetry on all listeners.
+    enabled: true
+    disableHostname: true
+    prometheusRetentionTime: "24h"
+    metricsPrefix: openbao
+    usageGaugePeriod: 0
+    numLeaseMetricsBuckets: 1
+    prefixFilter:  
+      # Disable high-cardinality audit log metrics, but keep the rest.
+      - "-secrets_manager_openbao.audit"
+      - "+secrets_manager_openbao.audit.log_request_failure"
+      - "+secrets_manager_openbao.audit.log_request"
+      - "+secrets_manager_openbao.audit.log_response_failure"
+      - "+secrets_manager_openbao.audit.log_response"
+      # Disable high-cardinality rollback and route metrics.
+      - "-secrets_manager_openbao.rollback.attempt"
+      - "-secrets_manager_openbao.route"
+  # Configure additional listener for metrics. Implicitly disabled if telemetry is disabled.
+  # Note: This listener serves the regular OpenBao API but needs no authentication of the metrics path by default.
+  metricsListener:
+    enabled: true
+    # Disable TLS because Prometheus will attempt Prometheus will query the Pod by it's IP, which
+    # is not in the certificates SAN.
+    # To scrape metrics via TLS either mount another certificate or set `insecure_skip_verify=true`
+    # in your Prometheus configuration.
+    tlsDisable: true
+    port: 8209
+    unauthenticatedMetricsAccess: true
+  unseal:
+    static:
+      enabled: true
+      currentKeyId: "static-unseal-0"
+      currentKey: "/srv/openbao/keys/static-unseal-1"
+      # Optionally configure a previous key for rotation purposes. Needs and extra volume mount to the previous key path and a non-nil id.
+      previousKeyId: ""
+      previousKey: "/srv/openbao/keys/static-unseal-0"
+  initialize:
+    enabled: true
+    oidcDiscoveryUrl: "https://gitlab.example.com"
+    boundIssuer: "https://gitlab.example.com"
+    boundAudiences: '{{ include "gitlab.openbao.url" . }}'
+  audit:
+    http:
+      # Disabled by default. Streaming endpoint must be available to succesfully unseal.
+      enabled: false
+      streamingUri: "https://workhorse.gitlab.example.com/api/v4/internal/secrets_manager/audit_logs"
+      authTokenPath: "/srv/openbao/audit/gitlab-auth"
+  storage:
+    postgresql:
+      # @schema type:[boolean, null]
+      table: null
+      # @schema type:[integer, null]
+      maxIdleConnections: null
+      # @schema type:[integer, null]
+      maxParallel: null
+      # @schema type:[string, null]
+      haTable: null
+      # @schema type:[boolean, null]
+      skipCreateTable:  null
+      # @schema type:[integer, null]
+      maxConnectRetries: null
+      haEnabled: true
+      connection:
+        host: "localhost"
+        # @schema minimum:0
+        port: 5432
+        database: openbao
+        username: openbao
+        # @schema type:[integer, null]
+        # @schema minimum:0
+        connectTimeout: null
+        # @schema type:[integer, null]
+        # @schema minimum:0
+        keepalives: null
+        # @schema type:[integer, null]
+        # @schema minimum:0
+        keepalivesIdle: null
+        # @schema type:[integer, null]
+        # @schema minimum:0
+        keepalivesInterval: null
+        # @schema type:[integer, null]
+        # @schema minimum:0
+        keepalivesCount: null
+        # @schema type:[integer, null]
+        # @schema minimum:0
+        tcpUserTimeout: null
+        sslMode: "disable"
+        password: {}
+        # secret:
+        # key:
+
+# Generate a static unseal secret that will be mounted to
+# the path of the "current_key" path of the OpenBao config.
+# @schema additionalProperties: false
+staticUnsealSecret:
+  generate: true
+
+# TLS secret mounted internally. Defaults to the TLS secret used by the Ingress.
+tlsSecretName: ""
+
+# Generate a HTTP auditing secret that will be mounted to
+# the path of the expected auditing secret.
+# @schema additionalProperties: false
+httpAuditSecret:
+  generate: true
+
+extraVolumes: ""
+extraVolumeMounts: ""
+
+# @schema $ref: $k8s/_definitions.json#/definitions/io.k8s.api.core.v1.Probe
+livenessProbe:
+  httpGet:
+    path: "/v1/sys/health?standbyok=true"
+    port: api
+  failureThreshold: 30
+  initialDelaySeconds: 5
+  periodSeconds: 2
+  successThreshold: 1
+  timeoutSeconds: 3
+# @schema $ref: $k8s/_definitions.json#/definitions/io.k8s.api.core.v1.Probe
+readinessProbe:
+  httpGet:
+    path: "/v1/sys/health?standbyok=true"
+    port: api
+  failureThreshold: 20
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  successThreshold: 1
+  timeoutSeconds: 3
+
+# @schema additionalProperties: false
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# PodMonitor configuration for Prometheus Operator
+# Requires Prometheus Operator to be installed in the cluster
+podMonitor:
+  enabled: false
+  # Additional labels to add to the PodMonitor resource
+  additionalLabels: {}
+  # Additional selector labels to filter which pods to scrape
+  selectorLabels: {}
+  # Additional endpoint configuration (interval, scrapeTimeout)
+  endpointConfig: {}

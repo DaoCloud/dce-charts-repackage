@@ -1,0 +1,635 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Helm Schema for OpenBao GitLab chart",
+    "description": "Helm Schema for OpenBao GitLab chart",
+    "type": "object",
+    "properties": {
+        "affinity": {
+            "type": "object"
+        },
+        "auditTpl": {
+            "type": "string"
+        },
+        "autoscaling": {
+            "type": "object",
+            "properties": {
+                "maxReplicas": {
+                    "type": "integer"
+                },
+                "minReplicas": {
+                    "type": "integer"
+                },
+                "targetCPUUtilizationPercentage": {
+                    "type": "integer"
+                }
+            },
+            "additionalProperties": false
+        },
+        "config": {
+            "type": "object",
+            "properties": {
+                "apiPort": {
+                    "type": "integer"
+                },
+                "audit": {
+                    "type": "object",
+                    "properties": {
+                        "http": {
+                            "type": "object",
+                            "properties": {
+                                "authTokenPath": {
+                                    "type": "string"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "streamingUri": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "cacheSize": {
+                    "type": "integer"
+                },
+                "clusterPort": {
+                    "type": "integer"
+                },
+                "initialize": {
+                    "type": "object",
+                    "properties": {
+                        "boundAudiences": {
+                            "type": "string"
+                        },
+                        "boundIssuer": {
+                            "type": "string"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "oidcDiscoveryUrl": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "logFormat": {
+                    "type": "string",
+                    "enum": [
+                        "json",
+                        "standard"
+                    ]
+                },
+                "logLevel": {
+                    "type": "string",
+                    "enum": [
+                        "error",
+                        "warn",
+                        "info",
+                        "debug",
+                        "trace"
+                    ]
+                },
+                "logRequestsLevel": {
+                    "type": "string",
+                    "enum": [
+                        "error",
+                        "warn",
+                        "info",
+                        "debug",
+                        "trace",
+                        "off"
+                    ]
+                },
+                "maxRequestJsonMemory": {
+                    "type": "integer"
+                },
+                "maxRequestSize": {
+                    "type": "integer"
+                },
+                "metricsListener": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "port": {
+                            "type": "integer"
+                        },
+                        "tlsDisable": {
+                            "type": "boolean"
+                        },
+                        "unauthenticatedMetricsAccess": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "storage": {
+                    "type": "object",
+                    "properties": {
+                        "postgresql": {
+                            "type": "object",
+                            "properties": {
+                                "connection": {
+                                    "type": "object",
+                                    "properties": {
+                                        "connectTimeout": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ],
+                                            "minimum": 0
+                                        },
+                                        "database": {
+                                            "type": "string"
+                                        },
+                                        "host": {
+                                            "type": "string"
+                                        },
+                                        "keepalives": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ],
+                                            "minimum": 0
+                                        },
+                                        "keepalivesCount": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ],
+                                            "minimum": 0
+                                        },
+                                        "keepalivesIdle": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ],
+                                            "minimum": 0
+                                        },
+                                        "keepalivesInterval": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ],
+                                            "minimum": 0
+                                        },
+                                        "password": {
+                                            "type": "object"
+                                        },
+                                        "port": {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        },
+                                        "sslMode": {
+                                            "type": "string"
+                                        },
+                                        "tcpUserTimeout": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ],
+                                            "minimum": 0
+                                        },
+                                        "username": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "haEnabled": {
+                                    "type": "boolean"
+                                },
+                                "haTable": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "maxConnectRetries": {
+                                    "type": [
+                                        "integer",
+                                        "null"
+                                    ]
+                                },
+                                "maxIdleConnections": {
+                                    "type": [
+                                        "integer",
+                                        "null"
+                                    ]
+                                },
+                                "maxParallel": {
+                                    "type": [
+                                        "integer",
+                                        "null"
+                                    ]
+                                },
+                                "skipCreateTable": {
+                                    "type": [
+                                        "boolean",
+                                        "null"
+                                    ]
+                                },
+                                "table": {
+                                    "type": [
+                                        "boolean",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "telemetry": {
+                    "type": "object",
+                    "properties": {
+                        "disableHostname": {
+                            "type": "boolean"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "metricsPrefix": {
+                            "type": "string"
+                        },
+                        "numLeaseMetricsBuckets": {
+                            "type": "integer"
+                        },
+                        "prefixFilter": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "prometheusRetentionTime": {
+                            "type": "string"
+                        },
+                        "usageGaugePeriod": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "tlsDisable": {
+                    "type": "boolean"
+                },
+                "ui": {
+                    "type": "boolean"
+                },
+                "unseal": {
+                    "type": "object",
+                    "properties": {
+                        "static": {
+                            "type": "object",
+                            "properties": {
+                                "currentKey": {
+                                    "type": "string"
+                                },
+                                "currentKeyId": {
+                                    "type": "string"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "previousKey": {
+                                    "type": "string"
+                                },
+                                "previousKeyId": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "extraVolumeMounts": {
+            "type": "string"
+        },
+        "extraVolumes": {
+            "type": "string"
+        },
+        "fullnameOverride": {
+            "type": "string"
+        },
+        "global": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "object",
+                    "properties": {
+                        "tagSuffix": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "ingress": {
+                    "type": "object",
+                    "properties": {
+                        "annotations": {
+                            "type": "object"
+                        },
+                        "provider": {
+                            "type": "string"
+                        },
+                        "useNewIngressForCerts": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "httpAuditSecret": {
+            "type": "object",
+            "properties": {
+                "generate": {
+                    "type": "boolean"
+                }
+            },
+            "additionalProperties": false
+        },
+        "image": {
+            "type": "object",
+            "required": [
+                "repository",
+                "pullPolicy"
+            ],
+            "properties": {
+                "pullPolicy": {
+                    "type": "string"
+                },
+                "repository": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "imagePullSecrets": {
+            "type": "array"
+        },
+        "ingress": {
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "type": "object"
+                },
+                "certmanagerIssuer": {
+                    "type": "string"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "configureCertmanager": {
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "sslPassthroughNginx": {
+                    "type": "boolean"
+                },
+                "tls": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "secretName": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "initializeTpl": {
+            "type": "string"
+        },
+        "livenessProbe": {
+            "$ref": "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.34.0/_definitions.json#/definitions/io.k8s.api.core.v1.Probe",
+            "type": "object",
+            "properties": {
+                "failureThreshold": {
+                    "type": "integer"
+                },
+                "httpGet": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "port": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "initialDelaySeconds": {
+                    "type": "integer"
+                },
+                "periodSeconds": {
+                    "type": "integer"
+                },
+                "successThreshold": {
+                    "type": "integer"
+                },
+                "timeoutSeconds": {
+                    "type": "integer"
+                }
+            }
+        },
+        "nameOverride": {
+            "type": "string"
+        },
+        "nodeSelector": {
+            "type": "object"
+        },
+        "podAnnotations": {
+            "type": "object"
+        },
+        "podLabels": {
+            "type": "object"
+        },
+        "podMonitor": {
+            "type": "object",
+            "properties": {
+                "additionalLabels": {
+                    "type": "object"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "endpointConfig": {
+                    "type": "object"
+                },
+                "selectorLabels": {
+                    "type": "object"
+                }
+            }
+        },
+        "podSecurityContext": {
+            "$ref": "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.34.0/_definitions.json#/definitions/io.k8s.api.core.v1.PodSecurityContext",
+            "type": "object",
+            "properties": {
+                "fsGroup": {
+                    "type": "integer"
+                },
+                "runAsUser": {
+                    "type": "integer"
+                },
+                "seccompProfile": {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "readinessProbe": {
+            "$ref": "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.34.0/_definitions.json#/definitions/io.k8s.api.core.v1.Probe",
+            "type": "object",
+            "properties": {
+                "failureThreshold": {
+                    "type": "integer"
+                },
+                "httpGet": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "port": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "initialDelaySeconds": {
+                    "type": "integer"
+                },
+                "periodSeconds": {
+                    "type": "integer"
+                },
+                "successThreshold": {
+                    "type": "integer"
+                },
+                "timeoutSeconds": {
+                    "type": "integer"
+                }
+            }
+        },
+        "resources": {
+            "$ref": "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.34.0/_definitions.json#/definitions/io.k8s.api.core.v1.ResourceRequirements",
+            "type": "object"
+        },
+        "role": {
+            "type": "object",
+            "properties": {
+                "create": {
+                    "type": "boolean"
+                }
+            },
+            "additionalProperties": false
+        },
+        "securityContext": {
+            "$ref": "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.34.0/_definitions.json#/definitions/io.k8s.api.core.v1.SecurityContext",
+            "type": "object",
+            "properties": {
+                "allowPrivilegeEscalation": {
+                    "type": "boolean"
+                },
+                "capabilities": {
+                    "type": "object",
+                    "properties": {
+                        "drop": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "runAsNonRoot": {
+                    "type": "boolean"
+                },
+                "runAsUser": {
+                    "type": "integer"
+                }
+            }
+        },
+        "serviceAccount": {
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "type": "object"
+                },
+                "automount": {
+                    "type": "boolean"
+                },
+                "create": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "serviceActive": {
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "type": "object"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "ClusterIP",
+                        "LoadBalancer",
+                        "NodePort"
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "serviceInactive": {
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "type": "object"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "ClusterIP",
+                        "LoadBalancer",
+                        "NodePort"
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "staticUnsealSecret": {
+            "type": "object",
+            "properties": {
+                "generate": {
+                    "type": "boolean"
+                }
+            },
+            "additionalProperties": false
+        },
+        "tlsSecretName": {
+            "type": "string"
+        },
+        "tolerations": {
+            "type": "array"
+        }
+    },
+    "additionalProperties": true
+}
