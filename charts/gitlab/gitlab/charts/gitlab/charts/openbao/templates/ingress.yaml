@@ -1,0 +1,37 @@
+{{- if eq (include "gitlab.ingress.enabled" $) "true" -}}
+{{- $ingressCfg := dict "global" .Values.global.ingress "local" .Values.ingress "context" . -}}
+{{- $hostname := include "gitlab.openbao.hostname" . -}}
+{{- $tlsSecret := include "gitlab.openbao.ingress.tlsSecret" . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "openbao.fullname" . }}
+  labels:
+    {{- include "openbao.labels" . | nindent 4 }}
+  annotations:
+  {{- include "openbao.ingress.annotations" . | nindent 4 }}
+  {{- with merge .Values.ingress.annotations .Values.global.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- include "ingress.class.field" $ingressCfg | nindent 2 }}
+  {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true" )) }}
+  tls:
+    - hosts:
+      - {{ $hostname }}
+      secretName: {{ $tlsSecret }}
+  {{- else }}
+  tls: []
+  {{- end }}
+  rules:
+    - host: {{ $hostname | quote }}
+      http:
+        paths:
+        -  path: /
+           pathType: Prefix
+           backend:
+             service:
+                name: {{ include "openbao.fullname" . }}-active
+                port:
+                  name: api
+{{- end }}
