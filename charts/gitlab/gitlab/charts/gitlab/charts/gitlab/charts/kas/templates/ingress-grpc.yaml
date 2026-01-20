@@ -1,0 +1,65 @@
+{{- if .Values.global.kas.enabled -}}
+{{- if eq (include "gitlab.ingress.enabled" $) "true" -}}
+{{- $hostname := include "gitlab.kas.hostname" . | trim -}}
+{{- $tlsSecret := include "kas.tlsSecret" . -}}
+{{- $ingressCfg := dict "global" .Values.global.ingress "local" .Values.ingress "context" . -}}
+{{- $isIngressProviderNginx := eq .Values.global.ingress.provider "nginx" -}}
+{{- $relativeUrlRoot := default "" .Values.global.appConfig.relativeUrlRoot -}}
+{{/*  * This needs special handling for <no value> objects because these are not*/}}
+{{/*considered empty: https://github.com/helm/helm/issues/13487.*/}}
+{{- if and (eq .Values.ingress.grpc.enabled true) (ne $hostname "") (ne $hostname "<no value>") (eq $relativeUrlRoot "") }}
+apiVersion: {{ template "gitlab.ingress.apiVersion" $ingressCfg }}
+kind: Ingress
+metadata:
+  name: {{ template "fullname" . }}-grpc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+  annotations:
+    kube-score/ignore: ingress-targets-service
+    {{ include "ingress.class.annotation" $ingressCfg }}
+    kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" $ingressCfg }}"
+    {{- if $isIngressProviderNginx }}
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    {{- if $.Values.global.kas.tls.enabled }}
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
+    {{-   if $.Values.global.kas.tls.verify }}
+    nginx.ingress.kubernetes.io/proxy-ssl-verify: 'on'
+    nginx.ingress.kubernetes.io/proxy-ssl-name: {{ include "fullname" . }}.{{ $.Release.Namespace }}.svc
+    {{-     if $.Values.global.kas.tls.caSecretName }}
+    nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ $.Release.Namespace }}/{{ $.Values.global.kas.tls.caSecretName }}
+    {{-     end }}
+    {{-   end }}
+    {{- else }}
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    {{- end }}
+    {{- end }}
+  {{- range $key, $value := merge .Values.ingress.annotations .Values.global.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+spec:
+  {{ include "ingress.class.field" $ingressCfg }}
+  rules:
+    - host: {{ $hostname }}
+      http:
+        paths:
+          - path: /gitlab\.agent\.(.+)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ template "gitlab.kas.serviceName" . }}
+                port:
+                  number: {{ .Values.service.externalPort }}
+  {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true")) }}
+  tls:
+    - hosts:
+        - {{ $hostname }}
+      secretName: {{ $tlsSecret }}
+  {{- else }}
+  tls: []
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
