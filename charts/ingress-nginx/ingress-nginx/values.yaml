@@ -31,7 +31,7 @@ ingress-nginx:
       ## for backwards compatibility consider setting the full image url via the repository value below
       ## use *either* current default registry/image or repository format or installing chart by providing the values.yaml will fail
       ## repository:
-      tag: "v1.13.2"
+      tag: "v1.14.2"
       digest: ""
       digestChroot: ""
       pullPolicy: IfNotPresent
@@ -413,6 +413,13 @@ ingress-nginx:
       limits:
         cpu: 500m
         memory: 512Mi
+    # -- Resize policy for controller containers.
+    # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/resize-container-resources
+    resizePolicy: []
+    # - resourceName: cpu
+    #   restartPolicy: NotRequired
+    # - resourceName: memory
+    #   restartPolicy: RestartContainer
     # Mutually exclusive with keda autoscaling
     autoscaling:
       enabled: false
@@ -714,11 +721,17 @@ ingress-nginx:
     #  - name: copy-portal-skins
     #    emptyDir: {}
 
-    # -- Containers, which are run before the app containers are started.
+    # -- Containers, which are run before the app containers are started. Values may contain Helm templates.
     extraInitContainers: []
     # - name: init-myservice
     #   image: busybox
     #   command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
+    # - name: init-dynamic
+    #   image: busybox
+    #   command:
+    #     - sh
+    #     - -c
+    #     - echo "Release={{ .Release.Name }} Namespace={{ .Release.Namespace }}"
 
     # -- Modules, which are mounted into the core nginx image.
     extraModules: []
@@ -807,6 +820,16 @@ ingress-nginx:
         # requests:
         #   cpu: 10m
         #   memory: 20Mi
+        # -- Volume mounts for secret creation containers
+        volumeMounts: []
+        # - name: certs
+        #   mountPath: /etc/webhook/certs
+        #   readOnly: true
+        # -- Volumes for secret creation pod
+        volumes: []
+        # - name: certs
+        #   secret:
+        #     secretName: my-webhook-secret
       patchWebhookJob:
         name: patch
         # -- Deadline in seconds for the job to complete. Must be greater than 0 to enforce. If unset or 0, no deadline is enforced.
@@ -824,6 +847,16 @@ ingress-nginx:
               - ALL
           readOnlyRootFilesystem: true
         resources: {}
+        # -- Volume mounts for webhook patch containers
+        volumeMounts: []
+        # - name: certs
+        #   mountPath: /etc/webhook/certs
+        #   readOnly: true
+        # -- Volumes for webhook patch pod
+        volumes: []
+        # - name: certs
+        #   secret:
+        #     secretName: my-webhook-secret
       patch:
         enabled: true
         image:
@@ -832,7 +865,7 @@ ingress-nginx:
           ## for backwards compatibility consider setting the full image url via the repository value below
           ## use *either* current default registry/image or repository format or installing chart by providing the values.yaml will fail
           ## repository:
-          tag: v1.6.2
+          tag: v1.6.6
           digest: ""
           pullPolicy: IfNotPresent
           registry: k8s.m.daocloud.io
@@ -924,6 +957,8 @@ ingress-nginx:
         ## namespaceSelector:
         ##   any: true
         scrapeInterval: 30s
+        # -- Timeout after which the scrape is ended. Not being set if empty and therefore defaults to the global Prometheus scrape timeout.
+        scrapeTimeout: ""
         # honorLabels: true
         targetLabels: []
         relabelings: []
