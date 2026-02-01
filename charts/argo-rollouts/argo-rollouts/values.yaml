@@ -12,6 +12,9 @@ argo-rollouts:
   nameOverride:
   # -- String to fully override "argo-rollouts.fullname" template
   fullnameOverride:
+  # -- Override the namespace
+  # @default -- `.Release.Namespace`
+  namespaceOverride: ""
   ## Override APIVersions
   ## If you want to template helm charts but cannot access k8s API server
   ## you can set api versions here
@@ -40,6 +43,19 @@ argo-rollouts:
     deploymentLabels: {}
     # -- Number of old deployment ReplicaSets to retain. The rest will be garbage collected.
     revisionHistoryLimit: 10
+    # -- Specifies the deployment DNS configuration for controller and dashboard.
+    dnsConfig: {}
+    # nameservers:
+    #   - 1.2.3.4
+    # searches:
+    #   - ns1.svc.cluster-domain.example
+    #   - my.dns.search.suffix
+    # options:
+    #   - name: ndots
+    #     value: "1"
+    #   - name: attempts
+    #     value: "3"
+
     imageRegistry: quay.m.daocloud.io
     repository: argoproj/argo-rollouts
     tag: v1.8.3
@@ -153,6 +169,12 @@ argo-rollouts:
         relabelings: []
         # -- MetricRelabelConfigs to apply to samples before ingestion
         metricRelabelings: []
+        # -- TLS configuration for the ServiceMonitor. When set, scheme will be https
+        tlsConfig: {}
+        # caFile: /etc/istio-certs/root-cert.pem
+        # certFile: /etc/istio-certs/cert-chain.pem
+        # insecureSkipVerify: true
+        # keyFile: /etc/istio-certs/key.pem
     # -- Configure liveness [probe] for the controller
     # @default -- See [values.yaml]
     livenessProbe:
