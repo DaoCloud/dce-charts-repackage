@@ -78,7 +78,7 @@ as 'main:', where the db, host and port do match.
 {{/*
 Returns the contents of `load_balancing` section of database.yml
 
-See https://docs.gitlab.com/ee/administration/database_load_balancing.html#enabling-load-balancing
+See https://docs.gitlab.com/administration/postgresql/database_load_balancing/
 
 Note: Many `if` used here, allowing Rails to provide defaults inside the codebase.
 */}}
