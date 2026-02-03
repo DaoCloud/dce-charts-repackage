@@ -1,27 +1,36 @@
 annotations:
-  category: CMS
+  fips: "true"
+  images: |
+    - name: apache-exporter
+      version: 1.0.12
+      image: registry-1.docker.io/bitnami/apache-exporter:latest
+    - name: os-shell
+      version: "5"
+      image: registry-1.docker.io/bitnami/os-shell:latest
+    - name: wordpress
+      version: 6.9.0
+      image: registry-1.docker.io/bitnami/wordpress:latest
   licenses: Apache-2.0
+  tanzuCategory: application
 apiVersion: v2
-appVersion: 6.1.1
+appVersion: 6.9.0
 dependencies:
 - condition: memcached.enabled
   name: memcached
-  repository: https://charts.bitnami.com/bitnami
-  version: 6.x.x
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 7.9.11
 - condition: mariadb.enabled
   name: mariadb
-  repository: https://charts.bitnami.com/bitnami
-  version: 11.x.x
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 24.0.4
 - name: common
-  repository: https://charts.bitnami.com/bitnami
+  repository: oci://registry-1.docker.io/bitnamicharts
   tags:
   - bitnami-common
-  version: 2.x.x
-description: WordPress is the world's most popular blogging and content management
-  platform. Powerful yet simple, everyone from students to global corporations use
-  it to build beautiful, functional websites.
-home: https://github.com/bitnami/charts/tree/main/bitnami/wordpress
-icon: https://bitnami.com/assets/stacks/wordpress/img/wordpress-stack-220x234.png
+  version: 2.34.0
+description: "WordPress is the world's most popular blogging and content management platform. Powerful yet simple, everyone from students to global corporations use it to build beautiful, functional websites."
+home: https://bitnami.com
+icon: https://dyltqmyl993wv.cloudfront.net/assets/stacks/wordpress/img/wordpress-stack-220x234.png
 keywords:
 - application
 - blog
@@ -31,10 +40,9 @@ keywords:
 - web
 - wordpress
 maintainers:
-- name: Bitnami
+- name: "Broadcom, Inc. All Rights Reserved."
   url: https://github.com/bitnami/charts
 name: wordpress
 sources:
-- https://github.com/bitnami/containers/tree/main/bitnami/wordpress
-- https://wordpress.org/
-version: 15.2.39
+- https://github.com/bitnami/charts/tree/main/bitnami/wordpress
+version: 28.1.4
