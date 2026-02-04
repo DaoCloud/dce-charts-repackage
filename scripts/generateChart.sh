@@ -79,9 +79,14 @@ fi
 #======
 
 echo "generate $PROJECT_NAME chart from custom chart "
-helm repo add $REPO_NAME $REPO_URL
-(($?!=0)) && echo "error, failed to add repo" && exit 7
-helm repo update $REPO_NAME
+if [[ "$REPO_URL" == oci://* ]]; then
+    REPO_NAME=${REPO_URL}
+    echo "REPO_URL is OCI-based, skipping helm repo operations"
+else
+  helm repo add $REPO_NAME $REPO_URL
+  (($?!=0)) && echo "error, failed to add repo" && exit 7
+  helm repo update $REPO_NAME
+fi
 
 cd $BUILD_DIR
 helm pull ${REPO_NAME}/${CHART_NAME} --untar --version $VERSION
