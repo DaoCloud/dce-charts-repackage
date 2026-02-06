@@ -1,0 +1,12 @@
+apiVersion: v2
+appVersion: v1.3.0
+description: A Helm chart for InferencePool
+name: inferencepool
+type: application
+version: v1.3.0
+dependencies:
+  - name: inferencepool
+    version: "v1.3.0"
+    repository: "oci://registry.k8s.io/gateway-api-inference-extension/charts"
+keywords:
+- networking
