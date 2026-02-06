@@ -1,5 +1,6 @@
 include ../Makefile.defs
 
+SHELL := /bin/bash
 PROJECT ?=
 KIND_CLUSTER_NAME ?= network-chart
 KIND_KUBECONFIG := $(ROOT_DIR)/test/.config
@@ -31,10 +32,13 @@ e2e:
 				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
 			fi ; \
 			VERSION=`yq ".version"  $(ROOT_DIR)/charts/$${ITEM}/$${ITEM}/Chart.yaml ` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
-			if ( unset NO_IMAGE ;  source $(ROOT_DIR)/charts/$${ITEM}/config && [ "$${NO_IMAGE}" == "true" ] ) ; then \
+			if ( unset NO_IMAGE ;  source "$(ROOT_DIR)/charts/$${ITEM}/config" ; [ "$${NO_IMAGE:-}" = "true" ] ) ; then \
 				echo "ignore sync project $${ITEM}"; \
+			elif ( unset USE_CHARTS_SYNCER_DT ;  source "$(ROOT_DIR)/charts/$${ITEM}/config" ; [ "$${USE_CHARTS_SYNCER_DT:-}" = "true" ] ) ; then \
+				echo "sync project $${ITEM} with charts syncer dt"; \
+				make sync-dt -e PROJECT=$${ITEM} -e VERSION=$${VERSION} || { echo "error, failed to sync $${ITEM}" ; FAILED_PROJECT+=" $${ITEM} " ; continue ; } ; \
 			else \
-				echo "sync project $${ITEM}"; \
+				echo "sync project $${ITEM} with charts syncer"; \
 				make sync -e PROJECT=$${ITEM} -e VERSION=$${VERSION} || { echo "error, failed to sync $${ITEM}" ; FAILED_PROJECT+=" $${ITEM} " ; continue ; } ; \
 			fi ; \
 			echo "deploy project $${ITEM}"; \
@@ -97,7 +101,7 @@ init-kind: checkBin clean
 .PHONY: sync
 sync: PROJECT=
 sync: VERSION=
-sync: checkBin
+sync: checkBin checkSyncTools
 	@ echo "sync $(PROJECT) charts and images to local registry"
 	set -x ; CHART_PATH=$(ROOT_DIR)/charts/$(PROJECT) ; \
 	echo "chart move $(PROJECT) $${VERSION}" ; \
@@ -116,15 +120,46 @@ target:  \n \
 	 make checkImages -e PROJECT=$${PROJECT} -e VERSION=$${VERSION} || { echo "error, failed to check $${PROJECT} images registry" ; exit 1 ; } ; \
      rm -rf $${DIR} ;
 
+.PHONY: sync-dt
+sync-dt: PROJECT=
+sync-dt: VERSION=
+sync-dt: checkBin checkSyncDtTools
+	@ echo "sync dt $(PROJECT) charts and images to local registry"
+	set -x ; CHART_PATH=$(ROOT_DIR)/charts/$(PROJECT) ; \
+	echo "chart move $(PROJECT) $${VERSION}" ; \
+	mkdir -p _tmp && DIR=_tmp; \
+	VERSION_NORMAL=$${VERSION:1}; \
+	helm dt wrap $${CHART_PATH}/$(PROJECT) --output-file $${DIR}/$(PROJECT)-$${VERSION_NORMAL}.wrap.tgz --platforms linux/amd64 || { echo "error, failed to save charts and images to local" ; exit 1 ; } ; \
+	CONFIG="\
+source:\n\
+  repo:\n\
+    kind: LOCAL\n\
+    path: ${ROOT_DIR}/test/$${DIR}\n\
+target:\n\
+  repo:\n\
+    kind: OCI\n\
+    url: http://127.0.0.1:30080" ; \
+	echo -e "$${CONFIG}" > $${DIR}/config.yaml ; \
+	charts-syncer sync --config $${DIR}/config.yaml --use-plain-http || { echo "error, failed to sync charts and images to local registry" ; exit 1 ; } ; \
+	make checkImages -e KIND=OCI -e PROJECT=$${PROJECT} -e VERSION=$${VERSION} || { echo "error, failed to check $${PROJECT} images registry" ; exit 1 ; } ; \
+	rm -rf $${DIR} ;
+
 .PHONY: checkImages
+checkImages: KIND=
 checkImages: PROJECT=
 checkImages: VERSION=
 checkImages: checkBin
 	@ echo "check $(PROJECT) images registry"
-	set -x ; helm repo update chart-museum  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to update helm chart-museum repo " ; exit 1 ; } ; \
-	helm search repo chart-museum --devel -l --kubeconfig $(KIND_KUBECONFIG) ; \
-	helm template test chart-museum/$${PROJECT} --version $${VERSION} --kubeconfig $(KIND_KUBECONFIG) | grep " image: " ; \
-    IMAGE_LIST=` helm template test chart-museum/$${PROJECT} --version $${VERSION} | grep " image: " | tr -d "'" | tr -d '"' | tr -d '-' | grep -v " image: {{ "| awk '{print $$2}' | uniq ` ;\
+	set -x ; \
+	if [ "$(KIND)" = "OCI" ] ; then \
+		CHART=oci://127.0.0.1:30080/$${PROJECT} ; \
+	else \
+		helm repo update chart-museum --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to update helm chart-museum repo " ; exit 1 ; } ; \
+		helm search repo chart-museum --devel -l --kubeconfig $(KIND_KUBECONFIG) ; \
+		CHART=chart-museum/$${PROJECT} ; \
+	fi ; \
+	helm template test $${CHART} --version $${VERSION} --kubeconfig $(KIND_KUBECONFIG) | grep " image: " ; \
+	IMAGE_LIST=` helm template test $${CHART} --version $${VERSION} | grep " image: " | tr -d "'" | tr -d '"' | tr -d '-' | grep -v " image: {{ " | awk '{print $$2}' | uniq ` ;\
 	if [ -z "$${IMAGE_LIST}" ] ; then \
 		echo "error, failed to find image from chart template for $(PROJECT)" ; exit 1 ; \
 	else \
@@ -183,10 +218,23 @@ deploy: checkBin
 
 .PHONY: checkBin
 checkBin:
+	which helm &>/dev/null || { echo "error, please install helm" ; exit 1 ; }
 	which kind &>/dev/null || { echo "error, please install kind" ; exit 1 ; }
 	which kubectl &>/dev/null || { echo "error, please install kubectl" ; exit 1 ; }
+
+.PHONY: checkSyncTools
+checkSyncTools:
 	which relok8s &>/dev/null || { make install-relok8s; }
+	which relok8s &>/dev/null || { echo "error, failed to install relok8s" ; exit 1 ; }
 	which charts-syncer &>/dev/null || { make install-charts-syncer; }
+	which charts-syncer &>/dev/null || { echo "error, failed to install charts-syncer" ; exit 1 ; }
+
+.PHONY: checkSyncDtTools
+checkSyncDtTools:
+	helm dt --help &>/dev/null || helm plugin install https://github.com/vmware-labs/distribution-tooling-for-helm
+	helm dt --help &>/dev/null || { echo "error, failed to install helm dt plugin (helm dt)" ; exit 1 ; }
+	which charts-syncer &>/dev/null || { make install-charts-syncer-dt; }
+	which charts-syncer &>/dev/null || { echo "error, failed to install charts-syncer" ; exit 1 ; }
 
 .PHONY: install-relok8s
 install-relok8s:
@@ -198,6 +246,12 @@ install-relok8s:
 install-charts-syncer:
 	VERSION=0.0.23 ; \
 	curl -OL https://github.com/DaoCloud/charts-syncer/releases/download/v$${VERSION}/charts-syncer_$${VERSION}_linux_x86_64.tar.gz ; \
+	tar -zvxf charts-syncer_$${VERSION}_linux_x86_64.tar.gz && mv charts-syncer /usr/local/bin/charts-syncer && rm -rf README.md charts-syncer*.tar.gz
+
+.PHONY: install-charts-syncer-dt
+install-charts-syncer-dt:
+	VERSION=2.2.1 ; \
+	curl -OL https://github.com/bitnami/charts-syncer/releases/download/v$${VERSION}/charts-syncer_$${VERSION}_linux_x86_64.tar.gz ; \
 	tar -zvxf charts-syncer_$${VERSION}_linux_x86_64.tar.gz && mv charts-syncer /usr/local/bin/charts-syncer && rm -rf README.md charts-syncer*.tar.gz
 
 .PHONY: clean

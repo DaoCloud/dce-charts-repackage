@@ -1,0 +1,2 @@
+- "{{ .kubeview.image.registry }}/{{ .kubeview.image.repository }}:{{ .kubeview.image.tag }}"
+- "{{ .kubeview.tests.image.registry }}/{{ .kubeview.tests.image.repository }}:{{ .kubeview.tests.image.tag }}"

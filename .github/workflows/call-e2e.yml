@@ -73,7 +73,10 @@ jobs:
         uses: azure/setup-helm@v4.3.0
         with: 
           version: 'v3.19.2'
-          
+
+      - name: Install helm-push
+        run: |
+          helm plugin install https://github.com/vmware-labs/distribution-tooling-for-helm
 
       - name: Install Kind
         uses: helm/kind-action@v1.5.0
