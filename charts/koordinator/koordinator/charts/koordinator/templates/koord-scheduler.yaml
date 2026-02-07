@@ -38,6 +38,7 @@ spec:
             - --feature-gates={{ .Values.scheduler.featureGates }}
 {{- end }}
             - --config=/config/koord-scheduler.config
+            - --enable-network-topology-manager=true
           command:
             - /koord-scheduler
           image: "{{ .Values.imageRepositoryHost }}/{{ .Values.scheduler.image.repository }}:{{ .Values.scheduler.image.tag }}"

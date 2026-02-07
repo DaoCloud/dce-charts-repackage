@@ -17,6 +17,8 @@ crds:
   reservations: true
   podgroups: true
   podmigrationjobs: true
+  clusternetworktopologies: true
+  scheduleexplanations: true
 
 # values for koordinator installation
 installation:
@@ -33,7 +35,7 @@ imagePullSecrets: {}
 koordlet:
   image:
     repository: koordinator-sh/koordlet
-    tag: "v1.5.0"
+    tag: "v1.7.0"
   resources:
     limits:
       cpu: 200m
@@ -54,6 +56,7 @@ koordlet:
     predictionCheckpointDir: /var/run/koordlet/prediction-checkpoints
     # if not specified, use tmpfs by default
     koordletTSDBDir: ""
+    podResourcesProxyPath: /var/run/koordlet/pod-resources/
   runtimeClassName: ""
   nodeAffinity: {}
   metrics:
@@ -70,7 +73,7 @@ manager:
   replicas: 2
   image:
     repository: koordinator-sh/koord-manager
-    tag: "v1.5.0"
+    tag: "v1.7.0"
   webhook:
     port: 9876
   metrics:
@@ -102,6 +105,7 @@ webhookConfiguration:
     elasticquotas: Ignore
     nodeStatus: Ignore
     nodes: Ignore
+    reservations: Ignore
   timeoutSeconds: 30
 
 serviceAccount:
@@ -117,7 +121,7 @@ scheduler:
   replicas: 2
   image:
     repository: koordinator-sh/koord-scheduler
-    tag: "v1.5.0"
+    tag: "v1.7.0"
   port: 10251
 
   # feature-gates for k8s > 1.22
@@ -126,6 +130,7 @@ scheduler:
   compatible122FeatureGates: "CompatibleCSIStorageCapacity=true"
   # feature-gates for k8s < 1.22
   compatibleBelow122FeatureGates: "DisableCSIStorageCapacityInformer=true,CompatiblePodDisruptionBudget=true"
+  enableJobPreemption: true
 
   # resources of koord-scheduler container
   resources:
@@ -151,7 +156,7 @@ descheduler:
   replicas: 2
   image:
     repository: koordinator-sh/koord-descheduler
-    tag: "v1.5.0"
+    tag: "v1.7.0"
   port: 10251
 
   featureGates: ""
@@ -170,3 +175,20 @@ descheduler:
   nodeAffinity: {}
   nodeSelector: {}
   tolerations: []
+
+deviceDaemon:
+  image:
+    repository: koordinator-sh/koord-device-daemon
+    tag: "v1.7.0"
+  resources:
+    limits:
+      cpu: 200m
+      # recommended for less than 200 pods per node
+      memory: 256Mi
+    requests:
+      cpu: "0"
+      memory: "0"
+  log:
+    # log level for koordlet
+    level: "4"
+  nodeAffinity: {}
