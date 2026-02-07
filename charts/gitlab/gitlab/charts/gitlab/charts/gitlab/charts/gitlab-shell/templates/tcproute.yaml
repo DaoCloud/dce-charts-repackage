@@ -1,0 +1,20 @@
+{{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+  annotations:
+    {{ .Values.gatewayRoute.annotations | toYaml | nindent 4 }}
+spec:
+  parentRefs:
+  - name: {{ template "gitlab.gatewayApi.route.gateway" . }}
+    sectionName: {{ .Values.gatewayRoute.sectionName }}
+  rules:
+  - backendRefs:
+    - name: {{ template "fullname" . }}
+      port: {{ include "gitlab.shell.port" . | int }}
+{{- end }}
