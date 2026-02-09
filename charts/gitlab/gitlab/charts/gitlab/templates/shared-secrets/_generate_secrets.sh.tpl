@@ -11,9 +11,21 @@ function gen_random(){
   head -c 4096 /dev/urandom | LC_CTYPE=C tr -cd $1 | head -c $2
 }
 
+# Args: length
+function gen_random_base64(){
+  local len="$1"
+  gen_random_bytes "$len" | base64 -w0
+}
+
+# Args: length
+function gen_random_bytes(){
+  local len="$1"
+  head -c "$len" /dev/urandom
+}
+
 # Args: yaml file, search path
 function fetch_rails_value(){
-  local value=$(yq ".${2}" $1)
+  local value=$(yq --prettyPrint --no-colors ".${2}" $1)
 
   # Don't return null values
   if [ "${value}" != "null" ]; then echo "${value}"; fi
@@ -88,6 +100,8 @@ generate_secret_if_needed {{ template "gitlab.redis.password.secret" . }} --from
 {{ if not .Values.global.psql.host -}}
 # Postgres password
 generate_secret_if_needed {{ template "gitlab.psql.password.secret" . }} --from-literal={{ include "gitlab.psql.password.key" . }}=$(gen_random 'a-zA-Z0-9' 64) --from-literal=postgresql-postgres-password=$(gen_random 'a-zA-Z0-9' 64)
+# Registry database.password secret
+generate_secret_if_needed {{ template "gitlab.registry.database.password.secret" . }} --from-literal={{ template "gitlab.registry.database.password.key" . }}=$(gen_random 'a-z0-9' 128 | base64 -w 0)
 {{ end }}
 
 # Gitlab shell
@@ -125,10 +139,17 @@ generate_secret_if_needed {{ template "gitlab.kas.secret" . }} --from-literal={{
 
 # Gitlab-kas private API secret
 generate_secret_if_needed {{ template "gitlab.kas.privateApi.secret" . }} --from-literal={{ template "gitlab.kas.privateApi.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
-{{ end }}
 
-# Gitlab-suggested-reviewers secret
-generate_secret_if_needed {{ template "gitlab.suggested-reviewers.secret" . }} --from-literal={{ template "gitlab.suggested-reviewers.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
+# Gitlab-kas WebSocket Token secret
+generate_secret_if_needed {{ template "gitlab.kas.websocketToken.secret" . }} --from-literal={{ template "gitlab.kas.websocketToken.key" . }}=$(gen_random_base64 72)
+
+{{ if (.Values.gitlab.kas.autoflow).enabled -}}
+# Gitlab-kas AutoFlow Temporal Workflow Data Encryption Secret
+trap 'shred --remove autoflow-temporal-workflow-data-encryption-secret.bin' EXIT
+openssl rand 32 > autoflow-temporal-workflow-data-encryption-secret.bin
+generate_secret_if_needed {{ template "gitlab.kas.autoflow.temporal.workflowDataEncryption.secret" . }} --from-file={{ template "gitlab.kas.autoflow.temporal.workflowDataEncryption.key" . }}=autoflow-temporal-workflow-data-encryption-secret.bin
+{{ end }}
+{{ end }}
 
 {{ if .Values.global.appConfig.incomingEmail.enabled -}}
 # Gitlab-mailroom incomingEmail webhook secret
@@ -156,17 +177,32 @@ if [ -n "$env" ]; then
     otp_key_base=$(fetch_rails_value secrets.yml "${env}.otp_key_base")
     db_key_base=$(fetch_rails_value secrets.yml "${env}.db_key_base")
     openid_connect_signing_key=$(fetch_rails_value secrets.yml "${env}.openid_connect_signing_key")
-    ci_jwt_signing_key=$(fetch_rails_value secrets.yml "${env}.ci_jwt_signing_key")
     encrypted_settings_key_base=$(fetch_rails_value secrets.yml "${env}.encrypted_settings_key_base")
+
+    active_record_encryption_primary_keys=$(fetch_rails_value secrets.yml "${env}.active_record_encryption_primary_key")
+    active_record_encryption_deterministic_keys=$(fetch_rails_value secrets.yml "${env}.active_record_encryption_deterministic_key")
+    active_record_encryption_key_derivation_salt=$(fetch_rails_value secrets.yml "${env}.active_record_encryption_key_derivation_salt")
   fi;
 
   # Generate defaults for any unset secrets
-  secret_key_base="${secret_key_base:-$(gen_random 'a-f0-9' 128)}" # equavilent to secureRandom.hex(64)
-  otp_key_base="${otp_key_base:-$(gen_random 'a-f0-9' 128)}" # equavilent to secureRandom.hex(64)
-  db_key_base="${db_key_base:-$(gen_random 'a-f0-9' 128)}" # equavilent to secureRandom.hex(64)
+  secret_key_base="${secret_key_base:-$(gen_random 'a-f0-9' 128)}" # equivalent to secureRandom.hex(64)
+  otp_key_base="${otp_key_base:-$(gen_random 'a-f0-9' 128)}" # equivalent to secureRandom.hex(64)
+  db_key_base="${db_key_base:-$(gen_random 'a-f0-9' 128)}" # equivalent to secureRandom.hex(64)
   openid_connect_signing_key="${openid_connect_signing_key:-$(openssl genrsa 2048)}"
-  ci_jwt_signing_key="${ci_jwt_signing_key:-$(openssl genrsa 2048)}"
-  encrypted_settings_key_base="${encrypted_settings_key_base:-$(gen_random 'a-f0-9' 128)}" # equavilent to secureRandom.hex(64)
+  encrypted_settings_key_base="${encrypted_settings_key_base:-$(gen_random 'a-f0-9' 128)}" # equivalent to secureRandom.hex(64)
+
+  # 1. We set the following two keys as an array to support keys rotation.
+  #    The last key in the array is always used to encrypt data:
+  #    https://github.com/rails/rails/blob/v7.0.8.4/activerecord/lib/active_record/encryption/key_provider.rb#L21
+  #    while all the keys are used (in the order they're defined) to decrypt data:
+  #    https://github.com/rails/rails/blob/v7.0.8.4/activerecord/lib/active_record/encryption/cipher.rb#L26.
+  #    This allows to rotate keys by adding a new key as the last key, and start a re-encryption process that
+  #    runs in the background: https://gitlab.com/gitlab-org/gitlab/-/issues/494976
+  # 2. We use the same method and length as Rails' defaults:
+  #    https://github.com/rails/rails/blob/v7.0.8.4/activerecord/lib/active_record/railties/databases.rake#L537-L540
+  active_record_encryption_primary_keys=${active_record_encryption_primary_keys:-"- $(gen_random 'a-zA-Z0-9' 32)"}
+  active_record_encryption_deterministic_keys=${active_record_encryption_deterministic_keys:-"- $(gen_random 'a-zA-Z0-9' 32)"}
+  active_record_encryption_key_derivation_salt=${active_record_encryption_key_derivation_salt:-$(gen_random 'a-zA-Z0-9' 32)}
 
   # Update the existing secret
   cat << EOF > rails-secrets.yml
@@ -184,8 +220,11 @@ stringData:
       encrypted_settings_key_base: $encrypted_settings_key_base
       openid_connect_signing_key: |
 $(echo "${openid_connect_signing_key}" | awk '{print "        " $0}')
-      ci_jwt_signing_key: |
-$(echo "${ci_jwt_signing_key}" | awk '{print "        " $0}')
+      active_record_encryption_primary_key:
+        $active_record_encryption_primary_keys
+      active_record_encryption_deterministic_key:
+        $active_record_encryption_deterministic_keys
+      active_record_encryption_key_derivation_salt: $active_record_encryption_key_derivation_salt
 EOF
   kubectl --validate=false --namespace=$namespace apply -f rails-secrets.yml
   label_secret $rails_secret
@@ -220,3 +259,13 @@ generate_secret_if_needed {{ template "gitlab.praefect.authToken.secret" . }} --
 # Zoekt basic auth credentials
 generate_secret_if_needed {{ template "gitlab.zoekt.gateway.basicAuth.secretName" . }}  --from-literal=gitlab_username=gitlab --from-literal=gitlab_password=$(gen_random 'a-zA-Z0-9' 64)
 {{ end }}
+
+{{ if .Values.openbao.install -}}
+gen_random_bytes 32 > bao-unseal
+generate_secret_if_needed {{ template "gitlab.openbao.unseal.secret" . }} --from-file={{ template "gitlab.openbao.unseal.key" . }}=bao-unseal
+{{ end }}
+
+{{ if or .Values.openbao.install .Values.global.openbao.enabled -}}
+# Authentication token secret for Openbao Rails requests
+generate_secret_if_needed {{ template "gitlab.openbao.authenticationTokenSecretFilePath.secret" . }} --from-literal={{ template "gitlab.openbao.authenticationTokenSecretFilePath.key" . }}="$(gen_random 'a-zA-Z0-9' 32)"
+{{ end -}}
