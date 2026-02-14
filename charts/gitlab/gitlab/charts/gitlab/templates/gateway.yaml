@@ -1,0 +1,78 @@
+
+{{- if .Values.global.gatewayApi.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ include "gitlab.gatewayApi.gateway" . }}
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+  annotations:
+    {{- include "gitlab.gatewayApi.certmanager.annotations" . | nindent 4 }}
+spec:
+  gatewayClassName: {{ include "gitlab.gatewayApi.class.name" . | quote }}
+  {{- $nginxEnabled := (index .Values "nginx-ingress" "enabled")}}
+  {{- if .Values.global.gatewayApi.addresses }}
+  addresses:
+    {{ .Values.global.gatewayApi.addresses | toYaml | nindent 4 }}
+  {{- else if (and (not $nginxEnabled) .Values.global.hosts.externalIP) }}
+  addresses:
+    - type: IPAddress
+      value: {{ .Values.global.hosts.externalIP }}
+  {{- end }}
+  listeners:
+  {{- $root := .Values.global.gatewayApi }}
+  {{- $listeners := $root.listeners }}
+  {{- $listener := dict }}
+  {{- if .Values.global.gatewayApi.configureCertmanager }}
+    {{- $listener = index $listeners "certmanager-http" }}
+    {{- $_ := set $listener "name" "certmanager-http" }}
+    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
+  {{- end }}
+  {{- if .Values.gitlab.webservice.enabled }}
+    {{- $listener = index $listeners "gitlab-web" }}
+    {{- $_ := set $listener "name" "gitlab-web" }}
+    {{- $_ := set $listener "hostname" (include "gitlab.gitlab.hostname" .) }}
+    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
+  {{- end }}
+  {{- if .Values.global.pages.enabled }}
+    {{- $listener = index $listeners "pages-web" }}
+    {{- $_ := set $listener "name" "pages-web" }}
+    {{- $hostname := (include "gitlab.pages.hostname" .) }}
+    {{- if $.Values.global.pages.namespaceInPath }}
+    {{-   $hostname = (printf "*.%s" $hostname) }}
+    {{- end }}
+    {{- $_ := set $listener "hostname" $hostname }}
+    {{ include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
+  {{- end }}
+  {{- if .Values.registry.enabled }}
+    {{- $listener = index $listeners "registry-web" }}
+    {{- $_ := set $listener "name" "registry-web" }}
+    {{- $_ := set $listener "hostname" (include "gitlab.registry.hostname" .) }}
+    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
+  {{- end }}
+  {{- if .Values.global.kas.enabled }}
+    {{- $listener = index $listeners "kas-web" }}
+    {{- $_ := set $listener "name" "kas-web" }}
+    {{- $_ := set $listener "hostname" (include "gitlab.kas.hostname" .) }}
+    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
+    {{- if .Values.global.workspaces.enabled }}
+      {{- $listener = index $listeners "kas-workspaces-web" }}
+      {{- $_ := set $listener "name" "kas-workspaces-web" }}
+      {{- $_ := set $listener "hostname" (include "gitlab.workspaces.wildcardHostname" .) }}
+      {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
+    {{- end }}
+  {{- end }}
+  {{- if index .Values.gitlab "gitlab-shell" "enabled" }}
+    {{- $listener = index $listeners "gitlab-ssh" }}
+    {{- $_ := set $listener "name" "gitlab-ssh" }}
+    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
+  {{- end }}
+  {{- if .Values.global.minio.enabled }}
+    {{- $listener = index $listeners "minio-web" }}
+    {{- $_ := set $listener "name" "minio-web" }}
+    {{- $_ := set $listener "hostname" (include "gitlab.minio.hostname" .) }}
+    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
+  {{- end }}
+{{ end }}

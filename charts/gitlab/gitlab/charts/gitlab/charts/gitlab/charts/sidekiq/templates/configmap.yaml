@@ -17,6 +17,8 @@ data:
   click_house.yml.erb: |
     {{- include "gitlab.clickhouse.yml" . | nindent 4 }}
   {{- end }}
+  session_store.yml.erb: |
+    {{- include "gitlab.session_store.yml" . | nindent 4 }}
   krb5.conf: |
     {{- .Values.global.appConfig.kerberos.krb5Config | nindent 4 }}
   smtp_settings.rb: |
@@ -27,6 +29,9 @@ data:
       gitlab:
         host: {{ template "gitlab.gitlab.hostname" . }}
         https: {{ hasPrefix "https://" (include "gitlab.gitlab.url" .) }}
+        {{- if .Values.global.appConfig.relativeUrlRoot }}
+        relative_url_root: {{ .Values.global.appConfig.relativeUrlRoot | quote }}
+        {{- end }}
         {{- with .Values.global.hosts.ssh }}
         ssh_host: {{ . | quote }}
         {{- end }}
@@ -34,6 +39,7 @@ data:
         {{- if .cdnHost }}
         cdn_host: {{ .cdnHost | quote }}
         {{- end }}
+        action_cable_allowed_origins: {{ .actionCableAllowedOrigins | default (list) | toJson }}
         max_request_duration_seconds: {{ default (include "gitlab.appConfig.maxRequestDurationSeconds" $) .maxRequestDurationSeconds }}
         impersonation_enabled: {{ .enableImpersonation }}
         application_settings_cache_seconds: {{ .applicationSettingsCacheSeconds | int }}
@@ -45,6 +51,9 @@ data:
         {{- include "gitlab.appConfig.defaultProjectsFeatures.configuration" $ | nindent 8 }}
         {{- if hasKey .initialDefaults "signupEnabled" }}
         signup_enabled: {{ .initialDefaults.signupEnabled }}
+        {{- end }}
+        {{- if hasKey .initialDefaults "gitlabProductUsageData" }}
+        initial_gitlab_product_usage_data: {{ .initialDefaults.gitlabProductUsageData }}
         {{- end }}
         graphql_timeout: {{ .graphQlTimeout }}
         webhook_timeout: {{ .webhookTimeout }}
@@ -84,6 +93,7 @@ data:
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "ci_secure_files" "config" $.Values.global.appConfig.ciSecureFiles) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 10 -}}
       {{- end }}
       {{- include "gitlab.appConfig.artifacts.configuration" (dict "config" $.Values.global.appConfig.artifacts "context" $) | nindent 6 }}
@@ -97,7 +107,9 @@ data:
       {{- include "gitlab.geo.config" $ | nindent 6 }}
       {{- include "gitlab.appConfig.sentry.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.sidekiq.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.oidcProvider.configuration" $ | nindent 6 }}
       {{- include "gitlab.pages.config" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.ciIdTokens.configuration" $ | nindent 6 }}
       mattermost:
         enabled: false
       ## Registry Integration
@@ -114,7 +126,9 @@ data:
       backup:
         path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
       {{- include "gitlab.appConfig.kas" . | nindent 6 }}
-      {{- include "gitlab.appConfig.suggested_reviewers" . | nindent 6 }}
+      {{- include "gitlab.appConfig.workspaces" . | nindent 6 }}
+      {{- include "gitlab.appConfig.databaseTrafficCapture" . | nindent 6 }}
+      {{- include "gitlab.appConfig.cell" . | nindent 6 }}
       {{- include "gitlab.appConfig.zoekt" . | nindent 6 }}
       {{- include "gitlab.appConfig.shell" . | nindent 6 }}
         {{- include "gitlab.appConfig.shell.ssh_port" . | nindent 8 }}
@@ -124,11 +138,12 @@ data:
       webpack:
       monitoring:
         ip_whitelist:
-          - 127.0.0.0/8
+          - "127.0.0.0/8"
+          - "::1/128"
         sidekiq_exporter:
         {{- if .Values.metrics.enabled }}
           enabled: true
-          address: 0.0.0.0
+          address: {{ .Values.metrics.listenAddr | quote }}
           port: {{ .Values.metrics.port }}
           log_enabled: {{ .Values.metrics.log_enabled }}
         {{-   if $.Values.metrics.tls.enabled }}
@@ -139,8 +154,9 @@ data:
         {{- end }}
         sidekiq_health_checks:
           enabled: true
-          address: 0.0.0.0
+          address: {{ .Values.health_checks.listenAddr | quote }}
           port: {{ .Values.health_checks.port }}
+      {{- include "gitlab.appConfig.openbao.configuration" . | nindent 6 }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict "required" "gitaly registry rails-secrets") | nindent 4 }}
     {{- if $.Values.metrics.tls.enabled }}
@@ -150,5 +166,6 @@ data:
     {{- end }}
     {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
     {{- include "gitlab.geo.psql.ssl.initScript" . | nindent 4 }}
+    {{- include "gitlab.topologyService.configureScript" $ | nindent 4 }}
 # Leave this here - This line denotes end of block to the parser.
 {{- end }}

@@ -1,0 +1,13 @@
+
+{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.class.create .Values.global.gatewayApi.installEnvoy }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: {{ include "gitlab.gatewayApi.envoyProxy.config.name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  {{ .Values.global.gatewayApi.envoyProxySpec | toYaml | nindent 2 }}
+{{- end }}
