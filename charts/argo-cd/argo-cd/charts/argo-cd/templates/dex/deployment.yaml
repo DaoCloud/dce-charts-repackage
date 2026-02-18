@@ -12,6 +12,9 @@ metadata:
   namespace: {{ include  "argo-cd.namespace" . }}
   labels:
     {{- include "argo-cd.labels" (dict "context" . "component" .Values.dex.name "name" .Values.dex.name) | nindent 4 }}
+    {{- with (mergeOverwrite (deepCopy .Values.global.deploymentLabels) .Values.dex.deploymentLabels) }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   {{- with include "argo-cd.strategy" (mergeOverwrite (deepCopy .Values.global.deploymentStrategy) .Values.dex.deploymentStrategy) }}
   strategy:
@@ -156,7 +159,7 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         volumeMounts:
-        {{- with .Values.dex.volumeMounts }}
+        {{- with (concat .Values.global.extraVolumeMounts .Values.dex.volumeMounts) }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
         - name: static-files
@@ -240,7 +243,7 @@ spec:
             path: tls.key
           - key: ca.crt
             path: ca.crt
-      {{- with .Values.dex.volumes }}
+      {{- with (concat .Values.global.extraVolumes .Values.dex.volumes) }}
         {{- toYaml . | nindent 6 }}
       {{- end }}
       {{- with .Values.dex.dnsConfig }}
