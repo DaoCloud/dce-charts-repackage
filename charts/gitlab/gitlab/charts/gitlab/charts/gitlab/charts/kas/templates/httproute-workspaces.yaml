@@ -1,0 +1,30 @@
+{{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
+{{- if .Values.global.workspaces.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ template "fullname" . }}-workspaces
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "gitlab.commonLabels" $ | nindent 4 }}
+  annotations:
+    {{ .Values.gatewayRoute.annotations | toYaml | nindent 4 }}
+spec:
+  parentRefs:
+  - name: {{ template "gitlab.gatewayApi.route.gateway" . }}
+    sectionName: {{ .Values.gatewayRoute.workspacesSectionName }}
+  hostnames:
+    - {{ include "gitlab.workspaces.wildcardHostname" . | quote }}
+  rules:
+  - backendRefs:
+    - kind: Service
+      name: {{ template "gitlab.kas.serviceName" . }}
+      port: {{ .Values.service.workspacesServerPort }}
+      weight: 1
+    matches:
+    - path:
+        type: PathPrefix
+        value: {{ .Values.ingress.workspacesServerApiPath | quote }}
+{{- end }}
+{{- end }}

@@ -34,12 +34,6 @@ global:
       repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce
     workhorse:
       repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
-  # This exists to support template handling
-  psql:
-    knownDecompositions:
-      - main
-      - ci
-      - embedding
   clickhouse:
     enabled: false
     # main:

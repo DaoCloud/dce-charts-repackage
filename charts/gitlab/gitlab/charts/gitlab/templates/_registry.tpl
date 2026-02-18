@@ -54,15 +54,19 @@ Return the registry's notification mount
 {{- end -}}
 
 {{/*
-When Geo + Container Registry syncing enabled, adds the following notifier
+When Geo is enabled on a primary site with registry replication, adds the following notifier
+to send registry events to the primary site's API endpoint.
+Secondary sites should not have this notifier configured.
 */}}
 {{- define "global.geo.registry.syncNotifier" -}}
-{{- if and .Values.global.geo.enabled .Values.global.geo.registry.replication.enabled -}}
+{{- if and .Values.global.geo.enabled (not (include "gitlab.geo.secondary" .)) .Values.global.geo.registry.replication.enabled -}}
 endpoints:
   - name: geo_event
     url: https://{{ include "gitlab.gitlab.hostname" . }}/api/v4/container_registry_event/events
     timeout: 2s
+    {{/* DEPRECATED: use maxretries instead https://gitlab.com/gitlab-org/container-registry/-/issues/1243.*/}}
     threshold: 5
+    maxretries: 0
     backoff: 1s
     headers:
       Authorization:
