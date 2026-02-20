@@ -1,0 +1,67 @@
+ignore:
+  # Image parameters used by common helpers
+  - image.registry
+  - image.repository
+  - image.tag
+  - image.digest
+  - image.pullSecrets
+  - volumePermissions.image.registry
+  - volumePermissions.image.repository
+  - volumePermissions.image.tag
+  - volumePermissions.image.digest
+  - volumePermissions.image.pullSecrets
+  - metrics.image.registry
+  - metrics.image.repository
+  - metrics.image.tag
+  - metrics.image.digest
+  - metrics.image.pullSecrets
+  # Common parameters
+  - kubeVersion
+  - nameOverride
+  - fullnameOverride
+  # Deprecated password
+  - wordpressPassword
+  # Ingress API versions
+  - ingress.apiVersion
+  - secondaryIngress.apiVersion
+  # Persistence storage class
+  - persistence.storageClass
+  # Deprecated parameters
+  - persistence.accessMode
+
+ignoreChildren:
+  # Global values used by common library helpers
+  - global
+  # Diagnostic mode
+  - diagnosticMode.command
+  - diagnosticMode.args
+  # Host aliases
+  - hostAliases
+  # FIPS configuration
+  - fips
+  - volumePermissions.fips
+  - metrics.fips
+  # Security contexts
+  - podSecurityContext
+  - containerSecurityContext
+  - volumePermissions.containerSecurityContext
+  - metrics.containerSecurityContext
+  # Probes
+  - livenessProbe
+  - readinessProbe
+  - startupProbe
+  - metrics.livenessProbe
+  - metrics.readinessProbe
+  - metrics.startupProbe
+  # Update strategy
+  - updateStrategy
+  # HTTPRoute configuration
+  - httpRoute.hostnames
+  - httpRoute.matches
+  # Persistence access modes
+  - persistence.accessModes
+  # Metrics service annotations
+  - metrics.service.annotations
+  # Subchart configurations
+  - mariadb
+  - memcached
