@@ -166,6 +166,8 @@ prometheus:
       enabled: true
       labels:
         severity: critical
+      # Exclude the pools matching the regular expression from triggering the alert.
+      excludePools: ""
 
     addressPoolUsage:
       enabled: true
@@ -179,6 +181,8 @@ prometheus:
         - percent: 95
           labels:
             severity: critical
+      # Exclude the pools matching the regular expression from triggering the alert.
+      excludePools: ""
 
     # MetalLBBGPSessionDown
     bgpSessionDown:
@@ -195,7 +199,7 @@ controller:
   # -- Controller log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none`
   logLevel: info
   # command: /controller
-  # webhookMode: enabled
+  webhookMode: enabled
   image:
     repository: quay.io/metallb/controller
     tag:
@@ -262,6 +266,7 @@ speaker:
   logLevel: info
   tolerateMaster: true
   memberlist:
+    # --  When enabled: false, the speaker pods must run on all nodes
     enabled: true
     mlBindPort: 7946
     mlBindAddrOverride: ""
@@ -331,7 +336,7 @@ speaker:
     enabled: true
     image:
       repository: quay.io/frrouting/frr
-      tag: 9.1.0
+      tag: 10.4.1
       pullPolicy:
     metricsPort: 7473
     resources: {}
@@ -346,6 +351,14 @@ speaker:
 
   frrMetrics:
     resources: {}
+
+  initContainers:
+    cpFrrFiles:
+      resources: {}
+    cpReloader:
+      resources: {}
+    cpMetrics:
+      resources: {}
 
   extraContainers: []
 
@@ -363,3 +376,12 @@ frrk8s:
   enabled: false
   external: false
   namespace: ""
+
+# networkpolicies
+networkpolicies:
+  # if set, networkpolicies for metallb components will be installed in the metallb namespace
+  enabled: false
+  # if set, a default deny network policy will be installed in the metallb namespace
+  defaultDeny: false
+  # to override internal k8s api targetPort
+  apiPort: 6443
