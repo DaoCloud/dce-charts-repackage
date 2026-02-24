@@ -16,8 +16,7 @@ set -o nounset
 
 #==============================
 yq eval -i '
-  .inferencepool.inferencePool.modelServers.matchLabels.app = "vllm-llama3-8b-instruct" |
-  .inferencepool.inferencePool.modelServers lineComment = "REQUIRED"
+  .inferencepool.inferencePool.modelServers.matchLabels.app = "inferx"
 ' values.yaml
 
 
@@ -46,13 +45,39 @@ awk '
 { print }
 ' charts/inferencepool/templates/epp-deployment.yaml > temp_file && mv temp_file charts/inferencepool/templates/epp-deployment.yaml
 
+if [ "$(uname)" = "Darwin" ]; then
+  SED_INPLACE=(-i '')
+else
+  SED_INPLACE=(-i)
+fi
 
+sed "${SED_INPLACE[@]}" \
+  's/\.Values\.inferenceExtension\.image\.hub/\.Values\.inferenceExtension\.image\.registry/g' \
+  charts/inferencepool/templates/epp-deployment.yaml
 
-REPOSITORY=$(yq eval '.inferencepool.inferenceExtension.image.hub | split("/")[1]' values.yaml)
-IMAGE_NAME=$(yq eval '.inferencepool.inferenceExtension.image.name | sub("^/", "")' values.yaml)
+sed "${SED_INPLACE[@]}" \
+  's/\.Values\.inferenceExtension\.image\.name/\.Values\.inferenceExtension\.image\.repository/g' \
+ charts/inferencepool/templates/epp-deployment.yaml
 
-yq eval '.inferencepool.inferenceExtension.image.hub = "k8s.m.daocloud.io"' -i values.yaml
-yq eval ".inferencepool.inferenceExtension.image.name = \"${REPOSITORY}/${IMAGE_NAME}\"" -i values.yaml
+yq eval -i '
+  (.inferenceExtension.image.registry = .inferenceExtension.image.hub) |
+  del(.inferenceExtension.image.hub) |
+  (.inferenceExtension.image.repository = .inferenceExtension.image.name) |
+  del(.inferenceExtension.image.name)
+' ./charts/inferencepool/values.yaml
+
+yq eval -i '
+  (.inferencepool.inferenceExtension.image.registry = .inferencepool.inferenceExtension.image.hub) |
+  del(.inferencepool.inferenceExtension.image.hub) |
+  (.inferencepool.inferenceExtension.image.repository = .inferencepool.inferenceExtension.image.name) |
+  del(.inferencepool.inferenceExtension.image.name)
+' values.yaml
+
+REPOSITORY=$(yq eval '.inferencepool.inferenceExtension.image.registry | split("/")[1]' values.yaml)
+IMAGE_NAME=$(yq eval '.inferencepool.inferenceExtension.image.repository | sub("^/", "")' values.yaml)
+
+yq eval '.inferencepool.inferenceExtension.image.registry = "k8s.m.daocloud.io"' -i values.yaml
+yq eval ".inferencepool.inferenceExtension.image.repository = \"${REPOSITORY}/${IMAGE_NAME}\"" -i values.yaml
 
 echo "keywords:" >> Chart.yaml
 echo "- networking" >> Chart.yaml

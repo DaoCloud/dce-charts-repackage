@@ -59,8 +59,13 @@ fi
 if [ "$USE_OPENSOURCE_CHART" == true ] ; then
     echo "generate $PROJECT_NAME chart from opensource chart"
     rm -rf $CHART_DEST_DIR
-    helm repo add $REPO_NAME $REPO_URL
-    helm repo update $REPO_NAME
+    if [[ "$REPO_URL" == oci://* ]]; then
+        REPO_NAME=${REPO_URL}
+        echo "REPO_URL is OCI-based, skipping helm repo operations"
+    else
+        helm repo add $REPO_NAME $REPO_URL
+        helm repo update $REPO_NAME
+    fi
     cd ${PROJECT_SRC_DIR}
     helm pull ${REPO_NAME}/${CHART_NAME} --untar --version $VERSION
     echo "succeeded to generate chart to $CHART_DEST_DIR"
