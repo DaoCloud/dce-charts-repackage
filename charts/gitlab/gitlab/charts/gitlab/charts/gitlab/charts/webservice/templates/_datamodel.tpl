@@ -33,8 +33,10 @@ item, ensuring presence of all keys.
 {{-     $_ := set $checks "hasBasePath" true -}}
 {{-   end -}}
 {{- end -}}
-{{- if and (not $.Values.ingress.requireBaseBath) (not $checks.hasBasePath) -}}
-{{-   fail "FATAL: Webservice: no deployment with ingress.path '/' or '/*' specified." -}}
+{{- if eq (include "gitlab.ingress.enabled" $) "true" -}}
+{{-   if and (not $.Values.ingress.requireBaseBath) (not $checks.hasBasePath) -}}
+{{-     fail "FATAL: Webservice: no deployment with ingress.path '/' or '/*' specified." -}}
+{{-   end -}}
 {{- end -}}
 {{- end -}}
 
@@ -57,8 +59,16 @@ This is output as YAML, it can be read back in as a dict via `toYaml`.
   proxyConnectTimeout: {{ $v.proxyConnectTimeout }}
   proxyReadTimeout: {{ $v.proxyReadTimeout }}
   proxyBodySize: {{ $v.proxyBodySize | quote }}
+  serviceUpstream: {{ $v.serviceUpstream | quote }}
   useGeoClass: {{ $v.useGeoClass }}
 {{- end }}
+gatewayRoute:
+  rule:
+    enabled: true
+    matches:
+    - path:
+        type: PathPrefix
+        value: /
 common:
   labels: {{ mergeOverwrite (deepCopy .Values.global.common.labels) (deepCopy .Values.common.labels) | toYaml | nindent 4 }}
 deployment:
