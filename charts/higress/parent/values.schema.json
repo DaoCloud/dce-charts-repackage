@@ -1,0 +1,365 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "higress": {
+            "type": "object",
+            "properties": {
+                "hub": {
+                    "type": "string",
+                    "title": "Higress Image Hub",
+                    "description": "Default container registry (image hub) for Higress and its components."
+                },
+                "higress-console": {
+                    "type": "object",
+                    "properties": {
+                        "global": {
+                            "type": "object",
+                            "properties": {
+                                "ingressClass": {
+                                    "type": "string",
+                                    "title": "Console IngressClass",
+                                    "description": "IngressClass used by the Higress console ingress resources. When empty, follows the cluster default."
+                                },
+                                "o11y": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean",
+                                            "title": "Enable Console Observability",
+                                            "description": "Whether to enable built-in observability stack (Grafana/Prometheus/Loki) for the console."
+                                        },
+                                        "grafana": {
+                                            "type": "object",
+                                            "properties": {
+                                                "image": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "repository": {
+                                                            "type": "string",
+                                                            "title": "Grafana Image Repository",
+                                                            "description": "Container registry/repository for the Grafana image used by the console stack."
+                                                        },
+                                                        "tag": {
+                                                            "type": "string",
+                                                            "title": "Grafana Image Tag",
+                                                            "description": "Version tag of the Grafana image."
+                                                        }
+                                                    }
+                                                },
+                                                "replicas": {
+                                                    "type": "integer",
+                                                    "title": "Grafana Replicas",
+                                                    "description": "Number of Grafana pods to run for the console observability stack."
+                                                }
+                                            }
+                                        },
+                                        "loki": {
+                                            "type": "object",
+                                            "properties": {
+                                                "image": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "repository": {
+                                                            "type": "string"
+                                                        },
+                                                        "tag": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "replicas": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "prometheus": {
+                                            "type": "object",
+                                            "properties": {
+                                                "image": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "repository": {
+                                                            "type": "string"
+                                                        },
+                                                        "tag": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "replicas": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Console Image Repository",
+                                    "description": "Container registry/repository for the main Higress console image."
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Console Image Tag",
+                                    "description": "Version tag of the Higress console image."
+                                }
+                            }
+                        },
+                        "nodeSelector": {
+                            "type": "object",
+                            "title": "Console Node Selector",
+                            "description": "Node selector for scheduling Higress console pods."
+                        },
+                        "o11y": {
+                            "type": "object",
+                            "properties": {
+                                "__placeholder__": {
+                                    "type": "boolean",
+                                    "title": "Console Observability Placeholder",
+                                    "description": "Reserved field for console observability configuration extensions."
+                                }
+                            }
+                        },
+                        "replicaCount": {
+                            "type": "integer",
+                            "title": "Console Replicas",
+                            "description": "Number of Higress console pods to run."
+                        }
+                    }
+                },
+                "higress-core": {
+                    "type": "object",
+                    "properties": {
+                        "global": {
+                            "type": "object",
+                            "properties": {
+                                "ingressClass": {
+                                    "type": "string",
+                                    "title": "IngressClass Name",
+                                    "description": "IngressClass that the Higress controller will watch. When empty, all ingress resources are watched."
+                                },
+                                "o11y": {
+                                    "type": "object",
+                                    "title": "Observability Settings",
+                                    "description": "High-level observability (logging/metrics) configuration for Higress core.",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean",
+                                            "title": "Enable Observability Add-ons",
+                                            "description": "Master switch for enabling observability features such as Promtail for log shipping.",
+                                            "default": false
+                                        },
+                                        "promtail": {
+                                            "type": "object",
+                                            "title": "Promtail Configuration",
+                                            "description": "Settings for the Promtail log collector that ships Higress logs to a Loki cluster.",
+                                            "properties": {
+                                                "image": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "repository": {
+                                                            "type": "string",
+                                                            "title": "Promtail Image Repository",
+                                                            "description": "Container registry/repository for the Promtail image."
+                                                        },
+                                                        "tag": {
+                                                            "type": "string",
+                                                            "title": "Promtail Image Tag",
+                                                            "description": "Version tag of the Promtail image."
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "controller": {
+                            "type": "object",
+                            "properties": {
+                                "replicas": {
+                                    "type": "integer",
+                                    "title": "Controller Replicas",
+                                    "description": "Number of Higress controller pods to run."
+                                },
+                                "image": {
+                                    "type": "string",
+                                    "title": "Controller Image",
+                                    "description": "Container image name used for the Higress controller."
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Controller Image Tag",
+                                    "description": "Version tag of the Higress controller image."
+                                },
+                                "nodeSelector": {
+                                    "type": "object",
+                                    "title": "Controller Node Selector",
+                                    "description": "Node selector for scheduling Higress controller pods."
+                                }
+                            }
+                        },
+                        "gateway": {
+                            "type": "object",
+                            "properties": {
+                                "replicas": {
+                                    "type": "integer",
+                                    "title": "Gateway Replicas",
+                                    "description": "Number of Higress gateway pods to run. Typically 1 for dev, 2+ for production."
+                                },
+                                "image": {
+                                    "type": "string",
+                                    "title": "Gateway Image",
+                                    "description": "Container image name used for the gateway workload."
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Gateway Image Tag",
+                                    "description": "Version tag for the gateway image, usually kept in sync with the chart version."
+                                },
+                                "metrics": {
+                                    "type": "object",
+                                    "title": "Gateway Metrics",
+                                    "description": "Prometheus/VictoriaMetrics scraping configuration for the gateway.",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean",
+                                            "title": "Enable Metrics Scraping",
+                                            "description": "Whether to create PodMonitor/VMPodScrape resources so metrics can be scraped from the gateway.",
+                                            "default": false
+                                        }
+                                    }
+                                },
+                                "service": {
+                                    "type": "object",
+                                    "title": "Gateway Service",
+                                    "description": "Kubernetes Service used to expose the external Higress gateway.",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "title": "Gateway Service Type",
+                                            "description": "Kubernetes Service type used to expose the gateway. Use LoadBalancer in cloud environments, NodePort or ClusterIP in on‑prem clusters.",
+                                            "enum": [
+                                                "ClusterIP",
+                                                "NodePort",
+                                                "LoadBalancer"
+                                            ],
+                                            "default": "NodePort"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "pilot": {
+                            "type": "object",
+                            "properties": {
+                                "image": {
+                                    "type": "string",
+                                    "title": "Pilot Image",
+                                    "description": "Container image name used for the Higress Pilot (control plane) component."
+                                },
+                                "nodeSelector": {
+                                    "type": "object",
+                                    "title": "Pilot Node Selector",
+                                    "description": "Node selector for scheduling Higress Pilot pods."
+                                },
+                                "replicaCount": {
+                                    "type": "integer",
+                                    "title": "Pilot Replicas",
+                                    "description": "Number of Higress Pilot pods to run."
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Pilot Image Tag",
+                                    "description": "Version tag of the Higress Pilot image."
+                                }
+                            }
+                        },
+                        "pluginServer": {
+                            "type": "object",
+                            "properties": {
+                                "image": {
+                                    "type": "string",
+                                    "title": "Plugin Server Image",
+                                    "description": "Container image name used for the Higress plugin server."
+                                },
+                                "replicas": {
+                                    "type": "integer",
+                                    "title": "Plugin Server Replicas",
+                                    "description": "Number of Higress plugin server pods to run."
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Plugin Server Image Tag",
+                                    "description": "Version tag of the Higress plugin server image."
+                                }
+                            }
+                        },
+                        "redis": {
+                            "type": "object",
+                            "properties": {
+                                "redis": {
+                                    "type": "object",
+                                    "properties": {
+                                        "image": {
+                                            "type": "string",
+                                            "title": "Redis Image",
+                                            "description": "Container image name used for the embedded Redis instance."
+                                        },
+                                        "nodeSelector": {
+                                            "type": "object",
+                                            "title": "Redis Node Selector",
+                                            "description": "Node selector for scheduling Redis pods used by Higress."
+                                        },
+                                        "replicas": {
+                                            "type": "integer",
+                                            "title": "Redis Replicas",
+                                            "description": "Number of Redis pods to run for Higress."
+                                        },
+                                        "service": {
+                                            "type": "object",
+                                            "properties": {
+                                                "port": {
+                                                    "type": "integer",
+                                                    "title": "Redis Service Port",
+                                                    "description": "Port exposed by the Redis service."
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "title": "Redis Service Type",
+                                                    "description": "Kubernetes Service type for Redis (e.g. ClusterIP)."
+                                                }
+                                            }
+                                        },
+                                        "tag": {
+                                            "type": "string",
+                                            "title": "Redis Image Tag",
+                                            "description": "Version tag of the Redis image."
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tracing": {
+                            "type": "object",
+                            "properties": {
+                                "enable": {
+                                    "type": "boolean",
+                                    "title": "Enable Tracing",
+                                    "description": "Master switch for enabling request tracing in Higress."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
