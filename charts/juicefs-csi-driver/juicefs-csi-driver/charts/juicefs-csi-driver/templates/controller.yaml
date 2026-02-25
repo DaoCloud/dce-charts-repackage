@@ -70,7 +70,7 @@ spec:
         {{- if hasKey .Values.controller "cacheClientConf" }}
         - --cache-client-conf={{ .Values.controller.cacheClientConf }}
         {{- end }}
-        {{- if or (eq .Values.mountMode "sidecar") (.Values.validatingWebhook.enabled)  (eq .Values.mountMode "serverless") }}
+        {{- if or (contains "sidecar" .Values.mountMode) (.Values.validatingWebhook.enabled)  (contains "serverless" .Values.mountMode) }}
         - --webhook=true
         {{- end }}
         {{- if .Values.validatingWebhook.enabled }}
@@ -125,6 +125,10 @@ spec:
         - name: JUICEFS_CSI_WEB_PORT
           value: "{{ .Values.controller.metricsPort }}"
         {{- end }}
+        {{- if .Values.driverName }}
+        - name: DRIVER_NAME
+          value: "{{ .Values.driverName }}"
+        {{- end }}
         {{- if .Values.controller.envs }}
 {{ toYaml .Values.controller.envs | trim | indent 8 }}
         {{- end }}
@@ -149,7 +153,9 @@ spec:
           capabilities:
             add:
             - SYS_ADMIN
-          {{- if ne .Values.mountMode "serverless" }}
+          runAsNonRoot: false
+          {{- if not (contains "serverless" .Values.mountMode) }}
+          allowPrivilegeEscalation: true
           privileged: true
           {{- end }}
         volumeMounts:
@@ -157,17 +163,17 @@ spec:
           name: socket-dir
         {{- if ne .Values.mountMode "process" }}
         - mountPath: /jfs
-          {{- if ne .Values.mountMode "serverless" }}
+          {{- if not (contains "serverless" .Values.mountMode) }}
           mountPropagation: Bidirectional
           {{- end }}
           name: jfs-dir
         - mountPath: /root/.juicefs
-          {{- if ne .Values.mountMode "serverless" }}
+          {{- if not (contains "serverless" .Values.mountMode) }}
           mountPropagation: Bidirectional
           {{- end }}
           name: jfs-root-dir
         {{- end }}
-        {{- if or (eq .Values.mountMode "sidecar") (.Values.validatingWebhook.enabled) (eq .Values.mountMode "serverless") }}
+        {{- if or (contains "sidecar" .Values.mountMode) (.Values.validatingWebhook.enabled) (contains "serverless" .Values.mountMode) }}
         - name: webhook-certs
           mountPath: /etc/webhook/certs
           readOnly: true
@@ -214,6 +220,8 @@ spec:
         env:
           - name: ADDRESS
             value: /var/lib/csi/sockets/pluginproxy/csi.sock
+        securityContext:
+          runAsNonRoot: false
         image: {{ printf "%s/%s:%s" .Values.sidecars.csiResizerImage.registry .Values.sidecars.csiResizerImage.repository .Values.sidecars.csiResizerImage.tag }}
         {{- if .Values.sidecars.csiResizerImage.pullPolicy }}
         imagePullPolicy: {{ .Values.sidecars.csiResizerImage.pullPolicy }}
@@ -222,6 +230,25 @@ spec:
         volumeMounts:
           - mountPath: /var/lib/csi/sockets/pluginproxy/
             name: socket-dir
+      {{- if .Values.snapshot.enabled }}
+      - name: csi-snapshotter
+        image: {{ printf "%s:%s" .Values.sidecars.csiSnapshotterImage.repository .Values.sidecars.csiSnapshotterImage.tag }}
+        {{- if .Values.sidecars.csiSnapshotterImage.pullPolicy }}
+        imagePullPolicy: {{ .Values.sidecars.csiSnapshotterImage.pullPolicy }}
+        {{- end }}
+        args:
+        - --csi-address=$(ADDRESS)
+        - --leader-election
+        - --v=2
+        env:
+        - name: ADDRESS
+          value: /var/lib/csi/sockets/pluginproxy/csi.sock
+        securityContext:
+          runAsNonRoot: false
+        volumeMounts:
+        - mountPath: /var/lib/csi/sockets/pluginproxy/
+          name: socket-dir
+      {{- end }}
       - name: liveness-probe
         image: {{ printf "%s/%s:%s" .Values.sidecars.livenessProbeImage.registry .Values.sidecars.livenessProbeImage.repository .Values.sidecars.livenessProbeImage.tag }}
         {{- if .Values.sidecars.livenessProbeImage.pullPolicy }}
@@ -238,6 +265,8 @@ spec:
         volumeMounts:
         - mountPath: /csi
           name: socket-dir
+        securityContext:
+          runAsNonRoot: false
       priorityClassName: {{ .Values.controller.priorityClassName }}
       serviceAccount: {{ include "juicefs-csi.controller.serviceAccountName" . }}
       {{- with .Values.controller.affinity }}
@@ -264,13 +293,13 @@ spec:
           path: {{ .Values.jfsConfigDir }}
           type: DirectoryOrCreate
         name: jfs-root-dir
-      {{- else if eq .Values.mountMode "serverless" }}
+      {{- else if contains "serverless" .Values.mountMode }}
       - emptyDir: {}
         name: jfs-dir
       - emptyDir: {}
         name: jfs-root-dir
       {{- end }}
-      {{- if or (eq .Values.mountMode "sidecar") (.Values.validatingWebhook.enabled)  (eq .Values.mountMode "serverless")}}
+      {{- if or (contains "sidecar" .Values.mountMode) (.Values.validatingWebhook.enabled)  (contains "serverless" .Values.mountMode) }}
       - name: webhook-certs
         secret:
           secretName: {{ template "juicefs-csi.webhook.secret" . }}
