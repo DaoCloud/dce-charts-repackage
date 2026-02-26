@@ -1,0 +1,22 @@
+apiVersion: v2
+appVersion: v2.2.1
+description: A Helm chart for the kgateway project
+icon: https://raw.githubusercontent.com/kgateway-dev/kgateway.dev/main/static/favicon.svg
+name: kgateway
+type: application
+version: v2.2.1
+dependencies:
+  - name: gateway-api
+    version: ""
+    repository: file://charts/gateway-api
+    condition: installGatewayApiCrd
+  - name: kgateway-crds
+    version: ""
+    repository: file://charts/kgateway-crds
+  - name: kgateway
+    version: ""
+    repository: file://charts/kgateway
+keywords:
+  - kubernetes
+  - networking
+  - api-gateway

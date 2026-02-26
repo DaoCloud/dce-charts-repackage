@@ -89,7 +89,11 @@ else
 fi
 
 cd $BUILD_DIR
-helm pull ${REPO_NAME}/${CHART_NAME} --untar --version $VERSION
+if [ "${IS_OCI_REPO}" == "true" ] ; then
+    helm pull "${OCI_CHART_REF}" --untar --version $VERSION
+else
+    helm pull ${REPO_NAME}/${CHART_NAME} --untar --version $VERSION
+fi
 (($?!=0)) && echo "error, failed to helm pull" && exit 8
 
 mv ${BUILD_DIR}/$(ls ${BUILD_DIR} )  ${BUILD_DIR}/child
@@ -99,7 +103,11 @@ mkdir -p $CHART_BUILD_DIR
 mkdir -p ${CHART_BUILD_DIR}/charts
 
 cd ${CHART_BUILD_DIR}/charts
-helm pull ${REPO_NAME}/${CHART_NAME} --untar --version $VERSION
+if [ "${IS_OCI_REPO}" == "true" ] ; then
+    helm pull "${OCI_CHART_REF}" --untar --version $VERSION
+else
+    helm pull ${REPO_NAME}/${CHART_NAME} --untar --version $VERSION
+fi
 (($?!=0)) && echo "error, failed to helm pull" && exit 8
 
 for FILE in README.md Chart.yaml values.schema.json ; do
@@ -156,16 +164,24 @@ fi
 if grep "dependencies:" ${CHART_BUILD_DIR}/Chart.yaml &>/dev/null ; then
     set -x
     LINE=` cat ${CHART_BUILD_DIR}/Chart.yaml | grep  -n "dependencies:"  | awk -F: '{print $1}' `
-    sed  -i  ${LINE}' a\    repository: '"${REPO_URL}"''  ${CHART_BUILD_DIR}/Chart.yaml
+    DEP_REPO_URL="${REPO_URL}"
+    if [ "${IS_OCI_REPO}" == "true" ] && [[ "${REPO_URL}" == */${CHART_NAME} ]] ; then
+        DEP_REPO_URL="${REPO_URL%/${CHART_NAME}}"
+    fi
+    sed  -i  ${LINE}' a\    repository: '"${DEP_REPO_URL}"''  ${CHART_BUILD_DIR}/Chart.yaml
     sed  -i  ${LINE}' a\    version: '"${VERSION}"''  ${CHART_BUILD_DIR}/Chart.yaml
     sed  -i  ${LINE}' a\  - name: '"${CHART_NAME}"''  ${CHART_BUILD_DIR}/Chart.yaml
     set +x
 else
+    DEP_REPO_URL="${REPO_URL}"
+    if [ "${IS_OCI_REPO}" == "true" ] && [[ "${REPO_URL}" == */${CHART_NAME} ]] ; then
+        DEP_REPO_URL="${REPO_URL%/${CHART_NAME}}"
+    fi
     cat <<EOF >> ${CHART_BUILD_DIR}/Chart.yaml
 dependencies:
   - name: $CHART_NAME
     version: "${VERSION}"
-    repository: "${REPO_URL}"
+    repository: "${DEP_REPO_URL}"
 EOF
 fi
 
