@@ -3,7 +3,7 @@ include ../Makefile.defs
 PROJECT ?=
 KIND_CLUSTER_NAME ?= network-chart
 KIND_KUBECONFIG := $(ROOT_DIR)/test/.config
-K8S_VERSION ?= v1.27.2
+K8S_VERSION ?= v1.34.2
 
 .PHONY: all
 all: e2e
