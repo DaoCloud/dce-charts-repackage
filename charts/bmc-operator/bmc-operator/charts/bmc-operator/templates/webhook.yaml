@@ -1,0 +1,142 @@
+{{- $validityDays := int .Values.webhook.certificate.validityDays }}
+{{- $ca := genCA "bmc-webhook-ca" $validityDays }}
+{{- $cn := printf "%s-webhook-service.%s.svc" .Release.Name .Release.Namespace }}
+{{- $altNames := list $cn (printf "%s-webhook-service.%s.svc.cluster.local" .Release.Name .Release.Namespace) (printf "%s-webhook-service" .Release.Name) }}
+{{- $cert := genSignedCert $cn nil $altNames $validityDays $ca }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}-webhook-server-cert
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}-webhook
+type: kubernetes.io/tls
+data:
+  tls.crt: {{ $cert.Cert | b64enc }}
+  tls.key: {{ $cert.Key | b64enc }}
+  ca.crt: {{ $ca.Cert | b64enc }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: {{ .Release.Name }}-validating-webhook-configuration
+  labels:
+    app: {{ .Release.Name }}-webhook
+webhooks:
+- name: clusteragents.bmc.spidernet.io
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 5
+  failurePolicy: Fail
+  clientConfig:
+    service:
+      name: {{ .Release.Name }}-webhook-service
+      namespace: {{ .Release.Namespace }}
+      path: /validate-bmc-spidernet-io-v1beta1-clusteragent
+      port: {{ .Values.webhook.webhookPort }}
+    caBundle: {{ $ca.Cert | b64enc }}
+  rules:
+  - apiGroups: ["bmc.spidernet.io"]
+    apiVersions: ["v1beta1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["clusteragents"]
+    scope: "Cluster"
+- name: hostendpoints.bmc.spidernet.io
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 5
+  failurePolicy: Fail
+  clientConfig:
+    service:
+      name: {{ .Release.Name }}-webhook-service
+      namespace: {{ .Release.Namespace }}
+      path: /validate-bmc-spidernet-io-v1beta1-hostendpoint
+      port: {{ .Values.webhook.webhookPort }}
+    caBundle: {{ $ca.Cert | b64enc }}
+  rules:
+  - apiGroups: ["bmc.spidernet.io"]
+    apiVersions: ["v1beta1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["hostendpoints"]
+    scope: "Cluster"
+- name: hostoperations.bmc.spidernet.io
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 5
+  failurePolicy: Fail
+  clientConfig:
+    service:
+      name: {{ .Release.Name }}-webhook-service
+      namespace: {{ .Release.Namespace }}
+      path: /validate-bmc-spidernet-io-v1beta1-hostoperation
+      port: {{ .Values.webhook.webhookPort }}
+    caBundle: {{ $ca.Cert | b64enc }}
+  rules:
+  - apiGroups: ["bmc.spidernet.io"]
+    apiVersions: ["v1beta1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["hostoperations"]
+    scope: "Cluster"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ .Release.Name }}-mutating-webhook-configuration
+  labels:
+    app: {{ .Release.Name }}-webhook
+webhooks:
+- name: clusteragents.bmc.spidernet.io
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 5
+  failurePolicy: Fail
+  clientConfig:
+    service:
+      name: {{ .Release.Name }}-webhook-service
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-bmc-spidernet-io-v1beta1-clusteragent
+      port: {{ .Values.webhook.webhookPort }}
+    caBundle: {{ $ca.Cert | b64enc }}
+  rules:
+  - apiGroups: ["bmc.spidernet.io"]
+    apiVersions: ["v1beta1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["clusteragents"]
+    scope: "Cluster"
+- name: hostendpoints.bmc.spidernet.io
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 5
+  failurePolicy: Fail
+  clientConfig:
+    service:
+      name: {{ .Release.Name }}-webhook-service
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-bmc-spidernet-io-v1beta1-hostendpoint
+      port: {{ .Values.webhook.webhookPort }}
+    caBundle: {{ $ca.Cert | b64enc }}
+  rules:
+  - apiGroups: ["bmc.spidernet.io"]
+    apiVersions: ["v1beta1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["hostendpoints"]
+    scope: "Cluster"
+- name: hostoperations.bmc.spidernet.io
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 5
+  failurePolicy: Fail
+  clientConfig:
+    service:
+      name: {{ .Release.Name }}-webhook-service
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-bmc-spidernet-io-v1beta1-hostoperation
+      port: {{ .Values.webhook.webhookPort }}
+    caBundle: {{ $ca.Cert | b64enc }}
+  rules:
+  - apiGroups: ["bmc.spidernet.io"]
+    apiVersions: ["v1beta1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["hostoperations"]
+    scope: "Cluster"

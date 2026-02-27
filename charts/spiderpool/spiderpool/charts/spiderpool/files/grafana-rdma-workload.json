@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 12,
+  "id": 20,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -121,13 +121,13 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (owner_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\"}[1m])\n)",
+          "expr": "sum by (owner_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n  +\n  rate(rdma_rx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Bandwidth per $kind | Read ",
+      "title": "Total Read Throughput",
       "type": "timeseries"
     },
     {
@@ -211,13 +211,13 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (owner_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\"}[1m])\n)",
+          "expr": "sum by (owner_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n  +\n  rate(rdma_tx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Bandwidth per $kind | Write",
+      "title": "Total Write Throughput",
       "type": "timeseries"
     },
     {
@@ -330,14 +330,14 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (pod_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\"}[1m])\n)",
+          "expr": "sum by (pod_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n  +\n  rate(rdma_rx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "interval": "",
           "legendFormat": "{{pod_name}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Bandwidth per Pod | Read",
+      "title": "Read Throughput",
       "type": "timeseries"
     },
     {
@@ -436,14 +436,14 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\"}[1m])\n)",
+          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n  +\n  rate(rdma_tx_vport_rdma_multicast_bytes_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "interval": "",
           "legendFormat": "{{pod_name}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Bandwidth per Pod | Write",
+      "title": "Write Throughput",
       "type": "timeseries"
     },
     {
@@ -546,7 +546,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (pod_name) (\n  rate(rdma_rx_vport_rdma_unicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\"}[1m])\n)",
+          "expr": "sum by (pod_name) (\n  rate(rdma_rx_vport_rdma_unicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -555,7 +555,7 @@
           "refId": "A"
         }
       ],
-      "title": "Packets per Pod | unicast | Read",
+      "title": "Unicast Read Packets",
       "type": "timeseries"
     },
     {
@@ -658,7 +658,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_unicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\"}[1m])\n)",
+          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_unicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -667,7 +667,7 @@
           "refId": "A"
         }
       ],
-      "title": "Packets per Pod | unicast | Write",
+      "title": "Unicast Written Packets",
       "type": "timeseries"
     },
     {
@@ -770,7 +770,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_multicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\"}[1m])\n)",
+          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_multicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -779,7 +779,7 @@
           "refId": "A"
         }
       ],
-      "title": "Packets per Pod | multicast | Read",
+      "title": "Multicast Read Packets",
       "type": "timeseries"
     },
     {
@@ -882,7 +882,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_multicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\"}[1m])\n)",
+          "expr": "sum by (pod_name) (\n  rate(rdma_tx_vport_rdma_multicast_packets_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])\n)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -891,7 +891,195 @@
           "refId": "A"
         }
       ],
-      "title": "Packets per Pod | multicast | Write",
+      "title": "Multicast Written Packets",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 26
+      },
+      "id": 37,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "rate(rdma_out_of_sequence_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{pod_name}} - {{net_dev_name}} - {{ifname}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Packets Out Of Sequence",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 26
+      },
+      "id": 38,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "rate(rdma_packet_seq_err_total{owner_namespace=~\"$namespace\", owner_kind=~\"$kind\", owner_name=~\"$name\",cluster=~\"$cluster\"}[1m])",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{pod_name}} - {{net_dev_name}} - {{ifname}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Packets In Sequence Error",
       "type": "timeseries"
     }
   ],
@@ -921,6 +1109,62 @@
       },
       {
         "current": {
+          "isNone": true,
+          "selected": false,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(global_cluster_info, cluster_name)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Cluster",
+        "multi": false,
+        "name": "cluster_name",
+        "options": [],
+        "query": {
+          "query": "label_values(global_cluster_info, cluster_name)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "isNone": true,
+          "selected": false,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(global_cluster_info{cluster_name=\"$cluster_name\"}, cluster)",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "cluster",
+        "options": [],
+        "query": {
+          "query": "label_values(global_cluster_info{cluster_name=\"$cluster_name\"}, cluster)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
           "selected": false,
           "text": "DaemonSet",
           "value": "DaemonSet"
@@ -929,14 +1173,14 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(rdma_vport_speed_mbps_total{}, owner_kind)",
+        "definition": "label_values(rdma_vport_speed_mbps_total{cluster=~\"$cluster\"}, owner_kind)",
         "hide": 0,
         "includeAll": false,
         "multi": false,
         "name": "kind",
         "options": [],
         "query": {
-          "query": "label_values(rdma_vport_speed_mbps_total{}, owner_kind)",
+          "query": "label_values(rdma_vport_speed_mbps_total{cluster=~\"$cluster\"}, owner_kind)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
@@ -955,14 +1199,14 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(rdma_vport_speed_mbps_total{owner_kind=~\"$kind\"}, owner_namespace)",
+        "definition": "label_values(rdma_vport_speed_mbps_total{owner_kind=~\"$kind\",cluster=~\"$cluster\"}, owner_namespace)",
         "hide": 0,
         "includeAll": false,
         "multi": false,
         "name": "namespace",
         "options": [],
         "query": {
-          "query": "label_values(rdma_vport_speed_mbps_total{owner_kind=~\"$kind\"}, owner_namespace)",
+          "query": "label_values(rdma_vport_speed_mbps_total{owner_kind=~\"$kind\",cluster=~\"$cluster\"}, owner_namespace)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
@@ -981,14 +1225,14 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(rdma_vport_speed_mbps_total{owner_kind=~\"$kind\", owner_namespace=~\"$namespace\"}, owner_name)",
+        "definition": "label_values(rdma_vport_speed_mbps_total{owner_kind=~\"$kind\", owner_namespace=~\"$namespace\",cluster=~\"$cluster\"}, owner_name)",
         "hide": 0,
         "includeAll": false,
         "multi": false,
         "name": "name",
         "options": [],
         "query": {
-          "query": "label_values(rdma_vport_speed_mbps_total{owner_kind=~\"$kind\", owner_namespace=~\"$namespace\"}, owner_name)",
+          "query": "label_values(rdma_vport_speed_mbps_total{owner_kind=~\"$kind\", owner_namespace=~\"$namespace\",cluster=~\"$cluster\"}, owner_name)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
@@ -1000,13 +1244,13 @@
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-90d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Spiderpool RDMA | AI Workload",
   "uid": "AAT6f2ZNz",
-  "version": 40,
+  "version": 45,
   "weekStart": ""
 }

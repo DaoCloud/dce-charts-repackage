@@ -1,0 +1,212 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "required": [
+    "jenkins-full"
+  ],
+  "type": "object",
+  "properties": {
+    "jenkins-full": {
+      "type": "object",
+      "required": [
+        "image"
+      ],
+      "properties": {
+        "Agent": {
+          "type": "object",
+          "properties": {
+            "Builder": {
+              "type": "object",
+              "properties": {
+                "ContainerRuntime": {
+                  "type": "string",
+                  "default": "podman",
+                  "description": "ContainerRuntime defines the tools used by the Agent to run and build containers. It’s important to note that \"Docker\" should only be selected when the container runtime on the node is Docker. For other container runtimes, please select \"Podman\".",
+                  "enum": [
+                    "podman",
+                    "docker"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "Master": {
+          "type": "object",
+          "required": [
+            "AdminUser",
+            "resources"
+          ],
+          "properties": {
+            "AdminPassword": {
+              "type": "string",
+              "default": ""
+            },
+            "AdminUser": {
+              "type": "string",
+              "default": "admin"
+            },
+            "Deploy": {
+              "type": "object",
+              "required": [
+                "NotWithApiServer"
+              ],
+              "properties": {
+                "JenkinsHost": {
+                  "type": "string",
+                  "default": ""
+                },
+                "NotWithApiServer": {
+                  "type": "boolean",
+                  "default": false
+                }
+              },
+              "if": {
+                "properties": {
+                  "NotWithApiServer": {
+                    "const": true
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "JenkinsHost"
+                ]
+              }
+            },
+            "JavaOpts": {
+              "type": "string",
+              "default": "-XX:+PrintFlagsFinal\n-XX:MaxRAMPercentage=70.0\n-XX:MinHeapFreeRatio=8\n-XX:MaxHeapFreeRatio=15\n-XX:MinRAMPercentage=20.0\n-XX:-UseAdaptiveSizePolicy\n-XX:-ShrinkHeapInSteps\n-Dhudson.slaves.NodeProvisioner.initialDelay=20\n-Dhudson.slaves.NodeProvisioner.MARGIN=50\n-Dhudson.slaves.NodeProvisioner.MARGIN0=0.85\n-Dhudson.model.LoadStatistics.clock=5000\n-Dhudson.model.LoadStatistics.decay=0.2\n-Dhudson.slaves.NodeProvisioner.recurrencePeriod=5000\n-Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true\n-Dio.jenkins.plugins.casc.ConfigurationAsCode.initialDelay=10000\n-Djenkins.install.runSetupWizard=false\n-XX:+UseStringDeduplication\n-XX:+ParallelRefProcEnabled\n-XX:+DisableExplicitGC\n-XX:+UnlockDiagnosticVMOptions\n-XX:+UnlockExperimentalVMOptions\n-javaagent:/otel-auto-instrumentation/javaagent.jar\n-Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ALLOW_ADMIN_APPROVAL_ENABLED=true\n-Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ADMIN_AUTO_APPROVAL_ENABLED=true"
+            },
+            "NodePort": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "ServicePort": {
+              "type": "integer",
+              "default": 80
+            },
+            "ServiceType": {
+              "type": "string",
+              "default": "ClusterIP",
+              "enum": [
+                "ClusterIP",
+                "NodePort",
+                "LoadBalancer"
+              ]
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string",
+                      "default": "2"
+                    },
+                    "memory": {
+                      "type": "string",
+                      "default": "4096Mi"
+                    }
+                  }
+                },
+                "requests": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "type": "string",
+                      "default": "1"
+                    },
+                    "memory": {
+                      "type": "string",
+                      "default": "799Mi"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "eventProxy": {
+          "type": "object",
+          "properties": {
+            "configMap": {
+              "type": "object",
+              "properties": {
+                "eventProxy": {
+                  "type": "object",
+                  "if": {
+                    "properties": {
+                      "enabled": {
+                        "const": true
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "host",
+                      "proto",
+                      "token",
+                      "webhookUrl"
+                    ]
+                  },
+                  "properties": {
+                    "host": {
+                      "type": "string",
+                      "default": "amamba-devops-server.amamba-system:80"
+                    },
+                    "proto": {
+                      "type": "string",
+                      "default": "http",
+                      "enum": [
+                        "http",
+                        "https"
+                      ]
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "webhookUrl": {
+                      "type": "string",
+                      "default": "/apis/internel.amamba.io/devops/pipeline/v1alpha1/webhooks/jenkins"
+                    }
+                  }
+                }
+              }
+            },
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "imagePullPolicy": {
+              "type": "string",
+              "default": "IfNotPresent",
+              "enum": [
+                "IfNotPresent",
+                "Always",
+                "Never"
+              ]
+            },
+            "resources": {
+              "type": "object"
+            }
+          }
+        },
+        "image": {
+          "type": "object",
+          "required": [
+            "registry"
+          ],
+          "properties": {
+            "registry": {
+              "type": "string",
+              "default": "ghcr.m.daocloud.io"
+            }
+          }
+        }
+      }
+    }
+  }
+}

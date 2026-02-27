@@ -31,7 +31,7 @@ data:
                 serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
                 - name: "base"
-                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Base "root" .) -}}"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Base "root" . "os" "ubuntu") -}}"
                   command: "cat"
                   args: ""
                   ttyEnabled: true
@@ -92,7 +92,7 @@ data:
                 serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
                 - name: "nodejs"
-                  image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.NodeJs "root" .) -}}"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.NodeJs "root" . "os" "ubuntu") -}}"
                   command: "cat"
                   args: ""
                   ttyEnabled: true
@@ -151,8 +151,6 @@ data:
                           ephemeral-storage: "10Gi"
                     securityContext:
                       fsGroup: 1000
-              {{- $nodejsParams := dict "language" "nodejs" "builder" .Values.Agent.Builder.NodeJs "root" . "os" "ubuntu"}}
-              {{ include "language.images" $nodejsParams | nindent 14 }}
               - name: "maven"
                 namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
                 label: "maven"
@@ -228,8 +226,6 @@ data:
                             path: settings.xml
                     securityContext:
                       fsGroup: 1000
-              {{- $mavenParams := dict "language" "maven" "builder" .Values.Agent.Builder.Maven "root" . "os" "ubuntu" }}
-              {{ include "language.images" $mavenParams | nindent 14 }}
               - name: "go"
                 namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
                 label: "go"
@@ -238,7 +234,7 @@ data:
                 serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
                 - name: "go"
-                  image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Golang "root" . "os" "ubuntu") -}}"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Golang "root" . "os" "ubuntu") -}}"
                   command: "cat"
                   args: ""
                   ttyEnabled: true
@@ -294,8 +290,6 @@ data:
                           ephemeral-storage: "10Gi"
                     securityContext:
                       fsGroup: 1000
-              {{- $goParams := dict "language" "go" "builder" .Values.Agent.Builder.Golang "root" . "os" "ubuntu" }}
-              {{ include "language.images" $goParams | nindent 14 }}
               - name: "python"
                 namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
                 label: "python"
@@ -304,7 +298,7 @@ data:
                 serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
                 containers:
                 - name: "python"
-                  image: "{{- include "builder.image" ( dict "builder" .Values.Agent.Builder.Python "root" .) }}"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Python "root" . "os" "ubuntu") -}}"
                   command: "cat"
                   args: ""
                   ttyEnabled: true
@@ -363,17 +357,10 @@ data:
                           ephemeral-storage: "10Gi"
                     securityContext:
                       fsGroup: 1000
-              {{- $pythonParams := dict "language" "python" "builder" .Values.Agent.Builder.Python "root" . "os" "ubuntu" }}
-              {{ include "language.images" $pythonParams | nindent 14 }}
       securityRealm:
       authorizationStrategy: loggedInUsersCanDoAnything
-
     unclassified:
       location:
         url: {{ include "location.url" . }}
-      gitLabServers:
-        servers:
-        - name: "https://gitlab.com"
-          serverUrl: "https://gitlab.com"
       eventDispatcher:
         receiver: {{ include "jenkins.event.receiver" . | quote }}

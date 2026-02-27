@@ -1,0 +1,174 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-agent-templates
+  labels:
+    {{- include "bmc-operator.labels" . | nindent 4 }}
+data:
+  agent-deployment.yaml: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: {{`{{ .Name }}`}}
+      namespace: {{`{{ .Namespace }}`}}
+      labels:
+        app: bmc-agent
+        cluster: {{`{{ .ClusterName }}`}}
+    spec:
+      replicas: {{`{{ .Replicas }}`}}
+      selector:
+        matchLabels:
+          app: bmc-agent
+          cluster: {{`{{ .ClusterName }}`}}
+      template:
+        metadata:
+          labels:
+            app: bmc-agent
+            cluster: {{`{{ .ClusterName }}`}}
+          {{`{{ if .UnderlayInterface }}`}}
+          annotations:
+            k8s.v1.cni.cncf.io/networks: {{`{{ .UnderlayInterface }}`}}
+          {{`{{ end }}`}}
+        spec:
+          serviceAccountName: {{`{{ .ServiceAccountName }}`}}
+          {{`{{ if .NodeAffinity }}`}}
+          affinity:
+            nodeAffinity:
+              {{`{{ toYaml .NodeAffinity }}`}}
+          {{`{{ end }}`}}
+          {{`{{ if .NodeName }}`}}
+          nodeName: {{`{{ .NodeName }}`}}
+          {{`{{ end }}`}}
+          {{`{{ if eq .HostNetwork true }}`}}
+          hostNetwork: true
+          {{`{{ end }}`}}
+          containers:
+          - name: agent
+            image: {{`{{ .Image }}`}}
+            securityContext:
+              capabilities:
+                add:
+                - NET_ADMIN
+            env:
+            - name: CLUSTERAGENT_NAME
+              value: {{`{{ .ClusterName }}`}}
+            - name: HOST_STATUS_UPDATE_INTERVAL
+              value: {{ .Values.clusterAgent.feature.hostStatusUpdateInterval | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.clusterAgent.feature.logLevel | quote }}
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            args:
+            - --metrics-bind-address=:8080
+            - --health-probe-bind-address=:8081
+            readinessProbe:
+              httpGet:
+                path: /readyz
+                port: 8081
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 3
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 8081
+              initialDelaySeconds: 15
+              periodSeconds: 20
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 3
+            volumeMounts:
+            - name: dhcp-config
+              mountPath: /etc/dhcp/templates
+              readOnly: true
+            - name: dhcp-data
+              mountPath: /var/lib/dhcp
+          volumes:
+          - name: dhcp-config
+            configMap:
+              name: {{ .Release.Name }}-dhcp-config
+              items:
+              - key: dhcp-config.tmpl
+                path: dhcp-config.tmpl
+          # DHCP data volume based on storage configuration
+          - name: dhcp-data
+          {{- if eq .Values.clusterAgent.storage.type "pvc" }}
+            persistentVolumeClaim:
+              claimName: {{`{{ .Name }}`}}-dhcp-data
+          {{- else }}
+            hostPath:
+              path: {{ .Values.clusterAgent.storage.hostPath.path }}
+              type: DirectoryOrCreate
+          {{- end }}
+  agent-serviceaccount.yaml: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: {{`{{ .Name }}`}}
+      namespace: {{`{{ .Namespace }}`}}
+      labels:
+        app: bmc-agent
+        cluster: {{`{{ .ClusterName }}`}}
+  {{- if eq .Values.clusterAgent.storage.type "pvc" }}
+  agent-pvc.yaml: |
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: {{`{{ .Name }}`}}-dhcp-data
+      namespace: {{`{{ .Namespace }}`}}
+      labels:
+        app: bmc-agent
+        cluster: {{`{{ .ClusterName }}`}}
+    spec:
+      {{- if .Values.clusterAgent.storage.pvc.storageClass }}
+      storageClassName: {{ .Values.clusterAgent.storage.pvc.storageClass }}
+      {{- end }}
+      accessModes:
+      {{- range .Values.clusterAgent.storage.pvc.accessModes }}
+        - {{ . }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.clusterAgent.storage.pvc.size }}
+  {{- end }}
+  agent-clusterrole.yaml: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: {{`{{ .Name }}`}}
+      labels:
+        app: bmc-agent
+        cluster: {{`{{ .ClusterName }}`}}
+    rules:
+    - apiGroups: [""]
+      resources: ["pods", "services", "configmaps", "secrets"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: [""]
+      resources: ["events"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    - apiGroups: ["apps"]
+      resources: ["deployments"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["bmc.spidernet.io"]
+      resources: ["clusteragents", "hoststatuses", "hostendpoints", "hoststatuses/status", "hostendpoints/status", "hostoperations", "hostoperations/status"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  agent-clusterrolebinding.yaml: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: {{`{{ .Name }}`}}
+      labels:
+        app: bmc-agent
+        cluster: {{`{{ .ClusterName }}`}}
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: {{`{{ .RoleName }}`}}
+    subjects:
+    - kind: ServiceAccount
+      name: {{`{{ .ServiceAccountName }}`}}
+      namespace: {{`{{ .Namespace }}`}}

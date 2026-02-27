@@ -1,0 +1,17 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+export REPO_URL=https://baizeai.github.io/charts
+export REPO_NAME=dataset
+export CHART_NAME=dataset
+export VERSION=v0.1.8
+
+# pr, issue, none
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=yyzxw
+export TEST_ASSIGNER=liyuerich
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon
+export CUSTOM_SHELL=custom.sh
+export NO_TRIVY=true

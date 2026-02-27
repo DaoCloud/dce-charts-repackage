@@ -3,7 +3,7 @@ export USE_OPENSOURCE_CHART=false
 export REPO_URL=https://helm.ngc.nvidia.com/nvidia
 export REPO_NAME=nvidia
 export CHART_NAME=gpu-operator
-export VERSION=v24.6.0
+export VERSION=v25.3.0
 
 # pr, issue, none
 export UPGRADE_METHOD=pr
@@ -20,4 +20,4 @@ export NO_IMAGE=true
 export NO_TRIVY=true
 
 # gpu-operator version
-export CUSTOM_VERSION=${VERSION}+1
+export CUSTOM_VERSION=${VERSION}+2

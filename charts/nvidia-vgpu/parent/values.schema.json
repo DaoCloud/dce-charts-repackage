@@ -5,6 +5,10 @@
         "hami": {
             "type": "object",
             "properties": {
+                "schedulerName": {
+                    "type": "string",
+                    "default": "hami-scheduler"
+                },
                 "devicePlugin": {
                     "type": "object",
                     "properties": {
@@ -16,33 +20,6 @@
                         },
                         "deviceSplitCount": {
                             "type": "integer"
-                        }
-                    }
-                },
-                "resources": {
-                    "type": "object",
-                    "properties": {
-                        "limits": {
-                            "type": "object",
-                            "properties": {
-                                "cpu": {
-                                    "type": "string"
-                                },
-                                "memory": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "requests": {
-                            "type": "object",
-                            "properties": {
-                                "cpu": {
-                                    "type": "string"
-                                },
-                                "memory": {
-                                    "type": "string"
-                                }
-                            }
                         }
                     }
                 },

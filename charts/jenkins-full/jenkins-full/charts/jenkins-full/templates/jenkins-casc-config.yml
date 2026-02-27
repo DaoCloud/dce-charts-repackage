@@ -1,0 +1,375 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-casc-config
+data:
+  jenkins.yaml: |
+    jenkins:
+      mode: EXCLUSIVE
+      numExecutors: 0
+      scmCheckoutRetryCount: 2
+      disableRememberMe: true
+      clouds:
+        - kubernetes:
+            name: "kubernetes"
+            serverUrl: "https://kubernetes.default"
+            skipTlsVerify: true
+            namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
+            credentialsId: "k8s-service-account"
+            jenkinsUrl: "http://{{template "jenkins.fullname" . }}.{{ .Release.Namespace }}:80"
+            jenkinsTunnel: "{{ template "jenkins.fullname" . }}-agent.{{ .Release.Namespace }}:50000"
+            containerCapStr: {{ .Values.Master.Casc.maxParallelRuns | quote }}
+            connectTimeout: "600"
+            readTimeout: "600"
+            maxRequestsPerHostStr: "32"
+            templates:
+              - name: "base"
+                namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
+                label: "base"
+                nodeUsageMode: "NORMAL"
+                idleMinutes: 0
+                serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
+                containers:
+                - name: "base"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Base "root" . "os" "ubuntu") -}}"
+                  command: "cat"
+                  args: ""
+                  ttyEnabled: true
+                  privileged: {{ template "jenkins.agent.privileged" . }}
+                  resourceRequestCpu: "100m"
+                  resourceLimitCpu: "4000m"
+                  resourceRequestMemory: "100Mi"
+                  resourceLimitMemory: "8192Mi"
+                - name: "jnlp"
+                  image: "{{ template "jenkins-agent.jnlp.image" . }}"
+                  args: "^${computer.jnlpmac} ^${computer.name}"
+                  resourceRequestCpu: "50m"
+                  resourceLimitCpu: "500m"
+                  resourceRequestMemory: "400Mi"
+                  resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
+                workspaceVolume:
+                  emptyDirWorkspaceVolume:
+                    memory: false
+                volumes:
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_sonar_cache"
+                    mountPath: "/root/.sonar/cache"
+                {{- include "jenkins-agent.volume" . | indent 16 }}
+                yaml: |
+                  spec:
+                    affinity:
+                      nodeAffinity:
+                        preferredDuringSchedulingIgnoredDuringExecution:
+                        - weight: 1
+                          preference:
+                            matchExpressions:
+                            - key: node-role.kubernetes.io/worker
+                              operator: In
+                              values:
+                              - ci
+                    tolerations:
+                    - key: "node.kubernetes.io/ci"
+                      operator: "Exists"
+                      effect: "NoSchedule"
+                    - key: "node.kubernetes.io/ci"
+                      operator: "Exists"
+                      effect: "PreferNoSchedule"
+                    containers:
+                    - name: "base"
+                      resources:
+                        requests:
+                          ephemeral-storage: "1Gi"
+                        limits:
+                          ephemeral-storage: "10Gi"
+                    securityContext:
+                      fsGroup: 1000
+              - name: "nodejs"
+                namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
+                label: "nodejs"
+                nodeUsageMode: "EXCLUSIVE"
+                idleMinutes: 0
+                serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
+                containers:
+                - name: "nodejs"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.NodeJs "root" . "os" "ubuntu") -}}"
+                  command: "cat"
+                  args: ""
+                  ttyEnabled: true
+                  privileged: {{ template "jenkins.agent.privileged" . }}
+                  resourceRequestCpu: "100m"
+                  resourceLimitCpu: "4000m"
+                  resourceRequestMemory: "100Mi"
+                  resourceLimitMemory: "8192Mi"
+                - name: "jnlp"
+                  image: "{{ template "jenkins-agent.jnlp.image" . }}"
+                  args: "^${computer.jnlpmac} ^${computer.name}"
+                  resourceRequestCpu: "50m"
+                  resourceLimitCpu: "500m"
+                  resourceRequestMemory: "400Mi"
+                  resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
+                workspaceVolume:
+                  emptyDirWorkspaceVolume:
+                    memory: false
+                volumes:
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_nodejs_yarn_cache"
+                    mountPath: "/root/.yarn"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_nodejs_npm_cache"
+                    mountPath: "/root/.npm"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_sonar_cache"
+                    mountPath: "/root/.sonar/cache"
+                {{- include "jenkins-agent.volume" . | indent 16 }}
+                yaml: |
+                  spec:
+                    affinity:
+                      nodeAffinity:
+                        preferredDuringSchedulingIgnoredDuringExecution:
+                        - weight: 1
+                          preference:
+                            matchExpressions:
+                            - key: node-role.kubernetes.io/worker
+                              operator: In
+                              values:
+                              - ci
+                    tolerations:
+                    - key: "node.kubernetes.io/ci"
+                      operator: "Exists"
+                      effect: "NoSchedule"
+                    - key: "node.kubernetes.io/ci"
+                      operator: "Exists"
+                      effect: "PreferNoSchedule"
+                    containers:
+                    - name: "nodejs"
+                      resources:
+                        requests:
+                          ephemeral-storage: "1Gi"
+                        limits:
+                          ephemeral-storage: "10Gi"
+                    securityContext:
+                      fsGroup: 1000
+              {{- $nodejsParams := dict "language" "nodejs" "builder" .Values.Agent.Builder.NodeJs "root" . "os" "ubuntu"}}
+              {{ include "language.images" $nodejsParams | nindent 14 }}
+              - name: "maven"
+                namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
+                label: "maven"
+                nodeUsageMode: "EXCLUSIVE"
+                idleMinutes: 0
+                serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
+                containers:
+                - name: "maven"
+                  image: "{{ include "builder.image" ( dict "builder" .Values.Agent.Builder.Maven "root" . "os" "ubuntu") -}}"
+                  command: "cat"
+                  args: ""
+                  ttyEnabled: true
+                  privileged: {{ template "jenkins.agent.privileged" . }}
+                  resourceRequestCpu: "100m"
+                  resourceLimitCpu: "4000m"
+                  resourceRequestMemory: "100Mi"
+                  resourceLimitMemory: "8192Mi"
+                - name: "jnlp"
+                  image: "{{ template "jenkins-agent.jnlp.image" . }}"
+                  args: "^${computer.jnlpmac} ^${computer.name}"
+                  resourceRequestCpu: "50m"
+                  resourceLimitCpu: "500m"
+                  resourceRequestMemory: "400Mi"
+                  resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
+                workspaceVolume:
+                  emptyDirWorkspaceVolume:
+                    memory: false
+                volumes:
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_maven_cache"
+                    mountPath: "/root/.m2"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_sonar_cache"
+                    mountPath: "/root/.sonar/cache"
+                {{- include "jenkins-agent.volume" . | indent 16 }}
+                yaml: |
+                  spec:
+                    affinity:
+                      nodeAffinity:
+                        preferredDuringSchedulingIgnoredDuringExecution:
+                        - weight: 1
+                          preference:
+                            matchExpressions:
+                            - key: node-role.kubernetes.io/worker
+                              operator: In
+                              values:
+                              - ci
+                    tolerations:
+                    - key: "node.kubernetes.io/ci"
+                      operator: "Exists"
+                      effect: "NoSchedule"
+                    - key: "node.kubernetes.io/ci"
+                      operator: "Exists"
+                      effect: "PreferNoSchedule"
+                    containers:
+                    - name: "maven"
+                      resources:
+                        requests:
+                          ephemeral-storage: "1Gi"
+                        limits:
+                          ephemeral-storage: "10Gi"
+                      volumeMounts:
+                      - name: config-volume
+                        mountPath: /opt/apache-maven-3.5.3/conf/settings.xml
+                        subPath: settings.xml
+                    volumes:
+                      - name: config-volume
+                        configMap:
+                          name: amamba-devops-agent
+                          items:
+                          - key: MavenSetting
+                            path: settings.xml
+                    securityContext:
+                      fsGroup: 1000
+              {{- $mavenParams := dict "language" "maven" "builder" .Values.Agent.Builder.Maven "root" . "os" "ubuntu" }}
+              {{ include "language.images" $mavenParams | nindent 14 }}
+              - name: "go"
+                namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
+                label: "go"
+                nodeUsageMode: "EXCLUSIVE"
+                idleMinutes: 0
+                serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
+                containers:
+                - name: "go"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Golang "root" . "os" "ubuntu") -}}"
+                  command: "cat"
+                  args: ""
+                  ttyEnabled: true
+                  privileged: {{ template "jenkins.agent.privileged" . }}
+                  resourceRequestCpu: "100m"
+                  resourceLimitCpu: "4000m"
+                  resourceRequestMemory: "100Mi"
+                  resourceLimitMemory: "8192Mi"
+                - name: "jnlp"
+                  image: "{{ template "jenkins-agent.jnlp.image" . }}"
+                  args: "^${computer.jnlpmac} ^${computer.name}"
+                  resourceRequestCpu: "50m"
+                  resourceLimitCpu: "500m"
+                  resourceRequestMemory: "400Mi"
+                  resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
+                workspaceVolume:
+                  emptyDirWorkspaceVolume:
+                    memory: false
+                volumes:
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_go_cache"
+                    mountPath: "/home/jenkins/go/pkg"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_sonar_cache"
+                    mountPath: "/root/.sonar/cache"
+                {{- include "jenkins-agent.volume" . | indent 16 }}
+                yaml: |
+                  spec:
+                    affinity:
+                      nodeAffinity:
+                        preferredDuringSchedulingIgnoredDuringExecution:
+                        - weight: 1
+                          preference:
+                            matchExpressions:
+                            - key: node-role.kubernetes.io/worker
+                              operator: In
+                              values:
+                              - ci
+                    tolerations:
+                    - key: "node.kubernetes.io/ci"
+                      operator: "Exists"
+                      effect: "NoSchedule"
+                    - key: "node.kubernetes.io/ci"
+                      operator: "Exists"
+                      effect: "PreferNoSchedule"
+                    containers:
+                    - name: "go"
+                      resources:
+                        requests:
+                          ephemeral-storage: "1Gi"
+                        limits:
+                          ephemeral-storage: "10Gi"
+                    securityContext:
+                      fsGroup: 1000
+              {{- $goParams := dict "language" "go" "builder" .Values.Agent.Builder.Golang "root" . "os" "ubuntu" }}
+              {{ include "language.images" $goParams | nindent 14 }}
+              - name: "python"
+                namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"
+                label: "python"
+                nodeUsageMode: "EXCLUSIVE"
+                idleMinutes: 0
+                serviceAccount: {{ if .Values.rbac.install }}{{ template "jenkins.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
+                containers:
+                - name: "python"
+                  image: "{{ include "builder.image" (dict "builder" .Values.Agent.Builder.Python "root" . "os" "ubuntu") -}}"
+                  command: "cat"
+                  args: ""
+                  ttyEnabled: true
+                  privileged: {{ template "jenkins.agent.privileged" . }}
+                  resourceRequestCpu: "100m"
+                  resourceLimitCpu: "4000m"
+                  resourceRequestMemory: "100Mi"
+                  resourceLimitMemory: "8192Mi"
+                - name: "jnlp"
+                  image: "{{ template "jenkins-agent.jnlp.image" . }}"
+                  args: "^${computer.jnlpmac} ^${computer.name}"
+                  resourceRequestCpu: "50m"
+                  resourceLimitCpu: "500m"
+                  resourceRequestMemory: "400Mi"
+                  resourceLimitMemory: "1536Mi"
+                  command: "/usr/local/bin/jenkins-agent"
+                workspaceVolume:
+                  emptyDirWorkspaceVolume:
+                    memory: false
+                volumes:
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_python_pip_cache"
+                    mountPath: "/root/.cache/pip"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_python_pipenv_cache"
+                    mountPath: "/root/.local/share/virtualenvs"
+                - hostPathVolume:
+                    hostPath: "/var/data/jenkins_sonar_cache"
+                    mountPath: "/root/.sonar/cache"
+                {{- include "jenkins-agent.volume" . | indent 16 }}
+                yaml: |
+                  spec:
+                    affinity:
+                      nodeAffinity:
+                        preferredDuringSchedulingIgnoredDuringExecution:
+                        - weight: 1
+                          preference:
+                            matchExpressions:
+                            - key: node-role.kubernetes.io/worker
+                              operator: In
+                              values:
+                              - ci
+                    tolerations:
+                    - key: "node.kubernetes.io/ci"
+                      operator: "Exists"
+                      effect: "NoSchedule"
+                    - key: "node.kubernetes.io/ci"
+                      operator: "Exists"
+                      effect: "PreferNoSchedule"
+                    containers:
+                    - name: "python"
+                      resources:
+                        requests:
+                          ephemeral-storage: "1Gi"
+                        limits:
+                          ephemeral-storage: "10Gi"
+                    securityContext:
+                      fsGroup: 1000
+              {{- $pythonParams := dict "language" "python" "builder" .Values.Agent.Builder.Python "root" . "os" "ubuntu" }}
+              {{ include "language.images" $pythonParams | nindent 14 }}
+      securityRealm:
+      authorizationStrategy: loggedInUsersCanDoAnything
+
+    unclassified:
+      location:
+        url: {{ include "location.url" . }}
+      eventDispatcher:
+        receiver: {{ include "jenkins.event.receiver" . | quote }}

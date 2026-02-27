@@ -30,8 +30,10 @@ if ! which yq &>/dev/null ; then
 fi
 
 yq -i '
+   .global.security.allowInsecureImages=true |
    .contour.contour.manageCRDs=true |
    .contour.contour.image.registry="docker.m.daocloud.io" |
+   .contour.contour.image.repository="bitnamilegacy/contour" |
    .contour.contour.image.pullPolicy="IfNotPresent" |
    .contour.contour.replicaCount=2 |
    .contour.contour.ingressClass.name="contour" |
@@ -43,9 +45,12 @@ yq -i '
    .contour.contour.resources.requests.memory="30Mi" |
    .contour.envoy.resources.requests.cpu="15m" |
    .contour.envoy.resources.requests.memory="30Mi" |
-   .contour.envoy.useHostPort=false |
+   .contour.envoy.useHostPort.http=false |
+   .contour.envoy.useHostPort.https=false |
+   .contour.envoy.useHostPort.metrics=false |
    .contour.envoy.replicaCount=2 |
    .contour.envoy.image.registry="docker.m.daocloud.io" |
+   .contour.envoy.image.repository="bitnamilegacy/envoy" |
    .contour.envoy.image.pullPolicy="IfNotPresent" |
    .contour.envoy.kind="deployment" |
    .contour.envoy.hostNetwork=false |

@@ -14,6 +14,9 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+echo "upgrade jenkins from " ${PREV_VERSION} "->" ${VERSION}
+os=$(uname)
+
 if ! which yq &>/dev/null ; then
     echo " 'yq' no found"
     if [ "$(uname)" == "Darwin" ];then
@@ -28,10 +31,19 @@ if ! which yq &>/dev/null ; then
 fi
 
 yq -i '
-  .jenkins.image.registry = "docker.m.daocloud.io" |
+  .jenkins.image.registry = "ghcr.m.daocloud.io" |
   .jenkins.trace.image.registry = "ghcr.m.daocloud.io" |
   .jenkins.trace.enabled = true |
   .jenkins.eventProxy.image.registry = "release.daocloud.io"
 ' values.yaml
+
+# update relok8s.yaml
+if [ $os == "Darwin" ];then
+  sed -i "" "s/${PREV_VERSION}/${VERSION}/g" .relok8s-images.yaml
+  sed -i "" "s/${PREV_VERSION}/${VERSION}/g" ./charts/jenkins/.relok8s-images.yaml
+else
+  sed -i "s/${PREV_VERSION}/${VERSION}/g" .relok8s-images.yaml
+  sed -i "s/${PREV_VERSION}/${VERSION}/g" ./charts/jenkins/.relok8s-images.yaml
+fi
 
 exit $?

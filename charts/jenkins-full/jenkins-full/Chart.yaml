@@ -1,0 +1,19 @@
+annotations:
+  addon.kpanda.io/repo: addon
+  addon.kpanda.io/source: addon
+apiVersion: v2
+appVersion: 0.6.0
+description: jenkins charts of amamba. contains all agents
+home: https://github.com/amamba-io/jenkins-agent
+icon: https://mirrors.tuna.tsinghua.edu.cn/jenkins/art/jenkins-logo/logo.svg
+keywords:
+  - jenkins
+  - jenkins-full
+  - ci
+  - cd
+name: jenkins-full
+version: 0.6.0
+dependencies:
+  - name: jenkins-full
+    version: "0.6.0"
+    repository: "https://amamba-io.github.io/charts"

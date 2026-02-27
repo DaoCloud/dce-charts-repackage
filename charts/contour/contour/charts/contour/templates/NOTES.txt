@@ -2,6 +2,10 @@ CHART NAME: {{ .Chart.Name }}
 CHART VERSION: {{ .Chart.Version }}
 APP VERSION: {{ .Chart.AppVersion }}
 
+⚠ WARNING: Since August 28th, 2025, only a limited subset of images/charts are available for free.
+    Subscribe to Bitnami Secure Images to receive continued support and security updates.
+    More info at https://bitnami.com and https://github.com/bitnami/containers/issues/83267
+
 ** Please be patient while the chart is being deployed **
 
 {{- if eq .Values.envoy.service.type "LoadBalancer" }}
@@ -38,3 +42,6 @@ APP VERSION: {{ .Chart.AppVersion }}
 {{- include "contour.validateValues" . }}
 {{- include "common.warnings.rollingTag" .Values.contour.image }}
 {{- include "common.warnings.rollingTag" .Values.envoy.image }}
+{{- include "common.warnings.resources" (dict "sections" (list "contour" "defaultBackend" "envoy" "envoy.shutdownManager") "context" $) }}
+{{- include "common.warnings.modifiedImages" (dict "images" (list .Values.contour.image .Values.envoy.image .Values.defaultBackend.image) "context" $) }}
+{{- include "common.errors.insecureImages" (dict "images" (list .Values.contour.image .Values.envoy.image .Values.defaultBackend.image) "context" $) }}

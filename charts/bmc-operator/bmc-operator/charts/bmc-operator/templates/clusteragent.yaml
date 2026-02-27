@@ -1,0 +1,50 @@
+apiVersion: "bmc.spidernet.io/v1beta1"
+kind: "ClusterAgent"
+metadata:
+  name: "{{ .Release.Name }}-clusteragent"
+  labels:
+    {{- include "bmc-operator.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": "pre-install"
+spec:
+  agentYaml:
+    replicas: {{ .Values.clusterAgent.agentYaml.replicas }}
+    image: "{{ include "bmc-operator.agent.image" . }}"
+    underlayInterface: "{{ .Values.clusterAgent.agentYaml.underlayInterface }}"
+    {{- with .Values.clusterAgent.agentYaml.nodeAffinity }}
+    nodeAffinity:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- if .Values.clusterAgent.agentYaml.nodeName }}
+    nodeName: {{ .Values.clusterAgent.agentYaml.nodeName }}
+    {{- end }}
+    hostNetwork: {{ .Values.clusterAgent.agentYaml.hostNetwork }}
+  {{- with .Values.clusterAgent.endpoint }}
+  endpoint:
+    port: {{ .port }}
+    https: {{ .https }}
+    {{- if and $.Values.clusterAgent.endpoint.username $.Values.clusterAgent.endpoint.password }}
+    secretName: {{ $.Release.Name }}-credentials
+    secretNamespace: {{ $.Release.Namespace }}
+    {{- else }}
+    secretName: ""
+    secretNamespace: ""
+    {{- end }}
+  {{- end }}
+  {{- with .Values.clusterAgent.feature }}
+  feature:
+    enableDhcpServer: {{ .enableDhcpServer }}
+    {{- if .enableDhcpServer }}
+    dhcpServerConfig:
+      enableDhcpDiscovery: {{ .dhcpServerConfig.enableDhcpDiscovery | default true }}
+      enableBindDhcpIP: {{ .dhcpServerConfig.enableBindDhcpIP | default true }}
+      enableBindStaticIP: {{ .dhcpServerConfig.enableBindStaticIP | default true }}
+      dhcpServerInterface: {{ .dhcpServerConfig.dhcpServerInterface }}
+      subnet: {{ .dhcpServerConfig.subnet }}
+      ipRange: {{ .dhcpServerConfig.ipRange }}
+      gateway: {{ .dhcpServerConfig.gateway }}
+      {{- if .dhcpServerConfig.selfIp }}
+      selfIp: {{ .dhcpServerConfig.selfIp }}
+      {{- end }}
+    {{- end }}
+  {{- end }}

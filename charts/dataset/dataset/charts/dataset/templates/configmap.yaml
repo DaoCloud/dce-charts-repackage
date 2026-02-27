@@ -1,0 +1,44 @@
+{{- define "defaultJobSpec" }}
+backoffLimit: 4
+completionMode: NonIndexed
+completions: 1
+parallelism: 1
+template:
+  spec:
+    restartPolicy: Never
+    securityContext:
+      runAsUser: 0
+    containers:
+      - image: {{ template "dataset.data-loader.image" . }}
+        command:
+          - /usr/local/bin/data-loader
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 2000m
+            memory: 2000Mi
+{{end}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "dataset.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "dataset.fullname" . }}
+data:
+  config.yaml: |-
+    debug: {{.Values.global.debug }}
+    enable_cascading_deletion: {{ .Values.config.enable_cascading_deletion }}
+    dataset_job_spec_yaml: |-
+      {{- if .Values.config.dataset_job_spec}}
+      {{- $cus := .Values.config.dataset_job_spec }}
+      {{- $d := include "defaultJobSpec" . | fromYaml }}
+      {{- $merged := merge $cus $d  }}
+      {{- toYaml $merged | nindent 6}}
+      {{- else }}
+      {{- $d := include "defaultJobSpec" . | fromYaml }}
+      {{- toYaml $d | nindent 6 }}
+      {{end}}

@@ -53,6 +53,15 @@ ipam:
   ## @param ipam.enableKubevirtStaticIP the feature to keep kubevirt vm pod static IP
   enableKubevirtStaticIP: true
 
+  ## @param ipam.enableIPConflictDetection enable IP conflict detection
+  enableIPConflictDetection: false
+
+  ## @param ipam.enableGatewayDetection enable gateway detection
+  enableGatewayDetection: false
+
+  ## @param ipam.enableCleanOutdatedEndpoint enable clean outdated endpoint
+  enableCleanOutdatedEndpoint: false
+
   spiderSubnet:
     ## @param ipam.spiderSubnet.enable SpiderSubnet feature.
     enable: true
@@ -78,6 +87,9 @@ ipam:
 
       ## @param ipam.gc.statelessPod.zombieOnNotReadyNode enable reclaim IP for the stateless pod who is over deleting graceful period on a not-ready node
       zombieOnNotReadyNode: true
+
+      ## @param ipam.gc.statelessPod.enableGcRunningPodOnEmptyPodStatusIPs enable reclaim IP for the stateless pod who is running and empty pod status IPs
+      enableGcRunningPodOnEmptyPodStatusIPs: false
 
     ## @param ipam.gc.gcDeletingTimeOutPodDelay the gc delay seconds after the pod times out of deleting graceful period
     gcDeletingTimeOutPodDelay: 0
@@ -233,8 +245,7 @@ multus:
       digest: ""
 
       ## @param multus.multusCNI.image.tag the multus-CNI image tag
-      tag: v3.9.3
-      # tag: v4.0.2-thick
+      tag: v4.1.4
 
       ## @param multus.multusCNI.image.imagePullSecrets the multus-CNI image imagePullSecrets
       imagePullSecrets: []
@@ -302,7 +313,7 @@ plugins:
     digest: ""
 
     ## @param plugins.image.tag the image tag of plugins
-    tag: 82659d90cae0d6a5169eac2869e47c989932d775
+    tag: 27c4f118b1cec3773f2679b772e7583fc77e5686
 
     ## @param plugins.image.imagePullSecrets the image imagePullSecrets of plugins
     imagePullSecrets: []
@@ -369,7 +380,7 @@ spiderpoolAgent:
     digest: ""
 
     ## @param spiderpoolAgent.image.tag the image tag of spiderpoolAgent, overrides the image tag whose default is the chart appVersion.
-    tag: v1.0.0-rc3
+    tag: v1.1.0
 
     ## @param spiderpoolAgent.image.imagePullSecrets the image imagePullSecrets of spiderpoolAgent
     imagePullSecrets: []
@@ -559,7 +570,7 @@ spiderpoolController:
     digest: ""
 
     ## @param spiderpoolController.image.tag the image tag of spiderpoolController, overrides the image tag whose default is the chart appVersion.
-    tag: v1.0.0-rc3
+    tag: v1.1.0
 
     ## @param spiderpoolController.image.imagePullSecrets the image imagePullSecrets of spiderpoolController
     imagePullSecrets: []
@@ -664,6 +675,9 @@ spiderpoolController:
 
   ## @param spiderpoolController.webhookPort the http port for spiderpoolController webhook
   webhookPort: 5722
+
+  ## @param spiderpoolController.enableValidatingResourcesDeletedWebhook enable validating resources deleted webhook for spiderpoolController
+  enableValidatingResourcesDeletedWebhook: false
 
   podResourceInject:
     ## @param spiderpoolController.podResourceInject.enabled enable pod resource inject
@@ -805,7 +819,7 @@ spiderpoolInit:
     digest: ""
 
     ## @param spiderpoolInit.image.tag the image tag of spiderpoolInit, overrides the image tag whose default is the chart appVersion.
-    tag: v1.0.0-rc3
+    tag: v1.1.0
 
     ## @param spiderpoolInit.image.imagePullSecrets the image imagePullSecrets of spiderpoolInit
     imagePullSecrets: []

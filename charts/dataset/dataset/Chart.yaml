@@ -1,0 +1,15 @@
+apiVersion: v2
+appVersion: 1.16.0
+description: A Helm chart for Kubernetes
+name: dataset
+type: application
+version: 0.1.8
+dependencies:
+  - name: dataset
+    version: "v0.1.8"
+    repository: "https://baizeai.github.io/charts"
+annotations:
+  addon.kpanda.io/release-name: dataset
+  addon.kpanda.io/namespace: dataset-system
+keywords:
+  - dataset

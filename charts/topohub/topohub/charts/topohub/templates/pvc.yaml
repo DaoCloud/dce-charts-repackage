@@ -1,0 +1,19 @@
+{{- if eq .Values.storage.type "pvc" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "topohub.fullname" . }}-data
+  labels:
+    {{- include "topohub.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.storage.pvc.storageClass }}
+  storageClassName: {{ .Values.storage.pvc.storageClass }}
+  {{- end }}
+  accessModes:
+  {{- range .Values.storage.pvc.accessModes }}
+    - {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.pvc.size }}
+{{- end }}

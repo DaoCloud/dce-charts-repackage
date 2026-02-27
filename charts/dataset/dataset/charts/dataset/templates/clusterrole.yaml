@@ -1,0 +1,70 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "dataset.fullname" . }}
+rules:
+  - apiGroups:
+      - dataset.baizeai.io
+    resources:
+      - datasets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - dataset.baizeai.io
+    resources:
+      - datasets/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - dataset.baizeai.io
+    resources:
+      - datasets/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - "*"
+  - apiGroups:
+      - "batch"
+    resources:
+      - "jobs"
+    verbs:
+      - "*"
+  - apiGroups:
+      - ""
+    resources:
+      - "pods"
+      - "persistentvolumeclaims"
+      - "secrets"
+      - "persistentvolumes"
+      - "configmaps"
+      - "services"
+      - "events"
+    verbs:
+      - "*"
+  - apiGroups:
+      - ""
+    resources:
+      - "namespaces"
+    verbs:
+      - get
+      - watch
+      - list
+  - apiGroups:
+      - "apps"
+    resources:
+      - "deployments"
+    verbs:
+      - "*"

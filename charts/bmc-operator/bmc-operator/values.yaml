@@ -1,0 +1,135 @@
+# child values
+bmc-operator:
+  replicaCount: 1
+  # Log level configuration
+  # Available values: debug, info, error
+  logLevel: "info"
+  image:
+    registry: "ghcr.m.daocloud.io"
+    repository: "spidernet-io/bmc-controller"
+    pullPolicy: IfNotPresent
+    # tag will be overridden by version from Chart.yaml
+    tag: v0.5.0
+    # Optional: image digest
+    digest: ""
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  securityContext: {}
+  # ClusterAgent configuration
+  clusterAgent:
+    agentYaml:
+      image:
+        registry: "ghcr.m.daocloud.io"
+        repository: "spidernet-io/bmc-agent"
+        pullPolicy: IfNotPresent
+        # tag will be overridden by version from Chart.yaml
+        tag: v0.5.0
+        # Optional: image digest
+        digest: ""
+      # Optional: network interface configuration
+      underlayInterface: ""
+      # Optional: Use host network for agent pods
+      hostNetwork: true
+      # Optional: Node scheduling configuration
+      # Option 1: Use nodeAffinity for flexible node selection
+      # nodeAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     nodeSelectorTerms:
+      #     - matchExpressions:
+      #       - key: kubernetes.io/hostname
+      #         operator: In
+      #         values:
+      #         - worker-1
+      # Option 2: Use nodeName for direct node assignment
+      nodeName: ""
+    # Optional: Endpoint configuration
+    endpoint:
+      # Port for the endpoint (default: 443)
+      port: 443
+      # Enable HTTPS (default: true)
+      https: true
+      # Optional: Authentication credentials
+      username: "admin"
+      password: "secret"
+    # Optional: Feature configuration
+    feature:
+      # 状态更新间隔，它决定了多久向主机发送一次redfish请求，来更新 hostStatus 对象中的信息，默认 60 秒
+      hostStatusUpdateInterval: 60
+      # 日志级别，可选值：debug, info, error
+      logLevel: "info"
+      # Enable DHCP server (default: true)
+      enableDhcpServer: true
+      # DHCP server configuration (required when enableDhcpServer is true)
+      dhcpServerConfig:
+        # Enable DHCP discovery (default: true)
+        enableDhcpDiscovery: true
+        # fix the dhcp ip for the dhcp client in the dhcp server
+        enableBindDhcpIP: true
+        # fix the hostendpoint ip in the dhcp server
+        enableBindStaticIP: true
+        # DHCP server interface (required)
+        dhcpServerInterface: "net1"
+        # Subnet for DHCP server (required)
+        subnet: "192.168.0.0/24"
+        # IP range for DHCP server (required)
+        ipRange: "192.168.0.10-192.168.0.100"
+        # Gateway for DHCP server (required)
+        gateway: "192.168.0.1"
+        # Self IP for DHCP server (optional)
+        selfIp: "192.168.0.2/24"
+    # Storage configuration for DHCP lease files
+    storage:
+      # Storage type: "pvc" or "hostPath"
+      type: "hostPath"
+      # PVC configuration (used when type is "pvc")
+      # this should be used when production environment
+      pvc:
+        # Storage class for new PVC
+        storageClass: ""
+        # Storage size for new PVC
+        size: "100M"
+        # Access modes for PVC
+        accessModes:
+          - ReadWriteOnce
+      # HostPath configuration (used when type is "hostPath")
+      # this should be used only when POC environment, and it should designate the node name
+      hostPath:
+        # Path on the host
+        path: "/var/lib/dhcp"
+  # Webhook configuration
+  webhook:
+    # Port for webhook server to listen on and service to expose
+    webhookPort: 443
+    # Port for metrics server
+    metricsPort: 8080
+    # Certificate configuration
+    certificate:
+      # Validity duration in days
+      validityDays: 36500
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    annotations: {}
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  # Global configuration
+  global:
+    # Override image registry for all images
+    imageRegistryOverride: ""
+    # Override image tag for all images
+    imageTagOverride: ""

@@ -1,12 +1,12 @@
 image:
-  registry: docker.io
+  registry: ghcr.io
 nameOverride: "jenkins"
 fullnameOverride: ""
 pullPolicy: IfNotPresent
 plugins:
-# if "Values.eventProxy.enable" is "true", will use sidecar model to send event first;
-# if "receiver" not empty, will use receiver to send event;
-# otherwise, will send event to "http://amamba-devops-server.targetNamespace:80/apis/internel.amamba.io/devops/pipeline/v1alpha1/webhooks/jenkins".
+  # if "Values.eventProxy.enable" is "true", will use sidecar model to send event first;
+  # if "receiver" not empty, will use receiver to send event;
+  # otherwise, will send event to "http://amamba-devops-server.targetNamespace:80/apis/internel.amamba.io/devops/pipeline/v1alpha1/webhooks/jenkins".
   eventDispatcher:
     receiver: ""
 
@@ -19,8 +19,8 @@ Master:
     # Name of the Kubernetes scheduler to use
     SchedulerName: ""
   Name: jenkins-master
-  Image: "amambadev/jenkins"
-  ImageTag: "v0.4.7-2.413"
+  Image: "amamba-io/jenkins"
+  ImageTag: "v0.6.0-2.502"
   ImagePullPolicy: "IfNotPresent"
   ImagePullSecret: ""
   Component: "jenkins-master"
@@ -35,11 +35,12 @@ Master:
     #   memory: "799Mi"
     # limits:
     #   cpu: "2"
-    #   memory: "4096Mi"
+  #   memory: "4096Mi"
 
   UsePodSecurityContext: true
   JavaOpts: |-
-    -XX:MaxRAMPercentage=70.0 
+    -XX:+PrintFlagsFinal
+    -XX:MaxRAMPercentage=70.0
     -XX:MinHeapFreeRatio=8
     -XX:MaxHeapFreeRatio=15
     -XX:MinRAMPercentage=20.0
@@ -53,13 +54,14 @@ Master:
     -Dhudson.slaves.NodeProvisioner.recurrencePeriod=5000
     -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true
     -Dio.jenkins.plugins.casc.ConfigurationAsCode.initialDelay=10000
-    -Djenkins.install.runSetupWizard=false
-    -XX:+UseG1GC
+    -Djenkins.install.runSetupWizard=false  
     -XX:+UseStringDeduplication
     -XX:+ParallelRefProcEnabled
     -XX:+DisableExplicitGC
     -XX:+UnlockDiagnosticVMOptions
     -XX:+UnlockExperimentalVMOptions
+    -Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ALLOW_ADMIN_APPROVAL_ENABLED=true
+    -Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ADMIN_AUTO_APPROVAL_ENABLED=true
   Deploy:
     NotWithApiServer: false
     # If the cluster where jenkins is deployed and amamba-apiserver are not in the same cluster, you need to fill in this item
@@ -109,7 +111,7 @@ Master:
   SlaveListenerServiceType: ClusterIP
   SlaveListenerServiceAnnotations: {}
   LoadBalancerSourceRanges:
-  - 0.0.0.0/0
+    - 0.0.0.0/0
 
   ContainerEnv:
     - name: CASC_JENKINS_CONFIG
@@ -134,8 +136,8 @@ Master:
       value: "P@ssw0rd"
 
   InitScripts:
-#    TimeZone:
-#      System.setProperty('org.apache.commons.jelly.tags.fmt.timeZone', 'Asia/Shanghai')
+    #    TimeZone:
+    #      System.setProperty('org.apache.commons.jelly.tags.fmt.timeZone', 'Asia/Shanghai')
 
     Mailer: |-
       import jenkins.model.*
@@ -207,7 +209,7 @@ Master:
       }
 
       // Make the method assignRole accessible
-      Method assignRoleMethod = RoleBasedAuthorizationStrategy.class.getDeclaredMethod("assignRole", RoleType.class, Role.class, String.class);
+      Method assignRoleMethod = RoleBasedAuthorizationStrategy.class.getDeclaredMethod("assignRole", RoleType.class, Role.class, PermissionEntry.class);
       assignRoleMethod.setAccessible(true);
 
       // Create admin set of permissions
@@ -248,7 +250,8 @@ Master:
       roleBasedAuthenticationStrategy.addRole(RoleType.Global, adminRole);
 
       // Assign the role
-      roleBasedAuthenticationStrategy.assignRole(RoleType.Global, adminRole, UserNameAdmin);
+      PermissionEntry adminUserEntry = new PermissionEntry(AuthorizationType.USER, UserNameAdmin);
+      roleBasedAuthenticationStrategy.assignRole(RoleType.Global, adminRole, adminUserEntry);
       println "Admin role created...OK"
 
       /// Read access for authenticated users
@@ -260,7 +263,8 @@ Master:
       roleBasedAuthenticationStrategy.addRole(RoleType.Global, authenticatedRole);
 
       // Assign the role
-      roleBasedAuthenticationStrategy.assignRole(RoleType.Global, authenticatedRole, 'authenticated');
+      PermissionEntry userEntry = new PermissionEntry(AuthorizationType.USER, 'authenticated');
+      roleBasedAuthenticationStrategy.assignRole(RoleType.Global, authenticatedRole, userEntry);
       println "Read role created...OK"
 
       // Save the state
@@ -269,21 +273,28 @@ Master:
     Users: |-
       import jenkins.model.*
       import hudson.security.*
-
+      
       def adminUsername = System.getenv('ADMIN_USER')
-      // println "user: ${adminUsername}"
       def adminPassword = System.getenv('ADMIN_PASSWORD')
-      // println "password: ${adminPassword}"
-      // avoid reset the user
-      if (hudson.model.User.getById(adminUsername, false) == null) {
-        def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-        hudsonRealm.createAccount(adminUsername, adminPassword)
-
-        def instance = Jenkins.getInstance()
-        instance.setSecurityRealm(hudsonRealm)
-        instance.save()
+      if (!adminUsername || !adminPassword) {
+        println "Warning: ADMIN_USER or ADMIN_PASSWORD environment variables are not set. It's dangerous to run Jenkins without authentication."
+        return
       }
-
+      def instance = Jenkins.getInstance()
+      def hudsonRealm = instance.getSecurityRealm()
+      if (!(hudsonRealm instanceof HudsonPrivateSecurityRealm)) {
+        hudsonRealm = new HudsonPrivateSecurityRealm(false)
+        instance.setSecurityRealm(hudsonRealm)
+      }
+      def existingUser = hudsonRealm.getUser(adminUsername)
+      if (existingUser) {
+        println "User '${adminUsername}' already exists. Updating password."
+      } else {
+        println "Creating new user '${adminUsername}'."
+      }
+      hudsonRealm.createAccount(adminUsername, adminPassword)
+      instance.save()
+      println "User '${adminUsername}' has been configured successfully."
   CustomConfigMap: false
   # By default, the configMap is only used to set the initial config the first time
   # that the chart is installed.  Setting `OverwriteConfig` to `true` will overwrite
@@ -314,8 +325,8 @@ Master:
 
 Agent:
   Enabled: true
-  Image: "jenkins/inbound-agent"
-  ImageTag: 4.10-2
+  Image: "amamba-io/inbound-agent"
+  ImageTag: jdk21
   CustomJenkinsLabels: []
   Component: "jenkins-inbound-agent"
   Privileged: false
@@ -351,44 +362,29 @@ Agent:
   relok8sPlaceholder: ""
   Builder:
     Base:
-      Image: amambadev/jenkins-agent-base
-      ImageTag: v0.4.7
+      Image: amamba-io/jenkins-agent-base
+      ImageTag: v0.6.0
     NodeJs:
-      Image: amambadev/jenkins-agent-nodejs
-      ImageTag: v0.4.7-16.20.2
+      Image: amamba-io/jenkins-agent-nodejs
+      ImageTag: v0.6.0-16.20.2
       # Versions for auto generator Jenkins CASC Config and relock_k8s images.
       # must build image first.
-      Versions:
-        - v0.4.7-18.20.4
-        - v0.4.7-20.17.0
     Maven:
-      Image: amambadev/jenkins-agent-maven
-      ImageTag: v0.4.7-jdk8
-      Versions:
-        - v0.4.7-jdk11
-        - v0.4.7-jdk17
-        - v0.4.7-jdk21
+      Image: amamba-io/jenkins-agent-maven
+      ImageTag: v0.6.0-jdk8
     Golang:
-      Image: amambadev/jenkins-agent-go
-      ImageTag: v0.4.7-1.22.6
-      Versions:
-        - v0.4.7-1.17.13
-        - v0.4.7-1.18.10
-        - v0.4.7-1.20.14
+      Image: amamba-io/jenkins-agent-go
+      ImageTag: v0.6.0-1.22.6
     Python:
-      Image: amambadev/jenkins-agent-python
-      ImageTag: v0.4.7-3.8.19
-      Versions:
-        - v0.4.7-2.7.9
-        - v0.4.7-3.10.9
-        - v0.4.7-3.11.9
+      Image: amamba-io/jenkins-agent-python
+      ImageTag: v0.6.0-3.8.19
     ContainerRuntime: podman # Available values: docker, podman
 
 Persistence:
   Enabled: true
   # if "-" use default sc.you can specify other sc,like: hwameistor-storage-lvm-hdd, hwameistor-storage-lvm-hdd-ha
   StorageClass: "-"
-#  ExistingClaim: ""
+  #  ExistingClaim: ""
 
   Annotations: {}
   AccessMode: ReadWriteOnce
@@ -450,7 +446,7 @@ eventProxy:
     #    memory: 100Mi
     #  limits:
     #    cpu: 200m
-    #    memory: 200Mi
+  #    memory: 200Mi
 
 trace:
   enabled: false

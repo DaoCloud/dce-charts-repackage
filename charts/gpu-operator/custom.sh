@@ -37,11 +37,13 @@ if [ $os == "Darwin" ];then
    sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/nfd-gc.yaml
    sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/worker.yaml
    sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/topologyupdater.yaml
+   sed -i "" "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/post-delete-job.yaml
 elif [ $os == "Linux" ]; then
    sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/master.yaml
       sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/nfd-gc.yaml
    sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/worker.yaml
    sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/topologyupdater.yaml
+   sed -i  "s/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/{{ .Values.image.registry }}\/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}/g" ./charts/gpu-operator/charts/node-feature-discovery/templates/post-delete-job.yaml
 fi
 
 
@@ -93,21 +95,19 @@ yq -i '
 
 # set image
 yq -i '
-    .gpu-operator.toolkit.version="v1.16.0-ubi8" |
-    .gpu-operator.toolkit.versionubuntu20="v1.16.0-ubuntu20.04" |
-    .gpu-operator.gds.version="2.16.1-ubuntu22.04" |
-    .gpu-operator.driver.version="535.104.12" |
-    .gpu-operator.driver.versioncentos="535.104.12" |
-    .gpu-operator.driver.versionubunt20="535.104.12"
+    .gpu-operator.toolkit.version="v1.17.5-ubi8" |
+    .gpu-operator.toolkit.versionubuntu20="v1.17.5-ubuntu20.04" |
+    .gpu-operator.gds.version="2.20.5-ubuntu22.04" |
+    .gpu-operator.driver.version="570.148.08" |
+    .gpu-operator.driver.versionubunt20="570.148.08"
 ' values.yaml
 
 yq -i '
-    .toolkit.version="v1.16.0-ubi8" |
-    .toolkit.versionubuntu20="v1.16.0-ubuntu20.04" |
-    .gds.version="2.16.1-ubuntu22.04" |
-    .driver.version="535.104.12" |
-    .driver.versioncentos="535.104.12" |
-    .driver.versionubunt20="535.104.12"
+    .toolkit.version="v1.17.5-ubi8" |
+    .toolkit.versionubuntu20="v1.17.5-ubuntu20.04" |
+    .gds.version="2.20.5-ubuntu22.04" |
+    .driver.version="570.148.08" |
+    .driver.versionubunt20="570.148.08"
 ' charts/gpu-operator/values.yaml
 
 # set serviceMonitor

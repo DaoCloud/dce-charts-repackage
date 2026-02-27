@@ -70,10 +70,10 @@ jobs:
           exit 0
 
       - name: Set up Helm
-        uses: azure/setup-helm@v3.5
-
-      - name: install docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: azure/setup-helm@v4.3.0
+        with: 
+          version: 'v3.19.2'
+          
 
       - name: Install Kind
         uses: helm/kind-action@v1.5.0

@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{template "jenkins.fullname" . }}
+  labels:
+    app: {{ template "jenkins.fullname" . }}
+    heritage: {{.Release.Service | quote }}
+    release: {{.Release.Name | quote }}
+    chart: "{{.Chart.Name}}-{{ include "charts.version" . }}"
+    component: "{{.Release.Name}}-{{.Values.Master.Component}}"
+{{- if .Values.Master.ServiceAnnotations }}
+  annotations:
+{{ toYaml .Values.Master.ServiceAnnotations | indent 4 }}
+{{- end }}
+spec:
+  ports:
+    - port: {{.Values.Master.ServicePort}}
+      name: http
+      targetPort: 8080
+      {{- if (not (empty (include "svc.nodePort" .) ))}}
+      nodePort: {{ include "svc.nodePort" . }}
+      {{- end}}
+  selector:
+    component: "{{.Release.Name}}-{{.Values.Master.Component}}"
+  type: {{ include "svc.serviceType" . }}
+  {{if eq .Values.Master.ServiceType "LoadBalancer"}}
+{{- if .Values.Master.LoadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml .Values.Master.LoadBalancerSourceRanges | indent 4 }}
+{{- end }}
+{{end}}

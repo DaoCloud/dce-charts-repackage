@@ -3,12 +3,13 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "hami-vgpu.scheduler" . }}-newversion
+  namespace: {{ include "hami-vgpu.namespace" . }}
   labels:
     app.kubernetes.io/component: hami-scheduler
     {{- include "hami-vgpu.labels" . | nindent 4 }}
 data:
   config.yaml: |
-    {{- if gt (.Values.scheduler.kubeScheduler.imageTag | substr 3 5| atoi) 25}}
+    {{- if gt (regexReplaceAll "[^0-9]" .Capabilities.KubeVersion.Minor "" | int) 25}}
     apiVersion: kubescheduler.config.k8s.io/v1
     {{- else }}
     apiVersion: kubescheduler.config.k8s.io/v1beta2
@@ -47,12 +48,50 @@ data:
         ignoredByScheduler: true
       - name: {{ .Values.dcuResourceCores }}
         ignoredByScheduler: true
-      - name: {{ .Values.iluvatarResourceName }}
+      - name: "metax-tech.com/gpu"
+        ignoredByScheduler: true
+      - name: {{ .Values.metaxResourceName }}
+        ignoredByScheduler: true
+      - name: {{ .Values.metaxResourceCore }}
+        ignoredByScheduler: true
+      - name: {{ .Values.metaxResourceMem }}
         ignoredByScheduler: true
       {{- if .Values.devices.ascend.enabled }}
-      {{- range .Values.devices.ascend.resources }}
+      {{- range .Values.devices.ascend.customresources }}
       - name: {{ . }}
         ignoredByScheduler: true
       {{- end }}
+      {{- end }}
+      {{- if .Values.devices.mthreads.enabled }}
+      {{- range .Values.devices.mthreads.customresources }}
+      - name: {{ . }}
+        ignoredByScheduler: true
+      {{- end }}
+      {{- end }}
+      {{- if .Values.devices.enflame.enabled }}
+      {{- range .Values.devices.enflame.customresources }}
+      - name: {{ . }}
+        ignoredByScheduler: true
+      {{- end }}
+      {{- end }}
+      {{- if .Values.devices.kunlun.enabled }}
+      {{- range .Values.devices.kunlun.customresources }}
+      - name: {{ . }}
+        ignoredByScheduler: true
+      {{- end }}
+      {{- end }}
+      {{- range .Values.devices.awsneuron.customresources }}
+      - name: {{ . }}
+        ignoredByScheduler: true
+      {{- end }}
+      {{- if .Values.devices.iluvatar.enabled }}
+      {{- range .Values.devices.iluvatar.customresources }}
+      - name: {{ . }}
+        ignoredByScheduler: true
+      {{- end }}
+      {{- end }}
+      {{- range .Values.devices.amd.customresources }}
+      - name: {{ . }}
+        ignoredByScheduler: true
       {{- end }}
 {{- end }}

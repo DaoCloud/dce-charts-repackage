@@ -24,7 +24,7 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 7,
+    "id": 22,
     "links": [],
     "liveNow": false,
     "panels": [
@@ -38,7 +38,7 @@
             },
             "id": 11,
             "panels": [],
-            "title": "Physical  Network Card",
+            "title": "Host PF (Physical Function)",
             "type": "row"
         },
         {
@@ -140,13 +140,13 @@
                         "uid": "${datasource}"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (rdma_parent_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{node_name=~\"$node\"}[1m]) +\n  rate(rdma_rx_vport_rdma_multicast_bytes_total{node_name=~\"$node\"}[1m])\n)",
+                    "expr": "sum by (rdma_parent_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{node_name=~\"$node\",cluster=~\"$cluster\"}[1m]) +\n  rate(rdma_rx_vport_rdma_multicast_bytes_total{node_name=~\"$node\",cluster=~\"$cluster\"}[1m])\n)",
                     "legendFormat": "{{net_dev_name}}",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Bandwidth | Read",
+            "title": "Read Throughput",
             "type": "timeseries"
         },
         {
@@ -248,13 +248,13 @@
                         "uid": "${datasource}"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (rdma_parent_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{node_name=~\"$node\"}[1m]) +\n  rate(rdma_rx_vport_rdma_multicast_bytes_total{node_name=~\"$node\"}[1m])\n)",
+                    "expr": "sum by (rdma_parent_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{node_name=~\"$node\",cluster=~\"$cluster\"}[1m]) +\n  rate(rdma_rx_vport_rdma_multicast_bytes_total{node_name=~\"$node\",cluster=~\"$cluster\"}[1m])\n)",
                     "legendFormat": "{{net_dev_name}}",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Bandwidth | Write",
+            "title": "Write Throughput",
             "type": "timeseries"
         },
         {
@@ -339,13 +339,13 @@
                         "uid": "${datasource}"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (rdma_parent_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{node_name=~\"$node\"}[1m])\n)\n/ sum by (rdma_parent_name) (rdma_vport_speed_mbps_total{node_name=~\"$node\", is_root=\"true\"} * 1000000 / 8) * 100",
+                    "expr": "sum by (rdma_parent_name) (\n  rate(rdma_rx_vport_rdma_unicast_bytes_total{node_name=~\"$node\",cluster=~\"$cluster\"}[1m])\n)\n/ sum by (rdma_parent_name) (rdma_vport_speed_mbps_total{node_name=~\"$node\", is_root=\"true\",cluster=~\"$cluster\"} * 1000000 / 8) * 100",
                     "legendFormat": "__auto",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Rate of Bandwidth | Read",
+            "title": "Read Bandwidth Usage Rate",
             "type": "timeseries"
         },
         {
@@ -431,13 +431,13 @@
                         "uid": "${datasource}"
                     },
                     "editorMode": "code",
-                    "expr": "sum by (rdma_parent_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{node_name=~\"$node\"}[1m])\n)\n/ sum by (rdma_parent_name) (rdma_vport_speed_mbps_total{node_name=~\"$node\", is_root=\"true\"} * 1000000 / 8) * 100",
+                    "expr": "sum by (rdma_parent_name) (\n  rate(rdma_tx_vport_rdma_unicast_bytes_total{node_name=~\"$node\",cluster=~\"$cluster\"}[1m])\n)\n/ sum by (rdma_parent_name) (rdma_vport_speed_mbps_total{node_name=~\"$node\", is_root=\"true\",cluster=~\"$cluster\"} * 1000000 / 8) * 100",
                     "legendFormat": "__auto",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Rate of Bandwidth | Write",
+            "title": "Write Bandwidth Usage Rate",
             "type": "timeseries"
         },
         {
@@ -450,7 +450,7 @@
             },
             "id": 13,
             "panels": [],
-            "title": "Host RDMA Device",
+            "title": "Host PF and VF",
             "type": "row"
         },
         {
@@ -564,13 +564,13 @@
                         "uid": "${datasource}"
                     },
                     "editorMode": "code",
-                    "expr": "rate(rdma_rx_vport_rdma_unicast_bytes_total{pod_name=\"\", node_name=~\"$node\"}[$__rate_interval]) +\nrate(rdma_rx_vport_rdma_multicast_bytes_total{pod_name=\"\", node_name=~\"$node\"}[$__rate_interval])",
+                    "expr": "rate(rdma_rx_vport_rdma_unicast_bytes_total{pod_name=\"\", node_name=~\"$node\",cluster=~\"$cluster\"}[$__rate_interval]) +\nrate(rdma_rx_vport_rdma_multicast_bytes_total{pod_name=\"\", node_name=~\"$node\",cluster=~\"$cluster\"}[$__rate_interval])",
                     "legendFormat": "{{net_dev_name}}",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Host Bandwidth | Read",
+            "title": "Read Throughput",
             "type": "timeseries"
         },
         {
@@ -653,13 +653,13 @@
                         "uid": "${datasource}"
                     },
                     "editorMode": "code",
-                    "expr": "rate(rdma_tx_vport_rdma_unicast_bytes_total{pod_name=\"\", node_name=~\"$node\"}[$__rate_interval]) +\nrate(rdma_rx_vport_rdma_multicast_bytes_total{pod_name=\"\", node_name=~\"$node\"}[$__rate_interval])",
+                    "expr": "rate(rdma_tx_vport_rdma_unicast_bytes_total{pod_name=\"\", node_name=~\"$node\",cluster=~\"$cluster\"}[$__rate_interval]) +\nrate(rdma_tx_vport_rdma_multicast_bytes_total{pod_name=\"\", node_name=~\"$node\",cluster=~\"$cluster\"}[$__rate_interval])",
                     "legendFormat": "{{net_dev_name}}",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Host Bandwidth | Write",
+            "title": "Write Throughput",
             "type": "timeseries"
         },
         {
@@ -720,7 +720,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             }
                         ]
                     },
@@ -754,13 +755,13 @@
                         "uid": "${datasource}"
                     },
                     "editorMode": "code",
-                    "expr": "rate(rdma_rx_vport_rdma_unicast_bytes_total{pod_name!=\"\", node_name=~\"$node\"}[$__rate_interval])",
+                    "expr": "rate(rdma_rx_vport_rdma_unicast_bytes_total{pod_name!=\"\", node_name=~\"$node\",cluster=~\"$cluster\"}[$__rate_interval])",
                     "legendFormat": "{{ifname}}",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Pod Bandwidth | Read",
+            "title": "Read Throughput",
             "type": "timeseries"
         },
         {
@@ -808,7 +809,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             }
                         ]
                     },
@@ -842,13 +844,13 @@
                         "uid": "${datasource}"
                     },
                     "editorMode": "code",
-                    "expr": "rate(rdma_tx_vport_rdma_unicast_bytes_total{pod_name!=\"\", node_name=~\"$node\"}[$__rate_interval]) +\nrate(rdma_rx_vport_rdma_multicast_bytes_total{pod_name!=\"\", node_name=~\"$node\"}[$__rate_interval])",
+                    "expr": "rate(rdma_tx_vport_rdma_unicast_bytes_total{pod_name!=\"\", node_name=~\"$node\",cluster=~\"$cluster\"}[$__rate_interval]) +\nrate(rdma_rx_vport_rdma_multicast_bytes_total{pod_name!=\"\", node_name=~\"$node\",cluster=~\"$cluster\"}[$__rate_interval])",
                     "legendFormat": "{{ifname}}",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Pod Bandwidth  Write",
+            "title": "Write Throughput",
             "type": "timeseries"
         },
         {
@@ -896,7 +898,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             },
                             {
                                 "color": "red",
@@ -934,13 +937,13 @@
                         "uid": "${datasource}"
                     },
                     "editorMode": "code",
-                    "expr": "topk(\n  10,\n  sum by (pod_name, pod_namespace) (\n    rate(rdma_rx_vport_rdma_unicast_bytes_total{pod_name!=\"\", node_name=~\"$node\"}[$__rate_interval]) +\n    rate(rdma_rx_vport_rdma_multicast_bytes_total{pod_name!=\"\", node_name=~\"$node\"}[$__rate_interval])\n  )\n)",
+                    "expr": "topk(\n  10,\n  sum by (pod_name, pod_namespace) (\n    rate(rdma_rx_vport_rdma_unicast_bytes_total{pod_name!=\"\", node_name=~\"$node\",cluster=~\"$cluster\"}[$__rate_interval]) +\n    rate(rdma_rx_vport_rdma_multicast_bytes_total{pod_name!=\"\", node_name=~\"$node\",cluster=~\"$cluster\"}[$__rate_interval])\n  )\n)",
                     "legendFormat": "{{pod_namespace}}/{{pod_name}}",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Pod Top 10 | Bandwidth | Read",
+            "title": "Top 10 Pods With Highest Read Throughput",
             "type": "timeseries"
         },
         {
@@ -988,7 +991,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             },
                             {
                                 "color": "red",
@@ -1026,13 +1030,13 @@
                         "uid": "${datasource}"
                     },
                     "editorMode": "code",
-                    "expr": "topk(\n  10, \n  sum by (pod_name, pod_namespace) (\n    rate(rdma_tx_vport_rdma_unicast_bytes_total{pod_name!=\"\", node_name=~\"$node\"}[$__rate_interval]) +\n    rate(rdma_rx_vport_rdma_multicast_bytes_total{pod_name!=\"\", node_name=~\"$node\"}[$__rate_interval])\n  )\n)",
+                    "expr": "topk(\n  10, \n  sum by (pod_name, pod_namespace) (\n    rate(rdma_tx_vport_rdma_unicast_bytes_total{pod_name!=\"\", node_name=~\"$node\",cluster=~\"$cluster\"}[$__rate_interval]) +\n    rate(rdma_rx_vport_rdma_multicast_bytes_total{pod_name!=\"\", node_name=~\"$node\",cluster=~\"$cluster\"}[$__rate_interval])\n  )\n)",
                     "legendFormat": "{{pod_namespace}}/{{pod_name}}",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "Pod Top 10 | Bandwidth | Write",
+            "title": "Top 10 Pods With Highest Write Throughput",
             "type": "timeseries"
         }
     ],
@@ -1062,6 +1066,61 @@
             },
             {
                 "current": {
+                    "isNone": true,
+                    "selected": false,
+                    "text": "None",
+                    "value": ""
+                },
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                },
+                "definition": "label_values(global_cluster_info, cluster_name)",
+                "hide": 0,
+                "includeAll": false,
+                "label": "Cluster",
+                "multi": false,
+                "name": "cluster_name",
+                "options": [],
+                "query": {
+                    "query": "label_values(global_cluster_info, cluster_name)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "isNone": true,
+                    "selected": false,
+                    "text": "None",
+                    "value": ""
+                },
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                },
+                "definition": "label_values(global_cluster_info{cluster_name=\"$cluster_name\"}, cluster)",
+                "hide": 2,
+                "includeAll": false,
+                "multi": false,
+                "name": "cluster",
+                "options": [],
+                "query": {
+                    "query": "label_values(global_cluster_info{cluster_name=\"$cluster_name\"}, cluster)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "current": {
                     "selected": false,
                     "text": "10-20-1-50",
                     "value": "10-20-1-50"
@@ -1070,14 +1129,14 @@
                     "type": "prometheus",
                     "uid": "${datasource}"
                 },
-                "definition": "label_values(rdma_tx_vport_rdma_unicast_bytes_total{}, node_name)",
+                "definition": "label_values(rdma_tx_vport_rdma_unicast_bytes_total{cluster=~\"$cluster\"}, node_name)",
                 "hide": 0,
                 "includeAll": false,
                 "multi": false,
                 "name": "node",
                 "options": [],
                 "query": {
-                    "query": "label_values(rdma_tx_vport_rdma_unicast_bytes_total{}, node_name)",
+                    "query": "label_values(rdma_tx_vport_rdma_unicast_bytes_total{cluster=~\"$cluster\"}, node_name)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 1,
@@ -1096,6 +1155,6 @@
     "timezone": "",
     "title": "Spiderpool RDMA | Node",
     "uid": "A0T4f2ZNz",
-    "version": 22,
+    "version": 23,
     "weekStart": ""
 }

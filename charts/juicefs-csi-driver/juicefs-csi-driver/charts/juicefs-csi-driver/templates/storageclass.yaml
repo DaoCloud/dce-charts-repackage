@@ -1,0 +1,116 @@
+{{ $namespace := .Release.Namespace | quote }}
+{{- range $_, $sc := .Values.storageClasses }}
+
+{{- if and ($sc.enabled) (not $sc.existingSecretName) }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $sc.name }}-secret
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "juicefs-csi.labels" $ | nindent 4 }}
+type: Opaque
+data:
+  {{- with $sc.backend }}
+  name: {{ .name | b64enc | quote }}
+  {{- if .metaurl }}
+  metaurl: {{ .metaurl | b64enc | quote }}
+  {{- end }}
+  {{- if .token }}
+  token: {{ .token | b64enc | quote }}
+  {{- end }}
+  {{- if .storage }}
+  storage: {{ .storage | b64enc | quote }}
+  {{- end }}
+  {{- if .accessKey }}
+  access-key: {{ .accessKey | b64enc | quote }}
+  {{- end }}
+  {{- if .secretKey }}
+  secret-key: {{ .secretKey | b64enc | quote }}
+  {{- end }}
+  {{- if .bucket }}
+  bucket: {{ .bucket | b64enc | quote }}
+  {{- end }}
+  {{- if .envs }}
+  envs: {{ .envs | b64enc | quote }}
+  {{- end }}
+  {{- if .configs }}
+  configs: {{ .configs | b64enc | quote }}
+  {{- end }}
+  {{- if .trashDays }}
+  trash-days: {{ .trashDays | b64enc | quote }}
+  {{- end }}
+  {{- if .formatOptions }}
+  format-options: {{ .formatOptions | b64enc | quote }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+---
+{{- if $sc.enabled }}
+
+{{- $secretName := printf "%s-secret" $sc.name -}}
+{{- if $sc.existingSecretName }}
+{{ $secretName = $sc.existingSecretName | quote }}
+{{- end }}
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  labels:
+    {{- include "juicefs-csi.labels" $ | nindent 4 }}
+  name: {{ $sc.name }}
+  {{- if $sc.annotations }}
+  annotations:
+    {{- toYaml $sc.annotations | nindent 4 }}
+  {{- end }}
+{{- if $sc.mountOptions }}
+mountOptions:
+  {{- toYaml $sc.mountOptions | nindent 2 }}
+{{- end }}
+allowVolumeExpansion: {{ $sc.allowVolumeExpansion }}
+parameters:
+  csi.storage.k8s.io/node-publish-secret-name: {{ $secretName }}
+  csi.storage.k8s.io/node-publish-secret-namespace: {{ $namespace }}
+  csi.storage.k8s.io/provisioner-secret-name: {{ $secretName }}
+  csi.storage.k8s.io/provisioner-secret-namespace: {{ $namespace }}
+  {{- if $sc.allowVolumeExpansion }}
+  csi.storage.k8s.io/controller-expand-secret-name: {{ $secretName }}
+  csi.storage.k8s.io/controller-expand-secret-namespace: {{ $namespace }}
+  {{- end }}
+  {{- if $sc.pathPattern }}
+  pathPattern: {{ $sc.pathPattern }}
+  {{- end }}
+  {{- if $sc.cachePVC }}
+  juicefs/mount-cache-pvc: {{ $sc.cachePVC }}
+  {{- end }}
+  {{- with $sc.mountPod }}
+  {{- if .resources.limits }}
+  {{- if .resources.limits.cpu }}
+  juicefs/mount-cpu-limit: {{ .resources.limits.cpu | quote }}
+  {{- end }}
+  {{- if .resources.limits.memory }}
+  juicefs/mount-memory-limit: {{ .resources.limits.memory | quote }}
+  {{- end }}
+  {{- end }}
+  {{- if .resources.requests }}
+  {{- if .resources.requests.cpu }}
+  juicefs/mount-cpu-request: {{ .resources.requests.cpu | quote }}
+  {{- end }}
+  {{- if .resources.requests.memory }}
+  juicefs/mount-memory-request: {{ .resources.requests.memory | quote }}
+  {{- end }}
+  {{- end }}
+  {{- if .image }}
+  juicefs/mount-image: {{ .image }}
+  {{- end }}
+  {{- if .annotations }}
+  juicefs/mount-annotations: {{ toJson .annotations | quote }}
+  {{- end }}
+  {{- end }}
+provisioner: csi.juicefs.com
+reclaimPolicy: {{ $sc.reclaimPolicy }}
+volumeBindingMode: Immediate
+{{- end }}
+---
+
+{{- end }}

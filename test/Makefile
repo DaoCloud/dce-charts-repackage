@@ -17,45 +17,44 @@ e2e:
 		FAILED_PROJECT="" ; \
 		SUCCEED_PROJECT="" ; \
 		for ITEM in $$PROJECT_LIST ; do \
-		    [ -d "$${ITEM}" ] || continue ; \
+			[ -d "$${ITEM}" ] || continue ; \
 			KIND_CONFIG_PATH=$(ROOT_DIR)/test/$${ITEM}/kind.yaml ;\
 			INSTALL_PATH=$(ROOT_DIR)/test/$${ITEM}/install.sh ;\
 			if [ -n "$(PROJECT)" ]; then \
-			    [ -f "$${INSTALL_PATH}" ] || { echo "error, miss $${INSTALL_PATH}" ; exit 1 ; } ; \
-		  	else \
-			    [ ! -f "$${INSTALL_PATH}" ] && continue ; \
-            fi ; \
-            echo "********************* run e2e for project $${ITEM} ******************"; \
-            if [ -f "$${KIND_CONFIG_PATH}" ] ; then  \
-            	echo "the project $${ITEM}  needs a standby kind cluster" ; \
+				[ -f "$${INSTALL_PATH}" ] || { echo "error, miss $${INSTALL_PATH}" ; exit 1 ; } ; \
+			else \
+				[ ! -f "$${INSTALL_PATH}" ] && continue ; \
+			fi ; \
+			echo "********************* run e2e for project $${ITEM} ******************"; \
+			if [ -f "$${KIND_CONFIG_PATH}" ] ; then  \
+				echo "the project $${ITEM}  needs a standby kind cluster" ; \
 				make init-kind -e KIND_CONFIG_PATH=$${CONFIG_PATH} || { echo "error, failed to setup kind for $${ITEM}"; exit 1 ;} ; \
-            fi ; \
+			fi ; \
 			VERSION=`yq ".version"  $(ROOT_DIR)/charts/$${ITEM}/$${ITEM}/Chart.yaml ` || { echo "error, failed to get charts version" ; exit 1 ; } ;\
-            if ( unset NO_IMAGE ;  source $(ROOT_DIR)/charts/$${ITEM}/config && [ "$${NO_IMAGE}" == "true" ] ) ; then \
-              	echo "ignore sync project $${ITEM}"; \
-            else \
+			if ( unset NO_IMAGE ;  source $(ROOT_DIR)/charts/$${ITEM}/config && [ "$${NO_IMAGE}" == "true" ] ) ; then \
+				echo "ignore sync project $${ITEM}"; \
+			else \
 				echo "sync project $${ITEM}"; \
 				make sync -e PROJECT=$${ITEM} -e VERSION=$${VERSION} || { echo "error, failed to sync $${ITEM}" ; FAILED_PROJECT+=" $${ITEM} " ; continue ; } ; \
-            fi ; \
+			fi ; \
 			echo "deploy project $${ITEM}"; \
 			make deploy -e INSTALL_PATH=$${INSTALL_PATH} -e PROJECT=$${ITEM} -e VERSION=$${VERSION} || { echo "error, failed to deploy $${ITEM}" ;FAILED_PROJECT+=" $${ITEM} " ;  ./clean.sh "$(KIND_KUBECONFIG)" || true ; continue ; } ; \
 			./clean.sh "$(KIND_KUBECONFIG)" || true ; \
 			SUCCEED_PROJECT+=" $${ITEM} " ; \
-	  	done ; \
-  	    echo "============== show final result ====================" ; \
-  	    helm list -A  --kubeconfig $(KIND_KUBECONFIG)  ; \
-  	    echo "----" ; \
-  	    kubectl --kubeconfig $(KIND_KUBECONFIG) get pod -A -o wide || true ; \
-  	    echo "============== show projects result  ====================" ; \
-  	    echo "succceded prjects: $${SUCCEED_PROJECT} " ; \
-  	    if [ -n "$${FAILED_PROJECT}" ] ; then \
-  	    		echo "failed project: $${FAILED_PROJECT} " ; \
-  	    		exit 1 ; \
-  	    else \
-  	    		echo "all projects succeed" ; \
-  	    fi ; \
-	  	exit 0
-
+		done ; \
+		echo "============== show final result ====================" ; \
+		helm list -A  --kubeconfig $(KIND_KUBECONFIG)  ; \
+		echo "----" ; \
+		kubectl --kubeconfig $(KIND_KUBECONFIG) get pod -A -o wide || true ; \
+		echo "============== show projects result  ====================" ; \
+		echo "succceded prjects: $${SUCCEED_PROJECT} " ; \
+		if [ -n "$${FAILED_PROJECT}" ] ; then \
+			echo "failed project: $${FAILED_PROJECT} " ; \
+			exit 1 ; \
+		else \
+			echo "all projects succeed" ; \
+		fi ; \
+		exit 0
 
 .PHONY: init-kind
 init-kind: KIND_CONFIG_PATH ?=
@@ -84,7 +83,7 @@ init-kind: checkBin clean
 	@echo "  kubectl get node --kubeconfig $(KIND_KUBECONFIG)      "
 	@echo "========================================================"
 	echo "install registry and chart museum"
-	helm repo add twuni https://helm.twun.io --force-update  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add registry repo"; exit 1 ; }
+	helm repo add twuni https://twuni.github.io/docker-registry.helm --force-update  --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add registry repo"; exit 1 ; }
 	helm upgrade --debug --install --create-namespace --cleanup-on-fail --namespace registry-system  --set nodeSelector."kubernetes\\.io/hostname=network-chart-worker" --set service.type=NodePort  --set service.nodePort=30080 --set image.repository="docker.io/library/registry"  registry twuni/docker-registry --wait --version  2.2.2 --kubeconfig $(KIND_KUBECONFIG) || \
 	{ echo "error, failed to deploy registry"; exit 1 ; }
 	helm repo add chartmuseum https://chartmuseum.github.io/charts --kubeconfig $(KIND_KUBECONFIG) || { echo "error, failed to add chartmuseum repo"; exit 1 ; }

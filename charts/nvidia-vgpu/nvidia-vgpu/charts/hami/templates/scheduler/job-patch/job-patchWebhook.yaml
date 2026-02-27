@@ -1,7 +1,10 @@
+{{- if .Values.scheduler.admissionWebhook.enabled }}
+{{- if and (.Values.scheduler.patch.enabled) (not .Values.scheduler.certManager.enabled) }}
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ include "hami-vgpu.fullname" . }}-admission-patch
+  namespace: {{ include "hami-vgpu.namespace" . }}
   annotations:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
@@ -24,22 +27,27 @@ spec:
         app.kubernetes.io/component: admission-webhook
         hami.io/webhook: ignore
     spec:
-      {{- include "hami-vgpu.imagePullSecrets" . | nindent 6}}
       {{- if .Values.scheduler.patch.priorityClassName }}
       priorityClassName: {{ .Values.scheduler.patch.priorityClassName }}
       {{- end }}
+      {{- if ge (regexReplaceAll "[^0-9]" .Capabilities.KubeVersion.Minor "" | int) 22 }}
+        {{- include "hami.scheduler.patch.new.imagePullSecrets" . | nindent 6 }}
+      {{- else }}
+        {{- include "hami.scheduler.patch.imagePullSecrets" . | nindent 6 }}
+      {{- end }}
       containers:
         - name: patch
-          {{- if ge (.Values.scheduler.kubeScheduler.imageTag | substr 3 5| atoi) 22 }}
-          image: "{{ .Values.scheduler.patch.registry }}/{{ .Values.scheduler.patch.newRepository }}:{{ .Values.scheduler.patch.newTag }}"
+          {{- if ge (regexReplaceAll "[^0-9]" .Capabilities.KubeVersion.Minor "" | int) 22 }}
+          image: {{ include "hami.scheduler.patch.new.image" . }}
+          imagePullPolicy: {{ .Values.scheduler.patch.imageNew.pullPolicy }}
           {{- else }}
-          image: "{{ .Values.scheduler.patch.registry }}/{{ .Values.scheduler.patch.repository }}:{{ .Values.scheduler.patch.tag }}"
+          image: {{ include "hami.scheduler.patch.image" . }}
+          imagePullPolicy: {{ .Values.scheduler.patch.image.pullPolicy }}
           {{- end }}
-          imagePullPolicy: {{ .Values.scheduler.patch.imagePullPolicy }}
           args:
             - patch
             - --webhook-name={{ include "hami-vgpu.scheduler.webhook" . }}
-            - --namespace={{ .Release.Namespace }}
+            - --namespace={{ include "hami-vgpu.namespace" . }}
             - --patch-validating=false
             - --secret-name={{ include "hami-vgpu.scheduler.tls" . }}
       restartPolicy: OnFailure
@@ -53,3 +61,5 @@ spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: {{ .Values.scheduler.patch.runAsUser }}
+{{- end }}
+{{- end }}
