@@ -1,0 +1,54 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "title": "Kgateway (Wrapper) Values",
+    "description": "Schema for the wrapper chart values. Only recommended configuration options are exposed.",
+    "properties": {
+        "installK8sGatewayAPI": {
+            "type": "boolean",
+            "title": "Install Gateway API CRDs",
+            "description": "Whether to install the Kubernetes Gateway API CRDs by deploying the gateway-api dependency chart.",
+            "default": false
+        },
+        "kgateway": {
+            "type": "object",
+            "title": "Kgateway",
+            "description": "Values passed to the vendored kgateway subchart.",
+            "properties": {
+                "image": {
+                    "type": "object",
+                    "title": "Default image settings",
+                    "description": "Default registry/tag/pullPolicy used by kgateway components.",
+                    "properties": {
+                        "registry": {
+                            "type": "string",
+                            "title": "Default image registry",
+                            "description": "Default image registry.",
+                            "default": "cr.kgateway.dev/kgateway-dev"
+                        }
+                    }
+                },
+                "controller": {
+                    "type": "object",
+                    "title": "Controller",
+                    "description": "Settings for the kgateway control plane deployment.",
+                    "properties": {
+                        "logLevel": {
+                            "type": "string",
+                            "title": "Log level",
+                            "description": "Log level for the controller.",
+                            "default": "info"
+                        },
+                        "replicaCount": {
+                            "type": "integer",
+                            "title": "Replicas",
+                            "description": "Number of controller replicas.",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,2 @@
+- "{{ .kgateway.image.registry }}/{{ .kgateway.controller.image.repository }}:{{ .kgateway.controller.image.tag | default .kgateway.image.tag | default \"v2.2.1\" }}"
+- "{{ .kgateway.image.registry }}/envoy-wrapper:{{ .kgateway.image.tag }}"

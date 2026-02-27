@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "specification": {
+            "type": "string",
+            "description": "which type is deployed in your cluster",
+            "enum": [
+                "standard",
+                "experimental"
+            ]
+        }
+    }
+}
