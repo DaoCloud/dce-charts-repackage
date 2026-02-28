@@ -1,0 +1,3 @@
+- "{{ .kueue.controllerManager.manager.image.repository }}:{{ .kueue.controllerManager.manager.image.tag }}"
+- "{{ .kueue.kueueViz.frontend.image.repository }}:{{ .kueue.kueueViz.frontend.image.tag }}"
+- "{{ .kueue.kueueViz.backend.image.repository }}:{{ .kueue.kueueViz.backend.image.tag }}"
