@@ -11,6 +11,9 @@
                         "clustercolocationprofiles": {
                             "type": "boolean"
                         },
+                        "clusternetworktopologies": {
+                            "type": "boolean"
+                        },
                         "devices": {
                             "type": "boolean"
                         },
@@ -42,6 +45,9 @@
                             "type": "boolean"
                         },
                         "reservations": {
+                            "type": "boolean"
+                        },
+                        "scheduleexplanations": {
                             "type": "boolean"
                         }
                     }
@@ -118,6 +124,60 @@
                         }
                     }
                 },
+                "deviceDaemon": {
+                    "type": "object",
+                    "properties": {
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "log": {
+                            "type": "object",
+                            "properties": {
+                                "level": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "nodeAffinity": {
+                            "type": "object"
+                        },
+                        "resources": {
+                            "type": "object",
+                            "properties": {
+                                "limits": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "requests": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "featureGates": {
                     "type": "string"
                 },
@@ -166,6 +226,9 @@
                                     "type": "string"
                                 },
                                 "kubeletLibDir": {
+                                    "type": "string"
+                                },
+                                "podResourcesProxyPath": {
                                     "type": "string"
                                 },
                                 "predictionCheckpointDir": {
@@ -340,6 +403,9 @@
                         "compatibleBelow122FeatureGates": {
                             "type": "string"
                         },
+                        "enableJobPreemption": {
+                            "type": "boolean"
+                        },
                         "featureGates": {
                             "type": "string"
                         },
@@ -433,6 +499,9 @@
                                     "type": "string"
                                 },
                                 "pods": {
+                                    "type": "string"
+                                },
+                                "reservations": {
                                     "type": "string"
                                 }
                             }
