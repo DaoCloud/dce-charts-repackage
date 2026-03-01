@@ -1,0 +1,30 @@
+community:
+  enabled: true
+
+image:
+  pullSecrets:
+    - name: pullsecret
+  repository: "sonarsource/sonarqube"
+  tag: "26.1.0.118079-master-community"
+monitoringPasscode: "test"
+
+resources:
+  limits:
+    cpu: 800m
+    memory: 6144M
+    ephemeral-storage: 512000M
+  requests:
+    cpu: 200m
+    memory: 2048M
+    ephemeral-storage: 1536M
+
+tests:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 200M
+      ephemeral-storage: 100M
+    limits:
+      cpu: 50m
+      memory: 200M
+      ephemeral-storage: 1000M
