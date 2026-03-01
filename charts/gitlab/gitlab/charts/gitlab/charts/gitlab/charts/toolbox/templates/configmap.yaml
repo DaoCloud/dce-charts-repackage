@@ -15,6 +15,8 @@ data:
   click_house.yml.erb: |
     {{- include "gitlab.clickhouse.yml" . | nindent 4 }}
   {{- end }}
+  session_store.yml.erb: |
+    {{- include "gitlab.session_store.yml" . | nindent 4 }}
   krb5.conf: |
     {{- .Values.global.appConfig.kerberos.krb5Config | nindent 4 }}
   smtp_settings.rb: |
@@ -58,6 +60,7 @@ data:
       {{-     include "gitlab.appConfig.microsoft_graph_mailer" . | nindent 6 }}
       {{-   end }}
       {{-   include "gitlab.appConfig.cronJobs" . | nindent 6 }}
+      {{-   include "gitlab.appConfig.gravatar" . | nindent 6 }}
       {{- end }}
 
       {{- if $.Values.global.appConfig.object_store.enabled }}
@@ -72,6 +75,7 @@ data:
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "ci_secure_files" "config" $.Values.global.appConfig.ciSecureFiles) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 10 -}}
       {{- end }}
       {{- include "gitlab.appConfig.artifacts.configuration" (dict "config" $.Values.global.appConfig.artifacts "context" $) | nindent 6 }}
@@ -83,8 +87,10 @@ data:
       {{- include "gitlab.appConfig.ciSecureFiles.configuration" (dict "config" $.Values.global.appConfig.ciSecureFiles "context" $) | nindent 6 }}
       {{- include "gitlab.appConfig.dependencyProxy.configuration" (dict "config" $.Values.global.appConfig.dependencyProxy "context" $) | nindent 6 }}
       {{- include "gitlab.appConfig.sidekiq.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.oidcProvider.configuration" $ | nindent 6 }}
       {{- include "gitlab.geo.config" $ | nindent 6 }}
       {{- include "gitlab.pages.config" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.ciIdTokens.configuration" $ | nindent 6 }}
       mattermost:
         enabled: false
       ## Registry Integration
@@ -100,7 +106,9 @@ data:
       backup:
         path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
       {{- include "gitlab.appConfig.kas" . | nindent 6 }}
-      {{- include "gitlab.appConfig.suggested_reviewers" . | nindent 6 }}
+      {{- include "gitlab.appConfig.workspaces" . | nindent 6 }}
+      {{- include "gitlab.appConfig.databaseTrafficCapture" . | nindent 6 }}
+      {{- include "gitlab.appConfig.cell" . | nindent 6 }}
       {{- include "gitlab.appConfig.zoekt" . | nindent 6 }}
       {{- include "gitlab.appConfig.shell" . | nindent 6 }}
         {{- include "gitlab.appConfig.shell.ssh_port" . | nindent 8 }}
@@ -117,6 +125,7 @@ data:
         {{- if .Values.extra }}
         {{- toYaml .Values.extra | nindent 8 }}
         {{- end }}
+      {{- include "gitlab.appConfig.openbao.configuration" . | nindent 6 }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict "required" "shell gitaly registry rails-secrets") | nindent 4 }}
     {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
@@ -149,12 +158,20 @@ data:
       mv "/${secret_dir}/objectstorage/.s3cfg" "/${secret_dir}/.s3cfg"
     fi
     {{- end }}
+    {{- include "gitlab.topologyService.configureScript" $ | nindent 4 }}
   configure-gsutil: |
-    # The following script is used to configure gsutil when creating backups
-    # It provides inputs to the `gsutil config -e` prompt as follows:
-    # 1) Path to service account JSON key file
-    # 2) Do not set permissions for key file
-    # 3) GCP Project ID
-    # 4) Decline anonymous usage statistics
-    printf "$GOOGLE_APPLICATION_CREDENTIALS\nN\n{{ .Values.backups.objectStorage.config.gcpProject }}\nN\n" | gsutil config -e
+    if [ -e "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+      # The following script is used to configure gsutil when creating backups
+      # It provides inputs to the `gsutil config -e` prompt as follows:
+      # 1) Path to service account JSON key file
+      # 2) Do not set permissions for key file
+      # 3) GCP Project ID
+      # 4) Decline anonymous usage statistics
+      printf "$GOOGLE_APPLICATION_CREDENTIALS\nN\n{{ .Values.backups.objectStorage.config.gcpProject }}\nN\n" | gsutil config -e
+    else
+      # If the backup config is not configured, assume that
+      # Application Default Credentials are used with a service account.
+      # This enables GKE Workload Identity Federation to work.
+      echo '[GoogleCompute]\nservice_account = default' > ~/.boto
+    fi
 {{- end }}

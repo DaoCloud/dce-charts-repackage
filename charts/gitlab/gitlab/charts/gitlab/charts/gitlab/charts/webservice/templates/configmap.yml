@@ -26,6 +26,8 @@ data:
   click_house.yml.erb: |
     {{- include "gitlab.clickhouse.yml" . | nindent 4 }}
   {{- end }}
+  session_store.yml.erb: |
+    {{- include "gitlab.session_store.yml" . | nindent 4 }}
   krb5.conf: |
     {{- .Values.global.appConfig.kerberos.krb5Config | nindent 4 }}
   smtp_settings.rb: |
@@ -36,6 +38,9 @@ data:
       gitlab:
         host: {{ template "gitlab.gitlab.hostname" . }}
         https: {{ hasPrefix "https://" (include "gitlab.gitlab.url" .) }}
+        {{- if .Values.global.appConfig.relativeUrlRoot }}
+        relative_url_root: {{ .Values.global.appConfig.relativeUrlRoot | quote }}
+        {{- end }}
         {{- with .Values.global.hosts.ssh }}
         ssh_host: {{ . | quote }}
         {{- end }}
@@ -43,6 +48,7 @@ data:
         {{- if .cdnHost }}
         cdn_host: {{ .cdnHost | quote }}
         {{- end }}
+        action_cable_allowed_origins: {{ .actionCableAllowedOrigins | default (list) | toJson }}
         max_request_duration_seconds: {{ default (include "gitlab.appConfig.maxRequestDurationSeconds" $) .maxRequestDurationSeconds }}
         impersonation_enabled: {{ .enableImpersonation }}
         application_settings_cache_seconds: {{ .applicationSettingsCacheSeconds | int }}
@@ -51,9 +57,14 @@ data:
         username_changing_enabled: {{ eq .usernameChangingEnabled true }}
         issue_closing_pattern: {{ .issueClosingPattern | quote }}
         default_theme: {{ .defaultTheme }}
+        default_color_mode: {{ .defaultColorMode }}
+        default_syntax_highlighting_theme: {{ .defaultSyntaxHighlightingTheme }}
         {{- include "gitlab.appConfig.defaultProjectsFeatures.configuration" $ | nindent 8 }}
         {{- if hasKey .initialDefaults "signupEnabled" }}
         signup_enabled: {{ .initialDefaults.signupEnabled }}
+        {{- end }}
+        {{- if hasKey .initialDefaults "gitlabProductUsageData" }}
+        initial_gitlab_product_usage_data: {{ .initialDefaults.gitlabProductUsageData }}
         {{- end }}
         graphql_timeout: {{ .graphQlTimeout }}
         webhook_timeout: {{ .webhookTimeout }}
@@ -78,16 +89,14 @@ data:
       {{-     include "gitlab.appConfig.service_desk_email" . | nindent 6 }}
       {{-   end }}
       {{-   include "gitlab.appConfig.cronJobs" . | nindent 6 }}
-      gravatar:
-        plain_url: {{ .gravatar.plainUrl }}
-        ssl_url: {{ .gravatar.sslUrl }}
+      {{-   include "gitlab.appConfig.gravatar" . | nindent 6 }}
       {{-   include "gitlab.appConfig.extra" . | nindent 6 }}
       {{- end }}
 
       {{- if $.Values.global.appConfig.object_store.enabled }}
       # Consolidated object storage configuration
       ## property local configuration will override object_store
-      {{- include "gitlab.appConfig.objectStorage.configuration" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store "context" $) | nindent 6 }}
+      {{-   include "gitlab.appConfig.objectStorage.configuration" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store "context" $) | nindent 6 }}
         objects:
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "artifacts" "config" $.Values.global.appConfig.artifacts) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "lfs" "config" $.Values.global.appConfig.lfs) | nindent 10 -}}
@@ -96,6 +105,7 @@ data:
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "ci_secure_files" "config" $.Values.global.appConfig.ciSecureFiles) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 10 -}}
       {{- end }}
       {{- include "gitlab.appConfig.artifacts.configuration" (dict "config" $.Values.global.appConfig.artifacts "context" $) | nindent 6 }}
@@ -110,7 +120,9 @@ data:
       {{- include "gitlab.appConfig.sentry.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.gitlab_docs.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.sidekiq.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.oidcProvider.configuration" $ | nindent 6 }}
       {{- include "gitlab.pages.config" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.ciIdTokens.configuration" $ | nindent 6 }}
       mattermost:
         enabled: false
       gitlab_ci:
@@ -124,7 +136,9 @@ data:
       backup:
         path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
       {{- include "gitlab.appConfig.kas" . | nindent 6 }}
-      {{- include "gitlab.appConfig.suggested_reviewers" . | nindent 6 }}
+      {{- include "gitlab.appConfig.workspaces" . | nindent 6 }}
+      {{- include "gitlab.appConfig.databaseTrafficCapture" . | nindent 6 }}
+      {{- include "gitlab.appConfig.cell" . | nindent 6 }}
       {{- include "gitlab.appConfig.zoekt" . | nindent 6 }}
       {{- include "gitlab.appConfig.shell" . | nindent 6 }}
         {{- include "gitlab.appConfig.shell.ssh_port" . | nindent 8 }}
@@ -137,11 +151,13 @@ data:
       monitoring:
         ip_whitelist:
           {{- if kindIs "slice" .Values.monitoring.ipWhitelist }}
-          {{ toYaml .Values.monitoring.ipWhitelist | nindent 10 | trim }}
+          {{-   range $ip := .Values.monitoring.ipWhitelist }}
+          - {{ $ip | trim | quote }}
+          {{-   end }}
           {{- end }}
         web_exporter:
           enabled: {{ or .Values.monitoring.exporter.enabled (and .Values.metrics.enabled (eq .Values.metrics.port .Values.monitoring.exporter.port)) }}
-          address: 0.0.0.0
+          address: {{ .Values.monitoring.exporter.listenAddr | quote }}
           port: {{ .Values.monitoring.exporter.port }}
           {{- if eq (include "webservice-metrics.tls.enabled" $) "true" }}
           tls_enabled: true
@@ -155,6 +171,7 @@ data:
       ## Registry Integration
       {{- include "gitlab.appConfig.registry.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.smartcard.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.openbao.configuration" . | nindent 6 }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict) | nindent 4 }}
     {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
@@ -169,6 +186,7 @@ data:
       cp -v -L /init-config/webservice-metrics/webservice-metrics.crt /init-secrets/webservice-metrics/webservice-metrics.crt
       cp -v -L /init-config/webservice-metrics/webservice-metrics.key /init-secrets/webservice-metrics/webservice-metrics.key
     {{- end }}
+    {{- include "gitlab.topologyService.configureScript" $ | nindent 4 }}
 
 {{- include "webservice.datamodel.prepare" $ -}}
 {{/* BEGIN range deployments */}}
@@ -192,6 +210,9 @@ data:
     gitlab-helm-chart
   workhorse-config.toml.tpl: |
     shutdown_timeout = "{{ template "gitlab.workhorse.shutdownTimeout" $ }}"
+    {{- if $.Values.workhorse.adoptCfRayHeader }}
+    adopt_cf_ray_header = {{ $.Values.workhorse.adoptCfRayHeader | toJson }}
+    {{- end }}
     {{- if $.Values.workhorse.trustedCIDRsForPropagation }}
     trusted_cidrs_for_propagation = {{ $.Values.workhorse.trustedCIDRsForPropagation | toStrings | toJson }}
     {{- end }}
@@ -199,8 +220,13 @@ data:
     trusted_cidrs_for_x_forwarded_for = {{ $.Values.workhorse.trustedCIDRsForXForwardedFor | toStrings | toJson }}
     {{- end }}
 
-    {{- if .workhorse.keywatcher }}
-    {{- include "workhorse.redis.config" $ | nindent 4 }}
+    {{- if ($.Values.workhorse.metadata).zipReaderLimitBytes }}
+    [metadata]
+    zip_reader_limit_bytes = {{ $.Values.workhorse.metadata.zipReaderLimitBytes | int64 }}
+    {{- end }}
+
+    {{- if or .workhorse.keywatcher .workhorse.circuitBreaker.enabled }}
+    {{-   include "workhorse.redis.config" $ | nindent 4 }}
     {{- end }}
     {{- include "workhorse.object_storage.config" $ | nindent 4 }}
     [image_resizer]
@@ -208,7 +234,7 @@ data:
     max_filesize = {{ $.Values.workhorse.imageScaler.maxFileSizeBytes | int }}
     [[listeners]]
     network = "tcp"
-    addr = "0.0.0.0:{{ default 8181 $.Values.service.workhorseInternalPort | int }}"
+    addr = ":{{ default 8181 $.Values.service.workhorseInternalPort | int }}"
     {{- if $.Values.global.workhorse.tls.enabled }}
     [listeners.tls]
     certificate = "/etc/gitlab/gitlab-workhorse/tls.crt"
@@ -217,13 +243,56 @@ data:
     {{- if or $.Values.workhorse.monitoring.exporter.enabled $.Values.workhorse.metrics.enabled }}
     [metrics_listener]
     network = "tcp"
-    addr = "0.0.0.0:{{ $.Values.workhorse.monitoring.exporter.port }}"
+    addr = ":{{ $.Values.workhorse.monitoring.exporter.port }}"
     {{- $workhorseExporterTlsEnabled := eq (include "workhorse.monitoring.exporter.tls.enabled" $ ) "true" }}
-    {{- if $workhorseExporterTlsEnabled }}
+    {{-   if $workhorseExporterTlsEnabled }}
     [metrics_listener.tls]
     certificate = "/etc/gitlab/gitlab-workhorse/tls.crt"
     key = "/etc/gitlab/gitlab-workhorse/tls.key"
+    {{-   end }}
     {{- end }}
+    {{- if .workhorse.circuitBreaker.enabled }}
+    [circuit_breaker]
+    enabled = true
+    timeout = {{ .workhorse.circuitBreaker.timeout | int }}
+    interval = {{ .workhorse.circuitBreaker.interval | int }}
+    max_requests = {{ .workhorse.circuitBreaker.maxRequests | int }}
+    consecutive_failures = {{ .workhorse.circuitBreaker.consecutiveFailures | int }}
+    {{- end }}
+    {{- if .workhorse.healthcheckListener.enabled -}}
+    {{-   with .workhorse.healthcheckListener }}
+    # Health check listener configuration
+    # Enables a dedicated health check endpoint for readiness probes
+    [health_check_listener]
+      network = "tcp"
+      addr = ":{{ .port | int }}"
+      # `readiness_probe_url` is automatic as authBackend + /-/readiness
+      {{- if .pumaControl }}
+      puma_control_url = "http://localhost:{% env.Getenv "PUMA_CONTROL_PORT" "9293" %}"
+      {{- end }}
+      check_interval = {{ .checkInterval | quote }}
+      timeout = {{ .timeout | quote }}
+      graceful_shutdown_delay = "{% env.Getenv "SHUTDOWN_BLACKOUT_SECONDS" "10" %}s"
+      max_consecutive_failures = {{ .maxConsecutiveFailures | int }}
+      min_successful_probes = {{ .minSuccessfulProbes | int }}
+      rails_skip_interval = {{ .railsSkipInterval | quote }}
+    {{-   end }}
+    {{- end }}
+    {{- if .workhorse.loadShedding.enabled -}}
+    {{-   with .workhorse.loadShedding }}
+    # Load shedding configuration
+    # When enabled, Workhorse will return 503 Service Unavailable when Puma's
+    # request backlog exceeds the configured threshold
+    [load_shedding]
+      enabled = true
+      backlog_threshold = {{ .backlogThreshold | int }}
+      backlog_hysteresis = {{ .backlogHysteresis | float64 }}
+      retry_after_seconds = {{ .retryAfterSeconds | int }}
+      strategy = {{ .strategy | quote }}
+      check_interval = {{ .checkInterval | quote }}
+      puma_control_url = "http://localhost:{% env.Getenv "PUMA_CONTROL_PORT" "9293" %}"
+      timeout = {{ .timeout | quote }}
+    {{-   end }}
     {{- end }}
   configure: |
       set -e
