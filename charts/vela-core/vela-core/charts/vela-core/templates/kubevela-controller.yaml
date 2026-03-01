@@ -299,8 +299,8 @@ spec:
             - "--enable-external-package-for-default-compiler={{ .Values.workflow.enableExternalPackageForDefaultCompiler }}"
             - "--enable-external-package-watch-for-default-compiler={{ .Values.workflow.enableExternalPackageWatchForDefaultCompiler }}"
             - "--feature-gates=EnableSuspendOnFailure={{- .Values.workflow.enableSuspendOnFailure | toString -}}"
-            - "--feature-gates=AuthenticateApplication={{- .Values.authentication.enabled | toString -}}"
             - "--feature-gates=GzipResourceTracker={{- .Values.featureGates.gzipResourceTracker | toString -}}"
+            - "--feature-gates=AuthenticateApplication={{- .Values.authentication.enabled | toString -}}"
             - "--feature-gates=ZstdResourceTracker={{- .Values.featureGates.zstdResourceTracker | toString -}}"
             - "--feature-gates=ApplyOnce={{- .Values.featureGates.applyOnce | toString -}}"
             - "--feature-gates=MultiStageComponentApply= {{- .Values.featureGates.multiStageComponentApply | toString -}}"
@@ -312,6 +312,9 @@ spec:
             - "--feature-gates=SharedDefinitionStorageForApplicationRevision={{- .Values.featureGates.sharedDefinitionStorageForApplicationRevision | toString -}}"
             - "--feature-gates=DisableWorkflowContextConfigMapCache={{- .Values.featureGates.disableWorkflowContextConfigMapCache | toString -}}"
             - "--feature-gates=EnableCueValidation={{- .Values.featureGates.enableCueValidation | toString -}}"
+            - "--feature-gates=EnableApplicationStatusMetrics={{- .Values.featureGates.enableApplicationStatusMetrics | toString -}}"
+            - "--feature-gates=ValidateResourcesExist={{- .Values.featureGates.validateResourcesExist | toString -}}"
+            - "--feature-gates=ValidateDefinitionPermissions={{ .Values.authorization.definitionValidationEnabled | toString -}}"
             {{ if .Values.authentication.enabled }}
             {{ if .Values.authentication.withUser }}
             - "--authentication-with-user"
@@ -325,6 +328,7 @@ spec:
             - "--feature-gates=ValidateComponentWhenSharding={{- .Values.featureGates.validateComponentWhenSharding | toString -}}"
             - "--feature-gates=DisableWebhookAutoSchedule={{- .Values.featureGates.disableWebhookAutoSchedule | toString -}}"
             {{ end }}
+            - "--dev-logs={{ .Values.devLogs }}"
           image: {{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}
           imagePullPolicy: {{ quote .Values.image.pullPolicy }}
           resources:
