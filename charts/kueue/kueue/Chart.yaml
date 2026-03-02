@@ -7,7 +7,7 @@ version: 0.15.2
 dependencies:
   - name: kueue
     version: "0.15.2"
-    repository: "oci://k8s.m.daocloud.io/kueue/charts"
+    repository: "oci://registry.k8s.io/kueue/charts"
 annotations:
   addon.kpanda.io/release-name: kueue
   addon.kpanda.io/namespace: kueue-system
