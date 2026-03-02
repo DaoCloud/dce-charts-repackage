@@ -143,6 +143,8 @@ metallb:
         enabled: true
         labels:
           severity: critical
+        # Exclude the pools matching the regular expression from triggering the alert.
+        excludePools: ""
       addressPoolUsage:
         enabled: true
         thresholds:
@@ -155,6 +157,8 @@ metallb:
           - percent: 95
             labels:
               severity: critical
+        # Exclude the pools matching the regular expression from triggering the alert.
+        excludePools: ""
       # MetalLBBGPSessionDown
       bgpSessionDown:
         enabled: true
@@ -168,10 +172,10 @@ metallb:
     # -- Controller log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none`
     logLevel: info
     # command: /controller
-    # webhookMode: enabled
+    webhookMode: enabled
     image:
       repository: metallb/controller
-      tag: v0.14.9
+      tag: v0.15.3
       pullPolicy:
       registry: quay.m.daocloud.io
     ## @param controller.updateStrategy.type Metallb controller deployment strategy type.
@@ -240,6 +244,7 @@ metallb:
     logLevel: info
     tolerateMaster: true
     memberlist:
+      # --  When enabled: false, the speaker pods must run on all nodes
       enabled: true
       mlBindPort: 7946
       mlBindAddrOverride: ""
@@ -250,7 +255,7 @@ metallb:
     ignoreExcludeLB: false
     image:
       repository: metallb/speaker
-      tag: v0.14.9
+      tag: v0.15.3
       pullPolicy:
       registry: quay.m.daocloud.io
     ## @param speaker.updateStrategy.type Speaker daemonset strategy type
@@ -315,7 +320,7 @@ metallb:
       enabled: false
       image:
         repository: frrouting/frr
-        tag: 9.1.0
+        tag: 10.4.1
         pullPolicy:
         registry: quay.m.daocloud.io
       metricsPort: 7473
@@ -327,6 +332,13 @@ metallb:
       resources: {}
     frrMetrics:
       resources: {}
+    initContainers:
+      cpFrrFiles:
+        resources: {}
+      cpReloader:
+        resources: {}
+      cpMetrics:
+        resources: {}
     extraContainers: []
   crds:
     enabled: true
@@ -341,6 +353,14 @@ metallb:
     enabled: false
     external: false
     namespace: ""
+  # networkpolicies
+  networkpolicies:
+    # if set, networkpolicies for metallb components will be installed in the metallb namespace
+    enabled: false
+    # if set, a default deny network policy will be installed in the metallb namespace
+    defaultDeny: false
+    # to override internal k8s api targetPort
+    apiPort: 6443
 # create default ipaddress-pool
 instances:
   # -- enable default ip-address pool
