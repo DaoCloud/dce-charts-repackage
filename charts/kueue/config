@@ -1,0 +1,18 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+#export REPO_URL=oci://k8s.m.daocloud.io/kueue/charts
+export REPO_URL=oci://registry.k8s.io/kueue/charts
+export REPO_NAME=kueue
+export CHART_NAME=kueue
+export VERSION=0.15.2
+
+# pr, issue, none
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=izturn
+export TEST_ASSIGNER=liyuerich
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon
+export CUSTOM_SHELL=custom.sh
+export NO_TRIVY=true
