@@ -1,10 +1,10 @@
 inferenceExtension:
   replicas: 1
   image:
-    name: epp
-    hub: registry.k8s.io/gateway-api-inference-extension
     tag: v1.3.0
     pullPolicy: Always
+    registry: registry.k8s.io/gateway-api-inference-extension
+    repository: epp
   extProcPort: 9002
   env: []
   pluginsConfigFile: "default-plugins.yaml"
