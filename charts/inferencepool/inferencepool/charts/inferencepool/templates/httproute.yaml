@@ -11,7 +11,7 @@ spec:
     name: {{ .Values.experimentalHttpRoute.inferenceGatewayName }}
   rules:
   - backendRefs:
-    - group: inference.networking.k8s.io
+    - group: {{ default "inference.networking.k8s.io" .Values.inferencePool.apiVersion }}
       kind: InferencePool
       name: {{ .Release.Name }}
     matches:
