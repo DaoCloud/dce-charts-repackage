@@ -1,0 +1,53 @@
+# Default values for metax-operator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+registry: release.daocloud.io
+pullPolicy: IfNotPresent
+controller:
+  replicaCount: 1
+  name: operator-controller
+  image:
+    version: 0.9.0
+    name: metax/operator-controller
+gpuLabel:
+  log:
+  image:
+    name: metax/gpu-label
+    version: 0.9.0
+# kernel module driver config
+driver:
+  deployPolicy: "PreferCloud"
+  # fw upgrade
+  payload:
+    name: "metax/driver-image"
+    version: "2.25.2.8"
+  image:
+    name: metax/driver-manager
+    version: 0.9.0
+# maca config
+maca:
+  image:
+    name: metax/driver-manager
+    version: 0.9.0
+# container runtime config
+runtime:
+  image:
+    name: metax/container-runtime
+    version: 0.9.0
+# device plugin config
+gpuDevice:
+  image:
+    name: metax/gpu-device
+    version: 0.9.0
+# data exporter config
+dataExporter:
+  deploy: false
+  service:
+    type: ClusterIP
+    port: 30445
+  image:
+    version: "0.9.0"
+    name: metax/mx-exporter
+image:
+  registry: release.daocloud.io
