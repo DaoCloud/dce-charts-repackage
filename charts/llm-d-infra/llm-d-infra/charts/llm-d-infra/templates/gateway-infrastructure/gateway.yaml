@@ -1,0 +1,75 @@
+{{- $gc := .Values.gateway.gatewayClassName -}}
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ include "gateway.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/gateway: {{ include "gateway.fullname" . }}
+    app.kubernetes.io/component: inference-gateway
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" . ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.gateway.labels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.gateway.labels "context" .) | nindent 4 }}
+    {{- end }}
+    {{- if eq $gc "istio" }}
+    istio.io/enable-inference-extproc: "true"
+    {{- end }}
+  annotations:
+    {{- if .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" . ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.gateway.annotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.gateway.annotations "context" .) | nindent 4 }}
+    {{- end }}
+spec:
+  gatewayClassName: {{ .Values.gateway.gatewayClassName | quote }}
+  {{- $listeners := required "gateway.listeners must have at least 1 item" .Values.gateway.listeners }}
+  listeners:
+  {{- range $i, $l := $listeners }}
+    - port: {{ $l.port }}
+      protocol: {{ $l.protocol }}
+      {{- with $l.name }}
+      name: {{ . }}
+      {{- end }}
+      {{- with $l.allowedRoutes }}
+      allowedRoutes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if $l.tls }}
+      hostname: {{ $l.tls.hostname | quote }}
+      tls:
+        mode: {{ $l.tls.mode | quote }}
+        {{- with $l.tls.certificateRefs }}
+        certificateRefs:
+        {{- range . }}
+          - name: {{ .name | quote }}
+            {{- if hasKey . "group" }}
+            group: {{ .group | quote }}
+            {{- end }}
+            {{- if hasKey . "kind" }}
+            kind: {{ .kind | quote }}
+            {{- end }}
+            {{- if hasKey . "namespace" }}
+            namespace: {{ .namespace | quote }}
+            {{- end }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+  {{- end}}
+  {{- if and (eq .Values.gateway.gatewayClassName "kgateway") .Values.gateway.gatewayParameters.enabled }}
+  infrastructure:
+    parametersRef:
+      name: {{ include "gateway.fullname" . }}
+      group: gateway.kgateway.dev
+      kind: GatewayParameters
+  {{- else if and (eq .Values.gateway.gatewayClassName "istio") .Values.gateway.gatewayParameters.enabled }}
+  infrastructure:
+    parametersRef:
+      name: {{ include "gateway.fullname" . }}
+      group: ""
+      kind: ConfigMap
+  {{- end}}
+{{- end }}
