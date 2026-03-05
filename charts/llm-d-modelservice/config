@@ -1,0 +1,20 @@
+export USE_OPENSOURCE_CHART=false
+
+export REPO_URL=https://llm-d-incubation.github.io/llm-d-modelservice
+export REPO_NAME=llm-d-modelservice
+export CHART_NAME=llm-d-modelservice
+export VERSION=v0.4.5
+
+# pr, issue, none
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=learner0810
+export TEST_ASSIGNER=learner0810
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon
+
+# optional, for wrapper chart
+export CUSTOM_SHELL=custom.sh
+
+# SKIP_SCHEMA
+export SKIP_SCHEMA=true
