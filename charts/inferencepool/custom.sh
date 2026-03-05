@@ -60,7 +60,7 @@ sed "${SED_INPLACE[@]}" \
  charts/inferencepool/templates/epp-deployment.yaml
 
 sed "${SED_INPLACE[@]}" \
-  's|inference\.networking\.k8s\.io|{{ default "inference.networking.k8s.io" .Values.inferencePool.apiVersion }}|g' \
+  's|inference\.networking\.k8s\.io|{{ default "inference.networking.k8s.io" (split "/" .Values.inferencePool.apiVersion)._0 }}|g' \
  charts/inferencepool/templates/httproute.yaml
 
 yq eval -i '
