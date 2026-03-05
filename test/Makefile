@@ -3,7 +3,7 @@ include ../Makefile.defs
 PROJECT ?=
 KIND_CLUSTER_NAME ?= network-chart
 KIND_KUBECONFIG := $(ROOT_DIR)/test/.config
-K8S_VERSION ?= v1.27.2
+K8S_VERSION ?= v1.28.0
 
 .PHONY: all
 all: e2e
@@ -77,6 +77,9 @@ init-kind: checkBin clean
 		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f ./yaml/monitoring.coreos.com_probes.yaml
 	{ timeout 10 kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/grafana-operator/grafana-operator/master/deploy/manifests/latest/crds.yaml  ; } \
 		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f ./yaml/grafanadashboards.yaml
+	@echo "===================== deploy gateway CRD ========== "
+	{ timeout 10 kubectl apply --timeout 10s --kubeconfig $(KIND_KUBECONFIG) -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/main/config/crd/standard/gateway.networking.k8s.io_gateways.yaml  ; } \
+		|| kubectl apply --kubeconfig $(KIND_KUBECONFIG) -f ./yaml/gateway.networking.k8s.io_gateways.yaml
 	echo "show kubernetes node image " && docker ps
 	@echo "========================================================"
 	@echo "   deploy kind cluster $(KIND_CLUSTER_NAME)             "
