@@ -3,8 +3,8 @@ inferenceExtension:
   image:
     tag: v1.3.0
     pullPolicy: Always
-    registry: registry.k8s.io/gateway-api-inference-extension
-    repository: epp
+    registry: k8s.m.daocloud.io
+    repository: gateway-api-inference-extension/epp
   extProcPort: 9002
   env: []
   pluginsConfigFile: "default-plugins.yaml"

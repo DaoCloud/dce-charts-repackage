@@ -59,6 +59,10 @@ sed "${SED_INPLACE[@]}" \
   's/\.Values\.inferenceExtension\.image\.name/\.Values\.inferenceExtension\.image\.repository/g' \
  charts/inferencepool/templates/epp-deployment.yaml
 
+sed "${SED_INPLACE[@]}" \
+  's|inference\.networking\.k8s\.io|{{ default "inference.networking.k8s.io" .Values.inferencePool.apiVersion }}|g' \
+ charts/inferencepool/templates/httproute.yaml
+
 yq eval -i '
   (.inferenceExtension.image.registry = .inferenceExtension.image.hub) |
   del(.inferenceExtension.image.hub) |
@@ -78,6 +82,9 @@ IMAGE_NAME=$(yq eval '.inferencepool.inferenceExtension.image.repository | sub("
 
 yq eval '.inferencepool.inferenceExtension.image.registry = "k8s.m.daocloud.io"' -i values.yaml
 yq eval ".inferencepool.inferenceExtension.image.repository = \"${REPOSITORY}/${IMAGE_NAME}\"" -i values.yaml
+
+yq eval '.inferenceExtension.image.registry = "k8s.m.daocloud.io"' -i ./charts/inferencepool/values.yaml
+yq eval ".inferenceExtension.image.repository = \"${REPOSITORY}/${IMAGE_NAME}\"" -i ./charts/inferencepool/values.yaml
 
 echo "keywords:" >> Chart.yaml
 echo "- networking" >> Chart.yaml
