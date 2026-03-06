@@ -1,0 +1,16 @@
+export DAOCLOUD_REPO_PROJECT=addon
+
+export REPO_URL=https://higress.cn/helm-charts
+export REPO_NAME=higress.io
+export CHART_NAME=higress
+export VERSION=2.2.0
+
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=cyclinder
+export TEST_ASSIGNER=cyclinder
+
+export CUSTOM_SHELL=custom.sh
+export APPEND_VALUES_FILE=appendValues.yaml
+
+export NO_TRIVY=true
+export NO_DAOCLOUD_IMAGE=true
