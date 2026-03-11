@@ -86,8 +86,8 @@ yq -i '
   .higress.higress-core.pilot.image = "higress/pilot" |
   .higress.higress-core.pluginServer.image = "higress/plugin-server" |
   .higress.higress-core.global.ingressClass="" |
-  .higress.higress-core.global.enableGatewayAPI=true |
   .higress.higress-core.global.local=true |
+  .higress.higress-core.global.enableGatewayAPI=false |
   .higress.higress-core.global.multiCluster.enabled=false |
   .higress.higress-core.gateway.tag=strenv(CHART_VERSION) |
   .higress.higress-core.controller.tag=strenv(CHART_VERSION) |
