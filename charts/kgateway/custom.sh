@@ -73,7 +73,7 @@ yq -i '.keywords = ["kubernetes", "networking", "api-gateway"]' Chart.yaml
 
 export CHART_VERSION=$(yq -r '.version' Chart.yaml)
 yq -i '
-    .kgateway.image.registry="cr.kgateway.dev" |
+    .kgateway.image.registry="m.daocloud.io/cr.kgateway.dev" |
     .kgateway.controller.image.repository="kgateway-dev/kgateway" |
     .kgateway.image.tag=strenv(CHART_VERSION) |
     .kgateway.resources.requests.cpu="256m" |

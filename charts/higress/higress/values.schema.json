@@ -2,137 +2,20 @@
     "$schema": "http://json-schema.org/schema#",
     "type": "object",
     "properties": {
-        "higress": {
+        "global": {
             "type": "object",
             "properties": {
                 "hub": {
                     "type": "string",
                     "title": "Higress Image Hub",
+                    "default": "higress-registry.cn-hangzhou.cr.aliyuncs.com",
                     "description": "Default container registry (image hub) for Higress and its components."
-                },
-                "higress-console": {
-                    "type": "object",
-                    "properties": {
-                        "global": {
-                            "type": "object",
-                            "properties": {
-                                "ingressClass": {
-                                    "type": "string",
-                                    "title": "Console IngressClass",
-                                    "description": "IngressClass used by the Higress console ingress resources. When empty, follows the cluster default."
-                                },
-                                "o11y": {
-                                    "type": "object",
-                                    "properties": {
-                                        "enabled": {
-                                            "type": "boolean",
-                                            "title": "Enable Console Observability",
-                                            "description": "Whether to enable built-in observability stack (Grafana/Prometheus/Loki) for the console."
-                                        },
-                                        "grafana": {
-                                            "type": "object",
-                                            "properties": {
-                                                "image": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "repository": {
-                                                            "type": "string",
-                                                            "title": "Grafana Image Repository",
-                                                            "description": "Container registry/repository for the Grafana image used by the console stack."
-                                                        },
-                                                        "tag": {
-                                                            "type": "string",
-                                                            "title": "Grafana Image Tag",
-                                                            "description": "Version tag of the Grafana image."
-                                                        }
-                                                    }
-                                                },
-                                                "replicas": {
-                                                    "type": "integer",
-                                                    "title": "Grafana Replicas",
-                                                    "description": "Number of Grafana pods to run for the console observability stack."
-                                                }
-                                            }
-                                        },
-                                        "loki": {
-                                            "type": "object",
-                                            "properties": {
-                                                "image": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "repository": {
-                                                            "type": "string"
-                                                        },
-                                                        "tag": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                },
-                                                "replicas": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        },
-                                        "prometheus": {
-                                            "type": "object",
-                                            "properties": {
-                                                "image": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "repository": {
-                                                            "type": "string"
-                                                        },
-                                                        "tag": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                },
-                                                "replicas": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "image": {
-                            "type": "object",
-                            "properties": {
-                                "repository": {
-                                    "type": "string",
-                                    "title": "Console Image Repository",
-                                    "description": "Container registry/repository for the main Higress console image."
-                                },
-                                "tag": {
-                                    "type": "string",
-                                    "title": "Console Image Tag",
-                                    "description": "Version tag of the Higress console image."
-                                }
-                            }
-                        },
-                        "nodeSelector": {
-                            "type": "object",
-                            "title": "Console Node Selector",
-                            "description": "Node selector for scheduling Higress console pods."
-                        },
-                        "o11y": {
-                            "type": "object",
-                            "properties": {
-                                "__placeholder__": {
-                                    "type": "boolean",
-                                    "title": "Console Observability Placeholder",
-                                    "description": "Reserved field for console observability configuration extensions."
-                                }
-                            }
-                        },
-                        "replicaCount": {
-                            "type": "integer",
-                            "title": "Console Replicas",
-                            "description": "Number of Higress console pods to run."
-                        }
-                    }
-                },
+                }
+            }
+        },
+        "higress": {
+            "type": "object",
+            "properties": {
                 "higress-core": {
                     "type": "object",
                     "properties": {
@@ -143,6 +26,12 @@
                                     "type": "string",
                                     "title": "IngressClass Name",
                                     "description": "IngressClass that the Higress controller will watch. When empty, all ingress resources are watched."
+                                },
+                                "enableGatewayAPI": {
+                                    "type": "boolean",
+                                    "title": "Enable Gateway API",
+                                    "default": false,
+                                    "description": "If true, Higress Controller will monitor Gateway API resources as well."
                                 },
                                 "o11y": {
                                     "type": "object",
@@ -356,6 +245,129 @@
                                     "description": "Master switch for enabling request tracing in Higress."
                                 }
                             }
+                        }
+                    }
+                },
+                "higress-console": {
+                    "type": "object",
+                    "properties": {
+                        "global": {
+                            "type": "object",
+                            "properties": {
+                                "ingressClass": {
+                                    "type": "string",
+                                    "title": "Console IngressClass",
+                                    "description": "IngressClass used by the Higress console ingress resources. When empty, follows the cluster default."
+                                },
+                                "o11y": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean",
+                                            "title": "Enable Console Observability",
+                                            "description": "Whether to enable built-in observability stack (Grafana/Prometheus/Loki) for the console."
+                                        },
+                                        "grafana": {
+                                            "type": "object",
+                                            "properties": {
+                                                "image": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "repository": {
+                                                            "type": "string",
+                                                            "title": "Grafana Image Repository",
+                                                            "description": "Container registry/repository for the Grafana image used by the console stack."
+                                                        },
+                                                        "tag": {
+                                                            "type": "string",
+                                                            "title": "Grafana Image Tag",
+                                                            "description": "Version tag of the Grafana image."
+                                                        }
+                                                    }
+                                                },
+                                                "replicas": {
+                                                    "type": "integer",
+                                                    "title": "Grafana Replicas",
+                                                    "description": "Number of Grafana pods to run for the console observability stack."
+                                                }
+                                            }
+                                        },
+                                        "loki": {
+                                            "type": "object",
+                                            "properties": {
+                                                "image": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "repository": {
+                                                            "type": "string"
+                                                        },
+                                                        "tag": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "replicas": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "prometheus": {
+                                            "type": "object",
+                                            "properties": {
+                                                "image": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "repository": {
+                                                            "type": "string"
+                                                        },
+                                                        "tag": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "replicas": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "title": "Console Image Repository",
+                                    "description": "Container registry/repository for the main Higress console image."
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Console Image Tag",
+                                    "description": "Version tag of the Higress console image."
+                                }
+                            }
+                        },
+                        "nodeSelector": {
+                            "type": "object",
+                            "title": "Console Node Selector",
+                            "description": "Node selector for scheduling Higress console pods."
+                        },
+                        "o11y": {
+                            "type": "object",
+                            "properties": {
+                                "__placeholder__": {
+                                    "type": "boolean",
+                                    "title": "Console Observability Placeholder",
+                                    "description": "Reserved field for console observability configuration extensions."
+                                }
+                            }
+                        },
+                        "replicaCount": {
+                            "type": "integer",
+                            "title": "Console Replicas",
+                            "description": "Number of Higress console pods to run."
                         }
                     }
                 }

@@ -89,7 +89,7 @@ kgateway:
   # -- Configure the default container image for the components that Helm deploys. You can override these settings for each particular component in that component's section, such as 'controller.image' for the kgateway control plane. If you use your own private registry, make sure to include the imagePullSecrets.
   image:
     # -- Set the default image registry.
-    registry: cr.kgateway.dev
+    registry: m.daocloud.io/cr.kgateway.dev
     # -- Set the default image tag.
     tag: "v2.2.1"
     # -- Set the default image pull policy.
