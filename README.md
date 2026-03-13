@@ -116,6 +116,10 @@
 
 * SKIP_SCHEMA: （可选）true 表示让 CI 跳过 values.schema.json 文件的检测且工程代码也不会自动生成它
 
+* USE_CHARTS_SYNCER_DT:（可选）true 表示在 E2E 测试中使用 charts-syncer dt 的方式同步 charts 和 images 到本地镜像仓库：
+    * Chart 以 OCI 格式推送到镜像仓库（而非 ChartMuseum）
+    * 使用 `helm dt wrap` 打包 chart（而非 `relok8s chart move`）
+
 ### 方案: 自己写做包脚本
 
 准备好 /charts/${PROJECT}/config ：
