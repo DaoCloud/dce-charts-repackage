@@ -135,7 +135,9 @@ jobs:
         run: |
           BASE=$PWD
           for PROJECT in ${{ steps.check_change.outputs.changed_project }} ; do
-              source ${BASE}/charts/${PROJECT}/config && [ "${NO_IMAGE}" == "true" ] && continue
+              source ${BASE}/charts/${PROJECT}/config
+              [ "${NO_IMAGE}" == "true" ] && continue
+              [ "${USE_CHARTS_SYNCER_DT}" == "true" ] && continue
               CHART_PATH=${BASE}/charts/${PROJECT}/${PROJECT}
               [ -f "${CHART_PATH}/${{ env.IMAGE_HINT_FILE_NAME }}" ] \
                   || { echo "error, miss ${{ env.IMAGE_HINT_FILE_NAME }} file in chart ${PROJECT} " ; exit 1 ; }
