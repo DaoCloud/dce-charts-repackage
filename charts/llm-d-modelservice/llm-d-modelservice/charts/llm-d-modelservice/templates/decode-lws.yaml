@@ -1,0 +1,88 @@
+{{- if and .Values.decode.create .Values.multinode }}
+apiVersion: leaderworkerset.x-k8s.io/v1
+kind: LeaderWorkerSet
+metadata:
+  name: {{ include "llm-d-modelservice.decodeName" . }}
+  labels:
+    {{- include "llm-d-modelservice.labels" . | nindent 4 }}
+    {{- include "llm-d-modelservice.decodelabels" . | nindent 4 }}
+  {{- $warning := "" }}
+  {{- if .Values.decode.containers }}
+  {{- $firstContainer := index .Values.decode.containers 0 }}
+  {{- $warning = include "llm-d-modelservice.acceleratorWarning" (dict "parallelism" .Values.decode.parallelism "resources" $firstContainer.resources "Values" .Values "container" $firstContainer) }}
+  {{- end }}
+  {{- if or .Values.decode.subGroupExclusiveTopology .Values.decode.annotations $warning }}
+  annotations:
+  {{- if .Values.decode.subGroupExclusiveTopology }}
+    leaderworkerset.sigs.k8s.io/subgroup-exclusive-topology: kubernetes.io/hostname
+  {{- end }}
+  {{- if .Values.decode.annotations }}
+    {{ toYaml .Values.decode.annotations | nindent 4 }}
+  {{- end }}
+  {{- if $warning }}
+    llm-d.ai/accelerator-warning: {{ $warning | quote }}
+  {{- end }}
+  {{- end }}
+spec:
+  {{- if not .Values.decode.autoscaling.enabled }}
+  replicas: {{ ternary .Values.decode.replicas 1 (hasKey .Values.decode "replicas") }}
+  {{- end }}
+  leaderWorkerTemplate:
+    size: {{ int (include "llm-d-modelservice.numWorkers" .Values.decode.parallelism) }}
+    {{- if .Values.decode.subGroupPolicy }}
+    subGroupPolicy:
+    {{- toYaml .Values.decode.subGroupPolicy | nindent 6 }}
+    {{- end }}
+    workerTemplate:
+      metadata:
+        labels:
+          {{- include "llm-d-modelservice.decodelabels" . | nindent 10 }}
+        {{- if or .Values.decode.subGroupExclusiveTopology .Values.decode.podAnnotations }}
+        annotations:
+        {{- if .Values.decode.subGroupExclusiveTopology }}
+          leaderworkerset.sigs.k8s.io/subgroup-exclusive-topology: kubernetes.io/hostname
+        {{- end }}
+        {{- if .Values.decode.podAnnotations }}
+          {{ toYaml .Values.decode.podAnnotations | nindent 10 }}
+          {{- end }}
+        {{- end }}
+      spec:
+        {{- /* DEPRECATED; use extraConfig.hostIPC instead */ -}}
+        {{- if hasKey .Values.decode "hostIPC" }}
+        hostIPC: {{ .Values.decode.hostIPC }}
+        {{- end }}
+        {{- /* DEPRECATED; use extraConfig.hostPID instead */ -}}
+        {{- if hasKey .Values.decode "hostPID" }}
+        hostPID: {{ .Values.decode.hostPID }}
+        {{- end }}
+        {{- if or (.Values.decode.initContainers) (eq .Values.routing.proxy.enabled true) }}
+        initContainers:
+        {{- with .Values.routing }}
+        {{- (include "llm-d-modelservice.routingProxy" .) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.decode.initContainers }}
+        {{- toYaml .Values.decode.initContainers | nindent 10 }}
+        {{- end }}
+        {{- end }}
+        {{- if hasKey .Values.decode "enableServiceLinks" }}
+        enableServiceLinks: {{ .Values.decode.enableServiceLinks }}
+        {{- end }}
+        {{- if hasKey .Values.decode "terminationGracePeriodSeconds" }}
+        terminationGracePeriodSeconds: {{ .Values.decode.terminationGracePeriodSeconds }}
+        {{- end }}
+        {{ (include "llm-d-modelservice.modelPod" (dict "role" "decode" "pdSpec" .Values.decode "Values" .Values "Release" .Release "Chart" .Chart)) | nindent 6 }}
+        {{- with .Values.decode.containers }}
+        containers:
+          {{- range . }}
+        {{- (include "llm-d-modelservice.container" (dict "role" "decode" "container" . "parallelism" $.Values.decode.parallelism "Values" $.Values "Release" $.Release "Chart" $.Chart "pdSpec" $.Values.decode)) | nindent 8 }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.decode.nodeSelector }}
+        nodeSelector:
+          {{- toYaml .Values.decode.nodeSelector | nindent 10 }}
+        {{- end }}
+        {{- if .Values.decode.tolerations }}
+        tolerations:
+          {{- toYaml .Values.decode.tolerations | nindent 10 }}
+        {{- end }}
+{{- end }}
