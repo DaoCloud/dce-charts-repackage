@@ -10,6 +10,7 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
+    {{- include "gitlab.app.kubernetes.io.labels" $ | nindent 4 }}
   annotations:
     {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
 spec:
@@ -25,6 +26,7 @@ spec:
       labels:
         {{- include "gitlab.standardLabels" . | nindent 8 }}
         {{- include "gitlab.commonLabels" . | nindent 8 }}
+        {{- include "gitlab.app.kubernetes.io.labels" $ | nindent 8 }}
         {{- include "gitlab.podLabels" . | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
@@ -33,6 +35,9 @@ spec:
         {{ $key }}: {{ $value | quote }}
       {{- end }}
     spec:
+      {{- if $.Values.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml $.Values.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
       {{- if .Values.tolerations }}
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
@@ -41,7 +46,7 @@ spec:
       {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
       serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
       {{- end }}
-      automountServiceAccountToken: false
+      {{- include "gitlab.automountServiceAccountToken" . | nindent 6 }}
       {{- include "gitlab.priorityClassName" . | nindent 6 }}
       initContainers:
         {{- include "gitlab.extraInitContainers" . | nindent 8 }}
@@ -52,8 +57,9 @@ spec:
           {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
           {{- include "gitlab.init.containerSecurityContext" . | indent 10 }}
           env:
+          {{- include "gitlab.timeZone.env" . | nindent 10 }}
           {{- include "gitlab.extraEnv" . | nindent 10 }}
-          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" (dict)) | nindent 10 }}
+          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
           volumeMounts:
           {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
           {{- include "gitlab.psql.ssl.volumeMount" . | nindent 10 }}
@@ -71,27 +77,7 @@ spec:
             {{- toYaml .Values.init.resources | nindent 12 }}
       {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
       {{- if .Values.antiAffinityLabels.matchLabels }}
-      {{- if eq (default .Values.global.antiAffinity .Values.antiAffinity) "hard" }}
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
-              labelSelector:
-                matchLabels:
-                  {{- toYaml .Values.antiAffinityLabels.matchLabels | nindent 18 }}
-                  release: {{ .Release.Name }}
-      {{- else if eq (default .Values.global.antiAffinity .Values.antiAffinity) "soft" }}
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            podAffinityTerm:
-              topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
-              labelSelector:
-                matchLabels:
-                  {{- toYaml .Values.antiAffinityLabels.matchLabels | nindent 18 }}
-                  release: {{ .Release.Name }}
-      {{- end }}
+      {{- include "gitlab.affinity" . | nindent 6 }}
       {{- end }}
       containers:
         {{- include "gitlab.extraContainers" . | nindent 8 }}
@@ -134,8 +120,6 @@ spec:
               value: {{ .Values.global.appConfig.backups.tmpBucket }}
             - name: PAGES_BUCKET_NAME
               value: {{ .Values.global.pages.objectStore.bucket }}
-            - name: GITALY_FEATURE_DEFAULT_ON
-              value: "1"
             {{- if .Values.global.rails.bootsnap.enabled }}
             - name: ENABLE_BOOTSNAP
               value: "1"
@@ -153,7 +137,8 @@ spec:
               value: '/etc/gitlab/objectstorage/azure_config'
             {{- end }}
             {{- include "gitlab.extraEnv" . | nindent 12 }}
-            {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" (dict)) | nindent 12 }}
+            {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 12 }}
+            {{- include "gitlab.timeZone.env" . | nindent 12 }}
           volumeMounts:
             {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
             - name: toolbox-config
@@ -171,6 +156,7 @@ spec:
             - name: toolbox-secrets
               mountPath: /srv/gitlab/config/secrets.yml
               subPath: rails-secrets/secrets.yml
+            {{- include "gitlab.topologyService.volumeMounts" (dict "context" $ "secretsVolumeName" "toolbox-secrets") | nindent 12 }}
             - name: toolbox-tmp
               mountPath: '/srv/gitlab/tmp'
               {{- if and .Values.persistence.enabled .Values.persistence.subPath }}
@@ -221,9 +207,11 @@ spec:
             {{- include "gitlab.clickhouse.main.secrets" $ | nindent 10 }}
           {{- end }}
           {{- include "gitlab.redis.secrets" (dict "globalContext" $) | nindent 10 }}
+          {{- include "gitlab.redisSentinel.secret" $ | nindent 10 }}
           {{- range $.Values.local.psql }}
           {{-   include "gitlab.psql.secret" . | nindent 10 }}
           {{- end }}
+          {{- include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
           {{- if include "gitlab.geo.secondary" $ }}
           - secret:
               name: {{ template "gitlab.geo.psql.password.secret" . }}
@@ -242,7 +230,6 @@ spec:
           {{- end }}
           {{- include "gitlab.pages.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.kas.mountSecrets" $ | nindent 10 }}
-          {{- include "gitlab.suggestedReviewers.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.zoekt.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.minio.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store) | nindent 10 }}
