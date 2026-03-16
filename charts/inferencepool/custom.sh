@@ -66,7 +66,7 @@ sed "${SED_INPLACE[@]}" \
  charts/inferencepool/templates/httproute.yaml
 
 sed "${SED_INPLACE[@]}" \
-  's/{{ \.Values\.experimentalHttpRoute\.inferenceGatewayName }}/{{ include "gateway.fullname" . }}/g' \
+  's/{{ \.Values\.experimentalHttpRoute\.inferenceGatewayName }}/{{ include "inferencepool.gateway.fullname" . }}/g' \
   charts/inferencepool/templates/httproute.yaml
 
 yq eval -i '

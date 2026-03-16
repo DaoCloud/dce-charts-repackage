@@ -1,7 +1,7 @@
 {{/*
 Create a default fully qualified app name for inferenceGateway.
 */}}
-{{- define "gateway.fullname" -}}
+{{- define "inferencepool.gateway.fullname" -}}
   {{- if .Values.experimentalHttpRoute.inferenceGatewayName -}}
     {{- .Values.experimentalHttpRoute.inferenceGatewayName | trunc 63 | trimSuffix "-" -}}
   {{- else -}}
