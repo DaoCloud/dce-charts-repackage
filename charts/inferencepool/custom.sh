@@ -59,9 +59,15 @@ sed "${SED_INPLACE[@]}" \
   's/\.Values\.inferenceExtension\.image\.name/\.Values\.inferenceExtension\.image\.repository/g' \
  charts/inferencepool/templates/epp-deployment.yaml
 
+yq -i '(.inferencepool.experimentalHttpRoute.inferenceGatewayName = "") | (.inferencepool.experimentalHttpRoute.inferenceGatewayNameOverride = "inference-gateway")' values.yaml
+
 sed "${SED_INPLACE[@]}" \
   's|inference\.networking\.k8s\.io|{{ default "inference.networking.k8s.io" (split "/" .Values.inferencePool.apiVersion)._0 }}|g' \
  charts/inferencepool/templates/httproute.yaml
+
+sed "${SED_INPLACE[@]}" \
+  's/{{ \.Values\.experimentalHttpRoute\.inferenceGatewayName }}/{{ include "gateway.fullname" . }}/g' \
+  charts/inferencepool/templates/httproute.yaml
 
 yq eval -i '
   (.inferenceExtension.image.registry = .inferenceExtension.image.hub) |
@@ -77,8 +83,8 @@ yq eval -i '
   del(.inferencepool.inferenceExtension.image.name)
 ' values.yaml
 
-REPOSITORY=$(yq eval '.inferencepool.inferenceExtension.image.registry | split("/")[1]' values.yaml)
-IMAGE_NAME=$(yq eval '.inferencepool.inferenceExtension.image.repository | sub("^/", "")' values.yaml)
+REPOSITORY=$(yq -r '.inferencepool.inferenceExtension.image.registry | split("/") | .[1]' values.yaml)
+IMAGE_NAME=$(yq -r '.inferencepool.inferenceExtension.image.repository | sub("^/", "")' values.yaml)
 
 yq eval '.inferencepool.inferenceExtension.image.registry = "k8s.m.daocloud.io"' -i values.yaml
 yq eval ".inferencepool.inferenceExtension.image.repository = \"${REPOSITORY}/${IMAGE_NAME}\"" -i values.yaml
