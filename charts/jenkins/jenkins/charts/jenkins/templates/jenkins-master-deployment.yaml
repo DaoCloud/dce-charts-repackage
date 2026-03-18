@@ -56,6 +56,14 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
 {{- end }}
       initContainers:
+        {{/* avoid pvc overrride - */}}
+        - name: "copy-auth-plugin"
+          image: {{ include "jenkins.images.image" (dict "imageRoot" .Values.Master "global" .Values.global "root" .Values.image ) }}
+          imagePullPolicy: {{ template "jenkins.image.pullPolicy" . }}
+          command: ["sh", "-c", "mkdir -p /var/jenkins_home/plugins && cp /usr/share/jenkins/ref/plugins/daocloud-oic-auth.hpi /var/jenkins_home/plugins/"]
+          volumeMounts:
+            - mountPath: /var/jenkins_home
+              name: jenkins-home
         - name: "copy-default-config"
           image: {{ include "jenkins.images.image" (dict "imageRoot" .Values.Master "global" .Values.global "root" .Values.image ) }}
           imagePullPolicy: {{ template "jenkins.image.pullPolicy" . }}
