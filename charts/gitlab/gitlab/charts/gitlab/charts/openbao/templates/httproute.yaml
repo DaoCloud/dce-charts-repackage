@@ -1,0 +1,33 @@
+{{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
+{{- $hostname := include "gitlab.openbao.hostname" . -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "openbao.fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "openbao.labels" . | nindent 4 }}
+  {{- with .Values.gatewayRoute.annotations }}
+  annotations:
+    {{- . | toYaml | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+  - name: {{ template "gitlab.gatewayApi.route.gateway" . }}
+    sectionName: {{ .Values.gatewayRoute.sectionName }}
+  hostnames:
+  - {{ $hostname | quote }}
+  rules:
+  - backendRefs:
+    - kind: Service
+      name: {{ include "openbao.fullname" . }}-active
+      port: {{ .Values.config.apiPort }}
+      weight: 1
+    {{- with .Values.gatewayRoute.timeouts }}
+    timeouts: {{ . | toJson }}
+    {{- end }}
+    matches:
+    - path:
+        type: PathPrefix
+        value: /
+{{- end }}
