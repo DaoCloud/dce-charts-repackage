@@ -38,6 +38,12 @@ Master:
     NotWithApiServer: false
     # If the cluster where jenkins is deployed and amamba-apiserver are not in the same cluster, you need to fill in this item
     JenkinsHost: ""
+  SecurityRealm:
+    clientID: ""
+    clientSecret: ""
+    wellKnownOpenIDConfigurationUrl: ""
+    enableExternalAuth: false
+    externalAuthServiceUrl: ""
 
 eventProxy:
   enabled: true

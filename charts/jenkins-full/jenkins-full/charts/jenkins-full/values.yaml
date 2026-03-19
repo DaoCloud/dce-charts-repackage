@@ -20,7 +20,7 @@ Master:
     SchedulerName: ""
   Name: jenkins-master
   Image: "amamba-io/jenkins"
-  ImageTag: "v0.6.0-2.502"
+  ImageTag: "v0.6.1-2.502"
   ImagePullPolicy: "IfNotPresent"
   ImagePullSecret: ""
   Component: "jenkins-master"
@@ -171,6 +171,17 @@ Master:
       }
 
       addKubeCredential('k8s-service-account')
+    ReloadCASC: |-
+      import io.jenkins.plugins.casc.ConfigurationAsCode
+
+      try {
+        ConfigurationAsCode.get().configure()
+        println("reload casc success")
+      } catch (Throwable t) {
+        println("load casc failed")
+        t.printStackTrace()
+      }
+    # init role based authorisation strategy if not oic auth
     RBAC: |-
       import hudson.*
       import hudson.model.*
@@ -181,6 +192,15 @@ Master:
       import com.michelin.cio.hudson.plugins.rolestrategy.*
       import java.lang.reflect.*
       import com.synopsys.arc.jenkins.plugins.rolestrategy.*
+
+      def instance = Jenkins.getInstance()
+      def hudsonRealm = instance.getSecurityRealm()
+      if (!(hudsonRealm instanceof HudsonPrivateSecurityRealm)) {
+        // turn off oidc auth
+        println "Disable RBAC setup due to oic auth..."
+        return
+      }
+
 
       def env = System.getenv()
 
@@ -270,10 +290,11 @@ Master:
       // Save the state
       println "Saving changes."
       jenkinsInstance.save()
+    # init admin user if not oic auth
     Users: |-
       import jenkins.model.*
       import hudson.security.*
-      
+
       def adminUsername = System.getenv('ADMIN_USER')
       def adminPassword = System.getenv('ADMIN_PASSWORD')
       if (!adminUsername || !adminPassword) {
@@ -283,9 +304,12 @@ Master:
       def instance = Jenkins.getInstance()
       def hudsonRealm = instance.getSecurityRealm()
       if (!(hudsonRealm instanceof HudsonPrivateSecurityRealm)) {
-        hudsonRealm = new HudsonPrivateSecurityRealm(false)
-        instance.setSecurityRealm(hudsonRealm)
+        // turn off oidc auth
+        println "Disable admin user setup due to oic auth..."
+        return
       }
+      hudsonRealm = new HudsonPrivateSecurityRealm(false)
+      instance.setSecurityRealm(hudsonRealm)
       def existingUser = hudsonRealm.getUser(adminUsername)
       if (existingUser) {
         println "User '${adminUsername}' already exists. Updating password."
@@ -363,36 +387,36 @@ Agent:
   Builder:
     Base:
       Image: amamba-io/jenkins-agent-base
-      ImageTag: v0.6.0
+      ImageTag: v0.6.1
     NodeJs:
       Image: amamba-io/jenkins-agent-nodejs
-      ImageTag: v0.6.0-16.20.2
+      ImageTag: v0.6.1-16.20.2
       # Versions for auto generator Jenkins CASC Config and relock_k8s images.
       # must build image first.
       Versions:
-        - v0.6.0-18.20.4
-        - v0.6.0-20.17.0
+        - v0.6.1-18.20.4
+        - v0.6.1-20.17.0
     Maven:
       Image: amamba-io/jenkins-agent-maven
-      ImageTag: v0.6.0-jdk8
+      ImageTag: v0.6.1-jdk8
       Versions:
-        - v0.6.0-jdk11
-        - v0.6.0-jdk17
-        - v0.6.0-jdk21
+        - v0.6.1-jdk11
+        - v0.6.1-jdk17
+        - v0.6.1-jdk21
     Golang:
       Image: amamba-io/jenkins-agent-go
-      ImageTag: v0.6.0-1.22.6
+      ImageTag: v0.6.1-1.22.6
       Versions:
-        - v0.6.0-1.17.13
-        - v0.6.0-1.18.10
-        - v0.6.0-1.20.14
+        - v0.6.1-1.17.13
+        - v0.6.1-1.18.10
+        - v0.6.1-1.20.14
     Python:
       Image: amamba-io/jenkins-agent-python
-      ImageTag: v0.6.0-3.8.19
+      ImageTag: v0.6.1-3.8.19
       Versions:
-        - v0.6.0-2.7.9
-        - v0.6.0-3.10.9
-        - v0.6.0-3.11.9
+        - v0.6.1-2.7.9
+        - v0.6.1-3.10.9
+        - v0.6.1-3.11.9
     ContainerRuntime: podman # Available values: docker, podman
 
 Persistence:
