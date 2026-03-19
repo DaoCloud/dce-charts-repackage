@@ -357,8 +357,8 @@ data:
                           ephemeral-storage: "10Gi"
                     securityContext:
                       fsGroup: 1000
-      securityRealm:
-      authorizationStrategy: loggedInUsersCanDoAnything
+      securityRealm: {{ toYaml .Values.casc.securityRealm | nindent 8 }}
+      authorizationStrategy: {{ toYaml .Values.casc.authorizationStrategy | nindent 8 }}
     unclassified:
       location:
         url: {{ include "location.url" . }}
