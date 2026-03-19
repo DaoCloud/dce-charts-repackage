@@ -365,8 +365,8 @@ data:
                       fsGroup: 1000
               {{- $pythonParams := dict "language" "python" "builder" .Values.Agent.Builder.Python "root" . "os" "ubuntu" }}
               {{ include "language.images" $pythonParams | nindent 14 }}
-      securityRealm:
-      authorizationStrategy: loggedInUsersCanDoAnything
+      securityRealm: {{ toYaml .Values.casc.securityRealm | nindent 8 }}
+      authorizationStrategy: {{ toYaml .Values.casc.authorizationStrategy | nindent 8 }}
 
     unclassified:
       location:
