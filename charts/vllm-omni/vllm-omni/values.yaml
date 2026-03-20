@@ -1,0 +1,204 @@
+# Default values for vllm-omni.
+
+# -- Image configuration
+image:
+  registry: m.daocloud.io/docker.io
+  repository: vllm/vllm-omni
+  tag: v0.16.0
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+# -- Number of replicas
+replicaCount: 1
+
+# -- Service account configuration
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod labels
+podLabels: {}
+
+# -- Pod security context
+podSecurityContext: {}
+
+# -- Container security context
+securityContext: {}
+
+# -- Main service configuration
+service:
+  type: ClusterIP
+  port: 8000
+  annotations: {}
+
+# -- Ingress configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: vllm-omni.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# -- Resource limits and requests
+resources:
+  limits:
+    nvidia.com/gpu: "1"
+    cpu: "8"
+    memory: "32Gi"
+  requests:
+    nvidia.com/gpu: "1"
+    cpu: "4"
+    memory: "16Gi"
+
+# -- Node selector
+nodeSelector: {}
+
+# -- Tolerations
+tolerations: []
+
+# -- Affinity
+affinity: {}
+
+# -- vLLM-Omni model configuration
+model:
+  # -- Model name or Hugging Face hub path (required)
+  name: "Qwen/Qwen2.5-Omni-7B"
+  # -- Tensor parallel size (number of GPUs for tensor parallelism)
+  tensorParallelSize: 1
+  # -- Pipeline parallel size
+  pipelineParallelSize: 1
+  # -- Data type: auto, float16, bfloat16, float32
+  dtype: "auto"
+  # -- GPU memory utilization ratio (0.0 to 1.0)
+  gpuMemoryUtilization: 0.90
+  # -- Maximum model context length (null uses model default)
+  maxModelLen: null
+  # -- Quantization method: awq, gptq, squeezellm, fp8, etc. (null disables)
+  quantization: null
+  # -- Maximum number of sequences served in a single batch
+  maxNumSeqs: 256
+  # -- Trust remote code when loading models
+  trustRemoteCode: false
+
+# -- Hugging Face Hub configuration
+huggingface:
+  # -- Hugging Face API token (for gated/private models)
+  token: ""
+  # -- Mirror endpoint for HF Hub (useful in restricted environments)
+  endpoint: ""
+
+# -- World Model configuration (per RFC #1987)
+# Enables interactive world model inference for robotics control and
+# interactive video/simulation (e.g., DreamZero, Matrix Game, HunYuan World).
+worldModel:
+  # -- Enable world model API endpoints (/v1/world/predict, /v1/world/sessions, /v1/world/stream)
+  enabled: false
+
+  # -- Maximum number of concurrent world model sessions
+  maxSessions: 64
+
+  # -- Session inactivity timeout in seconds
+  sessionTimeoutSeconds: 300
+
+  # -- Enable WebSocket streaming endpoint (/v1/world/stream) for real-time
+  # bidirectional control loops (e.g., 7Hz robot control)
+  websocketEnabled: true
+
+  # -- URL path prefix for world model API endpoints
+  apiPrefix: "/v1/world"
+
+  # -- KV buffer configuration for autoregressive block diffusion models
+  # (e.g., DreamZero, LingBot-VA, Matrix Game, HunYuan World)
+  kvBuffer:
+    # -- Maximum context window size in blocks (local_attn_size)
+    # DreamZero default: 17 blocks
+    maxWindowSize: 17
+    # -- Pre-allocate fixed-size KV buffer at model load time
+    # Avoids dynamic allocation overhead during inference
+    preallocate: true
+
+  # -- List of supported embodiment configurations for multi-embodiment robotics models
+  # Each entry maps an embodiment_id to its action/state space definition
+  # Example:
+  #   - id: 0
+  #     name: "droid"
+  #     actionDim: 7
+  #     stateDim: 14
+  embodiments: []
+
+  # -- World model pipeline configurations to register
+  # Maps pipeline class names to their model registry entries
+  # Example:
+  #   - name: "DreamZeroPipeline"
+  #     module: "dreamzero"
+  #     class: "DreamZeroPipeline"
+  models: []
+
+# -- Persistent storage for Hugging Face model cache
+storage:
+  # -- Enable persistent volume for model cache
+  enabled: true
+  # -- Use an existing PersistentVolumeClaim (leave empty to create one)
+  existingClaim: ""
+  # -- StorageClass name (leave empty for cluster default)
+  storageClass: ""
+  # -- Access mode
+  accessMode: ReadWriteOnce
+  # -- Storage size for model cache
+  size: "100Gi"
+  # -- Mount path inside the container
+  mountPath: "/root/.cache/huggingface"
+
+# -- Enable host IPC namespace (recommended for vLLM multi-GPU performance)
+hostIPC: true
+
+# -- Shared memory volume size (for PyTorch multiprocessing)
+shmSize: "10Gi"
+
+# -- Additional environment variables
+extraEnvVars: []
+# Example:
+# - name: NCCL_DEBUG
+#   value: "INFO"
+
+# -- Additional volumes
+extraVolumes: []
+
+# -- Additional volume mounts
+extraVolumeMounts: []
+
+# -- Liveness probe configuration
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 120
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 5
+
+# -- Readiness probe configuration
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 120
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+# -- Additional command-line arguments passed to the vLLM-Omni server
+extraArgs: []
+# Example:
+# - --enable-chunked-prefill
+# - --max-chunked-prefill-tokens=512
