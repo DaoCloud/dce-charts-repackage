@@ -1,0 +1,30 @@
+apiVersion: v2
+appVersion: v0.16.0
+description: A Helm chart for deploying vLLM-Omni - an omni-modality model serving
+  framework with support for text, image, video, audio, and interactive world model
+  inference (RFC #1987).
+name: vllm-omni
+type: application
+version: 0.16.0
+keywords:
+  - ai-machine-learning
+  - inference
+  - vllm
+  - omni
+  - world-model
+  - robotics
+  - diffusion
+maintainers:
+  - name: vllm-project
+    url: https://github.com/vllm-project/vllm-omni
+home: https://github.com/vllm-project/vllm-omni
+sources:
+  - https://github.com/vllm-project/vllm-omni
+annotations:
+  artifacthub.io/category: ai-machine-learning
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: Chart Source
+      url: https://github.com/DaoCloud/dce-charts-repackage
+    - name: Upstream Project
+      url: https://github.com/vllm-project/vllm-omni
