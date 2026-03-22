@@ -1,0 +1,17 @@
+{{- if and .Values.role.create .Values.serviceAccount.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ include "openbao.fullname" . }}
+  labels:
+    {{- include "openbao.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ template "openbao.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "openbao.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}

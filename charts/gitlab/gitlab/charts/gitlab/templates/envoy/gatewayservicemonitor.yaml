@@ -1,0 +1,30 @@
+{{- $gatewayMoni := .Values.global.gatewayApi.metrics.envoyGateway.serviceMonitor }}
+{{- if eq (include "gitlab.monitoring.enabled" .) "true" -}}
+{{- if and .Values.global.gatewayApi.installEnvoy $gatewayMoni.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ printf "%s-envoy-gateway" .Release.Name | quote }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+  {{- with $gatewayMoni.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ $.Release.Namespace }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: envoy-gateway
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  endpoints:
+    - port: metrics
+      path: "/metrics"
+    {{- with $gatewayMoni.endpointConfig }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+{{- end -}}
+{{- end -}}
