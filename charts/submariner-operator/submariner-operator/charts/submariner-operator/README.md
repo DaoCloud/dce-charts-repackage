@@ -28,6 +28,7 @@ Submariner enables direct networking between Pods and Services in different Kube
 | ipsec.forceUDPEncaps | bool | `false` |  |
 | ipsec.ikePort | int | `500` |  |
 | ipsec.natPort | int | `4500` |  |
+| ipsec.pskSecret | string | `""` | Name of the Kubernetes Secret containing the IPsec PSK as field psk |
 | ipsec.psk | string | `""` |  |
 | leadership.leaseDuration | int | `10` |  |
 | leadership.renewDeadline | int | `5` |  |
@@ -38,19 +39,6 @@ Submariner enables direct networking between Pods and Services in different Kube
 | operator.image.tag | string | `"0.14.0"` |  |
 | operator.resources | object | `{}` |  |
 | operator.tolerations | list | `[]` |  |
-| rbac.create | bool | `true` |  |
-| serviceAccounts.gateway.create | bool | `true` |  |
-| serviceAccounts.gateway.name | string | `""` |  |
-| serviceAccounts.globalnet.create | bool | `true` |  |
-| serviceAccounts.globalnet.name | string | `""` |  |
-| serviceAccounts.lighthouseAgent.create | bool | `true` |  |
-| serviceAccounts.lighthouseAgent.name | string | `""` |  |
-| serviceAccounts.lighthouseCoreDns.create | bool | `true` |  |
-| serviceAccounts.lighthouseCoreDns.name | string | `""` |  |
-| serviceAccounts.operator.create | bool | `true` |  |
-| serviceAccounts.operator.name | string | `""` |  |
-| serviceAccounts.routeAgent.create | bool | `true` |  |
-| serviceAccounts.routeAgent.name | string | `""` |  |
 | submariner.cableDriver | string | `"libreswan"` |  |
 | submariner.clusterCidr | string | `""` |  |
 | submariner.clusterId | string | `""` |  |
@@ -65,5 +53,6 @@ Submariner enables direct networking between Pods and Services in different Kube
 | submariner.images.tag | string | `"0.14.0"` |  |
 | submariner.natEnabled | bool | `false` |  |
 | submariner.serviceCidr | string | `""` |  |
+| submariner.brokerK8sSecret | string | `""` |  Name of the Kubernetes Secret containing broker credentials (ca.crt, token). |
 | submariner.serviceDiscovery | bool | `true` |  |
 | submariner.token | string | `""` |  |
