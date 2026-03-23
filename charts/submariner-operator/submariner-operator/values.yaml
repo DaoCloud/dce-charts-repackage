@@ -8,6 +8,7 @@ submariner-operator:
     globalCidr: ""
     clustersetIpCidr: ""
     clustersetIpEnabled: false
+    brokerK8sSecret: ""
     loadBalancerEnabled: false
     natEnabled: false
     colorCodes: blue
@@ -18,7 +19,7 @@ submariner-operator:
     coreDNSCustomConfig: {}
     images:
       repository: submariner
-      tag: "0.19.2"
+      tag: "0.23.1"
       registry: quay.m.daocloud.io
   broker:
     server: example.k8s.apiserver
@@ -27,11 +28,10 @@ submariner-operator:
     insecure: false
     ca: ""
     globalnet: false
-  rbac:
-    create: true
   images: {}
   ipsec:
     psk: ""
+    pskSecret: ""
     debug: false
     forceUDPEncaps: false
     ikePort: 500
@@ -43,7 +43,7 @@ submariner-operator:
   operator:
     image:
       repository: submariner/submariner-operator
-      tag: "0.19.2"
+      tag: "0.23.1"
       pullPolicy: IfNotPresent
       registry: quay.m.daocloud.io
     resources:
@@ -55,22 +55,3 @@ submariner-operator:
         memory: 300M
     tolerations: []
     affinity: {}
-  serviceAccounts:
-    operator:
-      create: true
-      name: ""
-    gateway:
-      create: true
-      name: ""
-    routeAgent:
-      create: true
-      name: ""
-    globalnet:
-      create: true
-      name: ""
-    lighthouseAgent:
-      create: true
-      name: ""
-    lighthouseCoreDns:
-      create: true
-      name: ""

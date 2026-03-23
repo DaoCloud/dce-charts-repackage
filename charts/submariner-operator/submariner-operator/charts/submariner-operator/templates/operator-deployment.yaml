@@ -6,7 +6,6 @@ metadata:
     release: {{ .Release.Name | quote }}
     chart: {{ template "submariner.chart" . }}
     app: {{ template "submariner.fullname" . }}
-    component: gateway
   name: {{ template "submariner.fullname" . }}
 spec:
   progressDeadlineSeconds: 600
@@ -27,8 +26,8 @@ spec:
         name: {{ template "submariner.fullname" . }}
     spec:
       containers:
-      - command:
-        - submariner-operator
+      - args:
+        - --leader-elect
         env:
         - name: WATCH_NAMESPACE
           valueFrom:
@@ -55,6 +54,5 @@ spec:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-      serviceAccount: {{ template "submariner.fullname" . }}
-      serviceAccountName: {{ template "submariner.fullname" . }}
+      serviceAccountName: submariner-operator
       terminationGracePeriodSeconds: 30
