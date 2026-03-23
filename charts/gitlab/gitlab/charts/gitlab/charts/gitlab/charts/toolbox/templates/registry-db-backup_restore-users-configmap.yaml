@@ -1,0 +1,19 @@
+{{- if or .Values.backups.registry.database.backupUser .Values.backups.registry.database.restoreUser }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-registry-db-backuprestore-users
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+data:
+  {{- if .Values.backups.registry.database.backupUser }}
+  backup-user: |
+    REGISTRY_DATABASE_USER={{ .Values.backups.registry.database.backupUser }}
+  {{- end }}
+  {{- if .Values.backups.registry.database.restoreUser }}
+  restore-user: |
+    REGISTRY_DATABASE_USER={{ .Values.backups.registry.database.restoreUser }}
+  {{- end }}
+{{- end }}
