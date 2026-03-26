@@ -44,6 +44,31 @@ spec:
       hostAliases:
       {{- toYaml .Values.hostAliases | nindent 6 }}
     {{- end }}
+  {{- if .Values.node.tuneTransparentHugePage }}
+      initContainers:
+      - name: setup-thp
+        image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+        {{- if .Values.image.pullPolicy }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- end }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          if [ -f /host-sys/kernel/mm/transparent_hugepage/defrag ]; then
+            echo "Setting transparent hugepage defrag to defer"
+            echo defer > /host-sys/kernel/mm/transparent_hugepage/defrag 2>/dev/null || echo "Failed to set THP defrag"
+          else
+            echo "Transparent hugepage defrag file not found, skipping"
+          fi
+        securityContext:
+          allowPrivilegeEscalation: true
+          privileged: true
+          runAsNonRoot: false
+        volumeMounts:
+        - name: host-sys
+          mountPath: /host-sys
+  {{- end }}
       containers:
       - name: juicefs-plugin
         image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
@@ -57,7 +82,7 @@ spec:
         {{- if .Values.node.debug }}
         - --v=1
         {{- end }}
-        {{- if eq .Values.mountMode "mountpod" }}
+        {{- if contains "mountpod" .Values.mountMode }}
         - --enable-manager=true
         {{- end }}
         {{- if eq .Values.mountMode "process" }}
@@ -98,6 +123,10 @@ spec:
         - name: STORAGE_CLASS_SHARE_MOUNT
           value: "true"
         {{- end }}
+        {{- if .Values.node.fsShareMount }}
+        - name: FS_SHARE_MOUNT
+          value: "true"
+        {{- end }}
         {{- if .Values.node.mountPodNonPreempting }}
         - name: JUICEFS_MOUNT_PRIORITY_NAME
           value: "juicefs-mount-priority-nonpreempting"
@@ -121,6 +150,10 @@ spec:
         - name: JUICEFS_CSI_WEB_PORT
           value: "{{ .Values.node.metricsPort }}"
         {{- end }}
+        {{- if .Values.driverName }}
+        - name: DRIVER_NAME
+          value: "{{ .Values.driverName }}"
+        {{- end }}
         {{- if .Values.node.envs }}
 {{ toYaml .Values.node.envs | trim | indent 8 }}
         {{- end }}
@@ -137,7 +170,9 @@ spec:
           name: metrics
           protocol: TCP
         securityContext:
+          allowPrivilegeEscalation: true
           privileged: true
+          runAsNonRoot: false
         volumeMounts:
         - mountPath: {{ .Values.kubeletDir }}
           mountPropagation: Bidirectional
@@ -160,6 +195,9 @@ spec:
         - name: juicefs-config
           mountPath: /etc/config
         {{- end }}
+        {{- with .Values.node.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}        
       - name: node-driver-registrar
         image: {{ printf "%s/%s:%s" .Values.sidecars.nodeDriverRegistrarImage.registry .Values.sidecars.nodeDriverRegistrarImage.repository .Values.sidecars.nodeDriverRegistrarImage.tag }}
         {{- if .Values.sidecars.nodeDriverRegistrarImage.pullPolicy }}
@@ -185,7 +223,10 @@ spec:
         - name: ADDRESS
           value: /csi/csi.sock
         - name: DRIVER_REG_SOCK_PATH
-          value: {{ .Values.kubeletDir }}/csi-plugins/csi.juicefs.com/csi.sock
+          value: {{ .Values.kubeletDir }}/csi-plugins/{{ include "driverName" . }}/csi.sock
+        securityContext:
+          privileged: {{ .Values.node.sidecarPrivileged }}
+          runAsNonRoot: false
         volumeMounts:
         - mountPath: /csi
           name: plugin-dir
@@ -204,6 +245,9 @@ spec:
           value: /csi/csi.sock
         - name: HEALTH_PORT
           value: "{{ .Values.node.livenessProbe.httpGet.port }}"
+        securityContext:
+          privileged: {{ .Values.node.sidecarPrivileged }}
+          runAsNonRoot: false
         volumeMounts:
         - mountPath: /csi
           name: plugin-dir
@@ -237,7 +281,7 @@ spec:
           type: Directory
         name: kubelet-dir
       - hostPath:
-          path: {{ .Values.kubeletDir }}/csi-plugins/csi.juicefs.com/
+          path: {{ .Values.kubeletDir }}/csi-plugins/{{ include "driverName" . }}/
           type: DirectoryOrCreate
         name: plugin-dir
       - hostPath:
@@ -266,5 +310,14 @@ spec:
       - name: juicefs-config
         configMap:
           name: {{ include "juicefs-csi.fullname" . }}-config
+      {{- end }}
+      {{- if .Values.node.tuneTransparentHugePage }}
+      - hostPath:
+          path: /sys
+          type: Directory
+        name: host-sys
+      {{- end }}
+      {{- with .Values.node.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
 {{- end }}
