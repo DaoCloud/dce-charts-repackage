@@ -3,10 +3,10 @@ inferencepool:
   inferenceExtension:
     replicas: 1
     image:
-      name: gateway-api-inference-extension/epp
-      hub: k8s.m.daocloud.io
       tag: v1.3.0
       pullPolicy: Always
+      registry: k8s.m.daocloud.io
+      repository: gateway-api-inference-extension/epp
     extProcPort: 9002
     env: []
     pluginsConfigFile: "default-plugins.yaml"
@@ -163,9 +163,9 @@ inferencepool:
     targetPortNumber: 8000
     modelServers:
       matchLabels:
-        app: vllm-llama3-8b-instruct
+        app: inferx
   # Options: ["gke", "istio", "none"]
-  provider: # REQUIRED
+  provider:
     name: none
     # GKE-specific configuration.
     # This block is only used if name is "gke".
@@ -187,7 +187,8 @@ inferencepool:
   # this section is temporary and should be extracted to a separate chart.
   experimentalHttpRoute:
     enabled: false # a flag to indicate whether to create the httproute as part of the chart or not.
-    inferenceGatewayName: inference-gateway
+    inferenceGatewayName: ""
+    inferenceGatewayNameOverride: inference-gateway
   # DEPRECATED and will be removed in v1.3. Instead, use `provider.istio.*`.
   istio:
     destinationRule:

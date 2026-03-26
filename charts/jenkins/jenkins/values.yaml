@@ -21,7 +21,7 @@ jenkins:
       SchedulerName: ""
     Name: jenkins-master
     Image: "amamba-io/jenkins"
-    ImageTag: "v0.6.0-2.502"
+    ImageTag: "v0.6.2-2.502"
     ImagePullPolicy: "IfNotPresent"
     ImagePullSecret: ""
     Component: "jenkins-master"
@@ -143,6 +143,17 @@ jenkins:
         }
 
         addKubeCredential('k8s-service-account')
+      ReloadCASC: |-
+        import io.jenkins.plugins.casc.ConfigurationAsCode
+
+        try {
+          ConfigurationAsCode.get().configure()
+          println("reload casc success")
+        } catch (Throwable t) {
+          println("load casc failed")
+          t.printStackTrace()
+        }
+      # init role based authorisation strategy if not oic auth
       RBAC: |-
         import hudson.*
         import hudson.model.*
@@ -153,6 +164,14 @@ jenkins:
         import com.michelin.cio.hudson.plugins.rolestrategy.*
         import java.lang.reflect.*
         import com.synopsys.arc.jenkins.plugins.rolestrategy.*
+
+        def instance = Jenkins.getInstance()
+        def hudsonRealm = instance.getSecurityRealm()
+        if (!(hudsonRealm instanceof HudsonPrivateSecurityRealm)) {
+          // turn off oidc auth
+          println "Disable RBAC setup due to oic auth..."
+          return
+        }
 
         def env = System.getenv()
 
@@ -242,31 +261,8 @@ jenkins:
         // Save the state
         println "Saving changes."
         jenkinsInstance.save()
-      Users: |-
-        import jenkins.model.*
-        import hudson.security.*
-
-        def adminUsername = System.getenv('ADMIN_USER')
-        def adminPassword = System.getenv('ADMIN_PASSWORD')
-        if (!adminUsername || !adminPassword) {
-          println "Warning: ADMIN_USER or ADMIN_PASSWORD environment variables are not set. It's dangerous to run Jenkins without authentication."
-          return
-        }
-        def instance = Jenkins.getInstance()
-        def hudsonRealm = instance.getSecurityRealm()
-        if (!(hudsonRealm instanceof HudsonPrivateSecurityRealm)) {
-          hudsonRealm = new HudsonPrivateSecurityRealm(false)
-          instance.setSecurityRealm(hudsonRealm)
-        }
-        def existingUser = hudsonRealm.getUser(adminUsername)
-        if (existingUser) {
-          println "User '${adminUsername}' already exists. Updating password."
-        } else {
-          println "Creating new user '${adminUsername}'."
-        }
-        hudsonRealm.createAccount(adminUsername, adminPassword)
-        instance.save()
-        println "User '${adminUsername}' has been configured successfully."
+      # init admin user if not oic auth
+      Users: "import jenkins.model.*\nimport hudson.security.*\n\ndef adminUsername = System.getenv('ADMIN_USER')\ndef adminPassword = System.getenv('ADMIN_PASSWORD')\nif (!adminUsername || !adminPassword) {\n  println \"Warning: ADMIN_USER or ADMIN_PASSWORD environment variables are not set. It's dangerous to run Jenkins without authentication.\"\n  return\n}\ndef instance = Jenkins.getInstance()\ndef hudsonRealm = instance.getSecurityRealm()\nif (!(hudsonRealm instanceof HudsonPrivateSecurityRealm)) {\n  // turn off oidc auth\n  println \"Disable admin user setup due to oic auth...\"\n  return\n}\nhudsonRealm = new HudsonPrivateSecurityRealm(false)\ninstance.setSecurityRealm(hudsonRealm)\ndef existingUser = hudsonRealm.getUser(adminUsername)\nif (existingUser) {\n  println \"User '${adminUsername}' already exists. Updating password.\"\n} else {\n  println \"Creating new user '${adminUsername}'.\"\n}\nhudsonRealm.createAccount(adminUsername, adminPassword)\ninstance.save()\nprintln \"User '${adminUsername}' has been configured successfully.\"  "
     CustomConfigMap: false
     # By default, the configMap is only used to set the initial config the first time
     # that the chart is installed.  Setting `OverwriteConfig` to `true` will overwrite
@@ -333,21 +329,21 @@ jenkins:
     Builder:
       Base:
         Image: amamba-io/jenkins-agent-base
-        ImageTag: v0.6.0
+        ImageTag: v0.6.2
       NodeJs:
         Image: amamba-io/jenkins-agent-nodejs
-        ImageTag: v0.6.0-16.20.2
+        ImageTag: v0.6.2-16.20.2
         # Versions for auto generator Jenkins CASC Config and relock_k8s images.
         # must build image first.
       Maven:
         Image: amamba-io/jenkins-agent-maven
-        ImageTag: v0.6.0-jdk8
+        ImageTag: v0.6.2-jdk8
       Golang:
         Image: amamba-io/jenkins-agent-go
-        ImageTag: v0.6.0-1.22.6
+        ImageTag: v0.6.2-1.22.6
       Python:
         Image: amamba-io/jenkins-agent-python
-        ImageTag: v0.6.0-3.8.19
+        ImageTag: v0.6.2-3.8.19
       ContainerRuntime: podman # Available values: docker, podman
   Persistence:
     Enabled: true
@@ -380,8 +376,11 @@ jenkins:
     roleRef: cluster-admin
     # Role kind (RoleBinding or ClusterRoleBinding)
     roleBindingKind: ClusterRoleBinding
-  securityRealm:
-    type: local # support values include local, ldap
+  casc:
+    securityRealm:
+      local:
+        allowsSignup: false
+    authorizationStrategy: loggedInUsersCanDoAnything
   eventProxy:
     enabled: false
     image:

@@ -8,10 +8,10 @@ spec:
   parentRefs:
   - group: gateway.networking.k8s.io
     kind: Gateway
-    name: {{ .Values.experimentalHttpRoute.inferenceGatewayName }}
+    name: {{ include "inferencepool.gateway.fullname" . }}
   rules:
   - backendRefs:
-    - group: inference.networking.k8s.io
+    - group: {{ default "inference.networking.k8s.io" (split "/" .Values.inferencePool.apiVersion)._0 }}
       kind: InferencePool
       name: {{ .Release.Name }}
     matches:

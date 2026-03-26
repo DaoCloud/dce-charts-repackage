@@ -1,0 +1,19 @@
+export USE_OPENSOURCE_CHART=false
+
+ # must
+ export REPO_URL=oci://cr.kgateway.dev/kgateway-dev/charts
+ export REPO_NAME=kgateway
+ export CHART_NAME=kgateway
+ export VERSION=v2.2.1
+
+ # pr, issue, none
+ export UPGRADE_METHOD=pr
+ export UPGRADE_REVIWER=cyclinder
+ export TEST_ASSIGNER=cyclinder
+
+ # optional, for wrapper chart
+ export CUSTOM_SHELL=custom.sh
+ # push to daocloud repo
+ export DAOCLOUD_REPO_PROJECT=addon
+
+ export NO_TRIVY=true
