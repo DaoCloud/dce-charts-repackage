@@ -13,6 +13,15 @@ cert-manager:
     #  imagePullSecrets:
     #    - name: "image-pull-secret"
     imagePullSecrets: []
+    # Global node selector
+    #
+    # The nodeSelector on Pods tells Kubernetes to schedule Pods on the nodes with
+    # matching labels.
+    # For more information, see [Assigning Pods to Nodes](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/).
+    #
+    # If a component-specific nodeSelector is also set, it will be merged and take precedence.
+    # +docs:property
+    nodeSelector: {}
     # Labels to apply to all resources.
     # Please note that this does not add labels to the resources created dynamically by the controllers.
     # For these resources, you have to add the labels in the template in the cert-manager custom resource:
@@ -27,6 +36,18 @@ cert-manager:
 
     # The optional priority class to be used for the cert-manager pods.
     priorityClassName: ""
+    # Set all pods to run in a user namespace without host access.
+    # Experimental: may be removed once the Kubernetes User Namespaces feature is GA.
+    #
+    # Requirements:
+    #   - Kubernetes ≥ 1.33, or
+    #   - Kubernetes 1.27–1.32 with UserNamespacesSupport feature gate enabled.
+    #
+    # Set to false to run pods in a user namespace without host access.
+    #
+    # See [limitations](https://kubernetes.io/docs/concepts/workloads/pods/user-namespaces/#limitations) for details.
+    # +docs:property
+    # hostUsers: false
     rbac:
       # Create required ClusterRoles and ClusterRoleBindings for cert-manager.
       create: true
@@ -105,43 +126,73 @@ cert-manager:
     # Pod is currently running.
     enabled: false
     # This configures the minimum available pods for disruptions. It can either be set to
-    # an integer (e.g. 1) or a percentage value (e.g. 25%).
+    # an integer (e.g., 1) or a percentage value (e.g., 25%).
     # It cannot be used if `maxUnavailable` is set.
     # +docs:property
     # +docs:type=unknown
     # minAvailable: 1
 
     # This configures the maximum unavailable pods for disruptions. It can either be set to
-    # an integer (e.g. 1) or a percentage value (e.g. 25%).
+    # an integer (e.g., 1) or a percentage value (e.g., 25%).
     # it cannot be used if `minAvailable` is set.
     # +docs:property
     # +docs:type=unknown
     # maxUnavailable: 1
+
+    # This configures how to act with unhealthy pods during eviction
+    # Note that this requires Kubernetes 1.31 or `PDBUnhealthyPodEvictionPolicy` feature gate enabled for
+    # the cluster to work.
+    # +docs:property
+    # +docs:type=string
+    # unhealthyPodEvictionPolicy: AlwaysAllow
   # A comma-separated list of feature gates that should be enabled on the
   # controller pod.
   featureGates: ""
   # The maximum number of challenges that can be scheduled as 'processing' at once.
   maxConcurrentChallenges: 60
+  # The container registry used for all cert-manager images by default.
+  # This can include path prefixes (e.g. `artifactory.example.com/docker`).
+  # +docs:property
+  imageRegistry: quay.io
+  # The repository namespace used for all cert-manager images by default.
+  # Examples:
+  # - jetstack
+  # - cert-manager
+  # +docs:property
+  imageNamespace: jetstack
   image:
-    # The container registry to pull the manager image from.
+    # Deprecated: per-component registry prefix.
+    #
+    # If set, this value is *prepended* to the image repository that the chart would otherwise render.
+    # This applies both when `image.repository` is set and when the repository is computed from
+    # `imageRegistry` + `imageNamespace` + `image.name`.
+    #
+    # This can produce "double registry" style references such as `legacy.example.io/quay.io/jetstack/...`.
+    # Prefer using the global `imageRegistry`/`imageNamespace` values.
     # +docs:property
-    # registry: quay.io
+    # registry: ""
 
-    # The container image for the cert-manager controller.
+    # The image name for the cert-manager controller.
+    # This is used (together with `imageRegistry` and `imageNamespace`) to construct the full image reference.
     # +docs:property
-    repository: quay.m.daocloud.io/jetstack/cert-manager-controller
+    name: cert-manager-controller
+    # Full repository override (takes precedence over `imageRegistry`, `imageNamespace`, and `image.name`).
+    # Example: quay.io/jetstack/cert-manager-controller
+    # +docs:property
+    repository: "quay.m.daocloud.io/jetstack/cert-manager-controller"
     # Override the image tag to deploy by setting this variable.
     # If no value is set, the chart's appVersion is used.
     # +docs:property
     # tag: vX.Y.Z
 
-    # Setting a digest will override any tag.
+    # Setting a digest pins the image. If a tag is also set, the rendered reference will include
+    # both ("image:tag@digest"), though only the digest will be used for pulling.
     # +docs:property
     # digest: sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20
 
     # Kubernetes imagePullPolicy on Deployment.
     pullPolicy: IfNotPresent
-    tag: v1.16.4
+    tag: v1.20.1
   # Override the namespace used to store DNS provider credentials etc. for ClusterIssuer
   # resources. By default, the same namespace as cert-manager is deployed within is
   # used. This namespace will not be automatically created by the Helm chart.
@@ -158,7 +209,7 @@ cert-manager:
   # Override the "cert-manager.name" value, which is used to annotate some of
   # the resources that are created by this Chart (using "app.kubernetes.io/name").
   # NOTE: There are some inconsistencies in the Helm chart when it comes to
-  # these annotations (some resources use eg. "cainjector.name" which resolves
+  # these annotations (some resources use, e.g., "cainjector.name" which resolves
   # to the value "cainjector").
   # +docs:property
   # nameOverride: "my-cert-manager"
@@ -170,7 +221,10 @@ cert-manager:
     # +docs:property
     # name: ""
 
-    # Optional additional annotations to add to the controller's Service Account.
+    # Optional additional annotations to add to the controller's Service Account. Templates are allowed for both keys and values.
+    # Example using templating:
+    # annotations:
+    #   "{{ .Chart.Name }}-helm-chart/version": "{{ .Chart.Version }}"
     # +docs:property
     # annotations: {}
 
@@ -205,17 +259,22 @@ cert-manager:
   #    kubernetesAPIQPS: 9000
   #    kubernetesAPIBurst: 9000
   #    numberOfConcurrentWorkers: 200
+  #    enableGatewayAPI: true
+  #    # Feature gates as of v1.20.0. Listed with their default values.
+  #    # See https://cert-manager.io/docs/cli/controller/
   #    featureGates:
-  #      AdditionalCertificateOutputFormats: true
-  #      DisallowInsecureCSRUsageDefinition: true
-  #      ExperimentalCertificateSigningRequestControllers: true
-  #      ExperimentalGatewayAPISupport: true
-  #      LiteralCertificateSubject: true
-  #      SecretsFilteredCaching: true
-  #      ServerSideApply: true
-  #      StableCertificateRequestName: true
-  #      UseCertificateRequestBasicConstraints: true
-  #      ValidateCAA: true
+  #      AllAlpha: false # ALPHA - default=false
+  #      AllBeta: false # BETA - default=false
+  #      ACMEHTTP01IngressPathTypeExact: true # BETA - default=true
+  #      ExperimentalCertificateSigningRequestControllers: false # ALPHA - default=false
+  #      ExperimentalGatewayAPISupport: true # BETA - default=true
+  #      LiteralCertificateSubject: true # BETA - default=true
+  #      NameConstraints: true # BETA - default=true
+  #      OtherNames: true # BETA - default=true
+  #      SecretsFilteredCaching: true # BETA - default=true
+  #      ServerSideApply: false # ALPHA - default=false
+  #      StableCertificateRequestName: true # BETA - default=true
+  #      UseCertificateRequestBasicConstraints: false # ALPHA - default=false
   #    # Configure the metrics server for TLS
   #    # See https://cert-manager.io/docs/devops-tips/prometheus-metrics/#tls
   #    metricsTLSConfig:
@@ -224,6 +283,13 @@ cert-manager:
   #        secretName: "cert-manager-metrics-ca"
   #        dnsNames:
   #        - cert-manager-metrics
+  #    # Configure PEM size limits for certificate validation
+  #    # Useful for certificates with many DNS names (e.g., Istio gateways with 100+ DNS names)
+  #    pemSizeLimitsConfig:
+  #      maxCertificateSize: 36500     # Maximum size in bytes for individual certificates (default: 36500)
+  #      maxPrivateKeySize: 13000      # Maximum size in bytes for private keys (default: 13000)
+  #      maxChainLength: 95000         # Maximum size in bytes for certificate chains (default: 95000)
+  #      maxBundleSize: 330000         # Maximum size in bytes for certificate bundles (default: 330000)
   config: {}
   # Setting Nameservers for DNS01 Self Check.
   # For more information, see the [cert-manager documentation](https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check).
@@ -242,7 +308,7 @@ cert-manager:
   # referencing these signer names will be auto-approved by cert-manager. Defaults to just
   # approving the cert-manager.io Issuer and ClusterIssuer issuers. When set to an empty
   # array, ALL issuers will be auto-approved by cert-manager. To disable the auto-approval,
-  # because eg. you are using approver-policy, you can enable 'disableAutoApproval'.
+  # because, e.g., you are using approver-policy, you can enable 'disableAutoApproval'.
   # ref: https://cert-manager.io/docs/concepts/certificaterequest/#approval
   # +docs:property
   approveSignerNames:
@@ -257,6 +323,37 @@ cert-manager:
   #  extraArgs:
   #    - --controllers=*,-certificaterequests-approver
   extraArgs: []
+  # Extra containers to add to the pod spec in the deployment of the cert-manager controller.
+  # For example, to deploy the [aws_signing_helper](https://github.com/aws/rolesanywhere-credential-helper) (replacing the ARNs as relevant):
+  #
+  # extraEnv:
+  #   - name: AWS_EC2_METADATA_SERVICE_ENDPOINT
+  #   - value: http://127.0.0.1:9911
+  # extraContainers:
+  #   - name: rolesanywhere-credential-helper
+  #     image: public.ecr.aws/rolesanywhere/credential-helper:latest
+  #     command: [aws_signing_helper]
+  #     args:
+  #       - serve
+  #       - --private-key
+  #       - /etc/cert/tls.key
+  #       - --certificate
+  #       - /etc/cert/tls.crt
+  #       - --role-arn
+  #       - $ROLE_ARN
+  #       - --profile-arn
+  #       - $PROFILE_ARN
+  #       - --trust-anchor-arn
+  #       - $TRUST_ANCHOR_ARN
+  #     volumeMounts:
+  #       - name: cert
+  #         mountPath: /etc/cert/
+  #         readOnly: true
+  # volumes:
+  #   - name: cert
+  #     secret:
+  #       secretName: cert
+  extraContainers: []
   # Additional environment variables to pass to cert-manager controller binary.
   # For example:
   #  extraEnv:
@@ -364,6 +461,41 @@ cert-manager:
   # +docs:property
   nodeSelector:
     kubernetes.io/os: linux
+  # Enables default network policies for cert-manager.
+  # This provides a way for you to restrict network traffic
+  # between cert-manager components and other pods.
+  # For more information, see [Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
+  # NOTE: an incorrect networkPolicy will cause traffic to be dropped
+  networkPolicy:
+    # Create network policies for cert-manager.
+    enabled: false
+    # Ingress rule for the cert-manager network policy.
+    # By default all pods are allowed access to:
+    #   http-metrics and http-healthz ports
+    # +docs:property
+    ingress:
+      - ports:
+          - port: http-metrics
+            protocol: TCP
+          - port: http-healthz
+            protocol: TCP
+    # Egress rule for the cert-manager network policy. By default, it allows all
+    # outbound traffic to ports 80 and 443, as well as DNS ports.
+    # +docs:property
+    egress:
+      - ports:
+          - port: 80
+            protocol: TCP
+          - port: 443
+            protocol: TCP
+          - port: 53
+            protocol: TCP
+          - port: 53
+            protocol: UDP
+          # On OpenShift and OKD, the Kubernetes API server listens on.
+          # port 6443.
+          - port: 6443
+            protocol: TCP
   # +docs:ignore
   ingressShim: {}
   # Optional default issuer to use for ingress resources.
@@ -454,7 +586,7 @@ cert-manager:
     # ServiceMonitor resource.
     # Otherwise, 'prometheus.io' annotations are added to the cert-manager and
     # cert-manager-webhook Deployments.
-    # Note that you can not enable both PodMonitor and ServiceMonitor as they are
+    # Note that you cannot enable both PodMonitor and ServiceMonitor as they are
     # mutually exclusive. Enabling both will result in an error.
     enabled: true
     servicemonitor:
@@ -471,7 +603,8 @@ cert-manager:
       prometheusInstance: default
       # The target port to set on the ServiceMonitor. This must match the port that the
       # cert-manager controller is listening on for metrics.
-      targetPort: 9402
+      # +docs:type=string,integer
+      targetPort: http-metrics
       # The path to scrape for metrics.
       path: /metrics
       # The interval to scrape metrics.
@@ -497,7 +630,7 @@ cert-manager:
       #
       # +docs:property
       endpointAdditionalProperties: {}
-    # Note that you can not enable both PodMonitor and ServiceMonitor as they are mutually exclusive. Enabling both will result in an error.
+    # Note that you cannot enable both PodMonitor and ServiceMonitor as they are mutually exclusive. Enabling both will result in an error.
     podmonitor:
       # Create a PodMonitor to add cert-manager to Prometheus.
       enabled: false
@@ -630,18 +763,25 @@ cert-manager:
       # Pod is currently running.
       enabled: false
       # This property configures the minimum available pods for disruptions. Can either be set to
-      # an integer (e.g. 1) or a percentage value (e.g. 25%).
+      # an integer (e.g., 1) or a percentage value (e.g., 25%).
       # It cannot be used if `maxUnavailable` is set.
       # +docs:property
       # +docs:type=unknown
       # minAvailable: 1
 
       # This property configures the maximum unavailable pods for disruptions. Can either be set to
-      # an integer (e.g. 1) or a percentage value (e.g. 25%).
+      # an integer (e.g., 1) or a percentage value (e.g., 25%).
       # It cannot be used if `minAvailable` is set.
       # +docs:property
       # +docs:type=unknown
       # maxUnavailable: 1
+
+      # This configures how to act with unhealthy pods during eviction
+      # Note that this requires Kubernetes 1.31 or `PDBUnhealthyPodEvictionPolicy` feature gate enabled for
+      # the cluster to work.
+      # +docs:property
+      # +docs:type=string
+      # unhealthyPodEvictionPolicy: AlwaysAllow
     # Optional additional annotations to add to the webhook Deployment.
     # +docs:property
     # deploymentAnnotations: {}
@@ -783,25 +923,36 @@ cert-manager:
     # Optionally set the IP families for the controller Service that should be supported, in the order in which they should be applied to ClusterIP. Can be IPv4 and/or IPv6.
     serviceIPFamilies: []
     image:
-      # The container registry to pull the webhook image from.
+      # Deprecated: per-component registry prefix.
+      #
+      # If set, this value is *prepended* to the image repository that the chart would otherwise render.
+      # This applies both when `webhook.image.repository` is set and when the repository is computed from
+      # `imageRegistry` + `imageNamespace` + `webhook.image.name`.
+      #
+      # This can produce "double registry" style references such as `legacy.example.io/quay.io/jetstack/...`.
+      # Prefer using the global `imageRegistry`/`imageNamespace` values.
       # +docs:property
-      # registry: quay.io
+      # registry: ""
 
-      # The container image for the cert-manager webhook
+      # The image name for the cert-manager webhook.
       # +docs:property
-      repository: quay.m.daocloud.io/jetstack/cert-manager-webhook
+      name: cert-manager-webhook
+      # Full repository override (takes precedence over `imageRegistry`, `imageNamespace`, and `webhook.image.name`).
+      # +docs:property
+      repository: "quay.m.daocloud.io/jetstack/cert-manager-webhook"
       # Override the image tag to deploy by setting this variable.
       # If no value is set, the chart's appVersion will be used.
       # +docs:property
       # tag: vX.Y.Z
 
-      # Setting a digest will override any tag
+      # Setting a digest pins the image. If a tag is also set, the rendered reference will include
+      # both ("image:tag@digest"), though only the digest will be used for pulling.
       # +docs:property
       # digest: sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20
 
       # Kubernetes imagePullPolicy on Deployment.
       pullPolicy: IfNotPresent
-      tag: v1.16.4
+      tag: v1.20.1
     serviceAccount:
       # Specifies whether a service account should be created.
       create: true
@@ -854,16 +1005,25 @@ cert-manager:
     # host:
 
     # Enables default network policies for webhooks.
+    # This provides a way for you to restrict network traffic
+    # between cert-manager components and other pods.
+    # For more information, see [Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
+    # NOTE: an incorrect networkPolicy will cause traffic to be dropped
     networkPolicy:
       # Create network policies for the webhooks.
       enabled: false
-      # Ingress rule for the webhook network policy. By default, it allows all
-      # inbound traffic.
+      # Ingress rule for the webhook network policy.
+      # By default all pods are allowed access to:
+      #   https, http-metrics, and http-healthz ports
       # +docs:property
       ingress:
-        - from:
-            - ipBlock:
-                cidr: 0.0.0.0/0
+        - ports:
+            - port: https
+              protocol: TCP
+            - port: healthcheck
+              protocol: TCP
+            - port: http-metrics
+              protocol: TCP
       # Egress rule for the webhook network policy. By default, it allows all
       # outbound traffic to ports 80 and 443, as well as DNS ports.
       # +docs:property
@@ -881,9 +1041,6 @@ cert-manager:
             # port 6443.
             - port: 6443
               protocol: TCP
-          to:
-            - ipBlock:
-                cidr: 0.0.0.0/0
     # Additional volumes to add to the cert-manager controller pod.
     volumes: []
     # Additional volume mounts to add to the cert-manager controller container.
@@ -892,6 +1049,14 @@ cert-manager:
     # injected into the pod's environment variables, matching the syntax of Docker
     # links.
     enableServiceLinks: false
+    # enableClientVerification turns on client verification of requests
+    # made to the webhook server
+    enableClientVerification: false
+    # the client CA file to be used for verification
+    clientCAFile: ""
+    # Subject names to verify for the client certificate.
+    # Multiple values may be supplied as a comma-separated list.
+    apiserverClientCertSubjects: ""
   # +docs:section=CA Injector
   cainjector:
     # Create the CA Injector deployment
@@ -956,6 +1121,39 @@ cert-manager:
         drop:
           - ALL
       readOnlyRootFilesystem: true
+    # Enables default network policies for cainjector.
+    # This provides a way for you to restrict network traffic
+    # between cert-manager components and other pods.
+    # For more information, see [Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
+    # NOTE: an incorrect networkPolicy will cause traffic to be dropped
+    networkPolicy:
+      # Create network policies for the cainjector.
+      enabled: false
+      # Ingress rule for the webhook cainjector policy.
+      # By default all pods are allowed access to:
+      #   http-metrics port
+      # +docs:property
+      ingress:
+        - ports:
+            - port: http-metrics
+              protocol: TCP
+      # Egress rule for the cainjector network policy. By default, it allows all
+      # outbound traffic to ports 80 and 443, as well as DNS ports.
+      # +docs:property
+      egress:
+        - ports:
+            - port: 80
+              protocol: TCP
+            - port: 443
+              protocol: TCP
+            - port: 53
+              protocol: TCP
+            - port: 53
+              protocol: UDP
+            # On OpenShift and OKD, the Kubernetes API server listens on.
+            # port 6443.
+            - port: 6443
+              protocol: TCP
     podDisruptionBudget:
       # Enable or disable the PodDisruptionBudget resource.
       #
@@ -965,18 +1163,25 @@ cert-manager:
       # Pod is currently running.
       enabled: false
       # `minAvailable` configures the minimum available pods for disruptions. It can either be set to
-      # an integer (e.g. 1) or a percentage value (e.g. 25%).
+      # an integer (e.g., 1) or a percentage value (e.g., 25%).
       # Cannot be used if `maxUnavailable` is set.
       # +docs:property
       # +docs:type=unknown
       # minAvailable: 1
 
       # `maxUnavailable` configures the maximum unavailable pods for disruptions. It can either be set to
-      # an integer (e.g. 1) or a percentage value (e.g. 25%).
+      # an integer (e.g., 1) or a percentage value (e.g., 25%).
       # Cannot be used if `minAvailable` is set.
       # +docs:property
       # +docs:type=unknown
       # maxUnavailable: 1
+
+      # This configures how to act with unhealthy pods during eviction
+      # Note that this requires Kubernetes 1.31 or `PDBUnhealthyPodEvictionPolicy` feature gate enabled for
+      # the cluster to work.
+      # +docs:property
+      # +docs:type=string
+      # unhealthyPodEvictionPolicy: AlwaysAllow
     # Optional additional annotations to add to the cainjector Deployment.
     # +docs:property
     # deploymentAnnotations: {}
@@ -1067,25 +1272,36 @@ cert-manager:
     # Optional additional labels to add to the CA Injector metrics Service.
     serviceLabels: {}
     image:
-      # The container registry to pull the cainjector image from.
+      # Deprecated: per-component registry prefix.
+      #
+      # If set, this value is *prepended* to the image repository that the chart would otherwise render.
+      # This applies both when `cainjector.image.repository` is set and when the repository is computed from
+      # `imageRegistry` + `imageNamespace` + `cainjector.image.name`.
+      #
+      # This can produce "double registry" style references such as `legacy.example.io/quay.io/jetstack/...`.
+      # Prefer using the global `imageRegistry`/`imageNamespace` values.
       # +docs:property
-      # registry: quay.io
+      # registry: ""
 
-      # The container image for the cert-manager cainjector
+      # The image name for the cert-manager cainjector.
       # +docs:property
-      repository: quay.m.daocloud.io/jetstack/cert-manager-cainjector
+      name: cert-manager-cainjector
+      # Full repository override (takes precedence over `imageRegistry`, `imageNamespace`, and `cainjector.image.name`).
+      # +docs:property
+      repository: "quay.m.daocloud.io/jetstack/cert-manager-cainjector"
       # Override the image tag to deploy by setting this variable.
       # If no value is set, the chart's appVersion will be used.
       # +docs:property
       # tag: vX.Y.Z
 
-      # Setting a digest will override any tag.
+      # Setting a digest pins the image. If a tag is also set, the rendered reference will include
+      # both ("image:tag@digest"), though only the digest will be used for pulling.
       # +docs:property
       # digest: sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20
 
       # Kubernetes imagePullPolicy on Deployment.
       pullPolicy: IfNotPresent
-      tag: v1.16.4
+      tag: v1.20.1
     serviceAccount:
       # Specifies whether a service account should be created.
       create: true
@@ -1119,19 +1335,30 @@ cert-manager:
   # +docs:section=ACME Solver
   acmesolver:
     image:
-      # The container registry to pull the acmesolver image from.
+      # Deprecated: per-component registry prefix.
+      #
+      # If set, this value is *prepended* to the image repository that the chart would otherwise render.
+      # This applies both when `acmesolver.image.repository` is set and when the repository is computed from
+      # `imageRegistry` + `imageNamespace` + `acmesolver.image.name`.
+      #
+      # This can produce "double registry" style references such as `legacy.example.io/quay.io/jetstack/...`.
+      # Prefer using the global `imageRegistry`/`imageNamespace` values.
       # +docs:property
-      # registry: quay.io
+      # registry: ""
 
-      # The container image for the cert-manager acmesolver.
+      # The image name for the cert-manager acmesolver.
       # +docs:property
-      repository: quay.io/jetstack/cert-manager-acmesolver
+      name: cert-manager-acmesolver
+      # Full repository override (takes precedence over `imageRegistry`, `imageNamespace`, and `acmesolver.image.name`).
+      # +docs:property
+      repository: ""
       # Override the image tag to deploy by setting this variable.
       # If no value is set, the chart's appVersion is used.
       # +docs:property
       # tag: vX.Y.Z
 
-      # Setting a digest will override any tag.
+      # Setting a digest pins the image. If a tag is also set, the rendered reference will include
+      # both ("image:tag@digest"), though only the digest will be used for pulling.
       # +docs:property
       # digest: sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20
 
@@ -1241,25 +1468,36 @@ cert-manager:
     # Optional additional labels to add to the startupapicheck Pods.
     podLabels: {}
     image:
-      # The container registry to pull the startupapicheck image from.
+      # Deprecated: per-component registry prefix.
+      #
+      # If set, this value is *prepended* to the image repository that the chart would otherwise render.
+      # This applies both when `startupapicheck.image.repository` is set and when the repository is computed from
+      # `imageRegistry` + `imageNamespace` + `startupapicheck.image.name`.
+      #
+      # This can produce "double registry" style references such as `legacy.example.io/quay.io/jetstack/...`.
+      # Prefer using the global `imageRegistry`/`imageNamespace` values.
       # +docs:property
-      # registry: quay.io
+      # registry: ""
 
-      # The container image for the cert-manager startupapicheck.
+      # The image name for the cert-manager startupapicheck.
       # +docs:property
-      repository: quay.m.daocloud.io/jetstack/cert-manager-ctl
+      name: cert-manager-startupapicheck
+      # Full repository override (takes precedence over `imageRegistry`, `imageNamespace`, and `startupapicheck.image.name`).
+      # +docs:property
+      repository: "quay.m.daocloud.io/jetstack/cert-manager-ctl"
       # Override the image tag to deploy by setting this variable.
       # If no value is set, the chart's appVersion is used.
       # +docs:property
       # tag: vX.Y.Z
 
-      # Setting a digest will override any tag.
+      # Setting a digest pins the image. If a tag is also set, the rendered reference will include
+      # both ("image:tag@digest"), though only the digest will be used for pulling.
       # +docs:property
       # digest: sha256:0e072dddd1f7f8fc8909a2ca6f65e76c5f0d2fcfb8be47935ae3457e8bbceb20
 
       # Kubernetes imagePullPolicy on Deployment.
       pullPolicy: IfNotPresent
-      tag: v1.16.4
+      tag: v1.20.1
     rbac:
       # annotations for the startup API Check job RBAC and PSP resources.
       # +docs:property
