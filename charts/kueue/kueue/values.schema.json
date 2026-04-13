@@ -73,6 +73,9 @@
                                         }
                                     }
                                 },
+                                "logLevel": {
+                                    "type": "integer"
+                                },
                                 "podAnnotations": {
                                     "type": "object"
                                 },
@@ -193,6 +196,28 @@
                         "backend": {
                             "type": "object",
                             "properties": {
+                                "containerSecurityContext": {
+                                    "type": "object",
+                                    "properties": {
+                                        "allowPrivilegeEscalation": {
+                                            "type": "boolean"
+                                        },
+                                        "capabilities": {
+                                            "type": "object",
+                                            "properties": {
+                                                "drop": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "readOnlyRootFilesystem": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
                                 "env": {
                                     "type": "array",
                                     "items": {
@@ -252,8 +277,51 @@
                                 "nodeSelector": {
                                     "type": "object"
                                 },
+                                "podSecurityContext": {
+                                    "type": "object",
+                                    "properties": {
+                                        "runAsNonRoot": {
+                                            "type": "boolean"
+                                        },
+                                        "seccompProfile": {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
                                 "priorityClassName": {
                                     "type": "null"
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "properties": {
+                                        "limits": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "requests": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
                                 },
                                 "tolerations": {
                                     "type": "array"
@@ -263,6 +331,9 @@
                         "frontend": {
                             "type": "object",
                             "properties": {
+                                "containerSecurityContext": {
+                                    "type": "object"
+                                },
                                 "env": {
                                     "type": "array",
                                     "items": {
@@ -322,8 +393,38 @@
                                 "nodeSelector": {
                                     "type": "object"
                                 },
+                                "podSecurityContext": {
+                                    "type": "object"
+                                },
                                 "priorityClassName": {
                                     "type": "null"
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "properties": {
+                                        "limits": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "requests": {
+                                            "type": "object",
+                                            "properties": {
+                                                "cpu": {
+                                                    "type": "string"
+                                                },
+                                                "memory": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
                                 },
                                 "tolerations": {
                                     "type": "array"

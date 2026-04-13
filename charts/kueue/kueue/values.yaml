@@ -30,11 +30,13 @@ kueue:
         # -- ControllerManager's image repository
         repository: k8s.m.daocloud.io/kueue/kueue
         # -- ControllerManager's image tag
-        tag: v0.15.2
+        tag: v0.16.4
         # -- ControllerManager's image pullPolicy.
         # This should be set to 'IfNotPresent' for released version
         pullPolicy: IfNotPresent
       podAnnotations: {}
+      # -- Zap log level. Higher values increase verbosity.
+      logLevel: 2
       # -- ControllerManager's pod resources
       resources:
         limits:
@@ -154,10 +156,10 @@ kueue:
         - "kubeflow.org/xgboostjob"
         - "kubeflow.org/jaxjob"
         - "workload.codeflare.dev/appwrapper"
-      #  - "pod"
-      #  - "deployment"
-      #  - "statefulset"
-      #  - "leaderworkerset.x-k8s.io/leaderworkerset"
+        - "pod"
+        - "deployment"
+        - "statefulset"
+        - "leaderworkerset.x-k8s.io/leaderworkerset"
       #  externalFrameworks:
       #  - "Foo.v1.example.com"
       #fairSharing:
@@ -223,6 +225,26 @@ kueue:
       imagePullSecrets: []
       # -- Enable PriorityClass for KueueViz dashboard backend deployments
       priorityClassName:
+      # -- KueueViz backend pod resources
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 500m
+          memory: 512Mi
+      # -- KueueViz backend pod securityContext
+      podSecurityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      # -- KueueViz backend container securityContext
+      containerSecurityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
       # -- Environment variables for KueueViz backend deployment
       env:
         - name: KUEUEVIZ_ALLOWED_ORIGINS
@@ -242,7 +264,7 @@ kueue:
         # -- KueueViz dashboard backend image repository
         repository: "k8s.m.daocloud.io/kueue/kueueviz-backend"
         # -- KueueViz dashboard backend image tag
-        tag: v0.15.2
+        tag: v0.16.4
         # -- KueueViz dashboard backend image pullPolicy.
         # This should be set to 'IfNotPresent' for released version
         pullPolicy: IfNotPresent
@@ -256,6 +278,18 @@ kueue:
       imagePullSecrets: []
       # -- Enable PriorityClass for KueueViz dashboard frontend deployments
       priorityClassName:
+      # -- KueueViz frontend pod resources
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 500m
+          memory: 512Mi
+      # -- KueueViz frontend pod securityContext
+      podSecurityContext: {}
+      # -- KueueViz frontend container securityContext
+      containerSecurityContext: {}
       # -- Environment variables for KueueViz frontend deployment
       env:
         - name: REACT_APP_WEBSOCKET_URL
@@ -275,7 +309,7 @@ kueue:
         # -- KueueViz dashboard frontend image repository
         repository: "k8s.m.daocloud.io/kueue/kueueviz-frontend"
         # -- KueueViz dashboard frontend image tag
-        tag: v0.15.2
+        tag: v0.16.4
         # -- KueueViz dashboard frontend image pullPolicy.
         # This should be set to 'IfNotPresent' for released version
         pullPolicy: IfNotPresent
