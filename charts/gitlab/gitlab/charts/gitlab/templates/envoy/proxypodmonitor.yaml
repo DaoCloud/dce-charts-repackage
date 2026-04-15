@@ -1,0 +1,29 @@
+{{- $proxyMoni := .Values.global.gatewayApi.metrics.envoyProxy.podMonitor }}
+{{- if eq (include "gitlab.monitoring.enabled" .) "true" -}}
+{{- if and .Values.global.gatewayApi.installEnvoy $proxyMoni.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ printf "%s-envoy-proxy" .Release.Name | quote }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+  {{- with $proxyMoni.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ $.Release.Namespace }}
+  selector:
+    matchLabels:
+      gateway.envoyproxy.io/owning-gateway-name: {{ include "gitlab.gatewayApi.gateway.name.default" . }}
+  podMetricsEndpoints:
+    - port: metrics
+      path: "/stats/prometheus"
+    {{- with $proxyMoni.endpointConfig }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+{{- end -}}
+{{- end -}}

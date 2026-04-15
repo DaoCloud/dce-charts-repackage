@@ -9,6 +9,7 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
+    {{- include "gitlab.app.kubernetes.io.labels" $ | nindent 4 }}
   annotations:
     {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
 spec:
@@ -23,6 +24,7 @@ spec:
       labels:
         {{- include "gitlab.standardLabels" . | nindent 8 }}
         {{- include "gitlab.commonLabels" . | nindent 8 }}
+        {{- include "gitlab.app.kubernetes.io.labels" $ | nindent 8 }}
         {{- include "gitlab.podLabels" . | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yml") . | sha256sum }}
@@ -44,6 +46,9 @@ spec:
       {{- end }}
       {{- end }}
     spec:
+      {{- if $.Values.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml $.Values.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
       {{- if .Values.tolerations }}
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
@@ -58,8 +63,9 @@ spec:
           {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
           {{- include "gitlab.init.containerSecurityContext" . | indent 10 }}
           env:
+          {{- include "gitlab.timeZone.env" . | nindent 10 }}
           {{- include "gitlab.extraEnv" . | nindent 10 }}
-          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" (dict)) | nindent 10 }}
+          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
           volumeMounts:
           {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
           - name: shell-config
@@ -75,29 +81,11 @@ spec:
             {{- toYaml .Values.init.resources | nindent 12 }}
       {{- include "gitlab.podSecurityContext" .Values.securityContext | nindent 6 }}
       {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
-      {{- if eq (default .Values.global.antiAffinity .Values.antiAffinity) "hard" }}
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
-              labelSelector:
-                matchLabels:
-                  {{- include "gitlab.selectorLabels" . | nindent 18 }}
-      {{- else if eq (default .Values.global.antiAffinity .Values.antiAffinity) "soft" }}
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            podAffinityTerm:
-              topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
-              labelSelector:
-                matchLabels:
-                  {{- include "gitlab.selectorLabels" . | nindent 18 }}
-      {{- end }}
+      {{- include "gitlab.affinity" . | nindent 6 }}
       {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
       serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
       {{- end }}
-      automountServiceAccountToken: false
+      {{- include "gitlab.automountServiceAccountToken" . | nindent 6 }}
       containers:
         {{- include "gitlab.extraContainers" . | nindent 8 }}
         - name: {{ .Chart.Name }}
@@ -112,8 +100,6 @@ spec:
             - containerPort: {{ .Values.service.internalPort }}
               name: ssh
           env:
-            - name: GITALY_FEATURE_DEFAULT_ON
-              value: "1"
             - name: CONFIG_TEMPLATE_DIRECTORY
               value: '/etc/gitlab-shell'
             - name: CONFIG_DIRECTORY
@@ -122,8 +108,10 @@ spec:
               value: '/etc/gitlab-secrets/ssh'
             - name: SSH_DAEMON
               value: {{ .Values.sshDaemon | quote }}
+            {{- include "gitlab.godebug.env" $ | nindent 12 }}
             {{- include "gitlab.extraEnv" . | nindent 12 }}
-            {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" (dict)) | nindent 12 }}
+            {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 12 }}
+            {{- include "gitlab.timeZone.env" . | nindent 12 }}
           volumeMounts:
             - name: shell-config
               mountPath: '/etc/gitlab-shell'
