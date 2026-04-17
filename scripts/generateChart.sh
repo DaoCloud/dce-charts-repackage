@@ -161,7 +161,7 @@ echo "auto inject dependencies to original Chart.yaml"
 # format the yaml
 yq -i ${CHART_BUILD_DIR}/Chart.yaml
 # if parent-child mode, remove dependencies
-if grep -E "^${PROJECT_NAME}:[[:space:]]*$" ${CHART_BUILD_DIR}/values.yaml ; then
+if grep -E "^${CHART_NAME}:[[:space:]]*$" ${CHART_BUILD_DIR}/values.yaml ; then
     echo "remove dependencies for parent-child chart mode"
     yq  -i 'del(.dependencies)' ${CHART_BUILD_DIR}/Chart.yaml
 fi
