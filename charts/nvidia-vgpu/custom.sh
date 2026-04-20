@@ -95,10 +95,19 @@ cp ${script_path}/parent/values.schema.json .
 if [ $os == "Darwin" ];then
     sed -i "" "s/name: hami/name: nvidia-vgpu/g" Chart.yaml
     sed -i "" "s/- name: nvidia-vgpu/- name: hami/g" Chart.yaml
+    # fix sed side-effect: restore upstream dependency name hami-dra
+    sed -i "" "s/name: nvidia-vgpu-dra/name: hami-dra/g" Chart.yaml
 elif [ $os == "Linux" ];then
     sed -i "s/name: hami/name: nvidia-vgpu/g" Chart.yaml
     sed -i "s/- name: nvidia-vgpu/- name: hami/g" Chart.yaml
+    # fix sed side-effect: restore upstream dependency name hami-dra
+    sed -i "s/name: nvidia-vgpu-dra/name: hami-dra/g" Chart.yaml
 fi
+
+# hami-dra is a dependency of the child chart 'hami', not the root wrapper chart.
+# Remove it from the root Chart.yaml to avoid helm package failure.
+yq -i 'del(.dependencies[] | select(.name == "hami-dra"))' Chart.yaml
+
 # update chart version
 if [ $os == "Darwin" ];then
     sed -i "" "s/^version: .*$/version: ${CUSTOM_VERSION}/g" Chart.yaml

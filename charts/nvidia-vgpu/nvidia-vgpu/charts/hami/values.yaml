@@ -9,7 +9,7 @@ global:
   ##   - myRegistryKeySecretName
   ## @param global.imagePullSecrets Global Docker image pull secrets
   imagePullSecrets: []
-  imageTag: "v2.7.1"
+  imageTag: "v2.8.1"
   gpuHookPath: /usr/local
   labels: {}
   annotations: {}
@@ -245,6 +245,9 @@ scheduler:
     enable: false
 devicePlugin:
   enabled: true
+  gpuOperatorToolkitReady:
+    enabled: false
+    hostPath: "/run/nvidia/validations"
   ## @param image.registry devicePlugin image registry
   ## @param image.repository devicePlugin image repository
   ## @param image.tag devicePlugin image tag (immutable tags are recommended)
@@ -290,6 +293,9 @@ devicePlugin:
       pullSecrets: []
     ctrPath: /usr/local/vgpu/containers
     resyncInterval: "5m"
+    extraArgs:
+      - -v=4
+    extraEnvs: {}
     resources:
       limits:
         cpu: 500m
@@ -297,9 +303,41 @@ devicePlugin:
       requests:
         cpu: 100m
         memory: 128Mi
+        # If you do want to specify resources, uncomment the following lines, adjust them as necessary.
+        # and remove the curly braces after 'resources:'.
+  #      limits:
+  #        cpu: 1000m
+  #        memory: 1000Mi
+  #      requests:
+  #        cpu: 100m
+  #        memory: 100Mi
+
   deviceSplitCount: 10
   deviceMemoryScaling: 1.0
   deviceCoreScaling: 1.0
+  # Node configuration for device plugin, Priority: externalConfigName > config > default config
+  nodeConfiguration:
+    # If you want to use a custom config.json, you can set the content here.
+    # If this is set, it will override the default config.json(An example is as follows).
+    config: |
+      {
+        "nodeconfig": [
+          {
+            "name": "your-node-name",
+            "operatingmode": "hami-core",
+            "devicememoryscaling": 1,
+            "devicesplitcount": 10,
+            "migstrategy": "none",
+            "filterdevices": {
+              "uuid": [],
+              "index": []
+            }
+          }
+        ]
+      }
+    # If you want to use an existing ConfigMap, you can set the name here.
+    # If this is set, the chart will not create the ConfigMap and will use the existing one.
+    externalConfigName: ""
   # The runtime class name to be used by the device plugin, and added to the pod.spec.runtimeClassName of applications utilizing NVIDIA GPUs
   runtimeClassName: ""
   # Whether to create runtime class, name comes from runtimeClassName when it is set
@@ -307,8 +345,15 @@ devicePlugin:
   migStrategy: "none"
   disablecorelimit: "false"
   passDeviceSpecsEnabled: false
+  deviceListStrategy: "envvar"
+  nvidiaHookPath: null
+  nvidiaDriverRoot: null
+  gdrcopyEnabled: null
+  gdsEnabled: null
+  mofedEnabled: null
   extraArgs:
     - -v=4
+  extraEnvs: {}
   service:
     type: NodePort # Default type is NodePort, can be changed to ClusterIP
     httpPort: 31992
@@ -317,9 +362,8 @@ devicePlugin:
   pluginPath: /var/lib/kubelet/device-plugins
   libPath: /usr/local/vgpu
   podAnnotations: {}
-  nvidianodeSelector:
-    nvidia.com/gpu.deploy.container-toolkit: "true"
-    nvidia.com/vgpu.deploy.device-plugin: "true"
+  nvidiaNodeSelector:
+    gpu: "on"
   tolerations: []
   # The updateStrategy for DevicePlugin DaemonSet.
   # If you want to update the DaemonSet by manual, set type as "OnDelete".
@@ -336,13 +380,8 @@ devicePlugin:
     requests:
       cpu: 100m
       memory: 128Mi
-  #    limits:
-  #       cpu: 1000m
-  #       memory: 1000Mi
-  #    requests:
-  #      cpu: 100m
-  #      memory: 100Mi
-
+      # If you do want to specify resources, uncomment the following lines, adjust them as necessary.
+      # and remove the curly braces after 'resources:'.
   vgpuMonitor:
     resources:
       limits:
@@ -351,17 +390,52 @@ devicePlugin:
       requests:
         cpu: 100m
         memory: 128Mi
-        # If you do want to specify resources, uncomment the following lines, adjust them as necessary.
-        # and remove the curly braces after 'resources:'.
+  nvidianodeSelector:
+    nvidia.com/gpu.deploy.container-toolkit: "true"
+    nvidia.com/vgpu.deploy.device-plugin: "true"
   hygonImageRepository: 4pdosc/vdcu-device-plugin
   hygonImageTag: v1.0
-#      limits:
-#        cpu: 1000m
-#        memory: 1000Mi
-#      requests:
-#        cpu: 100m
-#        memory: 100Mi
+#    limits:
+#       cpu: 1000m
+#       memory: 1000Mi
+#    requests:
+#      cpu: 100m
+#      memory: 100Mi
 
+mockDevicePlugin:
+  enabled: false
+  image:
+    registry: "docker.io"
+    repository: "projecthami/mock-device-plugin"
+    tag: "1.0.1"
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+# If this option is enabled, the DRA will be installed and the scheduler extender will not be installed.
+dra:
+  enabled: false
+# Configuration for the hami-dra subchart, which includes DRA drivers.
+# This is part of config for DRA, please refer to the DRA documentation for more details.
+hami-dra:
+  monitor:
+    enabled: true
+  drivers:
+    nvidia:
+      enabled: true
+      # If you are using gpu driver on host, you need to set this to false
+      containerDriver: true
+      image:
+        repository: projecthami/k8s-dra-driver
+        tag: "v0.0.1-dev"
 devices:
   amd:
     customresources:
