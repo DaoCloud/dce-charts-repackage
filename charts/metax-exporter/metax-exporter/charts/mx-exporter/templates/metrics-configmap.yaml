@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: exporter-metrics-config-map
+  namespace: {{ .Release.Namespace }}
+data:
+  metrics: |
+      # The line begins with '#' is a comment line.
+      # Format: metric id,metric type,metric name,metric description,label1,label2,...
+      # metric name, metric description and labels name can be modified as your need
+      # Metric names may contain ASCII letters, digits, underscores, and colons. It must match the regex [a-zA-Z_:][a-zA-Z0-9_:]*
+      # Label names may contain ASCII letters, numbers, as well as underscores. They must match the regex [a-zA-Z_][a-zA-Z0-9_]*.
+
+      # temperature
+      chip_hotspot_temp,Gauge,mx_chip_hotspot_temp,Chip hotspot temperature,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+      chip_hbm_temp,Gauge,mx_chip_hbm_temp,Chip hbm temperature,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+      #board_soc_temp,Gauge,mx_board_soc_temp,Board DrMOS SOC temperature,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      board_core_temp,Gauge,mx_board_core_temp,Board DrMOS Core temperature,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+      optical_module_temp,Gauge,mx_optical_module_temp,Optical module channel temperature,channelId,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # usage
+      vpue_usage,Gauge,mx_vpue_usage,Encoder usage in percent,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+      vpud_usage,Gauge,mx_vpud_usage,Decoder usage in percent,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+      # label type indicates vram, xtt
+      memory_usage,Gauge,mx_memory_usage,HBM and system memory usage in percent,type,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+      memory_total,Gauge,mx_memory_total,Total HBM and system memory in KB,type,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+      memory_used,Gauge,mx_memory_used,HBM and system memory used in KB,type,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+      # MXN specific
+      dla_usage,Gauge,mx_dla_usage,Dla usage in percent,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      g2d_usage,Gauge,mx_g2d_usage,G2D usage in percent,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      # MXC specific
+      gpu_usage,Gauge,mx_gpu_usage,GPU uage in percent,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # power
+      board_power,Gauge,mx_board_power,Board power in milliwatt,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      # pmbus power, label type indicates core or hbm or pcie etc.
+      # pmbus_power,Gauge,mx_pmbus_power,Pmbus power in milliwatt,type,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # clocks
+      vpue_clock,Gauge,mx_vpue_clock,Encoder clock frequency in MHz,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+      vpud_clock,Gauge,mx_vpud_clock,Decoder clock frequency in MHz,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+      mem_clock,Gauge,mx_mem_clock,Memory clock frequency in MHz,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+      # MXN specific
+      dla_clock,Gauge,mx_dla_clock,Dla clock frequency in MHz,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      g2d_clock,Gauge,mx_g2d_clock,G2D clock frequency in MHz,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      # MXC specific
+      gpu_clock,Gauge,mx_gpu_clock,GPU clock frequency in MHz,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # PCIe throughput, label type indicates tx or rx
+      pcie_bw,Gauge,mx_pcie_bw,Pcie Tx and Rx throughput in MB/s,type,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # PCIe speed and width
+      pcie_speed,Gauge,mx_pcie_speed,Pcie current speed in GT/s,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      pcie_width,Gauge,mx_pcie_width,Pcie current lanes,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      # PCIe bridge speed and width
+      pcie_bridge_speed,Gauge,mx_pcie_bridge_speed,Pcie bridge current speed in GT/s,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      pcie_bridge_width,Gauge,mx_pcie_bridge_width,Pcie bridge current lanes,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # MXC specific, Metaxlink throughput, label type indicates tx or rx
+      mxlk_bw,Gauge,mx_mxlk_bw,Metaxlink Tx and Rx throughput in MB/s,type,mxlkId,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # Metaxlink speed and width, MXC specific
+      mxlk_speed,Gauge,mx_mxlk_speed,MetaXLink current link speed in GT/s,mxlkId,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      mxlk_width,Gauge,mx_mxlk_width,MetaXLink current link width,mxlkId,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # Metaxlink traffic, label type indicates rx or tx
+      mxlk_traffic_total_bytes,Gauge,mx_mxlk_traffic_total_bytes,MetaXLink traffic total in Bytes,type,mxlkId,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      # Metaxlink aer, label type indicates ce or ue
+      mxlk_aer_count,Gauge,mx_mxlk_aer_count,MetaXLink aer count,type,mxlkId,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      # Device topology info
+      topo_info,Gauge,mx_topo_info,Device topology info,topology_id,socket_id,die_id,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # Eth throughput, label type indicates tx or rx
+      eth_bw,Gauge,mx_eth_bw,Eth Tx and Rx throughput in MB/s,type,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # HBM throughput
+      #hbm_bw,Gauge,mx_hbm_bw,HBM throughput in MB/s,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # dpm
+      # MXN specific
+      #dla_dpm_level,Gauge,mx_dla_dpm_level,Dpm dla performance level,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+      # MXC specific
+      xcore_dpm_level,Gauge,mx_xcore_dpm_level,Dpm xcore performance level,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # Process
+      #process,Gauge,mx_process,Get process number run on single gpu,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # MXC specific GPU state: 0 - not available, 1 - available
+      gpu_state,Gauge,mx_gpu_state,GPU state: 0(not available) 1(available),unavailable_reason,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # MXC specific current gpu clock throttle reason
+      clk_thr,Gauge,mx_clk_thr,Current gpu clock throttling reason,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # MXC Ecc error counts, label type indicates sram_ce, sram_ue, dram_ce, dram_ue or retired_page
+      ecc_error_count,Gauge,mx_ecc_error_count,Total ECC error count,type,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # MXC sgpu compute quota
+      sgpu_compute_quota,Gauge,mx_sgpu_compute_quota,Current sgpu compute quota in percent,deviceId,sgpuId,minor,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # MXC sgpu usage
+      sgpu_usage,Gauge,mx_sgpu_usage,Current sgpu usage in percent,deviceId,sgpuId,minor,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # MXC sgpu total memory
+      sgpu_memory_total,Gauge,mx_sgpu_total_memory,Current sgpu total memory in KB,deviceId,sgpuId,minor,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # MXC sgpu used memory
+      sgpu_memory_used,Gauge,mx_sgpu_used_memory,Current sgpu used memory in KB,deviceId,sgpuId,minor,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # MXC sgpu free memory
+      #sgpu_memory_free,Gauge,mx_sgpu_free_memory,Current sgpu free memory in KB,deviceId,sgpuId,minor,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # Server info, label kind indicates local or remote, Hostname is always local server
+      server_info,Gauge,mx_server_info,Local server and its connected remote servers uuid info,kind,server_uuid,Hostname
+
+      # Server connectivity status, 1 - healthy, 0 - unhealthy
+      server_conn_status,Gauge,mx_server_conn_status,Server connectivity status 0(unhealthy) 1(healthy),server_uuid,Hostname
+
+      # Driver kernel log errors, lanel err_level indicates ERROR or ALERT
+      driver_log_errors,Gauge,mx_driver_log_errors,Driver kernel log errors,module,err_level,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # Driver EID errors
+      driver_eid_errors,Gauge,mx_driver_eid_errors,Value of the last driver EID error encountered,eid_info,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # SDK EID errors
+      sdk_eid_errors,Gauge,mx_sdk_eid_errors,Value of the last SDK EID error encountered,sdk_version,eid_info,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # Pci event aer_ue/aer_ce/synfld/dbe/mmio
+      pci_event,Gauge,mx_pci_event,Driver pci event includes aer_ue/aer_ce/synfld/dbe/mmio,type,event_name,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName
+
+      # Ras count
+      ras_count,Gauge,mx_ras_count,Display value in the ras error counter registers,register_name,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id
+
+      # Ras status
+      ras_status,Gauge,mx_ras_status,Display data in the status registers,register_name,deviceId,uuid,exported_pod,exported_namespace,exported_container,Hostname,driver_version,bios_version,modelName,die_id

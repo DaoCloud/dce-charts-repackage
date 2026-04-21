@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "mx-exporter.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    operator.insight.io/managed-by: insight
+spec:
+  endpoints:
+    - port: metrics
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mx-exporter
+      app.kubernetes.io/instance: {{ .Release.Name }}

@@ -1,0 +1,20 @@
+mxExporter:
+  enabled: true
+
+
+# Override sub-chart values
+mx-exporter:
+  replicaCount: 1
+  image:
+    registry: release.daocloud.io
+    repository: metax/mx-exporter
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "0.14.2"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
