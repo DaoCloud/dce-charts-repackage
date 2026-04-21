@@ -1,7 +1,7 @@
 inferenceExtension:
   replicas: 1
   image:
-    tag: v1.3.0
+    tag: v1.3.1
     pullPolicy: Always
     registry: k8s.m.daocloud.io
     repository: gateway-api-inference-extension/epp
@@ -43,6 +43,11 @@ inferenceExtension:
   # Sidecar configuration for EPP
   sidecar:
     enabled: false
+    image:
+      tag: v0.6.0
+      pullPolicy: IfNotPresent
+      registry: ghcr.m.daocloud.io/llm-d
+      repository: llm-d-uds-tokenizer
   # Monitoring configuration for EPP
   monitoring:
     interval: "10s"
@@ -69,7 +74,7 @@ inferenceExtension:
       image:
         hub: path/to/your/docker/repo # NOTE: Update with your Docker repository path for sidecars
         name: latencypredictor-training-server
-        tag: v1.3.0
+        tag: v1.3.1
         pullPolicy: Always
       port: 8000
       resources:
@@ -109,7 +114,7 @@ inferenceExtension:
       image:
         hub: path/to/your/docker/repo # NOTE: Update with your Docker repository path for sidecars
         name: latencypredictor-prediction-server
-        tag: v1.3.0
+        tag: v1.3.1
         pullPolicy: Always
       resources:
         requests:

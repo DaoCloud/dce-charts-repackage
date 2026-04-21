@@ -29,8 +29,8 @@ spec:
       containers:
       {{- if .Values.inferenceExtension.sidecar.enabled }}
       - name: {{ .Values.inferenceExtension.sidecar.name }}
-        image: {{ .Values.inferenceExtension.sidecar.image }}
-        imagePullPolicy: {{ .Values.inferenceExtension.sidecar.imagePullPolicy | default "IfNotPresent" }}
+        image: {{ .Values.inferenceExtension.sidecar.image.registry}}/{{ .Values.inferenceExtension.sidecar.image.repository}}:{{ .Values.inferenceExtension.sidecar.image.tag}}
+        imagePullPolicy: {{ .Values.inferenceExtension.sidecar.image.pullPolicy | default "IfNotPresent" }}
         {{- with .Values.inferenceExtension.sidecar.command }}
         command:
           - {{ . | quote }}
