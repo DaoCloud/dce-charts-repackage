@@ -1,8 +1,10 @@
 # child values
 llm-d-modelservice:
+  # @schema.root
+  # additionalProperties: true
+  # @schema.root
   # yaml-language-server: $schema=values.schema.json
   # This values.yaml file is a default values file. It can be overridden using another.
-
   # @schema
   # additionalProperties: true
   # @schema
@@ -14,35 +16,37 @@ llm-d-modelservice:
   fullnameOverride: ""
   # -- Override to default pod serviceAccountName
   serviceAccountOverride: ""
+  # @schema
+  # type: string
+  # @schema
   # schedulerName -- Name of the scheduler to use for scheduling model pods
   # schedulerName: default-scheduler
 
-  # Global configuration that can be referenced by subcharts and components
-  global:
-    # OpenTelemetry distributed tracing configuration
-    # When enabled, vLLM containers will export traces to the OTLP endpoint
-    tracing:
-      # -- Enable distributed tracing for vLLM containers
-      enabled: false
-      # -- OTLP gRPC endpoint for trace export (e.g., OpenTelemetry Collector)
-      # Override via: export OTEL_COLLECTOR_ENDPOINT="http://your-collector:4317"
-      otlpEndpoint: "http://opentelemetry-collector.monitoring.svc.cluster.local:4317"
-      # -- Trace sampling configuration
-      sampling:
-        # -- OpenTelemetry sampler type (e.g., "parentbased_traceidratio", "always_on", "always_off")
-        sampler: "parentbased_traceidratio"
-        # -- Sampling ratio (0.0 to 1.0). Use 1.0 for 100% sampling (demo/debug), 0.1 for 10% (production)
-        samplerArg: "1.0"
-      # -- Service name overrides for different components
-      serviceNames:
-        # -- Service name for vLLM decode instances
-        vllmDecode: "vllm-decode"
-        # -- Service name for vLLM prefill instances
-        vllmPrefill: "vllm-prefill"
-      # -- vLLM-specific tracing options
-      vllm:
-        # -- Level of trace detail collection (e.g., "all", "model", "scheduler")
-        collectDetailedTraces: "all"
+  # OpenTelemetry distributed tracing configuration
+  # When enabled, vLLM and routing-proxy containers will export traces to the OTLP endpoint
+  tracing:
+    # -- Enable distributed tracing
+    enabled: false
+    # -- OTLP gRPC endpoint for trace export (OTel Collector in the same namespace)
+    otlpEndpoint: "http://otel-collector:4317"
+    # -- Trace sampling configuration
+    sampling:
+      # -- OpenTelemetry sampler type (e.g., "parentbased_traceidratio", "always_on", "always_off")
+      sampler: "parentbased_traceidratio"
+      # -- Sampling ratio (0.0 to 1.0). Use 1.0 for 100% sampling (demo/debug), 0.1 for 10% (production)
+      samplerArg: "1.0"
+    # -- Service name overrides for different components
+    serviceNames:
+      # -- Service name for vLLM decode instances
+      vllmDecode: "vllm-decode"
+      # -- Service name for vLLM prefill instances
+      vllmPrefill: "vllm-prefill"
+      # -- Service name for routing proxy sidecar
+      routingProxy: "routing-proxy"
+    # -- vLLM-specific tracing options
+    vllm:
+      # -- Level of trace detail collection (e.g., "all", "model", "scheduler")
+      collectDetailedTraces: "all"
   modelArtifacts:
     # name is the value of the model parameter in OpenAI requests
     # Required
@@ -71,7 +75,7 @@ llm-d-modelservice:
   # When true, a LeaderWorkerSet is used instead of a Deployment
   multinode: false
   # Global accelerator configuration
-  # Supported types: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu
+  # Supported types: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu, rebellions-atom
   accelerator:
     # Type of accelerator to use
     type: nvidia
@@ -89,6 +93,7 @@ llm-d-modelservice:
       intel-gaudi: "habana.ai/gaudi"
       amd: "amd.com/gpu"
       google: "google.com/tpu"
+      rebellions-atom: "rebellions.ai/ATOM"
     # Environment variables specific to accelerator types
     env:
       intel-i915:
@@ -110,13 +115,18 @@ llm-d-modelservice:
         match: "exactly"
         # count: 1  # Optional: If not specified, auto-calculated from parallelism (tensor * dataLocal)
         selectors: []
-      intel-i915:
-        name: intel-i915-claim-template
+      intel:
+        name: intel-claim-template
         class: gpu.intel.com
         match: "exactly"
         selectors: []
-      intel-xe:
-        name: intel-xe-claim-template
+      intel-i915: # deprecated, use intel instead
+        name: intel-claim-template
+        class: gpu.intel.com
+        match: "exactly"
+        selectors: []
+      intel-xe: # deprecated, use intel instead
+        name: intel-claim-template
         class: gpu.intel.com
         match: "exactly"
         selectors: []
@@ -232,11 +242,35 @@ llm-d-modelservice:
       enabled: false
     replicas: 1
     # @schema
+    # type: object
+    # additionalProperties: true
+    # @schema
+    # -- Deployment strategy configuration for decode pods.
+    # -- Defaults to Kubernetes default if not specified.
+    # -- Example:
+    # --   strategy:
+    # --     type: RollingUpdate
+    # --     rollingUpdate:
+    # --       maxSurge: 0
+    # --       maxUnavailable: 1
+    # strategy: {}
+
+    # @schema
     # additionalProperties: true
     # @schema
     nodeSelector: {}
+    # @schema
+    # type: string
+    # @schema
     # schedulerName -- Name of the scheduler to use for scheduling decode pods (overrides global schedulerName)
     # schedulerName: decode-scheduler
+
+    # @schema
+    # type: string
+    # @schema
+    # priorityClassName -- Kubernetes PriorityClass name for decode pods
+    # -- Set to "none" or leave empty to not set a priority class
+    # priorityClassName: high-priority
 
     # VLLM parallelism configuration
     parallelism:
@@ -249,30 +283,12 @@ llm-d-modelservice:
     #   # When not specified, falls back to global accelerator settings
     #
     #   # Override accelerator type for decode pods
-    #   # Supported: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu
+    #   # Supported: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu, rebellions-atom
     #   type: nvidia
     #
     #   # Override DRA (Dynamic Resource Allocation) mode for decode pods
     #   # When not specified, falls back to accelerator.dra
     #   dra: false
-
-    # @schema
-    # type: array
-    # items:
-    #   type: object
-    #   required: [name, resourceClaimTemplateName]
-    #   properties:
-    #     name:
-    #       type: string
-    #     resourceClaimTemplateName:
-    #       type: string
-    # @schema
-    # Additional resource claims for non-accelerator resources (e.g., IMEX channels)
-    # These will be merged with accelerator claims when accelerator.dra is enabled
-    resourceClaims: []
-    # Example:
-    # - name: llm-d-imex-channel-0
-    #   resourceClaimTemplateName: llm-d-imex-channel-0
 
     # @schema
     # type: array
@@ -453,11 +469,35 @@ llm-d-modelservice:
       enabled: false
     replicas: 0
     # @schema
+    # type: object
+    # additionalProperties: true
+    # @schema
+    # -- Deployment strategy configuration for prefill pods.
+    # -- Defaults to Kubernetes default if not specified.
+    # -- Example:
+    # --   strategy:
+    # --     type: RollingUpdate
+    # --     rollingUpdate:
+    # --       maxSurge: 0
+    # --       maxUnavailable: 1
+    # strategy: {}
+
+    # @schema
     # additionalProperties: true
     # @schema
     nodeSelector: {}
+    # @schema
+    # type: string
+    # @schema
     # schedulerName -- Name of the scheduler to use for scheduling prefill pods (overrides global schedulerName)
     # schedulerName: prefill-scheduler
+
+    # @schema
+    # type: string
+    # @schema
+    # priorityClassName -- Kubernetes PriorityClass name for prefill pods
+    # -- Set to "none" or leave empty to not set a priority class
+    # priorityClassName: high-priority
 
     # VLLM parallelism configuration
     parallelism:
@@ -470,30 +510,12 @@ llm-d-modelservice:
     #   # When not specified, falls back to global accelerator settings
     #
     #   # Override accelerator type for prefill pods
-    #   # Supported: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu
+    #   # Supported: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu, rebellions-atom
     #   type: intel-gaudi
     #
     #   # Override DRA (Dynamic Resource Allocation) mode for prefill pods
     #   # When not specified, falls back to accelerator.dra
     #   dra: false
-
-    # @schema
-    # type: array
-    # items:
-    #   type: object
-    #   required: [name, resourceClaimTemplateName]
-    #   properties:
-    #     name:
-    #       type: string
-    #     resourceClaimTemplateName:
-    #       type: string
-    # @schema
-    # Additional resource claims for non-accelerator resources (e.g., IMEX channels)
-    # These will be merged with accelerator claims when accelerator.dra is enabled
-    resourceClaims: []
-    # Example:
-    # - name: llm-d-imex-channel-0
-    #   resourceClaimTemplateName: llm-d-imex-channel-0
 
     # @schema
     # type: array
