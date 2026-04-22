@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metax-device-config
+  namespace: {{ .Release.Namespace }}
+data:
+  version: v1
+  {{- if .Values.gpuDevice.sGPUHybridMode }}
+  cluster-config: |
+    mode: "sgpu"
+  {{- else }}
+  cluster-config: |
+    mode: "native"
+  nodes-config: |
+    - nodeName: "sample-node1"
+      mode: "sgpu"
+    - nodeName: "sample-node2"
+      mode: "native"
+  {{- end }}

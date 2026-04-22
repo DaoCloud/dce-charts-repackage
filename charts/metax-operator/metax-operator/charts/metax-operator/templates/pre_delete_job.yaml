@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "metax-pre-delete"
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-weight": "-10"
+spec:
+  ttlSecondsAfterFinished: 0
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName:  metax-pre-delete
+      containers:
+      - name: pre-delete
+        image: {{ include "topoMaster.registry" . }}/{{ include "topoMaster.name" . }}:{{ include "topoMaster.version" . }}
+        command: [
+                    "/bin/sh",
+                    "-c",
+                    "/usr/local/topo-master/clean_topology.sh;
+                    /host/scripts/delete_metax_annotations.sh;
+                    /host/scripts/check_metax_pods.sh;
+                    kubectl delete clusteroperators.gpu.metax-tech.com cluster-operator --wait --ignore-not-found
+                    "
+                  ]
+        volumeMounts:
+          - name: send-event
+            mountPath: /host/scripts
+            readOnly: true
+      {{- with .Values.controller.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: send-event
+        configMap:
+          name: metax-pre-delete-configmap
+          defaultMode: 0500

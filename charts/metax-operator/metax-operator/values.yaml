@@ -1,0 +1,75 @@
+metax-operator:
+  # Default values for metax-operator.
+  # This is a YAML-formatted file.
+  # Declare variables to be passed into your templates.
+
+  registry:   release.daocloud.io
+  pullPolicy: IfNotPresent
+
+  controller:
+    replicaCount: 1
+    name: operator-controller
+    image:
+      name: metax/operator-controller
+      version: 0.14.2
+
+  gpuLabel:
+    image:
+      name: metax/gpu-label
+      version: 0.14.2
+
+  driver:
+    payload:
+      name: metax/driver-image
+      version: 3.7.0.23-amd64
+    image:
+      name: metax/driver-manager
+      version: 0.14.2
+
+  maca:
+    image:
+      name: metax/driver-manager
+      version: 0.14.2
+    payload:
+      images:
+        name: metax/maca
+        version: 3.7.0.6-ubuntu22.04-amd64
+
+  runtime:
+    image:
+      name: metax/container-runtime
+      version: 0.14.2
+
+  gpuDevice:
+    image:
+      name: metax/gpu-device
+      version: 0.14.2
+
+  dataExporter:
+    deploy: true
+    image:
+      version: 0.14.2
+      name: metax/mx-exporter
+
+  topoDiscovery:
+    deploy: false
+    master:
+      image:
+        name: metax/topo-master
+        version: 0.14.2
+    worker:
+      image:
+        name: metax/topo-worker
+        version: 0.14.2
+
+  gpuScheduler:
+    deploy: false
+    kubeScheduler:
+      image:
+        registry: k8s.m.daocloud.io
+        name: kube-scheduler
+        version: v1.28.2
+    gpuAware:
+      image:
+        name: metax/gpu-aware
+        version: 0.14.2

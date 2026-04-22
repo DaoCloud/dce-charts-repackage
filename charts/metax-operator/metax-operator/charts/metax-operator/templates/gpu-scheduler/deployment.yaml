@@ -1,0 +1,112 @@
+{{- if .Values.gpuScheduler.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metax-gpu-scheduler
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: metax-gpu-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metax-gpu-scheduler
+  template:
+    metadata:
+      labels:
+        app: metax-gpu-scheduler
+    spec:
+      serviceAccountName: metax-gpu-scheduler
+      serviceAccount:     metax-gpu-scheduler
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: In
+                values:
+                - ""
+            weight: 1
+          - preference:
+              matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: In
+                values:
+                - ""
+            weight: 1
+      containers:
+      - name: kube-scheduler
+        image: {{ include "kubeScheduler.registry" . }}/{{ include "kubeScheduler.name" . }}:{{ include "kubeScheduler.version" . }}
+        imagePullPolicy: {{ include "kubeScheduler.pullPolicy" . }}
+        command: ["/usr/local/bin/kube-scheduler"]
+        args:
+        - --config=/etc/kubernetes/metax-gpu-scheduler/gpu-scheduler-config.yaml
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 10259
+            scheme: HTTPS
+          initialDelaySeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 10259
+            scheme: HTTPS
+        resources:
+          requests:
+            cpu: '0.1'
+        securityContext:
+          privileged: false
+        volumeMounts:
+        - name: metax-gpu-scheduler-config
+          mountPath: /etc/kubernetes/metax-gpu-scheduler
+          readOnly: true
+      - name: gpu-aware
+        image: {{ include "gpuAware.registry" . }}/{{ include "gpuAware.name" . }}:{{ include "gpuAware.version" . }}
+        imagePullPolicy: {{ include "gpuAware.pullPolicy" . }}
+        command: ["/gpu-aware"]
+        args:
+        - --tls-cert=/tls/tls.crt
+        - --tls-key=/tls/tls.key
+        - --log-format=json
+        - --log-level=info
+        - --log-rotation=1w
+        - --log-max-age=26w
+        - --log-file=/var/log/metax/gpu-aware.log
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: metax-gpu-aware-weight-config
+          mountPath: /etc/score-weight
+        - name: tls-config
+          mountPath: /tls
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Equal
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
+        operator: Equal
+      volumes:
+      - name: metax-log
+        hostPath:
+          path: /var/log/metax
+          type: DirectoryOrCreate
+      - name: metax-gpu-scheduler-config
+        configMap:
+          name: metax-gpu-scheduler-config
+          items:
+          - key: "gpu-scheduler-config"
+            path: gpu-scheduler-config.yaml
+      - name: metax-gpu-aware-weight-config
+        configMap:
+          name: metax-gpu-scheduler-config
+          items:
+          - key: "weight"
+            path: gpu-aware.yaml
+      - name: tls-config
+        secret:
+          secretName: metax-gpu-scheduler-tls
+{{- end }}
