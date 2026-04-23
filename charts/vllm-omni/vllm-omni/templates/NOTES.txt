@@ -1,0 +1,49 @@
+Thank you for installing {{ .Chart.Name }} v{{ .Chart.AppVersion }}!
+
+vLLM-Omni is now deploying. The service may take several minutes to become ready
+while the model is downloaded and loaded into GPU memory.
+
+{{- if .Values.worldModel.enabled }}
+
+  ⚡ World Model support is ENABLED (RFC #1987)
+     - REST API:       {{ .Values.worldModel.apiPrefix }}/predict
+     - Session API:    {{ .Values.worldModel.apiPrefix }}/sessions
+     {{- if .Values.worldModel.websocketEnabled }}
+     - WebSocket:      {{ .Values.worldModel.apiPrefix }}/stream
+     {{- end }}
+     - Max sessions:   {{ .Values.worldModel.maxSessions }}
+     - Session TTL:    {{ .Values.worldModel.sessionTimeoutSeconds }}s
+     - KV window size: {{ .Values.worldModel.kvBuffer.maxWindowSize }} blocks
+{{- end }}
+
+Get the application URL:
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}
+{{- end }}
+{{- else if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "vllm-omni.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.service.type }}
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+  Watch the status: kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "vllm-omni.fullname" . }}
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "vllm-omni.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{- else if contains "ClusterIP" .Values.service.type }}
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "vllm-omni.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+  Then access: http://127.0.0.1:{{ .Values.service.port }}
+{{- end }}
+
+Check deployment status:
+  kubectl --namespace {{ .Release.Namespace }} get pods -l "app.kubernetes.io/name={{ include "vllm-omni.name" . }}"
+
+View logs:
+  kubectl --namespace {{ .Release.Namespace }} logs -f deployment/{{ include "vllm-omni.fullname" . }}
+
+OpenAI-compatible API endpoints:
+  POST /v1/chat/completions     - Chat completions
+  POST /v1/images/generations   - Image generation
+  POST /v1/audio/speech         - Text-to-speech
+  GET  /v1/models               - List available models
+  GET  /health                  - Health check
