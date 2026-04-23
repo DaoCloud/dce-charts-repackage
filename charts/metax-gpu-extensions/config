@@ -1,0 +1,14 @@
+export USE_OPENSOURCE_CHART=false
+export BUILD_SELF=custom.sh
+
+# set it to pr when need to: make build_chart -e PROJECT=metax-exporter
+export UPGRADE_METHOD=none
+export UPGRADE_REVIWER=lengrongfu
+export TEST_ASSIGNER=lengrongfu
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon
+
+export NO_DAOCLOUD_IMAGE=true
+export SKIP_SCHEMA=true
+export NO_TRIVY=true

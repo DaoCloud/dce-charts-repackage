@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vendor-config
+  namespace: {{ include "GPUExt.namespace" . }}
+  labels:
+    app: gpu-extensions
+data:
+  gpu-vendor.yaml: |-
+  {{- if .Values.vendor }}
+  {{- toYaml .Values.vendor | nindent 4 }}
+  {{- else }}
+  {{- .Files.Get "vendor.yaml" | nindent 4 }}
+  {{- end }}

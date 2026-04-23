@@ -1,0 +1,5 @@
+- "{{ .metax-gpu-extensions.gpuDevice.image.registry }}/{{ .metax-gpu-extensions.gpuDevice.image.repository }}:{{ .metax-gpu-extensions.gpuDevice.image.tag }}"
+- "{{ .metax-gpu-extensions.gpuLabel.image.registry }}/{{ .metax-gpu-extensions.gpuLabel.image.repository }}:{{ .metax-gpu-extensions.gpuLabel.image.tag }}"
+- "{{ .metax-gpu-extensions.topoDiscovery.master.image.registry }}/{{ .metax-gpu-extensions.topoDiscovery.master.image.repository }}:{{ .metax-gpu-extensions.topoDiscovery.master.image.tag }}"
+- "{{ .metax-gpu-extensions.topoDiscovery.worker.image.registry }}/{{ .metax-gpu-extensions.topoDiscovery.worker.image.repository }}:{{ .metax-gpu-extensions.topoDiscovery.worker.image.tag }}"
+- "{{ .metax-gpu-extensions.gpuAware.image.registry }}/{{ .metax-gpu-extensions.gpuAware.image.repository }}:{{ .metax-gpu-extensions.gpuAware.image.tag }}"
