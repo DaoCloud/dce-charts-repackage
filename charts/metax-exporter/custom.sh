@@ -15,7 +15,8 @@ set -o nounset
 #==============================
 
 echo "extract original chart from file/"
-rm -rf ${CURRENT_DIR_PATH}/metax-exporter/charts/mx-exporter
+rm -rf ${CURRENT_DIR_PATH}/metax-exporter
+mkdir -p ${CURRENT_DIR_PATH}/metax-exporter
 mkdir -p ${CURRENT_DIR_PATH}/metax-exporter/charts
 tar -xzf ${CURRENT_DIR_PATH}/file/mx-exporter-0.8.1.tgz -C ${CURRENT_DIR_PATH}/metax-exporter/charts/
 
