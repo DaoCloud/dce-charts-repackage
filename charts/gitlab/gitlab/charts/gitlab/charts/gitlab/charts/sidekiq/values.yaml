@@ -17,14 +17,18 @@ init:
   resources:
     requests:
       cpu: 50m
-  containerSecurityContext: {}
+  containerSecurityContext:
+    runAsUser: 1000
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    capabilities:
+      drop: ["ALL"]
 # Node labels for pod assignment
 # nodeSelector: {}
 
 # Tolerations for pod scheduling
 tolerations: []
 enabled: true
-queueSelector: false
 annotations: {}
 podLabels: {}
 common:
@@ -44,6 +48,7 @@ networkpolicy:
   annotations: {}
 metrics:
   enabled: true
+  listenAddr: "*"
   port: 3807
   path: /metrics
   log_enabled: false
@@ -57,13 +62,14 @@ metrics:
     enabled: false
     # secretName:
 health_checks:
+  listenAddr: "*"
   port: 3808
 redis:
   auth: {}
 psql: {}
 # port: 5432
 
-# https://docs.gitlab.com/ee/administration/operations/sidekiq_memory_killer.html#sidekiq-memorykiller
+# https://docs.gitlab.com/administration/sidekiq/sidekiq_memory_killer/
 memoryKiller:
   daemonMode: true
   maxRss: 2000000
@@ -329,19 +335,37 @@ securityContext:
   runAsUser: 1000
   fsGroup: 1000
   # fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: "RuntimeDefault"
 ## Allow to overwrite the specific security context under which the container is running.
 containerSecurityContext:
   runAsUser: 1000
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  capabilities:
+    drop: ["ALL"]
 ## Enable deployment to use a serviceAccount
 serviceAccount:
   enabled: false
   create: false
   annotations: {}
+  ## Used for local override of global ServiceAccount token mounting
+  # automountServiceAccountToken: false
   ## Name to be used for serviceAccount, otherwise defaults to chart fullname
   # name:
 ## Allow configuring pods' priorityClassName. This is used to control pod priority in case of eviction:
 #  https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
 priorityClassName: ""
+antiAffinity: "" # options: "hard", "soft"
 affinity:
   podAntiAffinity:
     topologyKey:
+## Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in.
+## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+topologySpreadConstraints: []
+# - labelSelector:
+#     matchLabels:
+#       app: name
+#     maxSkew: 1
+#     topologyKey: topology.kubernetes.io/zone
+#     whenUnsatisfiable: DoNotSchedule
