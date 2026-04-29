@@ -35,8 +35,46 @@ helm install inferencepool chart-museum/inferencepool ${HELM_MUST_OPTION} --set 
 
 if (($?==0)) ; then
   echo "succeeded to deploy $CHART_DIR"
-  exit 0
 else
   echo "error, failed to deploy $CHART_DIR"
+  exit 1
+fi
+
+#==================== test with sidecar enabled =============
+SIDECAR_NAMESPACE=inferencepool-sidecar-system
+SIDECAR_RELEASE=inferencepool-sidecar
+SIDECAR_IMAGE_NAME="llm-d-uds-tokenizer"
+
+helm install ${SIDECAR_RELEASE} chart-museum/inferencepool ${HELM_MUST_OPTION} \
+  --set inferencepool.inferencePool.modelServers\.matchLabels.app=vllm-llama3-8b-instruct \
+  --set inferencepool.inferenceExtension.sidecar.enabled=true \
+  --set inferencepool.inferenceExtension.sidecar.name=${SIDECAR_IMAGE_NAME} \
+  --namespace ${SIDECAR_NAMESPACE} --create-namespace
+
+if (($?==0)) ; then
+  echo "succeeded to deploy ${SIDECAR_RELEASE}"
+else
+  echo "error, failed to deploy ${SIDECAR_RELEASE}"
+  exit 1
+fi
+
+# verify sidecar image exists in the deployment
+SIDECAR_DEPLOY_PODS=$(kubectl get pods -n ${SIDECAR_NAMESPACE} --kubeconfig ${KIND_KUBECONFIG} -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | head -1)
+if [ -z "$SIDECAR_DEPLOY_PODS" ]; then
+  echo "error, no pods found in ${SIDECAR_NAMESPACE}"
+  exit 1
+fi
+
+echo "checking sidecar image in pod: ${SIDECAR_DEPLOY_PODS}"
+SIDECAR_IMAGE=$(kubectl get pod ${SIDECAR_DEPLOY_PODS} -n ${SIDECAR_NAMESPACE} --kubeconfig ${KIND_KUBECONFIG} \
+  -o=jsonpath='{range .spec.containers[*]}{.name}{"="}{.image}{"\n"}{end}' | grep ${SIDECAR_IMAGE_NAME})
+
+if echo "${SIDECAR_IMAGE}" | grep -q "${SIDECAR_IMAGE_NAME}"; then
+  echo "sidecar image verified: ${SIDECAR_IMAGE}"
+else
+  echo "error, sidecar image ${SIDECAR_IMAGE_NAME} not found in pod containers"
+  echo "containers:"
+  kubectl get pod ${SIDECAR_DEPLOY_PODS} -n ${SIDECAR_NAMESPACE} --kubeconfig ${KIND_KUBECONFIG} \
+    -o=jsonpath='{range .spec.containers[*]}{.name}{"="}{.image}{"\n"}{end}'
   exit 1
 fi
