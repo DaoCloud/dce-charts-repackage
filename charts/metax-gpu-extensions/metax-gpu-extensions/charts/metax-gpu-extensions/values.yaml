@@ -1,0 +1,152 @@
+# Default values for gpu-extenstions.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+domain:       metax-tech.com
+registry:     cr.metax-tech.com/cloud
+pullPolicy:   IfNotPresent
+runDir:       /run/metax
+deployExtenderGPUAware: false
+
+log:
+  dir:          /var/log/metax
+  level:        info
+  format:       json
+  rotationTime: 1w
+  maxAge:       26w
+
+gpuDevice:
+  healthyInterval: 5
+  connectDetectPeriod: 0s
+  sGPUHybridMode: false
+  log:
+  image:
+    registry: "cr.metax-tech.com"
+    repository: "cloud/gpu-device"
+    tag: "0.14.2"
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+gpuLabel:
+  log:
+  image:
+    registry: "cr.metax-tech.com"
+    repository: "cloud/gpu-label"
+    tag: "0.14.2"
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+topoDiscovery:
+  enabled: false
+  # config/dragonfly/switchbox
+  mode: "config"
+  dragonfly:
+    nodeNumber: 2
+    enableTraining: false
+  switchbox:
+    clusterManagerAddress:
+    clusterManagerUser:
+    clusterManagerPassword:
+    clusterManagerPollTopoPeriod: 30
+    clusterManagerPollEventPeriod: 10
+    # internal dragonfly
+    nodeNumber: 2
+    enableTraining: false
+  rpcServerPort: 10001
+  master:
+    serverPort: 9001
+    log:
+    env:
+    tolerations:
+    - key: "node-role.kubernetes.io/master"
+      operator: "Equal"
+      value: ""
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Equal"
+      value: ""
+      effect: "NoSchedule"
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+            - key: "node-role.kubernetes.io/master"
+              operator: In
+              values: [""]
+        - weight: 1
+          preference:
+            matchExpressions:
+            - key: "node-role.kubernetes.io/control-plane"
+              operator: In
+              values: [""]
+    image:
+      registry: "cr.metax-tech.com"
+      repository: "cloud/topo-master"
+      tag: "0.14.2"
+      pullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  worker:
+    metricsPort: 9002
+    image:
+      registry: "cr.metax-tech.com"
+      repository: "cloud/topo-worker"
+      tag: "0.14.2"
+      pullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+gpuAware:
+  scoreWeight: "1.0"
+  lossWeight : "0.5"
+  name: gpu-aware
+  image:
+    registry: "cr.metax-tech.com"
+    repository: "cloud/gpu-aware"
+    tag: "0.14.2"
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# The name of the service account to use.
+# If not set or empty, a name is generated using the fullname template
+serviceAccountName: ""
+
+tolerations:
+- key:      "node-role.kubernetes.io/master"
+  operator: "Equal"
+  value:    ""
+  effect:   "NoSchedule"
+- key:      "node-role.kubernetes.io/control-plane"
+  operator: "Equal"
+  value:    ""
+  effect:   "NoSchedule"
