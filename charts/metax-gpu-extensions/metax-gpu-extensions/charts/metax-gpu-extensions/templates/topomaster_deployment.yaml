@@ -1,0 +1,100 @@
+{{- if .Values.topoDiscovery.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: topo-master
+  namespace: {{ include "GPUExt.namespace" . }}
+  labels:
+    {{- include "GPUExt.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "GPUExt.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: topo-master
+        {{- include "GPUExt.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "GPUExt.serviceAccountName" . }}
+      serviceAccount:     {{ include "GPUExt.serviceAccountName" . }}
+      {{- with .Values.topoDiscovery.master.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topoDiscovery.master.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: topo-master
+        image: "{{ .Values.topoDiscovery.master.image.registry }}/{{ .Values.topoDiscovery.master.image.repository }}:{{ .Values.topoDiscovery.master.image.tag }}"
+        imagePullPolicy: {{ default .Values.pullPolicy ((.Values.topoDiscovery.master).image).pullPolicy }}
+        {{- with .Values.topoDiscovery.master.resources }}
+        resources:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        command: ["/usr/local/topo-master/topo-master"]
+        args:
+        - --log-file=/var/log/topo-master.log
+        - --log-level={{ default .Values.log.level ((.Values.topoDiscovery.master).log).level }}
+        - --log-format={{ default .Values.log.format ((.Values.topoDiscovery.master).log).format }}
+        - --server-port={{ .Values.topoDiscovery.master.serverPort }}
+        - --rpc-server-port={{ .Values.topoDiscovery.rpcServerPort }}
+        {{ if eq .Values.topoDiscovery.mode "dragonfly" }}
+        {{ include "GPUExt.topoMasterDfCmd" . | nindent 8 }}
+        {{ else if eq .Values.topoDiscovery.mode "switchbox" }}
+        {{ include "GPUExt.topoMasterSboxCmd" . | nindent 8 }}
+        {{- end }}
+        env:
+        {{- if .Values.topoDiscovery.master.env }}
+        {{ toYaml .Values.topoDiscovery.master.env | nindent 8 }}
+        {{- end }}
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: log
+          mountPath: /var/log
+        - name: topo-master-config
+          mountPath: /config
+          readOnly: true
+        - name: topo-master-secret
+          mountPath: /secret
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.topoDiscovery.master.serverPort }}
+            scheme: HTTP
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: {{ .Values.topoDiscovery.master.serverPort }}
+            scheme: HTTP
+      volumes:
+      - name: log
+        hostPath:
+          path: {{ default .Values.log.dir ((.Values.topoDiscovery.master).log).dir }}
+          type: DirectoryOrCreate
+      - name: topo-master-config
+        configMap:
+          name: topo-master-config
+          items:
+          - key: "nodegroup"
+            path: "nodegroup.yaml"
+      - name:  topo-master-secret
+        secret:
+          secretName: topo-master-secret
+          defaultMode: 0400
+{{- end }}

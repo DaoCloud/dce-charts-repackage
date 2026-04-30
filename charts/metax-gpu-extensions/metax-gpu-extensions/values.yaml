@@ -1,0 +1,69 @@
+# Override sub-chart values
+metax-gpu-extensions:
+  gpuDevice:
+    image:
+      registry: release.daocloud.io
+      repository: metax/gpu-device
+      pullPolicy: IfNotPresent
+      tag: "0.14.2"
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  gpuLabel:
+    image:
+      registry: release.daocloud.io
+      repository: metax/gpu-label
+      pullPolicy: IfNotPresent
+      tag: "0.14.2"
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  topoDiscovery:
+    enabled: false
+    master:
+      image:
+        registry: release.daocloud.io
+        repository: metax/topo-master
+        pullPolicy: IfNotPresent
+        tag: "0.14.2"
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+    worker:
+      image:
+        registry: release.daocloud.io
+        repository: metax/topo-worker
+        pullPolicy: IfNotPresent
+        tag: "0.14.2"
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+  gpuAware:
+    image:
+      registry: release.daocloud.io
+      repository: metax/gpu-aware
+      pullPolicy: IfNotPresent
+      tag: "0.14.2"
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi

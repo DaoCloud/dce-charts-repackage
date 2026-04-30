@@ -1,0 +1,10 @@
+{{- if .Values.topoDiscovery.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: topo-master-config
+  namespace: {{ include "GPUExt.namespace" . }}
+data:
+  nodegroup: |
+    group:
+{{- end }}
