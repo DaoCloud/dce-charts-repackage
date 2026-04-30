@@ -1,0 +1,36 @@
+{{- if .Values.gpuScheduler.deploy }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metax-gpu-scheduler-config
+  namespace: {{ .Release.Namespace }}
+{{- $cfgApiVersion := "kubescheduler.config.k8s.io/v1beta2" }}
+{{- if semverCompare ">=1.28.0" .Capabilities.KubeVersion.Version }}
+{{- $cfgApiVersion = "kubescheduler.config.k8s.io/v1" }}
+{{- else if semverCompare ">=1.25.0" .Capabilities.KubeVersion.Version }}
+{{- $cfgApiVersion = "kubescheduler.config.k8s.io/v1beta3" }}
+{{- end }}
+data:
+  gpu-scheduler-config:  |
+    apiVersion: {{ $cfgApiVersion }}
+    kind: KubeSchedulerConfiguration
+    leaderElection:
+      leaderElect: false
+    profiles:
+    - schedulerName: metax-gpu-scheduler
+    extenders:
+    - urlPrefix: "https://127.0.0.1:8080"
+      filterVerb: "filter"
+      prioritizeVerb: "prioritize"
+      nodeCacheCapable: false
+      weight: 500
+      enableHTTPS: true
+      ignorable: false
+      tlsConfig:
+        insecure: true
+      managedResources:
+      - name: metax-tech.com/gpu
+  weight: |
+    score: "1.0"
+    loss: "0.5"
+{{- end }}

@@ -1,0 +1,30 @@
+{{- if (include "openshiftEnabled" .) }}
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: {{ include "metax-operator.fullname" . }}-scc
+allowHostDirVolumePlugin: true
+allowHostIPC: true
+allowHostNetwork: true
+allowHostPID: true
+allowHostPorts: true
+allowPrivilegedContainer: true
+allowPrivilegeEscalation: true
+allowedCapabilities:
+- '*'
+defaultAddCapabilities: []
+fsGroup:
+  type: RunAsAny
+groups: []
+priority: 10
+readOnlyRootFilesystem: false
+requiredDropCapabilities: []
+runAsUser:
+  type: RunAsAny
+seLinuxContext:
+  type: RunAsAny
+supplementalGroups:
+  type: RunAsAny
+volumes:
+- '*'
+{{- end }}

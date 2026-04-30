@@ -1,0 +1,22 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: metax-pre-delete
+rules:
+- apiGroups:
+  - "gpu.metax-tech.com"
+  resources:
+  - clusteroperators
+  verbs:
+  - list
+  - watch
+  - delete
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "watch", "patch", "list", "update"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list","watch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create"]

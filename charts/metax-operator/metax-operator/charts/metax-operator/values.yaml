@@ -1,0 +1,213 @@
+# Default values for metax-operator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+registry: release.daocloud.io
+pullPolicy: IfNotPresent
+log:
+  dir: /var/log/metax
+  level: info
+  format: json
+  rotationTime: 1w
+  maxAge: 26w
+controller:
+  replicaCount: 1
+  name: operator-controller
+  nameOverride: ""
+  fullnameOverride: ""
+  imagePullSecrets: []
+  podAnnotations: {}
+  tolerations:
+    - key: "node-role.kubernetes.io/master"
+      operator: "Equal"
+      value: ""
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Equal"
+      value: ""
+      effect: "NoSchedule"
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: "node-role.kubernetes.io/master"
+                operator: In
+                values: [""]
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: "node-role.kubernetes.io/control-plane"
+                operator: In
+                values: [""]
+  podSecurityContext: {}
+  securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  nodeSelector: {}
+  image:
+    name: metax/operator-controller
+    version: 0.14.2
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "metax-operator"
+# label generator config
+gpuLabel:
+  log:
+  image:
+    name: metax/gpu-label
+    version: 0.14.2
+# kernel module driver config
+driver:
+  deployPolicy: "PreferCloud"
+  # fw upgrade
+  fwUpgradePolicy: "Never"
+  fwEnableVirt: false
+  deviceAsRootGroup: false
+  upgradePolicy:
+    enableRollout: false
+    upgradeSteps:
+      - replicas: 1
+        pauseDuration: 30000
+      - replicas: 100%
+    pause: false
+    maxParallel: 100%
+    maxUnavailable: 0%
+    maxFailureThreshold: 5
+    Fallback: pause
+  # payload contains the KMD package
+  payload:
+    name: "metax/driver-image"
+    version: "3.2.1.12-amd64"
+  vfnumsConfig:
+    nodes:
+      sample-node:
+        vfnum: 4
+      sample-node2:
+        vfnum: 2
+  moduleParams:
+  nodeModuleParams:
+  log:
+  # please modify vfio config before using
+  vfioConfig:
+    - nodeName: worker-node1
+      gpus: ""
+  driverConfig:
+  image:
+    name: metax/driver-manager
+    version: 0.14.2
+# maca config
+maca:
+  # payload contains the UMD package
+  payload:
+    images:
+      name: metax/maca-native
+      version: 3.2.1.4-ubuntu20.04-amd64
+  cleanupConfig:
+    threshold: 5
+    #policy: Never/OlderVersionFirst/OlderTimestampFirst
+    cleanupPolicy: Never
+  log:
+  image:
+    name: metax/driver-manager
+    version: 0.14.2
+# container runtime config
+runtime:
+  log:
+  image:
+    name: metax/container-runtime
+    version: 0.14.2
+# device plugin config
+gpuDevice:
+  healthyInterval: 5
+  connectDetectPeriod: 0s
+  sGPUHybridMode: false
+  log:
+  image:
+    name: metax/gpu-device
+    version: 0.14.2
+# data exporter config
+dataExporter:
+  deploy: false
+  service:
+    type: ClusterIP
+    port: 30445
+  image:
+    name: metax/mx-exporter
+    version: 0.14.2
+topoDiscovery:
+  deploy: false
+  # config/dragonfly/switchbox
+  mode: "config"
+  dragonfly:
+    nodeNumber: 2
+    enableTraining: false
+  switchbox:
+    clusterManagerAddress:
+    clusterManagerUser:
+    clusterManagerPassword:
+    clusterManagerPollTopoPeriod: 30
+    clusterManagerPollEventPeriod: 10
+    # internal dragonfly
+    nodeNumber: 2
+    enableTraining: false
+  rpcServerPort: 10001
+  master:
+    serverPort: 9001
+    log:
+    env:
+    podTemplateSpec:
+      spec:
+        tolerations:
+          - key: "node-role.kubernetes.io/master"
+            operator: "Equal"
+            value: ""
+            effect: "NoSchedule"
+          - key: "node-role.kubernetes.io/control-plane"
+            operator: "Equal"
+            value: ""
+            effect: "NoSchedule"
+        affinity:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 1
+                preference:
+                  matchExpressions:
+                    - key: "node-role.kubernetes.io/master"
+                      operator: In
+                      values: [""]
+              - weight: 1
+                preference:
+                  matchExpressions:
+                    - key: "node-role.kubernetes.io/control-plane"
+                      operator: In
+                      values: [""]
+    image:
+      name: metax/topo-master
+      version: 0.14.2
+  worker:
+    metricsPort: 9002
+    log:
+    image:
+      name: metax/topo-worker
+      version: 0.14.2
+gpuScheduler:
+  deploy: false
+  kubeScheduler:
+    image:
+      registry: "release.daocloud.io"
+      name: metax/kube-scheduler
+      version: v1.28.2
+  gpuAware:
+    image:
+      name: metax/gpu-aware
+      version: 0.14.2

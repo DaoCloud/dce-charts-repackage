@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metax-vfio-config
+  namespace: {{ .Release.Namespace }}
+data:
+  vfio:  |
+    {{- range .Values.driver.vfioConfig }}
+    - nodeName: {{ .nodeName }}
+      gpus: "{{ .gpus }}"
+    {{- end }}
