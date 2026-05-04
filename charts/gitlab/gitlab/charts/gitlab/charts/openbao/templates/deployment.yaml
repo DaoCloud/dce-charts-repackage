@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openbao.fullname" . }}
+  labels:
+    {{- include "openbao.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "openbao.selectorLabels" . | nindent 6 }}
+  strategy:
+    # Use the 'recreate' strategy to ensure that all pods are shut down before creating new ones.
+    # This prevents older OpenBao version from becoming leader after a new OpenBao version modified data.
+    # This implies downtime during the upgrade process.
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{ include "openbao.monitoring.annotations" $ | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "openbao.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openbao.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      hostAliases:
+        - hostnames:
+          - {{ include "gitlab.openbao.hostname" . }}
+          ip: "127.0.0.1"
+      containers:
+        - name: {{ .Chart.Name }}-server
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "openbao.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: api
+              containerPort: {{ .Values.config.apiPort }}
+              protocol: TCP
+            {{- if and .Values.config.telemetry.enabled .Values.config.metricsListener.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.config.metricsListener.port }}
+              protocol: TCP
+            {{- end }}
+          env:
+            - name: OPENBAO_CONFIG_DIRECTORY
+              value: /srv/openbao/config/
+            - name: BAO_ADDR
+              value: {{ include "openbao.internalUrl" . | quote }}
+            {{- with (include "openbao.postgresql.configuration" . | fromYaml).password }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secret }}
+                  key: {{ .key }}
+            {{- end }}
+            {{- include "openbao.serviceRegistration.env" . | nindent 12 }}
+            {{- include "openbao.clusterAddr.env" . | nindent 12 }}
+          livenessProbe:
+            {{- include "openbao.livenessProbe" $ | nindent 12 }}
+          readinessProbe:
+            {{- include "openbao.readinessProbe" $ | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "openbao.extraVolumeMounts" $ | nindent 12 }}
+            - name: config
+              mountPath: /srv/openbao/config
+              readOnly: true
+            {{- if and .Values.config.unseal.static.enabled .Values.staticUnsealSecret.generate }}
+            - name: static-unseal
+              mountPath: {{ .Values.config.unseal.static.currentKey }}
+              subPath: key
+              readOnly: true
+            {{- end }}
+            {{- if and .Values.config.audit.http.enabled .Values.httpAuditSecret.generate }}
+            - name: http-audit
+              mountPath: {{ .Values.config.audit.http.authTokenPath }}
+              subPath: token
+              readOnly: true
+            {{- end }}
+            {{- if not .Values.config.tlsDisable }}
+            - name: tls
+              mountPath: /srv/openbao/tls/
+              readOnly: true
+            {{- end }}
+      volumes:
+        {{- include "openbao.extraVolumes" $ | nindent 8 }}
+        - name: config
+          configMap:
+            name: {{ template "openbao.fullname" . }}-config
+        {{- if and .Values.config.unseal.static.enabled .Values.staticUnsealSecret.generate }}
+        - name: static-unseal
+          secret:
+            secretName: {{ include "openbao.fullname" . }}-static-unseal
+        {{- end }}
+        {{- if and .Values.config.audit.http.enabled .Values.httpAuditSecret.generate }}
+        - name: http-audit
+          secret:
+            secretName: {{ include "openbao.fullname" . }}-http-audit
+        {{- end }}
+        {{- if not .Values.config.tlsDisable }}
+        - name: tls
+          secret:
+            secretName: {{ include "gitlab.openbao.tlsSecret" . }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
