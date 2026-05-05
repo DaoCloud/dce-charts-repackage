@@ -1,5 +1,12 @@
-apiVersion: v1
+apiVersion: v2
 appVersion: master
+dependencies:
+- condition: global.praefect.enabled
+  name: praefect
+  repository: ""
+- condition: global.pages.enabled
+  name: gitlab-pages
+  repository: ""
 description: Web-based Git-repository manager with wiki and issue-tracking features.
 home: https://about.gitlab.com/
 icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.svg
