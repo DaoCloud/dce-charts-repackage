@@ -128,6 +128,43 @@ recommender:
     storage: prometheus
 ```
 
+## Utilize In-Place Pod Vertical Scaling
+
+Since VPA 1.6.0, the `InPlaceOrRecreate` update mode is GA and enabled by default.
+No feature gate configuration is required.
+
+To use in-place scaling, configure your VPA resources with:
+
+```yaml
+spec:
+  updatePolicy:
+    updateMode: "InPlaceOrRecreate"
+```
+
+Note: your Kubernetes cluster must support in-place pod resizing
+(`InPlacePodVerticalScaling` is GA since Kubernetes 1.33).
+
+### Optional: Skip disruption budget checks for in-place updates
+
+VPA 1.6.0 introduces an opt-in flag that skips PDB checks for in-place updates
+when **all** containers have `NotRequired` resize policy (i.e. no pod restart needed).
+Disruption budgets are still respected when any container has `RestartContainer`
+resize policy.
+
+```yaml
+updater:
+  extraArgs:
+    "in-place-skip-disruption-budget": "true"
+```
+
+### Deprecated: `Auto` update mode
+
+The `Auto` update mode is deprecated since VPA 1.5 and will be removed in a future
+release. It currently behaves identically to `Recreate`. Migrate to either
+`Recreate` or `InPlaceOrRecreate`.
+
+For more information, see [VPA docs](https://github.com/kubernetes/autoscaler/blob/master/vertical-pod-autoscaler/docs/features.md#in-place-updates-inplaceorrecreate) and [Kubernetes docs](https://kubernetes.io/docs/tasks/configure-pod-container/resize-container-resources/).
+
 ## Values
 
 | Key | Type | Default | Description |
@@ -138,12 +175,13 @@ recommender:
 | fullnameOverride | string | `""` | A template override for the fullname |
 | podLabels | object | `{}` | Labels to add to all pods |
 | rbac.create | bool | `true` | If true, then rbac resources (ClusterRoles and ClusterRoleBindings) will be created for the selected components. Temporary rbac resources will still be created, to ensure a functioning installation process |
-| rbac.extraRules | object | `{"vpaActor":[],"vpaCheckpointActor":[],"vpaEvictioner":[],"vpaMetricsReader":[],"vpaStatusActor":[],"vpaStatusReader":[],"vpaTargetReader":[]}` | Extra rbac rules for ClusterRoles |
+| rbac.extraRules | object | `{"vpaActor":[],"vpaCheckpointActor":[],"vpaEvictioner":[],"vpaMetricsReader":[],"vpaStatusActor":[],"vpaStatusReader":[],"vpaTargetReader":[],"vpaUpdaterInPlace":[]}` | Extra rbac rules for ClusterRoles |
 | rbac.extraRules.vpaActor | list | `[]` | Extra rbac rules for the vpa-actor ClusterRole |
 | rbac.extraRules.vpaStatusActor | list | `[]` | Extra rbac rules for the vpa-status-actor ClusterRole |
 | rbac.extraRules.vpaCheckpointActor | list | `[]` | Extra rbac rules for the vpa-checkpoint-actor ClusterRole |
 | rbac.extraRules.vpaEvictioner | list | `[]` | Extra rbac rules for the vpa-evictioner ClusterRole |
 | rbac.extraRules.vpaMetricsReader | list | `[]` | Extra rbac rules for the vpa-metrics-reader ClusterRole |
+| rbac.extraRules.vpaUpdaterInPlace | list | `[]` | Extra rbac rules for the vpa-updater-in-place ClusterRole |
 | rbac.extraRules.vpaTargetReader | list | `[]` | Extra rbac rules for the vpa-target-reader ClusterRole |
 | rbac.extraRules.vpaStatusReader | list | `[]` | Extra rbac rules for the vpa-status-reader ClusterRole |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created for each component |
@@ -173,7 +211,7 @@ recommender:
 | recommender.podMonitor | object | `{"annotations":{},"enabled":false,"labels":{}}` | Enables a prometheus operator podMonitor for the recommender |
 | updater.enabled | bool | `true` | If true, the updater component will be deployed |
 | updater.annotations | object | `{}` | Annotations to add to the updater deployment |
-| updater.extraArgs | object | `{}` | A key-value map of flags to pass to the updater |
+| updater.extraArgs | object | `{}` | A key-value map of flags to pass to the updater. Since VPA 1.6.0: set "in-place-skip-disruption-budget": "true" to skip PDB checks for in-place updates when all containers have NotRequired resize policy. |
 | updater.replicaCount | int | `1` |  |
 | updater.revisionHistoryLimit | int | `10` | The number of old replicasets to retain, default is 10, 0 will garbage-collect old replicasets |
 | updater.podDisruptionBudget | object | `{}` | This is the setting for the pod disruption budget |
@@ -202,8 +240,8 @@ recommender:
 | admissionController.certGen.image.pullPolicy | string | `"Always"` | The pull policy for the certgen image. Recommend not changing this |
 | admissionController.certGen.env | object | `{}` | Additional environment variables to be added to the certgen container. Format is KEY: Value format |
 | admissionController.certGen.resources | object | `{}` | The resources block for the certgen pod |
-| admissionController.certGen.securityContext | object | `{}` | The securityContext block for the certgen container(s) |
-| admissionController.certGen.podSecurityContext | object | `{}` | The securityContext block for the certgen pod(s) |
+| admissionController.certGen.podSecurityContext | object | `{"runAsNonRoot":true,"runAsUser":65534,"seccompProfile":{"type":"RuntimeDefault"}}` | The securityContext block for the certgen pod(s) |
+| admissionController.certGen.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | The securityContext block for the certgen container(s) |
 | admissionController.certGen.nodeSelector | object | `{}` |  |
 | admissionController.certGen.tolerations | list | `[]` |  |
 | admissionController.certGen.affinity | object | `{}` |  |
@@ -233,8 +271,8 @@ recommender:
 | admissionController.httpPort | int | `8000` | Port of the admission controller for the mutating webhooks |
 | admissionController.metricsPort | int | `8944` | Port of the admission controller where metrics can be received from |
 | tests.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"runAsUser":10324}` | The security context for the containers run as helm hook tests |
-| tests.image.repository | string | `"bitnami/kubectl"` | An image used for testing containing bash, cat and kubectl |
-| tests.image.tag | string | `""` | An image tag for the tests image |
+| tests.image.repository | string | `"alpine/kubectl"` | An image used for testing containing sh, cat and kubectl |
+| tests.image.tag | string | `"1.35.2"` | An image tag for the tests image |
 | tests.image.pullPolicy | string | `"Always"` | The pull policy for the tests image. |
 | metrics-server | object | `{"enabled":false}` | configuration options for the [metrics server Helm chart](https://github.com/kubernetes-sigs/metrics-server/tree/master/charts/metrics-server). See the projects [README.md](https://github.com/kubernetes-sigs/metrics-server/tree/master/charts/metrics-server#configuration) for all available options |
 | metrics-server.enabled | bool | `false` | Whether or not the metrics server Helm chart should be installed |
