@@ -51,12 +51,14 @@ For full list of changes please check ArtifactHub [changelog].
 | fullnameOverride | string | `nil` | String to fully override "argo-rollouts.fullname" template |
 | global.deploymentAnnotations | object | `{}` | Annotations for all deployed Deployments |
 | global.deploymentLabels | object | `{}` | Labels for all deployed Deployments |
+| global.dnsConfig | object | `{}` | Specifies the deployment DNS configuration for controller and dashboard. |
 | global.revisionHistoryLimit | int | `10` | Number of old deployment ReplicaSets to retain. The rest will be garbage collected. |
 | imagePullSecrets | list | `[]` | Secrets with credentials to pull images from a private registry. Registry secret names as an array. |
 | installCRDs | bool | `true` | Install and upgrade CRDs |
 | keepCRDs | bool | `true` | Keep CRD's on helm uninstall |
 | kubeVersionOverride | string | `""` | Override the Kubernetes version, which is used to evaluate certain manifests |
 | nameOverride | string | `nil` | String to partially override "argo-rollouts.fullname" template |
+| namespaceOverride | string | `.Release.Namespace` | Override the namespace |
 | notifications.configmap.create | bool | `true` | Whether to create notifications configmap |
 | notifications.notifiers | object | `{}` | Configures notification services |
 | notifications.secret.annotations | object | `{}` | Annotations to be added to the notifications secret |
@@ -84,10 +86,14 @@ For full list of changes please check ArtifactHub [changelog].
 |-----|------|---------|-------------|
 | containerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"seccompProfile":{"type":"RuntimeDefault"}}` | Security Context to set on container level |
 | controller.affinity | object | `{}` | Assign custom [affinity] rules to the deployment |
+| controller.albTagKeyResourceID | string | `""` | Set the ALB tag key for resource ID (e.g. `ingress.k8s.aws/resource` for standard EKS, `ingress.eks.amazonaws.com` for EKS Auto Mode) |
+| controller.awsTargetGroupBindingAPIVersion | string | `""` | Set the AWS TargetGroupBinding apiVersion (e.g. `elbv2.k8s.aws/v1beta1` for standard EKS, `eks.amazonaws.com/v1` for EKS Auto Mode) |
+| controller.awsVerifyTargetGroup | bool | `false` | Enable AWS target group verification before progressing through steps (requires AWS privileges) |
 | controller.component | string | `"rollouts-controller"` | Value of label `app.kubernetes.io/component` |
 | controller.containerPorts.healthz | int | `8080` | Healthz container port |
 | controller.containerPorts.metrics | int | `8090` | Metrics container port |
 | controller.createClusterRole | bool | `true` | flag to enable creation of cluster controller role (requires cluster RBAC) |
+| controller.createConfigmap | bool | `true` | Whether to create the argo-rollouts-config ConfigMap. Set to false when running multiple controller instances in the same namespace (e.g. with different --instance-id values) to avoid Helm ownership conflicts; each secondary instance will read the ConfigMap created by the primary release. |
 | controller.deploymentAnnotations | object | `{}` | Annotations to be added to the controller deployment |
 | controller.deploymentLabels | object | `{}` | Labels to be added to the controller deployment |
 | controller.extraArgs | list | `[]` | Additional command line arguments to pass to rollouts-controller.  A list of flags. |
@@ -114,6 +120,7 @@ For full list of changes please check ArtifactHub [changelog].
 | controller.metrics.serviceMonitor.metricRelabelings | list | `[]` | MetricRelabelConfigs to apply to samples before ingestion |
 | controller.metrics.serviceMonitor.namespace | string | `""` | Namespace to be used for the ServiceMonitor |
 | controller.metrics.serviceMonitor.relabelings | list | `[]` | RelabelConfigs to apply to samples before scraping |
+| controller.metrics.serviceMonitor.tlsConfig | object | `{}` | TLS configuration for the ServiceMonitor. When set, scheme will be https |
 | controller.nodeSelector | object | `{}` | [Node selector] |
 | controller.pdb.annotations | object | `{}` | Annotations to be added to controller [Pod Disruption Budget] |
 | controller.pdb.enabled | bool | `false` | Deploy a [Pod Disruption Budget] for the controller |
@@ -122,10 +129,12 @@ For full list of changes please check ArtifactHub [changelog].
 | controller.pdb.minAvailable | string | `nil` | Minimum number / percentage of pods that should remain scheduled |
 | controller.podAnnotations | object | `{}` | Annotations to be added to application controller pods |
 | controller.podLabels | object | `{}` | Labels to be added to the application controller pods |
+| controller.pprofAddress | string | `""` | Enable pprof profiling on the controller by specifying a listen address (e.g. `:6060` or `localhost:6060`) |
 | controller.priorityClassName | string | `""` | [priorityClassName] for the controller |
 | controller.readinessProbe | object | See [values.yaml] | Configure readiness [probe] for the controller |
 | controller.replicas | int | `2` | The number of controller pods to run |
 | controller.resources | object | `{}` | Resource limits and requests for the controller pods. |
+| controller.selfServiceNotification | bool | `false` | Enable self-service notification support, allowing the controller to pull notification config from the rollout's namespace |
 | controller.stepPlugins | list | `[]` | Configures 3rd party stepPlugins for controller |
 | controller.terminationGracePeriodSeconds | int | `30` | terminationGracePeriodSeconds for container lifecycle hook |
 | controller.tolerations | list | `[]` | [Tolerations] for use with node taints |
@@ -182,6 +191,7 @@ For full list of changes please check ArtifactHub [changelog].
 | dashboard.readonly | bool | `false` | Set cluster role to readonly |
 | dashboard.replicas | int | `1` | The number of dashboard pods to run |
 | dashboard.resources | object | `{}` | Resource limits and requests for the dashboard pods. |
+| dashboard.rootPath | string | `""` | Set the root path of the dashboard (e.g. `/rollouts`). Useful when running behind a reverse proxy with a path prefix. |
 | dashboard.service.annotations | object | `{}` | Service annotations |
 | dashboard.service.externalIPs | list | `[]` | Dashboard service external IPs |
 | dashboard.service.labels | object | `{}` | Service labels |
