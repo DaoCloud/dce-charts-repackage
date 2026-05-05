@@ -41,6 +41,10 @@ spec:
             httpGet:
               path: healthz
               port: {{ .Values.descheduler.port }}
+          ports:
+            - containerPort: {{ .Values.descheduler.port }}
+              name: metrics
+              protocol: TCP
           resources:
             {{- toYaml .Values.descheduler.resources | nindent 12 }}
       hostNetwork: {{ .Values.descheduler.hostNetwork }}
