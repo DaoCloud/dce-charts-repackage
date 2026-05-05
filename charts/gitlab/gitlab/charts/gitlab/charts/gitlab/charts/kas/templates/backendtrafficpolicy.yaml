@@ -1,0 +1,30 @@
+{{- if .Values.global.kas.enabled -}}
+{{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
+{{- if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
+{{/*
+Configure a BackendTrafficPolicy to cross serve GRPC and other non-GRPC traffic for the same hostname.
+KAS cross serves WSS and GRPC on the same hostname and port which blocks us from using a separate
+GRPCRoute for this purpose (https://gateway-api.sigs.k8s.io/api-types/grpcroute/#cross-serving).
+*/}}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "gitlab.commonLabels" $ | nindent 4 }}
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: {{ template "fullname" . }}
+  {{/* GRPC connections are long living. */}}
+  timeout:
+    http:
+      requestTimeout: 0s
+  {{/* Ensure envoy forwards GRPC request as HTTP/2 instead of HTTP/1.1  */}}
+  useClientProtocol: true
+{{- end }}
+{{- end }}
+{{- end }}

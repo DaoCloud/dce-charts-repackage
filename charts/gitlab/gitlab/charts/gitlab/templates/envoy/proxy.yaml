@@ -1,0 +1,16 @@
+{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy }}
+{{- $spec := .Values.gatewayApiResources.envoy.proxySpec }}
+{{- if and $spec.provider $spec.provider.kubernetes (hasKey $spec.provider.kubernetes "envoyDaemonSet") }}
+{{-   $_ := unset $spec.provider.kubernetes "envoyDeployment" }}
+{{- end }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: {{ include "gitlab.gatewayApi.envoy.config.name" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  {{ $spec | toYaml | nindent 2 }}
+{{- end }}
