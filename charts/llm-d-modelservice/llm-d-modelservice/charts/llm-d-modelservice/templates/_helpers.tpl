@@ -125,6 +125,19 @@ affinity:
     {{- end }}
   image: {{ required "routing.proxy.image must be specified" (include "llm-d-modelservice.imageAddress" .proxy.image) }}
   imagePullPolicy: {{ default "Always" .proxy.imagePullPolicy }}
+  env:
+{{- if and .Values.tracing .Values.tracing.enabled }}
+    - name: OTEL_SERVICE_NAME
+      value: {{ .Values.tracing.serviceNames.routingProxy | quote }}
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: {{ .Values.tracing.otlpEndpoint | quote }}
+    - name: OTEL_TRACES_EXPORTER
+      value: "otlp"
+    - name: OTEL_TRACES_SAMPLER
+      value: {{ .Values.tracing.sampling.sampler | quote }}
+    - name: OTEL_TRACES_SAMPLER_ARG
+      value: {{ .Values.tracing.sampling.samplerArg | quote }}
+{{- end }}
   ports:
     - containerPort: {{ default 8000 .servicePort }}
   resources: {}
@@ -361,7 +374,7 @@ Context is .Values.modelArtifacts
 - name: model-storage
   persistentVolumeClaim:
     claimName: {{ $claim }}
-    readOnly: true
+    readOnly: {{ .readOnly }}
 {{- else if eq $protocol "oci" }}
 - name: model-storage
   image:
@@ -386,12 +399,13 @@ volumeMounts:
 {{- if .container.mountModelVolume }}
   - name: model-storage
     mountPath: {{ .Values.modelArtifacts.mountPath }}
-{{- /* enforce readOnly volumeMounts for OCI and PVCs */}}
+{{- /* OCI always readOnly; PVC variants use modelArtifacts.readOnly */}}
 {{- $parsedArtifacts := regexSplit "://" .Values.modelArtifacts.uri -1 -}}
 {{- $protocol := first $parsedArtifacts -}}
-{{- $path := last $parsedArtifacts -}}
-{{- if or (eq $protocol "oci") (eq $protocol "pvc") }}
+{{- if eq $protocol "oci" }}
     readOnly: true
+{{- else if hasPrefix "pvc" $protocol }}
+    readOnly: {{ .Values.modelArtifacts.readOnly }}
 {{- end -}}
 {{- end }}
 {{- end }}
@@ -412,6 +426,9 @@ context is a pdSpec
   {{- /* DEPRECATED; use extraConfig.scheulerName instead */ -}}
   {{- if or .pdSpec.schedulerName .Values.schedulerName }}
   schedulerName: {{ .pdSpec.schedulerName | default .Values.schedulerName }}
+  {{- end }}
+  {{- if and .pdSpec.priorityClassName (ne (.pdSpec.priorityClassName | lower) "none") }}
+  priorityClassName: {{ .pdSpec.priorityClassName }}
   {{- end }}
   {{- /* DEPRECATED; use extraConfig.securityContext instead */ -}}
   {{- with .pdSpec.podSecurityContext }}
@@ -476,7 +493,7 @@ context is a dict with helm root context plus:
   {{- /* Add accelerator-specific environment variables */}}
   {{- $acceleratorEnv := include "llm-d-modelservice.acceleratorEnv" . }}
   {{- if $acceleratorEnv }}{{ $acceleratorEnv | nindent 2 }}{{- end }}
-  {{- /* Add tracing environment variables from global config */}}
+  {{- /* Add tracing environment variables */}}
   {{- (include "llm-d-modelservice.tracingEnv" .) | nindent 2 }}
   {{- with .container.ports }}
   ports:
@@ -570,7 +587,7 @@ args:
   {{- end }}
   - --served-model-name
   - {{ .Values.modelArtifacts.name | quote }}
-{{- /* Add tracing args from global config */}}
+{{- /* Add tracing args */}}
 {{- (include "llm-d-modelservice.vllmTracingArgs" .) | nindent 2 }}
 {{- with .container.args }}
   {{ toYaml . | nindent 2 }}
@@ -600,7 +617,7 @@ args:
   {{- end }}
   - --served-model-name
   - {{ .Values.modelArtifacts.name | quote }}
-{{- /* Add tracing args from global config */}}
+{{- /* Add tracing args */}}
 {{- (include "llm-d-modelservice.vllmTracingArgs" .) | nindent 2 }}
 {{- with .container.args }}
   {{ toYaml . | nindent 2 }}
@@ -687,40 +704,40 @@ context is a dict with helm root context plus:
 
 {{/*
 OpenTelemetry tracing environment variables for vLLM containers
-Requires: .Values.global.tracing, .role ("decode" or "prefill")
+Requires: .Values.tracing, .role ("decode" or "prefill")
 Returns: YAML list of environment variables if tracing is enabled, empty otherwise
 */}}
 {{- define "llm-d-modelservice.tracingEnv" -}}
-{{- if and .Values.global.tracing .Values.global.tracing.enabled }}
+{{- if and .Values.tracing .Values.tracing.enabled }}
 {{- $serviceName := "" }}
 {{- if eq .role "decode" }}
-  {{- $serviceName = .Values.global.tracing.serviceNames.vllmDecode }}
+  {{- $serviceName = .Values.tracing.serviceNames.vllmDecode }}
 {{- else if eq .role "prefill" }}
-  {{- $serviceName = .Values.global.tracing.serviceNames.vllmPrefill }}
+  {{- $serviceName = .Values.tracing.serviceNames.vllmPrefill }}
 {{- end }}
 - name: OTEL_SERVICE_NAME
   value: {{ $serviceName | quote }}
 - name: OTEL_EXPORTER_OTLP_ENDPOINT
-  value: {{ .Values.global.tracing.otlpEndpoint | quote }}
+  value: {{ .Values.tracing.otlpEndpoint | quote }}
 - name: OTEL_TRACES_EXPORTER
   value: "otlp"
 - name: OTEL_TRACES_SAMPLER
-  value: {{ .Values.global.tracing.sampling.sampler | quote }}
+  value: {{ .Values.tracing.sampling.sampler | quote }}
 - name: OTEL_TRACES_SAMPLER_ARG
-  value: {{ .Values.global.tracing.sampling.samplerArg | quote }}
+  value: {{ .Values.tracing.sampling.samplerArg | quote }}
 {{- end }}
 {{- end }} {{- /* define "llm-d-modelservice.tracingEnv" */}}
 
 {{/*
 vLLM tracing command-line arguments
-Requires: .Values.global.tracing
+Requires: .Values.tracing
 Returns: YAML list of vLLM args (--otlp-traces-endpoint, --collect-detailed-traces) if tracing is enabled
 */}}
 {{- define "llm-d-modelservice.vllmTracingArgs" -}}
-{{- if and .Values.global.tracing .Values.global.tracing.enabled }}
+{{- if and .Values.tracing .Values.tracing.enabled }}
 - --otlp-traces-endpoint
-- {{ .Values.global.tracing.otlpEndpoint | quote }}
+- {{ .Values.tracing.otlpEndpoint | quote }}
 - --collect-detailed-traces
-- {{ .Values.global.tracing.vllm.collectDetailedTraces | quote }}
+- {{ .Values.tracing.vllm.collectDetailedTraces | quote }}
 {{- end }}
 {{- end }} {{- /* define "llm-d-modelservice.vllmTracingArgs" */}}
