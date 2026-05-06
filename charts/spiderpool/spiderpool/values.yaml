@@ -122,7 +122,7 @@ spiderpool:
         ## @param rdma.rdmaSharedDevicePlugin.image.digest the image digest of rdma shared device plugin
         digest: ""
         ## @param rdma.rdmaSharedDevicePlugin.image.tag the image tag of rdma shared device plugin
-        tag: v1.5.1
+        tag: v1.5.3
         ## @param rdma.rdmaSharedDevicePlugin.image.imagePullSecrets the image imagePullSecrets of rdma shared device plugin
         imagePullSecrets: []
         # - name: "image-pull-secret"
@@ -287,7 +287,7 @@ spiderpool:
       ## @param spiderpoolAgent.image.digest the image digest of spiderpoolAgent, which takes preference over tag
       digest: ""
       ## @param spiderpoolAgent.image.tag the image tag of spiderpoolAgent, overrides the image tag whose default is the chart appVersion.
-      tag: v1.1.0
+      tag: v1.1.2
       ## @param spiderpoolAgent.image.imagePullSecrets the image imagePullSecrets of spiderpoolAgent
       imagePullSecrets: []
       # - name: "image-pull-secret"
@@ -430,7 +430,7 @@ spiderpool:
       ## @param spiderpoolController.image.digest the image digest of spiderpoolController, which takes preference over tag
       digest: ""
       ## @param spiderpoolController.image.tag the image tag of spiderpoolController, overrides the image tag whose default is the chart appVersion.
-      tag: v1.1.0
+      tag: v1.1.2
       ## @param spiderpoolController.image.imagePullSecrets the image imagePullSecrets of spiderpoolController
       imagePullSecrets: []
       # - name: "image-pull-secret"
@@ -646,7 +646,7 @@ spiderpool:
       ## @param spiderpoolInit.image.digest the image digest of spiderpoolInit, which takes preference over tag
       digest: ""
       ## @param spiderpoolInit.image.tag the image tag of spiderpoolInit, overrides the image tag whose default is the chart appVersion.
-      tag: v1.1.0
+      tag: v1.1.2
       ## @param spiderpoolInit.image.imagePullSecrets the image imagePullSecrets of spiderpoolInit
       imagePullSecrets: []
       # - name: "image-pull-secret"
