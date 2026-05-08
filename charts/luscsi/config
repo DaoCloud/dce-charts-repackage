@@ -1,0 +1,20 @@
+# 基础配置
+USE_OPENSOURCE_CHART=false
+DAOCLOUD_REPO_PROJECT=luscsi
+
+# 由于是自产项目，使用自定义构建脚本
+BUILD_SELF=./build.sh
+
+# 自动升级配置（改为none因为是内部项目）
+UPGRADE_METHOD=none
+
+# 可选：如果需要自动升级，取消下面注释，并设置审核人
+# UPGRADE_METHOD=pr
+# UPGRADE_REVIWER=your_github_account
+
+# 镜像相关
+NO_TRIVY=false
+
+# 可选：测试人员
+# TEST_ASSIGNER=test_user
+
