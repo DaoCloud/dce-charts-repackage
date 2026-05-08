@@ -1,0 +1,110 @@
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: luscsi-node
+  namespace: {{ .Release.Namespace }}
+{{ include "luscsi.labels" . | indent 2 }}
+    app: luscsi-node
+spec:
+  selector:
+    matchLabels:
+      app: luscsi-node
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: luscsi
+{{ include "luscsi.labels" . | indent 6 }}
+        app: luscsi-node
+    spec:
+      #hostNetwork: true # original nfs connection would be broken without hostNetwork setting
+      #dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: false
+      dnsPolicy: ClusterFirst
+      containers:
+        - name: node-driver-registrar
+          image: {{ .Values.global.k8sImageRegistry }}/{{ .Values.luscsiNode.nodeDriverRegistrar.image.repository }}:{{ .Values.luscsiNode.nodeDriverRegistrar.image.tag }}
+          resources:
+            {{- toYaml .Values.luscsiNode.nodeDriverRegistrar.resources | nindent 12 }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "rm -rf /registration/luscsi.luskits.io /registration/luscsi.luskits.io/csi.sock"]
+          args:
+            - --v=5
+            - --csi-address=/plugin/csi.sock
+            - --kubelet-registration-path={{ .Values.global.kubeletRootDir }}/plugins/luscsi.luskits.io/csi.sock
+          env:
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          imagePullPolicy: {{ .Values.luscsiNode.nodeDriverRegistrar.image.pullPolicy }}
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /plugin
+            - name: registration-dir
+              mountPath: /registration
+        - name: luscsi
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+            allowPrivilegeEscalation: true
+          image: {{ .Values.global.luscsiImageRegistry }}/{{ .Values.luscsiNode.luscsi.image.repository }}:{{ .Values.luscsiNode.luscsi.image.tag }}
+          resources:
+            {{- toYaml .Values.luscsiNode.luscsi.resources | nindent 12 }}
+          args :
+            - "-v=5"
+            - "--nodeid=$(NODE_ID)"
+            - "--endpoint=$(CSI_ENDPOINT)"
+          env:
+            - name: NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: CSI_ENDPOINT
+              value: unix://plugin/csi.sock
+          imagePullPolicy: {{ .Values.luscsiNode.luscsi.image.pullPolicy }}
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /plugin
+            - name: pods-mount-dir
+              mountPath: /var/lib/kubelet/pods
+              mountPropagation: "Bidirectional"
+            - mountPath: /sbin
+              name: host-sbin
+            - mountPath: /bin
+              name: host-bin
+            - mountPath: /lib
+              name: host-lib
+            - mountPath: /lib64
+              name: host-lib64
+      volumes:
+        - name: plugin-dir
+          hostPath:
+            path: {{ .Values.global.kubeletRootDir }}/plugins/luscsi.luskits.io
+            type: DirectoryOrCreate
+        - name: pods-mount-dir
+          hostPath:
+            path: {{ .Values.global.kubeletRootDir }}/pods
+            type: Directory
+        - hostPath:
+            path: {{ .Values.global.kubeletRootDir }}/plugins_registry
+            type: Directory
+          name: registration-dir
+        - hostPath:
+            path: /sbin
+            type: Directory
+          name: host-sbin
+        - hostPath:
+            path: /bin
+            type: Directory
+          name: host-bin
+        - hostPath:
+            path: /lib
+            type: Directory
+          name: host-lib
+        - hostPath:
+            path: /lib64
+            type: Directory
+          name: host-lib64

@@ -1,0 +1,5 @@
+- "{{ .global.k8sImageRegistry }}/{{ .csiController.provisioner.image.repository }}:{{ .csiController.provisioner.image.tag }}"
+- "{{ .global.k8sImageRegistry }}/{{ .csiController.resizer.image.repository }}:{{ .csiController.resizer.image.tag }}"
+- "{{ .global.k8sImageRegistry }}/{{ .luscsiNode.nodeDriverRegistrar.image.repository }}:{{ .luscsiNode.nodeDriverRegistrar.image.tag }}"
+- "{{ .global.luscsiImageRegistry }}/{{ .luscsiNode.luscsi.image.repository }}:{{ .luscsiNode.luscsi.image.tag }}"
+

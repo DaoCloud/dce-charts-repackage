@@ -1,0 +1,58 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: luscsi-csi-controller
+  namespace: {{ .Release.Namespace}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: luscsi-csi-controller
+  template:
+    metadata:
+      labels:
+        app: luscsi-csi-controller
+    spec:
+      affinity:
+        {{- toYaml .Values.csiController.affinity | nindent 8 }}
+      serviceAccountName:  {{ .Values.csiController.serviceAccount.name}}
+      containers:
+        - name: provisioner
+          resources:
+            {{- toYaml .Values.csiController.provisioner.resources | nindent 12 }}
+          image: {{ .Values.global.k8sImageRegistry}}/{{ .Values.csiController.provisioner.image.repository}}:{{ .Values.csiController.provisioner.image.tag}}
+          imagePullPolicy: "IfNotPresent"
+          args:
+            - "--v=5"
+            - "--csi-address=$(CSI_ADDRESS)"
+            - "--leader-election=true"
+            - "--feature-gates=Topology=true"
+            - "--strict-topology"
+            - "--extra-create-metadata=true"
+          env:
+            - name: CSI_ADDRESS
+              value: /csi/csi.sock
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+        - name: csi-resizer
+          resources:
+            {{- toYaml .Values.csiController.resizer.resources | nindent 12 }}
+          image:  {{ .Values.global.k8sImageRegistry}}/{{ .Values.csiController.resizer.image.repository}}:{{ .Values.csiController.resizer.image.tag}}
+          args:
+            - "-csi-address=$(CSI_ADDRESS)"
+            - "-v=2"
+            - "-leader-election"
+            - "--leader-election-namespace=kube-system"
+            - '-handle-volume-inuse-error=false'
+          env:
+            - name: CSI_ADDRESS
+              value: /csi/csi.sock
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+      volumes:
+        - name: socket-dir
+          hostPath:
+            path: {{ .Values.global.kubeletRootDir}}/plugins/luscsi.luskits.io
+            type: DirectoryOrCreate

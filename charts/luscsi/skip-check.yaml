@@ -1,0 +1,11 @@
+# LuCSI CI 检查例外配置
+# 如果parents chart中定义了子chart中不存在的values，
+# 可以在此文件中列出例外，让CI忽略这些检查
+
+skipValues:
+  # 示例：如果有自定义的values不在子chart中，可以添加到这里
+  # - customField1
+  # - customField2
+
+# 目前luscsi没有特殊的例外需求
+
