@@ -363,7 +363,8 @@ devicePlugin:
   libPath: /usr/local/vgpu
   podAnnotations: {}
   nvidiaNodeSelector:
-    gpu: "on"
+    nvidia.com/gpu.deploy.container-toolkit: "true"
+    nvidia.com/vgpu.deploy.device-plugin: "true"
   tolerations: []
   # The updateStrategy for DevicePlugin DaemonSet.
   # If you want to update the DaemonSet by manual, set type as "OnDelete".
@@ -390,9 +391,6 @@ devicePlugin:
       requests:
         cpu: 100m
         memory: 128Mi
-  nvidianodeSelector:
-    nvidia.com/gpu.deploy.container-toolkit: "true"
-    nvidia.com/vgpu.deploy.device-plugin: "true"
   hygonImageRepository: 4pdosc/vdcu-device-plugin
   hygonImageTag: v1.0
 #    limits:
