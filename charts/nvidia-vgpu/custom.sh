@@ -114,13 +114,13 @@ if [ $os == "Darwin" ];then
 elif [ $os == "Linux" ];then
     sed -i "s/^version: .*$/version: ${CUSTOM_VERSION}/g" Chart.yaml
 fi
-# update nvidianodeSelector values
+# update nvidiaNodeSelector values
 yq -i '
-    .hami.devicePlugin.nvidianodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true", "nvidia.com/vgpu.deploy.device-plugin": "true"} |
+    .hami.devicePlugin.nvidiaNodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true", "nvidia.com/vgpu.deploy.device-plugin": "true"} |
     .hami.scheduler.nodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true"}
 ' values.yaml
 yq -i '
-    .devicePlugin.nvidianodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true", "nvidia.com/vgpu.deploy.device-plugin": "true"} |
+    .devicePlugin.nvidiaNodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true", "nvidia.com/vgpu.deploy.device-plugin": "true"} |
     .scheduler.nodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true"}
 ' charts/hami/values.yaml
 

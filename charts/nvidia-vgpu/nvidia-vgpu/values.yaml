@@ -365,7 +365,8 @@ hami:
     libPath: /usr/local/vgpu
     podAnnotations: {}
     nvidiaNodeSelector:
-      gpu: "on"
+      nvidia.com/gpu.deploy.container-toolkit: "true"
+      nvidia.com/vgpu.deploy.device-plugin: "true"
     tolerations: []
     # The updateStrategy for DevicePlugin DaemonSet.
     # If you want to update the DaemonSet by manual, set type as "OnDelete".
@@ -385,9 +386,6 @@ hami:
     # If you do want to specify resources, uncomment the following lines, adjust them as necessary.
     # and remove the curly braces after 'resources:'.
 
-    nvidianodeSelector:
-      nvidia.com/gpu.deploy.container-toolkit: "true"
-      nvidia.com/vgpu.deploy.device-plugin: "true"
     hygonImageRepository: 4pdosc/vdcu-device-plugin
     hygonImageTag: v1.0
     vgpuMonitor:
