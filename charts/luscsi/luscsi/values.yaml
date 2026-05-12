@@ -1,104 +1,105 @@
-# global config
-global:
-  # k8sImageRegistry is used to control which image registry the CSIController
-  # images, i.e. provisioner,attacher,registrar,resizer is pulled from
-  # DaoCloud镜像源 (registry.k8s.io -> k8s.m.daocloud.io)
-  k8sImageRegistry: "k8s.m.daocloud.io"
-  # luscsiImageRegistry is used to control which image registry the luscsi
-  # DaoCloud 镜像源 (ghcr.io -> ghcr.m.daocloud.io)
-  luscsiImageRegistry: "ghcr.m.daocloud.io"
-  # kubeletRootDir is used to inform Hwameistor Kubelet plugin directory
-  kubeletRootDir: "/var/lib/kubelet"
+luscsi:
+  # global config
+  global:
+    # k8sImageRegistry is used to control which image registry the CSIController
+    # images, i.e. provisioner,attacher,registrar,resizer is pulled from
+    # DaoCloud镜像源 (registry.k8s.io -> k8s.m.daocloud.io)
+    k8sImageRegistry: "k8s.m.daocloud.io"
+    # luscsiImageRegistry is used to control which image registry the luscsi
+    # DaoCloud 镜像源 (ghcr.io -> ghcr.m.daocloud.io)
+    luscsiImageRegistry: "ghcr.m.daocloud.io"
+    # kubeletRootDir is used to inform LuCSI Kubelet plugin directory
+    kubeletRootDir: "/var/lib/kubelet"
 
-csiController:
+  csiController:
+    serviceAccount:
+      name: "csi-luscsi-controller-sa"
+    nodeSelector: { }
+    tolerations: [ ]
+    affinity:
+      podAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: "app"
+                  operator: "In"
+                  values:
+                    - "luscsi-node"
+            topologyKey: "topology.luscsi.luskits.io/node"
+    provisioner:
+      image:
+        repository: "sig-storage/csi-provisioner"
+        pullPolicy: "IfNotPresent"
+        tag: "v2.0.3"
+      resources:
+        limits:
+          cpu: "200m"
+          memory: "256Mi"
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+    resizer:
+      image:
+        repository: "sig-storage/csi-resizer"
+        pullPolicy: "IfNotPresent"
+        tag: "v1.13.1"
+      resources:
+        limits:
+          cpu: "200m"
+          memory: "256Mi"
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+
+  luscsiNode:
+    serviceAccount:
+      name: "csi-luscsi-node-sa"
+    nodeDriverRegistrar:
+      image:
+        repository: "sig-storage/csi-node-driver-registrar"
+        pullPolicy: "IfNotPresent"
+        tag: "v2.0.1"
+      resources:
+        limits:
+          cpu: "100m"
+          memory: "128Mi"
+        requests:
+          cpu: "50m"
+          memory: "64Mi"
+    luscsi:
+      image:
+        repository: "luskits/luscsi"
+        pullPolicy: "Always"
+        # Overrides the image tag whose default is the chart appVersion.
+        tag: "v0.2.0"
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+        requests:
+          cpu: "250m"
+          memory: "256Mi"
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
   serviceAccount:
-    name: "csi-luscsi-controller-sa"
-  nodeSelector: { }
-  tolerations: [ ]
-  affinity:
-    podAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-              - key: "app"
-                operator: "In"
-                values:
-                  - "luscsi-node"
-          topologyKey: "topology.luscsi.luskits.io/node"
-  provisioner:
-    image:
-      repository: "sig-storage/csi-provisioner"
-      pullPolicy: "IfNotPresent"
-      tag: "v2.0.3"
-    resources:
-      limits:
-        cpu: "200m"
-        memory: "256Mi"
-      requests:
-        cpu: "100m"
-        memory: "128Mi"
-  resizer:
-    image:
-      repository: "sig-storage/csi-resizer"
-      pullPolicy: "IfNotPresent"
-      tag: "v1.13.1"
-    resources:
-      limits:
-        cpu: "200m"
-        memory: "256Mi"
-      requests:
-        cpu: "100m"
-        memory: "128Mi"
+    # Specifies whether a service account should be created
+    create: true
+    # Automatically mount a ServiceAccount's API credentials?
+    automount: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: "luscsi"
 
-luscsiNode:
-  serviceAccount:
-    name: "csi-luscsi-node-sa"
-  nodeDriverRegistrar:
-    image:
-      repository: "sig-storage/csi-node-driver-registrar"
-      pullPolicy: "IfNotPresent"
-      tag: "v2.0.1"
-    resources:
-      limits:
-        cpu: "100m"
-        memory: "128Mi"
-      requests:
-        cpu: "50m"
-        memory: "64Mi"
-  luscsi:
-    image:
-      repository: "luskits/luscsi"
-      pullPolicy: "Always"
-      # Overrides the image tag whose default is the chart appVersion.
-      tag: "v0.2.0"
-    resources:
-      limits:
-        cpu: "500m"
-        memory: "512Mi"
-      requests:
-        cpu: "250m"
-        memory: "256Mi"
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: "luscsi"
-
-livenessProbe:
-  httpGet:
-    path: "/"
-    port: "http"
-readinessProbe:
-  httpGet:
-    path: "/"
-    port: "http"
+  livenessProbe:
+    httpGet:
+      path: "/"
+      port: "http"
+  readinessProbe:
+    httpGet:
+      path: "/"
+      port: "http"
 

@@ -33,11 +33,6 @@ if [ -f "${PROJECT_DIR}/appendValues.yaml" ]; then
     cat "${PROJECT_DIR}/appendValues.yaml" >> "$OUTPUT_DIR/values.yaml"
 fi
 
-# 执行custom.sh脚本（如果存在）
-if [ -f "${PROJECT_DIR}/custom.sh" ]; then
-    echo "Executing custom.sh..."
-    bash "${PROJECT_DIR}/custom.sh" "$OUTPUT_DIR"
-fi
 
 echo "$CHART_NAME chart build completed successfully!"
 

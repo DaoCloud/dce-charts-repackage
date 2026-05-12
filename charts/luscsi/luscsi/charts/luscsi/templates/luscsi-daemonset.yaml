@@ -23,8 +23,6 @@ spec:
       containers:
         - name: node-driver-registrar
           image: {{ .Values.global.k8sImageRegistry }}/{{ .Values.luscsiNode.nodeDriverRegistrar.image.repository }}:{{ .Values.luscsiNode.nodeDriverRegistrar.image.tag }}
-          resources:
-            {{- toYaml .Values.luscsiNode.nodeDriverRegistrar.resources | nindent 12 }}
           lifecycle:
             preStop:
               exec:
@@ -51,8 +49,6 @@ spec:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
           image: {{ .Values.global.luscsiImageRegistry }}/{{ .Values.luscsiNode.luscsi.image.repository }}:{{ .Values.luscsiNode.luscsi.image.tag }}
-          resources:
-            {{- toYaml .Values.luscsiNode.luscsi.resources | nindent 12 }}
           args :
             - "-v=5"
             - "--nodeid=$(NODE_ID)"
