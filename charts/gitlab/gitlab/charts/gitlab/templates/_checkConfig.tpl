@@ -64,7 +64,9 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{/* _checkConfig_object_storage.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.consolidatedConfig" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.typeSpecificConfig" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.objectStorage.ciSecureFiles" .) -}}
+
+{{/* _checkConfig_openbao.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.openbao.database" .) -}}
 
 {{/* _checkConfig_postgresql.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.postgresql.deprecatedVersion" .) -}}
@@ -75,12 +77,15 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.sentry.dsn" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.notifications" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.database" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.registry.database.loadBalancing" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.registry.database.metrics" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.redis.cache" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.registry.redis.rateLimiting" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.registry.redis.loadBalancing" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.tls" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.registry.debug.tls" .) -}}
 
 {{/* _checkConfig_sidekiq.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.queues.mixed" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.queues" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.timeout" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.sidekiq.routingRules" .) -}}
@@ -92,11 +97,15 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 
 {{/* _checkConfig_webservice.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.appConfig.maxRequestDurationSeconds" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.appConfig.relativeUrlRoot" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.webservice.gracePeriod" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.webservice.loadBalancer" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.webservice.gatewayApi.ruleSyntax" .) -}}
 
 {{/* _checkConfig_workhorse.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.workhorse.exporter.tls.enabled" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.redis.sentinel.ssl" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.redis.tls.certificates" .) -}}
 
 {{/* _checkConfig_gitlab_shell.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.gitlabShell.proxyPolicy" .) -}}
@@ -104,6 +113,16 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 
 {{/* _checkConfig_omniauth.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.omniauth.providerFormat" .) -}}
+
+{{/* _checkConfig_iamAuth.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.http.host" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.http.port" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.grpc.host" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.grpc.port" .) -}}
+
+{{/* _checkConfig_kas.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.kas.autoflowTemporalNamespace" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.kas.autoflowTemporalWorkerMtls" .) -}}
 
 {{/* other checks */}}
 {{- $messages = append $messages (include "gitlab.checkConfig.multipleRedis" .) -}}
@@ -115,6 +134,8 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.smtp.tls_kind" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.globalServiceAccount" .) -}}
 {{- $messages = append $messages (include "gitlab.duoAuth.checkConfig" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.prometheus" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.gatewayApi.envoy.global" .) -}}
 
 {{- /* prepare output */}}
 {{- $messages = without $messages "" -}}

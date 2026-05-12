@@ -13,6 +13,10 @@ data:
     mkdir -p /${secret_dir}/ssh
     cp -v -r -L /${config_dir}/ssh_host_* /${secret_dir}/ssh/
     chmod 0400 /${secret_dir}/ssh/ssh_host_*
+    {{- if and .Values.config.trustedUserCAKeys.secret .Values.config.trustedUserCAKeys.keys }}
+    mkdir -p /${secret_dir}/ssh/trusted-ca-keys
+    cp -v -r -L /${config_dir}/ssh/trusted-ca-keys/. /${secret_dir}/ssh/trusted-ca-keys/
+    {{- end }}
   config.yml.tpl: |
     # GitLab user. git by default
     user: git
@@ -75,6 +79,9 @@ data:
         {{- .Values.config.macs | toYaml | nindent 8 }}
       # The server disconnects after this time if the user has not successfully logged in
       login_grace_time: {{ .Values.config.loginGraceTime }}
+      # Available public key algorithms
+      public_key_algorithms:
+        {{- .Values.config.publicKeyAlgorithms | toYaml | nindent 8 }}
       # SSH host key files.
       # - Walking {% env.Getenv "KEYS_DIRECTORY" "/etc/ssh" %} for keys.
       host_key_files:
@@ -87,13 +94,26 @@ data:
       gssapi:
         # Enable the gssapi-with-mic authentication method. Defaults to false.
         enabled: {{ .Values.config.gssapi.enabled }}
-        # Library path for gssapi shared library - defaults to libgssapi_krb5.so.2  
+        # Library path for gssapi shared library - defaults to libgssapi_krb5.so.2
         libpath: {{ .Values.config.gssapi.libpath }}
         # Keytab path. Defaults to "", system default (usually /etc/krb5.keytab).
         keytab: "/etc/krb5.keytab"
         # The Kerberos service name to be used by sshd. Defaults to "", accepts any service name in keytab file.
         service_principal_name: {{ .Values.config.gssapi.servicePrincipalName }}
+      {{- if and .Values.config.trustedUserCAKeys.secret .Values.config.trustedUserCAKeys.keys }}
+      # Trusted user CA keys for instance-level SSH certificate authentication.
+      # Certificates signed by these CAs are trusted, with KeyId used as the GitLab username.
+      trusted_user_ca_keys:
+        {{- range .Values.config.trustedUserCAKeys.keys }}
+        - /etc/gitlab-secrets/ssh/trusted-ca-keys/{{ . }}
+        {{- end }}
+      {{- end }}
     {{- end }}
+    lfs:
+      pure_ssh_protocol: {{ .Values.config.lfs.pureSSHProtocol }}
+    pat:
+      enabled: {{ .Values.config.pat.enabled }}
+      allowed_scopes: {{- .Values.config.pat.allowedScopes | toYaml | nindent 8 }}
   krb5.conf: |
     {{- .Values.config.gssapi.krb5Config | nindent 4 }}
 # Leave this here - This line denotes end of block to the parser.

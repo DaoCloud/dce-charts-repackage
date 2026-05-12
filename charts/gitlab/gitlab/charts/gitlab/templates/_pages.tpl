@@ -19,3 +19,12 @@ Return the gitlab-pages secret
 {{- define "gitlab.pages.authSecret.key" -}}
 {{ default "password" $.Values.global.pages.authSecret.key }}
 {{- end -}}
+
+{{/*
+Returns the Pages hostname.
+If the hostname is set in `global.hosts.pages.name`, that will be returned,
+otherwise the hostname will be assembed using `pages` as the prefix, and the `gitlab.assembleHost` function.
+*/}}
+{{- define "gitlab.pages.hostname" -}}
+{{- coalesce $.Values.global.pages.host $.Values.global.hosts.pages.name (include "gitlab.assembleHost"  (dict "name" "pages" "context" . )) -}}
+{{- end -}}

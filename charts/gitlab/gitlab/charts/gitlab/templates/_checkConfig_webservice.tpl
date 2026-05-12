@@ -48,3 +48,28 @@ webservice:
 {{-   end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.webservice.loadBalancer */}}
+
+{{/*
+Ensure relativeUrlRoot is properly formatted using regex pattern validation
+*/}}
+{{- define "gitlab.checkConfig.appConfig.relativeUrlRoot" -}}
+{{- $relativeUrlRoot := $.Values.global.appConfig.relativeUrlRoot }}
+{{- if and $relativeUrlRoot (not (regexMatch "^(/[a-zA-Z0-9]+)+$" $relativeUrlRoot)) }}
+gitlab: relativeUrlRoot has unexpected pattern
+        The current value of global.appConfig.relativeUrlRoot ({{ $relativeUrlRoot }}) does not match the expected pattern.
+        Make sure to specify a subpath without any special characters. For example: /gitlab
+{{- end }}
+{{- end }}
+{{/* END gitlab.checkConfig.appConfig.relativeUrlRoot */}}
+
+{{- define "gitlab.checkConfig.webservice.gatewayApi.ruleSyntax" -}}
+{{-   if and .Values.global.gatewayApi.enabled .Values.gitlab.webservice.enabled -}}
+{{-     range $name, $deployment := .Values.gitlab.webservice.deployments -}}
+{{-       if hasKey $deployment.gatewayRoute "rule" }}
+webservice:
+  Deployment {{ $name }} uses deprecated rule syntax. Please migrate to rules as documented
+  in https://docs.gitlab.com/charts/charts/gitlab/webservice/#gateway-api.
+{{-       end -}}
+{{-     end -}}
+{{-   end -}}
+{{- end }}

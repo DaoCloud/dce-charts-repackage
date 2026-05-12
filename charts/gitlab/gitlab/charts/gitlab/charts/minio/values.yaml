@@ -7,9 +7,15 @@ imageTag: "RELEASE.2017-12-28T01-21-00Z"
 # pullSecrets: []
 
 minioMc:
-  image: minio/mc
+  image: "minio/mc"
   tag: "RELEASE.2018-07-13T00-53-22Z"
   registry: docker.m.daocloud.io
+gatewayRoute:
+  enabled: null
+  sectionName: "minio-web"
+  gatewayName: ""
+  gatewayNamespace: ""
+  annotations: {}
 ingress:
   apiVersion:
   enabled:
@@ -57,6 +63,11 @@ init:
   resources:
     requests:
       cpu: 50m
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    capabilities:
+      drop: ["ALL"]
 ## Set default Minio config file path, volume mount path and
 ## number of nodes (only used for Minio distributed mode)
 ## Distributed Minio ref: https://docs.minio.io/docs/distributed-minio-quickstart-guide
@@ -74,6 +85,8 @@ replicas: 4
 ##
 persistence:
   enabled: true
+  # Keep the PVC even after uninstalling in chart.
+  keep: true
   ## minio data Persistent Volume Storage Class
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -238,8 +251,30 @@ securityContext:
   runAsUser: 1000
   fsGroup: 1000
   # fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: "RuntimeDefault"
+containerSecurityContext:
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  capabilities:
+    drop: ["ALL"]
 deployment:
   strategy:
     type: Recreate
     rollingUpdate: null
+serviceAccount: {}
+## Used for local override of global ServiceAccount token mounting
+# automountServiceAccountToken: false
+
+## Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in.
+## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+topologySpreadConstraints: []
+# - labelSelector:
+#     matchLabels:
+#       app: name
+#     maxSkew: 1
+#     topologyKey: topology.kubernetes.io/zone
+#     whenUnsatisfiable: DoNotSchedule
+
 registry: docker.m.daocloud.io

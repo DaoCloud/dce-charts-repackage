@@ -17,8 +17,7 @@ spec:
       - {{ $.Release.Namespace }}
   selector:
     matchLabels:
-      app: {{ template "name" . }}
-      release: {{ .Release.Name }}
+      {{- include "kas.podSelectorLabels" . | nindent 6 }}
   endpoints:
     - port: http-metrics
       path: {{ .Values.metrics.path }}

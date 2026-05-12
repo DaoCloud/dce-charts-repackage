@@ -60,10 +60,11 @@ Example object -
 {{-   $globalBlank := fromYaml (include "database.datamodel.blank" $global) -}}
 {{-   $_ := set $global "main" (deepCopy (get $.Values.global.psql "main" | default $globalBlank)) -}}
 {{-   $_ := set $global "ci" (deepCopy (get $.Values.global.psql "ci" | default $globalBlank)) -}}
-{{-   $local  := mergeOverwrite (deepCopy $.Values.psql) (deepCopy (get $.Values.psql "main") | default (dict)) -}}
+{{-   $psql := $.Values.psql | default dict -}}
+{{-   $local  := mergeOverwrite (deepCopy $psql) (deepCopy (get $psql "main") | default (dict)) -}}
 {{-   $localBlank := fromYaml (include "database.datamodel.blank" $local) -}}
-{{-   $_ := set $local "main" (deepCopy (get $.Values.psql "main" | default $localBlank))  -}}
-{{-   $_ := set $local "ci" (deepCopy (get $.Values.psql "ci" | default $localBlank))  -}}
+{{-   $_ := set $local "main" (deepCopy (get $psql "main" | default $localBlank))  -}}
+{{-   $_ := set $local "ci" (deepCopy (get $psql "ci" | default $localBlank))  -}}
 {{-   range $decomposedDatabase := $global.knownDecompositions -}}
 {{-     if or (hasKey $global $decomposedDatabase) (hasKey $local $decomposedDatabase) -}}
 {{-       $globalSchema := mergeOverwrite (deepCopy $globalBlank) (get $global $decomposedDatabase | default (dict)) -}}

@@ -1,0 +1,27 @@
+{{- if and .Values.global.appConfig.smartcard.enabled .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy }}
+{{/*
+ClientTrafficPolicy to handle smartcard traffic with Envoy Gateway by handling mutual
+TLS and passing the client certificate to the backend.
+*/}}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  targetRefs:
+  {{- $ref := (include "webservice.gatewayApi.gatewayRef.smartcard" . | fromYamlArray) }}
+  {{- $_ := unset (first $ref) "namespace" }}
+  {{- $ref | toYaml | nindent 2 }}
+  tls:
+    clientValidation:
+      caCertificateRefs:
+      - kind: "Secret"
+        group: ""
+        name: {{ $.Values.global.appConfig.smartcard.CASecret | quote }}
+  headers:
+    xForwardedClientCert:
+      certDetailsToAdd:
+      - Cert
+      mode: SanitizeSet
+{{- end }}

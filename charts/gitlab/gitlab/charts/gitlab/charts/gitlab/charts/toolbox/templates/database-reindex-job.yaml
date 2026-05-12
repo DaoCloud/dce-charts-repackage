@@ -1,0 +1,184 @@
+{{- if and .Values.enabled .Values.databaseReindex.cron.enabled }}
+{{- $imageCfg := dict "global" .Values.global.image "local" .Values.image -}}
+{{- $initImageCfg := include "gitlab.configure.config" .Values | fromYaml -}}
+{{- include "database.datamodel.prepare" . -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ template "fullname" . }}-db-reindex
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  concurrencyPolicy: {{ .Values.databaseReindex.cron.concurrencyPolicy }}
+  failedJobsHistoryLimit: {{ .Values.databaseReindex.cron.failedJobsHistoryLimit }}
+  schedule: {{ .Values.databaseReindex.cron.schedule | quote }}
+  startingDeadlineSeconds: {{ .Values.databaseReindex.cron.startingDeadlineSeconds }}
+  successfulJobsHistoryLimit: {{ .Values.databaseReindex.cron.successfulJobsHistoryLimit }}
+  suspend: {{ .Values.databaseReindex.cron.suspend }}
+  {{- if .Values.databaseReindex.cron.timeZone }}
+  timeZone: {{ .Values.databaseReindex.cron.timeZone | quote }}
+  {{- end }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.databaseReindex.cron.backoffLimit }}
+      {{- if .Values.databaseReindex.cron.activeDeadlineSeconds }}
+      activeDeadlineSeconds: {{ .Values.databaseReindex.cron.activeDeadlineSeconds }}
+      {{- end }}
+      {{- if .Values.databaseReindex.cron.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ .Values.databaseReindex.cron.ttlSecondsAfterFinished }}
+      {{- end }}
+      template:
+        metadata:
+          labels:
+            {{- include "gitlab.standardLabels" . | nindent 12 }}
+            {{- include "gitlab.commonLabels" . | nindent 12 }}
+            {{- include "gitlab.podLabels" . | nindent 12 }}
+          annotations:
+            checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+            cluster-autoscaler.kubernetes.io/safe-to-evict: {{ .Values.databaseReindex.cron.safeToEvict | quote }}
+          {{- range $key, $value := .Values.annotations }}
+            {{ $key }}: {{ $value | quote }}
+          {{- end }}
+        spec:
+          restartPolicy: {{ .Values.databaseReindex.cron.restartPolicy }}
+          {{- $tolerations := default .Values.tolerations .Values.databaseReindex.cron.tolerations }}
+          {{- if $tolerations }}
+          tolerations:
+            {{- toYaml $tolerations | nindent 12 }}
+          {{- end }}
+          {{- include "gitlab.podSecurityContext" .Values.securityContext | nindent 10 }}
+          {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
+          serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
+          {{- end }}
+          {{- include "gitlab.priorityClassName" . | nindent 10 }}
+          initContainers:
+            {{- include "gitlab.extraInitContainers" . | nindent 12 }}
+            {{- include "gitlab.certificates.initContainer" . | nindent 12 }}
+            - name: configure
+              command: ['sh', '/config/configure']
+              image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.init.image) | quote }}
+              {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 14 }}
+              {{- include "gitlab.init.containerSecurityContext" . | indent 14 }}
+              env:
+               {{- include "gitlab.timeZone.env" $ | nindent 16 }}
+                {{- include "gitlab.extraEnv" $ | nindent 16 }}
+                {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 16 }}
+              volumeMounts:
+                {{- include "gitlab.extraVolumeMounts" . | nindent 16 }}
+                {{- include "gitlab.psql.ssl.volumeMount" . | nindent 16 }}
+                - name: toolbox-config
+                  mountPath: /config
+                  readOnly: true
+                - name: init-toolbox-secrets
+                  mountPath: /init-config
+                  readOnly: true
+                - name: toolbox-secrets
+                  mountPath: /init-secrets
+                  readOnly: false
+              resources:
+                {{- toYaml .Values.init.resources | nindent 16 }}
+          {{- include "gitlab.image.pullSecrets" $imageCfg | indent 10 }}
+          containers:
+            {{- include "gitlab.extraContainers" . | nindent 12 }}
+            - name: {{ .Chart.Name }}-db-reindex
+              args:
+                - /bin/bash
+                - -c
+                - /scripts/wait-for-deps /scripts/db-reindex
+              image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}{{ include "gitlab.image.tagSuffix" . }}"
+              {{- include "gitlab.image.pullPolicy" $imageCfg | indent 14 }}
+              {{- include "gitlab.containerSecurityContext" . | indent 14 }}
+              env:
+                - name: CONFIG_TEMPLATE_DIRECTORY
+                  value: '/var/opt/gitlab/templates'
+                - name: CONFIG_DIRECTORY
+                  value: '/srv/gitlab/config'
+                - name: BYPASS_SCHEMA_VERSION
+                  value: 'true'
+                {{- include "gitlab.timeZone.env" . | nindent 16 }}
+                {{- include "gitlab.extraEnv" $ | nindent 16 }}
+                {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 16 }}
+              volumeMounts:
+                {{- include "gitlab.extraVolumeMounts" . | nindent 16 }}
+                - name: toolbox-config
+                  mountPath: '/var/opt/gitlab/templates'
+                - name: toolbox-secrets
+                  mountPath: '/etc/gitlab'
+                  readOnly: true
+                - name: toolbox-secrets
+                  mountPath: /srv/gitlab/config/secrets.yml
+                  subPath: rails-secrets/secrets.yml
+                - name: toolbox-tmp
+                  mountPath: '/srv/gitlab/tmp'
+                  readOnly: false
+                {{- include "gitlab.certificates.volumeMount" . | nindent 16 }}
+              resources:
+                {{- toYaml .Values.databaseReindex.cron.resources | nindent 16 }}
+          volumes:
+            {{- include "gitlab.extraVolumes" . | nindent 12 }}
+            {{- include "gitlab.psql.ssl.volume" . | nindent 12 }}
+            - name: toolbox-config
+              projected:
+                sources:
+                  - configMap:
+                      name: {{ template "fullname" . }}
+            - name: toolbox-tmp
+              emptyDir: {}
+            - name: init-toolbox-secrets
+              projected:
+                defaultMode: 0400
+                sources:
+                - secret:
+                    name: {{ template "gitlab.rails-secrets.secret" . }}
+                    items:
+                      - key: secrets.yml
+                        path: rails-secrets/secrets.yml
+                - secret:
+                    name: {{ template "gitlab.gitlab-shell.authToken.secret" . }}
+                    items:
+                      - key: {{ template "gitlab.gitlab-shell.authToken.key" . }}
+                        path: shell/.gitlab_shell_secret
+                {{- if $.Values.global.clickhouse.enabled }}
+                  {{- include "gitlab.clickhouse.main.secrets" $ | nindent 16 }}
+                {{- end }}
+                {{- include "gitlab.gitaly.clientSecrets" . | nindent 16 }}
+                {{- include "gitlab.redis.secrets" (dict "globalContext" $) | nindent 16 }}
+                {{- include "gitlab.redisSentinel.secret" $ | nindent 16 }}
+                {{- range $.Values.local.psql }}
+                {{- include "gitlab.psql.secret" . | nindent 16 }}
+                {{- end }}
+                - secret:
+                    name: {{ template "gitlab.registry.certificate.secret" . }}
+                    items:
+                      - key: registry-auth.key
+                        path: registry/gitlab-registry.key
+                {{- include "gitlab.registry.notificationSecret.mount" $ | nindent 16 -}}
+                {{- include "gitlab.kas.mountSecrets" $ | nindent 16 }}
+                {{- include "gitlab.pages.mountSecrets" $ | nindent 16 }}
+                {{- include "gitlab.minio.mountSecrets" $ | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store) | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "artifacts" "config" $.Values.global.appConfig.artifacts) | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "lfs" "config" $.Values.global.appConfig.lfs) | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "uploads" "config" $.Values.global.appConfig.uploads) | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "packages" "config" $.Values.global.appConfig.packages) | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "ci_secure_files" "config" $.Values.global.appConfig.ciSecureFiles) | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 16 }}
+                {{- include "gitlab.appConfig.ldap.servers.mountSecrets" $ | nindent 16 }}
+                {{- include "gitlab.appConfig.omniauth.mountSecrets" $ | nindent 16 }}
+                {{- include "gitlab.appConfig.microsoftGraphMailer.mountSecrets" $ | nindent 16 }}
+            - name: toolbox-secrets
+              emptyDir:
+                medium: "Memory"
+            {{- include "gitlab.certificates.volumes" . | nindent 12 }}
+          {{- if .Values.databaseReindex.cron.nodeSelector }}
+          nodeSelector:
+            {{- toYaml .Values.databaseReindex.cron.nodeSelector | nindent 12 }}
+          {{- else }}
+          {{-   include "gitlab.nodeSelector" . | nindent 10 }}
+          {{- end }}
+{{- end }}

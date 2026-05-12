@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openbao.fullname" . }}-config
+  labels:
+    {{- include "openbao.labels" . | nindent 4 }}
+data:
+{{- with .Values.config }}
+  config.json: |
+    {
+      "ui": {{ .ui }},
+      "api_addr": {{ printf "http://[::]:%d" (.apiPort | int) | quote }},
+      {{- include "openbao.logging.config" $ | nindent 6 }},
+      "storage": {{- include "openbao.storage.postgresql" $ | nindent  6 }},
+      {{- include "openbao.serviceRegistration.config" $ | nindent 6 }},
+      "listener": {{- include "openbao.listener.config" $ | nindent 6 }},
+      "telemetry": {{- include "openbao.telemetry.config" $ | nindent 6 }},
+      "seal": {{- include "openbao.seal.config" $ | nindent 6 }},
+      "initialize": {{- include "openbao.initialize.config" $ | nindent 6 }},
+      "audit": {{- include "openbao.audit.config" $ | nindent 6 }},
+      "cache_size": {{ $.Values.config.cacheSize }}
+    }
+{{- end }}
