@@ -1,0 +1,80 @@
+# global config
+global:
+  # k8sImageRegistry is used to control which image registry the CSIController
+  # images, i.e. provisioner,attacher,registrar,resizer is pulled from
+  # Users in China can change to these sites for option
+  # k8sImageRegistry: m.daocloud.io/registry.k8s.io
+  k8sImageRegistry: registry.k8s.io
+  # luscsiImageRegistry is used to control which image registry the luscsi
+  luscsiImageRegistry: ghcr.io
+  # kubeletRootDir is used to inform Hwameistor Kubelet plugin directory
+  kubeletRootDir: /var/lib/kubelet
+
+csiController:
+  serviceAccount:
+    name: csi-luscsi-controller-sa
+  nodeSelector: { }
+  tolerations: [ ]
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - luscsi-node
+          topologyKey: topology.luscsi.luskits.io/node
+  provisioner:
+    image:
+      repository: sig-storage/csi-provisioner
+      pullPolicy: IfNotPresent
+      tag: v2.0.3
+    resources: {}
+  resizer:
+    image:
+      repository: sig-storage/csi-resizer
+      pullPolicy: IfNotPresent
+      tag: v1.13.1
+    resources: {}
+
+luscsiNode:
+  serviceAccount:
+    name: csi-luscsi-node-sa
+  nodeDriverRegistrar:
+    image:
+      repository: sig-storage/csi-node-driver-registrar
+      pullPolicy: IfNotPresent
+      tag: v2.0.1
+    resources: {}
+  luscsi:
+    image:
+      repository: luskits/luscsi
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: v0.2.0
+    resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "luscsi"
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+

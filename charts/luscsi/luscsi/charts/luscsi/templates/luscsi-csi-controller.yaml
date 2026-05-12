@@ -36,8 +36,6 @@ spec:
             - name: socket-dir
               mountPath: /csi
         - name: csi-resizer
-          resources:
-            {{- toYaml .Values.csiController.resizer.resources | nindent 12 }}
           image:  {{ .Values.global.k8sImageRegistry}}/{{ .Values.csiController.resizer.image.repository}}:{{ .Values.csiController.resizer.image.tag}}
           args:
             - "-csi-address=$(CSI_ADDRESS)"

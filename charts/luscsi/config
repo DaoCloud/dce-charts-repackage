@@ -1,20 +1,19 @@
-# 基础配置
-USE_OPENSOURCE_CHART=false
-DAOCLOUD_REPO_PROJECT=luscsi
+export USE_OPENSOURCE_CHART=false
 
-# 由于是自产项目，使用自定义构建脚本
-BUILD_SELF=./build.sh
+# must
+export REPO_URL=https://luskits.github.io/luscsi/
+export REPO_NAME=luscsi
+export CHART_NAME=luscsi
+export VERSION=v0.2.0
 
-# 自动升级配置（改为none因为是内部项目）
-UPGRADE_METHOD=none
 
-# 可选：如果需要自动升级，取消下面注释，并设置审核人
-# UPGRADE_METHOD=pr
-# UPGRADE_REVIWER=your_github_account
+# pr issue
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=mingming.zhou
+export TEST_ASSIGNER=FloatXD
 
-# 镜像相关
-NO_TRIVY=false
 
-# 可选：测试人员
-# TEST_ASSIGNER=test_user
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon
 
+export NO_TRIVY=true
