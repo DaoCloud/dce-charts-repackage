@@ -1,3 +1,4 @@
+{{- define "inference-extension.service" -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -16,6 +17,8 @@ spec:
       protocol: TCP
       port: {{ .Values.inferenceExtension.metricsPort | default 9090 }}
     {{- with .Values.inferenceExtension.extraServicePorts }}
-    {{- toYaml . | nindent 4 }}
+    {{- . | toYaml | nindent 4 }}
     {{- end }}
   type: ClusterIP
+---
+{{- end }}
