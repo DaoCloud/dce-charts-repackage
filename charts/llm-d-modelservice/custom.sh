@@ -119,6 +119,19 @@ sed "${SED_INPLACE[@]}" \
   -e 's/image: {{ required "\(.*\)" \.proxy\.image }}/image: {{ required "\1" (include "llm-d-modelservice.imageAddress" .proxy.image) }}/g' \
   charts/llm-d-modelservice/templates/_helpers.tpl
 
+# fix https://github.com/llm-d-incubation/llm-d-modelservice/pull/255
+tmp_helpers_tpl=$(mktemp)
+awk 'prev == "  env:" && $0 == "{{- if and .Values.tracing .Values.tracing.enabled }}" { print; print prev; prev = ""; next } prev { print prev } { prev = $0 } END { if (prev) print prev }' \
+  charts/llm-d-modelservice/templates/_helpers.tpl > "$tmp_helpers_tpl"
+mv "$tmp_helpers_tpl" charts/llm-d-modelservice/templates/_helpers.tpl
+
+sed "${SED_INPLACE[@]}" \
+  -e '/{{- (include "llm-d-modelservice.resources"/i\
+  {{- with .container.lifecycle }}\
+  lifecycle:\
+    {{- toYaml . | nindent 4 }}\
+  {{- end }}' \
+  charts/llm-d-modelservice/templates/_helpers.tpl
 
 rm -rf charts/llm-d-modelservice/values.schema.json charts/llm-d-modelservice/values.schema.tmpl.json
 

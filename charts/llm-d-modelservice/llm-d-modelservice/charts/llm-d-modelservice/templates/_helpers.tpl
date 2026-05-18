@@ -4,7 +4,6 @@ Expand the name of the chart.
 {{- define "llm-d-modelservice.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
-
 {{/*
 Create a default fully qualified app name.
 We truncate at 55 chars because some Kubernetes name fields are limited to 63 (by the DNS naming spec).
@@ -23,7 +22,6 @@ We use 55 because we add up to 8 characters (`-prefill`)
 {{- end }}
 {{- end }}
 {{- end }}
-
 {{/*
 Create chart name and version as used by the chart label.
 Truncated to 63 characrters because Kubernetes label values are limited to this
@@ -31,7 +29,6 @@ Truncated to 63 characrters because Kubernetes label values are limited to this
 {{- define "llm-d-modelservice.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
-
 {{/*
 Create common labels for the resources managed by this chart.
 */}}
@@ -42,7 +39,6 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
-
 {{/* Create sanitized model name (DNS compliant) */}}
 {{- define "llm-d-modelservice.sanitizedModelName" -}}
   {{- $name := .Release.Name | lower | trim -}}
@@ -50,31 +46,25 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
   {{- $name = regexReplaceAll "^[\\-._]+" $name "" -}}
   {{- $name = regexReplaceAll "[\\-._]+$" $name "" -}}
   {{- $name = regexReplaceAll "\\." $name "-" -}}
-
   {{- if gt (len $name) 63 -}}
     {{- $name = substr 0 63 $name -}}
   {{- end -}}
-
 {{- $name -}}
 {{- end }}
-
 {{/* Create common shared by prefill and decode deployment/LWS */}}
 {{- define "llm-d-modelservice.pdlabels" -}}
 {{ .Values.modelArtifacts.labels | toYaml }}
 {{- end }}
-
 {{/* Create labels for the prefill deployment/LWS */}}
 {{- define "llm-d-modelservice.prefilllabels" -}}
 {{ include "llm-d-modelservice.pdlabels" . }}
 llm-d.ai/role: prefill
 {{- end }}
-
 {{/* Create labels for the decode deployment/LWS */}}
 {{- define "llm-d-modelservice.decodelabels" -}}
 {{ include "llm-d-modelservice.pdlabels" . }}
 llm-d.ai/role: decode
 {{- end }}
-
 {{/* Create node affinity from acceleratorTypes in Values */}}
 {{- define "llm-d-modelservice.acceleratorTypes" -}}
 {{- if .labelKey }}
@@ -125,6 +115,19 @@ affinity:
     {{- end }}
   image: {{ required "routing.proxy.image must be specified" (include "llm-d-modelservice.imageAddress" .proxy.image) }}
   imagePullPolicy: {{ default "Always" .proxy.imagePullPolicy }}
+{{- if and .Values.tracing .Values.tracing.enabled }}
+  env:
+    - name: OTEL_SERVICE_NAME
+      value: {{ .Values.tracing.serviceNames.routingProxy | quote }}
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: {{ .Values.tracing.otlpEndpoint | quote }}
+    - name: OTEL_TRACES_EXPORTER
+      value: "otlp"
+    - name: OTEL_TRACES_SAMPLER
+      value: {{ .Values.tracing.sampling.sampler | quote }}
+    - name: OTEL_TRACES_SAMPLER_ARG
+      value: {{ .Values.tracing.sampling.samplerArg | quote }}
+{{- end }}
   ports:
     - containerPort: {{ default 8000 .servicePort }}
   resources: {}
@@ -134,7 +137,6 @@ affinity:
     runAsNonRoot: true
 {{- end }}
 {{- end }}
-
 {{/* Desired tensor parallelism --
 - if tensor set, return it
 - else return 1
@@ -146,7 +148,6 @@ affinity:
 1
 {{- end -}}
 {{- end }}
-
 {{/*
 Desired data parallelism --
 - if data set, return it
@@ -165,7 +166,6 @@ Desired data parallelism --
 1
 {{- end -}}
 {{- end }}
-
 {{/*
 Desired data local parallelism --
 - if dataLocal set, return it
@@ -189,7 +189,6 @@ Desired data local parallelism --
 1
 {{- end -}}
 {{- end }}
-
 {{/*
 Desired number of workers --
 - if workers set, return it
@@ -210,14 +209,12 @@ Desired number of workers --
 1
 {{- end -}}
 {{- end }}
-
 {{/*
 Required number of GPU per worker -- dpl * tp
 */}}
 {{- define "llm-d-modelservice.numGpuPerWorker" -}}
 {{ mul  (include "llm-d-modelservice.dataLocalParallelism" .) (include "llm-d-modelservice.tensorParallelism" .) }}
 {{- end }}
-
 {{/*
 Port on which vllm container should listen.
 Context is helm root context plus key "role" ("decode" or "prefill")
@@ -229,7 +226,6 @@ Context is helm root context plus key "role" ("decode" or "prefill")
 {{- .Values.routing.proxy.targetPort }}
 {{- end }}
 {{- end }}
-
 {{/* Get accelerator resource name based on type */}}
 {{- define "llm-d-modelservice.acceleratorResource" -}}
 {{- $acceleratorType := include "llm-d-modelservice.acceleratorType" . -}}
@@ -244,7 +240,6 @@ Context is helm root context plus key "role" ("decode" or "prefill")
 nvidia.com/gpu
 {{- end -}}
 {{- end }}
-
 {{/* Get accelerator environment variables based on type */}}
 {{- define "llm-d-modelservice.acceleratorEnv" -}}
 {{- $acceleratorType := include "llm-d-modelservice.acceleratorType" . -}}
@@ -256,7 +251,6 @@ nvidia.com/gpu
 {{- end -}}
 {{- end -}}
 {{- end }}
-
 {{/* Check for accelerator resource mismatch and return warning message if any */}}
 {{- define "llm-d-modelservice.acceleratorWarning" -}}
 {{- $numGpus := int (include "llm-d-modelservice.numGpuPerWorker" .parallelism) -}}
@@ -270,7 +264,6 @@ nvidia.com/gpu
 {{- end }}
 {{- end }}
 {{- end }}
-
 {{/* P/D deployment container resources */}}
 {{- define "llm-d-modelservice.resources" -}}
 {{- $limits := dict }}
@@ -322,17 +315,14 @@ resources:
     {{- toYaml $containerClaims | nindent 4 }}
 {{- end }}
 {{- end }}
-
 {{/* prefill name */}}
 {{- define "llm-d-modelservice.prefillName" -}}
 {{ include "llm-d-modelservice.fullname" . }}-prefill
 {{- end }}
-
 {{/* decode name */}}
 {{- define "llm-d-modelservice.decodeName" -}}
 {{ include "llm-d-modelservice.fullname" . }}-decode
 {{- end }}
-
 {{/* P/D service account name */}}
 {{- define "llm-d-modelservice.pdServiceAccountName" -}}
 {{- if or .Values.serviceAccountOverride -}}
@@ -341,7 +331,6 @@ resources:
 {{ include "llm-d-modelservice.fullname" . }}
 {{- end -}}
 {{- end }}
-
 {{/*
 Volumes for PD containers based on model artifact prefix
 Context is .Values.modelArtifacts
@@ -361,7 +350,7 @@ Context is .Values.modelArtifacts
 - name: model-storage
   persistentVolumeClaim:
     claimName: {{ $claim }}
-    readOnly: true
+    readOnly: {{ .readOnly }}
 {{- else if eq $protocol "oci" }}
 - name: model-storage
   image:
@@ -369,7 +358,6 @@ Context is .Values.modelArtifacts
     pullPolicy: {{ default "Always" .imagePullPolicy }}
 {{- end }}
 {{- end }}
-
 {{/*
 VolumeMount for a PD container
 Supplies model-storage mount if mountModelVolume: true for the container
@@ -386,16 +374,16 @@ volumeMounts:
 {{- if .container.mountModelVolume }}
   - name: model-storage
     mountPath: {{ .Values.modelArtifacts.mountPath }}
-{{- /* enforce readOnly volumeMounts for OCI and PVCs */}}
+{{- /* OCI always readOnly; PVC variants use modelArtifacts.readOnly */}}
 {{- $parsedArtifacts := regexSplit "://" .Values.modelArtifacts.uri -1 -}}
 {{- $protocol := first $parsedArtifacts -}}
-{{- $path := last $parsedArtifacts -}}
-{{- if or (eq $protocol "oci") (eq $protocol "pvc") }}
+{{- if eq $protocol "oci" }}
     readOnly: true
+{{- else if hasPrefix "pvc" $protocol }}
+    readOnly: {{ .Values.modelArtifacts.readOnly }}
 {{- end -}}
 {{- end }}
 {{- end }}
-
 {{/*
 Pod elements of deployment/lws spec template
 context is a pdSpec
@@ -412,6 +400,9 @@ context is a pdSpec
   {{- /* DEPRECATED; use extraConfig.scheulerName instead */ -}}
   {{- if or .pdSpec.schedulerName .Values.schedulerName }}
   schedulerName: {{ .pdSpec.schedulerName | default .Values.schedulerName }}
+  {{- end }}
+  {{- if and .pdSpec.priorityClassName (ne (.pdSpec.priorityClassName | lower) "none") }}
+  priorityClassName: {{ .pdSpec.priorityClassName }}
   {{- end }}
   {{- /* DEPRECATED; use extraConfig.securityContext instead */ -}}
   {{- with .pdSpec.podSecurityContext }}
@@ -440,7 +431,6 @@ context is a pdSpec
   {{- /* Add resourceClaims for DRA (new and old API) */}}
   {{- include "llm-d-modelservice.podResourceClaims" . | nindent 2 }}
 {{- end }}
-
 {{/*
 Container elements of deployment/lws spec template
 context is a dict with helm root context plus:
@@ -476,7 +466,7 @@ context is a dict with helm root context plus:
   {{- /* Add accelerator-specific environment variables */}}
   {{- $acceleratorEnv := include "llm-d-modelservice.acceleratorEnv" . }}
   {{- if $acceleratorEnv }}{{ $acceleratorEnv | nindent 2 }}{{- end }}
-  {{- /* Add tracing environment variables from global config */}}
+  {{- /* Add tracing environment variables */}}
   {{- (include "llm-d-modelservice.tracingEnv" .) | nindent 2 }}
   {{- with .container.ports }}
   ports:
@@ -497,6 +487,10 @@ context is a dict with helm root context plus:
   startupProbe:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with .container.lifecycle }}
+  lifecycle:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- (include "llm-d-modelservice.resources" (dict "resources" .container.resources "parallelism" .parallelism "container" .container "Values" .Values "role" .role "pdSpec" .pdSpec)) | nindent 2 }}
   {{- include "llm-d-modelservice.mountModelVolumeVolumeMounts" (dict "container" .container "Values" .Values) | nindent 2 }}
   {{- /* DEPRECATED; use extraConfig.workingDir instead */ -}}
@@ -512,7 +506,6 @@ context is a dict with helm root context plus:
   tty: {{ . }}
   {{- end }}
 {{- end }} {{- /* define "llm-d-modelservice.container" */}}
-
 {{- define "llm-d-modelservice.argsByProtocol" -}}
 {{- $parsedArtifacts := regexSplit "://" .Values.modelArtifacts.uri -1 -}}
 {{- $protocol := first $parsedArtifacts -}}
@@ -545,7 +538,6 @@ context is a dict with helm root context plus:
 {{- fail "arguments for oci:// not implemented" }}
 {{- end }}
 {{- end }} {{- /* define "llm-d-modelservice.argsByProtocol" */}}
-
 {{- define "llm-d-modelservice.vllmServeModelCommand" -}}
 {{- /* override command and set model and --port arguments */}}
 command: ["vllm", "serve"]
@@ -570,13 +562,12 @@ args:
   {{- end }}
   - --served-model-name
   - {{ .Values.modelArtifacts.name | quote }}
-{{- /* Add tracing args from global config */}}
+{{- /* Add tracing args */}}
 {{- (include "llm-d-modelservice.vllmTracingArgs" .) | nindent 2 }}
 {{- with .container.args }}
   {{ toYaml . | nindent 2 }}
 {{- end }}
 {{- end }} {{- /* define "llm-d-modelservice.vllmServeModelCommand" */}}
-
 {{- define "llm-d-modelservice.imageDefaultModelCommand" -}}
 {{- /* no command needed, set --model and --port arguments */}}
 args:
@@ -600,13 +591,12 @@ args:
   {{- end }}
   - --served-model-name
   - {{ .Values.modelArtifacts.name | quote }}
-{{- /* Add tracing args from global config */}}
+{{- /* Add tracing args */}}
 {{- (include "llm-d-modelservice.vllmTracingArgs" .) | nindent 2 }}
 {{- with .container.args }}
   {{ toYaml . | nindent 2 }}
 {{- end }}
 {{- end }} {{- /* define "llm-d-modelservice.imageDefaultModelCommand" */}}
-
 {{- define "llm-d-modelservice.customModelCommand" -}}
 {{- /* use provided command and args (fail if no command) */}}
 {{- if not .container.command }}
@@ -622,7 +612,6 @@ args:
 {{- end }}
 {{- end }}
 {{- end }} {{- /* define "llm-d-modelservice.modelCommandCustom" */}}
-
 {{/*
 Container elements of deployment/lws spec template
 context is a dict with helm root context plus:
@@ -642,7 +631,6 @@ context is a dict with helm root context plus:
 {{- fail ".container.modelCommand is not as expected. Valid values are `vllmServe`, `imageDefault` and `custom`." }}
 {{- end }}
 {{- end }} {{- /* define "llm-d-modelservice.command" */}}
-
 {{- define "llm-d-modelservice.hfEnv" -}}
 {{- $parsedArtifacts := regexSplit "://" .Values.modelArtifacts.uri -1 -}}
 {{- $protocol := first $parsedArtifacts -}}
@@ -675,7 +663,6 @@ context is a dict with helm root context plus:
       key: HF_TOKEN
 {{- end }}
 {{- end }} {{- /* define "llm-d-modelservice.hfEnv" */}}
-
 {{- define "llm-d-modelservice.parallelismEnv" -}}
 - name: DP_SIZE
   value: {{ include "llm-d-modelservice.dataParallelism" .parallelism | quote }}
@@ -684,43 +671,41 @@ context is a dict with helm root context plus:
 - name: DP_SIZE_LOCAL
   value: {{ include "llm-d-modelservice.dataLocalParallelism" .parallelism | quote }}
 {{- end }} {{- /* define "llm-d-modelservice.parallelismEnv" */}}
-
 {{/*
 OpenTelemetry tracing environment variables for vLLM containers
-Requires: .Values.global.tracing, .role ("decode" or "prefill")
+Requires: .Values.tracing, .role ("decode" or "prefill")
 Returns: YAML list of environment variables if tracing is enabled, empty otherwise
 */}}
 {{- define "llm-d-modelservice.tracingEnv" -}}
-{{- if and .Values.global.tracing .Values.global.tracing.enabled }}
+{{- if and .Values.tracing .Values.tracing.enabled }}
 {{- $serviceName := "" }}
 {{- if eq .role "decode" }}
-  {{- $serviceName = .Values.global.tracing.serviceNames.vllmDecode }}
+  {{- $serviceName = .Values.tracing.serviceNames.vllmDecode }}
 {{- else if eq .role "prefill" }}
-  {{- $serviceName = .Values.global.tracing.serviceNames.vllmPrefill }}
+  {{- $serviceName = .Values.tracing.serviceNames.vllmPrefill }}
 {{- end }}
 - name: OTEL_SERVICE_NAME
   value: {{ $serviceName | quote }}
 - name: OTEL_EXPORTER_OTLP_ENDPOINT
-  value: {{ .Values.global.tracing.otlpEndpoint | quote }}
+  value: {{ .Values.tracing.otlpEndpoint | quote }}
 - name: OTEL_TRACES_EXPORTER
   value: "otlp"
 - name: OTEL_TRACES_SAMPLER
-  value: {{ .Values.global.tracing.sampling.sampler | quote }}
+  value: {{ .Values.tracing.sampling.sampler | quote }}
 - name: OTEL_TRACES_SAMPLER_ARG
-  value: {{ .Values.global.tracing.sampling.samplerArg | quote }}
+  value: {{ .Values.tracing.sampling.samplerArg | quote }}
 {{- end }}
 {{- end }} {{- /* define "llm-d-modelservice.tracingEnv" */}}
-
 {{/*
 vLLM tracing command-line arguments
-Requires: .Values.global.tracing
+Requires: .Values.tracing
 Returns: YAML list of vLLM args (--otlp-traces-endpoint, --collect-detailed-traces) if tracing is enabled
 */}}
 {{- define "llm-d-modelservice.vllmTracingArgs" -}}
-{{- if and .Values.global.tracing .Values.global.tracing.enabled }}
+{{- if and .Values.tracing .Values.tracing.enabled }}
 - --otlp-traces-endpoint
-- {{ .Values.global.tracing.otlpEndpoint | quote }}
+- {{ .Values.tracing.otlpEndpoint | quote }}
 - --collect-detailed-traces
-- {{ .Values.global.tracing.vllm.collectDetailedTraces | quote }}
+- {{ .Values.tracing.vllm.collectDetailedTraces | quote }}
 {{- end }}
 {{- end }} {{- /* define "llm-d-modelservice.vllmTracingArgs" */}}
