@@ -44,11 +44,13 @@ fi
 SIDECAR_NAMESPACE=inferencepool-sidecar-system
 SIDECAR_RELEASE=inferencepool-sidecar
 SIDECAR_IMAGE_NAME="llm-d-uds-tokenizer"
+SIDECAR_CONFIGMAP_NAME="sidecar-cm-name"
 
 helm install ${SIDECAR_RELEASE} chart-museum/inferencepool ${HELM_MUST_OPTION} \
   --set inferencepool.inferencePool.modelServers\.matchLabels.app=vllm-llama3-8b-instruct \
   --set inferencepool.inferenceExtension.sidecar.enabled=true \
   --set inferencepool.inferenceExtension.sidecar.name=${SIDECAR_IMAGE_NAME} \
+  --set inferencepool.inferenceExtension.sidecar.configMap.name=${SIDECAR_CONFIGMAP_NAME} \
   --namespace ${SIDECAR_NAMESPACE} --create-namespace
 
 if (($?==0)) ; then

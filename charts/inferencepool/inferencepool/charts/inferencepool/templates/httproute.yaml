@@ -8,10 +8,10 @@ spec:
   parentRefs:
   - group: gateway.networking.k8s.io
     kind: Gateway
-    name: {{ include "inferencepool.gateway.fullname" . }}
+    name: {{ include "gateway-api-inference-extension.gateway.fullname" . }}
   rules:
   - backendRefs:
-    - group: {{ default "inference.networking.k8s.io" (split "/" .Values.inferencePool.apiVersion)._0 }}
+    - group: inference.networking.k8s.io
       kind: InferencePool
       name: {{ .Release.Name }}
     matches:
@@ -24,6 +24,8 @@ spec:
           name: X-Gateway-Base-Model-Name
           value: {{ .Values.experimentalHttpRoute.baseModel }}
       {{- end }}
+    {{- if ne (lower .Values.provider.name) "gke" }}
     timeouts:
-      request: 300s
+      request: {{ .Values.experimentalHttpRoute.requestTimeout }}
+    {{- end }}
 {{- end }}
