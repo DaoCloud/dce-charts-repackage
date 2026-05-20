@@ -70,10 +70,14 @@ higress:
           # limits:
           #   cpu: 100m
           #   memory: 128Mi
-      # -- Default hub for Istio images.
-      # Releases are published to docker hub under 'istio' project.
-      # Dev builds from prow are on gcr.io
+      # -- Default hub (registry) for Higress images.
+      # For Higress deployments, images are pulled from: {hub}/higress/{image}
+      # For built-in plugins, images are pulled from: {hub}/{pluginNamespace}/{plugin-name}
+      # Change this to use a mirror registry closer to your deployment region for faster image pulls.
       hub: ""
+      # -- Namespace for built-in plugin images. Default is "plugins".
+      # Used by higress-console to configure plugin image path.
+      pluginNamespace: "plugins"
       # -- Specify image pull policy if default behavior isn't desired.
       # Default behavior: latest images will be Always else IfNotPresent.
       imagePullPolicy: ""
@@ -370,6 +374,9 @@ higress:
       # -- Number of Higress Gateway pods
       replicas: 2
       image: higress/gateway
+      # -- Specify image pull policy if default behavior isn't desired.
+      # Default behavior: latest images will be Always else IfNotPresent.
+      imagePullPolicy: ""
       # -- Use a `DaemonSet` or `Deployment`
       kind: Deployment
       # -- The number of successive failed probes before indicating readiness failure.
@@ -383,7 +390,7 @@ higress:
       # -- The readiness timeout seconds
       readinessTimeoutSeconds: 3
       hub: "" # Will use global.hub if not set
-      tag: "2.2.0"
+      tag: "2.2.1"
       # -- revision declares which revision this gateway is a part of
       revision: ""
       rbac:
@@ -485,7 +492,7 @@ higress:
       replicas: 1
       image: higress/higress
       hub: "" # Will use global.hub if not set
-      tag: "2.2.0"
+      tag: "2.2.1"
       env: {}
       labels: {}
       probe:
@@ -495,6 +502,9 @@ higress:
         initialDelaySeconds: 1
         periodSeconds: 3
         timeoutSeconds: 5
+      # -- Specify image pull policy if default behavior isn't desired.
+      # Default behavior: latest images will be Always else IfNotPresent.
+      imagePullPolicy: ""
       imagePullSecrets: []
       rbac:
         create: true
@@ -556,14 +566,8 @@ higress:
         email: ""
     ## -- Discovery Settings
     pilot:
-      autoscaleEnabled: false
-      autoscaleMin: 1
-      autoscaleMax: 5
-      replicaCount: 1
-      rollingMaxSurge: 100%
-      rollingMaxUnavailable: 25%
       hub: "" # Will use global.hub if not set
-      tag: "2.2.0"
+      tag: "2.2.1"
       # -- Can be a full hub/image:tag
       image: higress/pilot
       traceSampling: 1.0
@@ -583,32 +587,15 @@ higress:
       enableProtocolSniffingForOutbound: true
       # -- if protocol sniffing is enabled for inbound
       enableProtocolSniffingForInbound: true
-      nodeSelector: {}
-      podAnnotations: {}
-      serviceAnnotations: {}
       # -- You can use jwksResolverExtraRootCA to provide a root certificate
       # in PEM format. This will then be trusted by pilot when resolving
       # JWKS URIs.
       jwksResolverExtraRootCA: ""
-      # -- This is used to set the source of configuration for
-      # the associated address in configSource, if nothing is specified
-      # the default MCP is assumed.
-      configSource:
-        subscribedResources: []
       plugins: []
       # -- The following is used to limit how long a sidecar can be connected
       # to a pilot. It balances out load across pilot instances at the cost of
       # increasing system churn.
       keepaliveMaxServerConnectionAge: 30m
-      # -- Additional labels to apply to the deployment.
-      deploymentLabels: {}
-      ## Mesh config settings
-
-      # -- Install the mesh config map, generated from values.yaml.
-      # If false, pilot wil use default values (by default) or user-supplied values.
-      configMap: true
-      # -- Additional labels to apply on the pod level for monitoring and logging configuration.
-      podLabels: {}
     # Tracing config settings
     tracing:
       enable: false
@@ -700,6 +687,9 @@ higress:
       image: higress/plugin-server
       hub: "" # Will use global.hub if not set
       tag: "1.0.0"
+      # -- Specify image pull policy if default behavior isn't desired.
+      # Default behavior: latest images will be Always else IfNotPresent.
+      imagePullPolicy: ""
       imagePullSecrets: []
       labels: {}
       # -- Labels to apply to the pod
@@ -724,6 +714,12 @@ higress:
         # -- CAUTION: It is important to ensure that all Istio helm charts specify the same clusterDomain value
         # cluster domain. Default value is "cluster.local".
         clusterDomain: "cluster.local"
+      # -- Default hub (registry) for Higress images, passed from parent chart.
+      # Used for plugin image registry when pluginServer.imageRegistry is not set.
+      hub: ""
+      # -- Plugin image namespace for built-in plugins, passed from parent chart.
+      # Used when pluginServer.imageNamespace is not set. Default is "plugins".
+      pluginNamespace: ""
       # Observability (o11y) configurations
       o11y:
         enabled: false
@@ -772,7 +768,7 @@ higress:
     image:
       repository: higress/console
       pullPolicy: IfNotPresent
-      tag: "2.2.0"
+      tag: "2.2.1"
     imagePullSecrets: []
     name: ""
     podEnvs: {}
@@ -829,5 +825,11 @@ higress:
       __placeholder__: true
     pluginServer:
       urlPattern: "http://higress-plugin-server.higress-system.svc/plugins/${name}/${version}/plugin.wasm"
+      # -- Plugin image registry for built-in plugins. If set, will override the default registry in plugins.properties.
+      # Example: "my-registry.example.com"
+      imageRegistry: ""
+      # -- Plugin image namespace for built-in plugins. If set, will override the default namespace in plugins.properties.
+      # Default namespace is "plugins". Example: "my-plugins"
+      imageNamespace: ""
 global:
   hub: higress-registry.cn-hangzhou.cr.aliyuncs.com
