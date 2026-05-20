@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "openbao.fullname" . }}-test-connection"
+  labels:
+    {{- include "openbao.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "openbao.fullname" . }}-active:{{ .Values.config.apiPort }}/v1/sys/health?standbyok=false']
+  restartPolicy: Never

@@ -1,0 +1,23 @@
+{{- if and .Values.global.kas.enabled .Values.global.kas.tls.enabled }}
+{{-   if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: BackendTLSPolicy
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  targetRefs:
+  - group: ""
+    kind: Service
+    name: {{ include "gitlab.kas.serviceName" . | quote }}
+  validation:
+    hostname: {{ .Values.backendTLSPolicy.hostname | default (printf "%s.%s.svc" (include "fullname" .) .Release.Namespace) | quote }}
+    caCertificateRefs:
+    - group: ""
+      kind: Secret
+      name: {{ .Values.global.kas.tls.caSecretName | quote }}
+{{-   end }}
+{{- end }}

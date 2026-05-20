@@ -25,7 +25,9 @@ Return gitaly storage for external hosts
 {{-   range $i, $storage := .Values.global.gitaly.external -}}
 {{-     printf "%s:\n" $storage.name -}}
 {{-     printf  "path: /var/opt/gitlab/repo\n" | indent 2 -}}
-{{-     if include "gitlab.boolean.local" (dict "global" $.Values.global.gitaly.tls.enabled "local" $storage.tlsEnabled "default" false) }}
+{{-     if $storage.address }}
+{{-       printf "gitaly_address: %s\n" $storage.address -}}
+{{-     else if include "gitlab.boolean.local" (dict "global" $.Values.global.gitaly.tls.enabled "local" $storage.tlsEnabled "default" false) }}
 {{-       printf "gitaly_address: tls://%s:%d\n" $storage.hostname (default 8076 $storage.port | int64) -}}
 {{-     else }}
 {{-       printf "gitaly_address: tcp://%s:%d\n" $storage.hostname (default 8075 $storage.port | int64) -}}
@@ -42,7 +44,9 @@ Return the gitaly storages list
 {{-   if .Values.global.gitaly.host -}}
 default:
   path: /var/opt/gitlab/repo
-  {{-   if $.Values.global.gitaly.tls.enabled }}
+  {{-   if .Values.global.gitaly.address }}
+  gitaly_address: {{ .Values.global.gitaly.address }}
+  {{-   else if $.Values.global.gitaly.tls.enabled }}
   gitaly_address: {{ printf "tls://%s:%d" .Values.global.gitaly.host (default 8076 .Values.global.gitaly.port | int64 ) }}
   {{-   else }}
   gitaly_address: {{ printf "tcp://%s:%d" .Values.global.gitaly.host (default 8075 .Values.global.gitaly.port | int64 ) }}

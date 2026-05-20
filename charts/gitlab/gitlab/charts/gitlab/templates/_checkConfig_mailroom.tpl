@@ -7,12 +7,12 @@ Ensure that tenantId and clientId are set if Microsoft Graph settings are used i
 {{-     if not .tenantId }}
 incomingEmail:
     When configuring incoming email with Microsoft Graph, be sure to specify the tenant ID.
-    See https://docs.gitlab.com/ee/administration/incoming_email.html#microsoft-graph
+    See https://docs.gitlab.com/administration/incoming_email/#microsoft-graph
 {{-     end -}}
 {{-     if not .clientId }}
 incomingEmail:
     When configuring incoming email with Microsoft Graph, be sure to specify the client ID.
-    See https://docs.gitlab.com/ee/administration/incoming_email.html#microsoft-graph
+    See https://docs.gitlab.com/administration/incoming_email/#microsoft-graph
 {{-     end -}}
 {{-   end -}}
 {{- end -}}
@@ -32,7 +32,7 @@ serviceDesk:
 {{-     if (not (and (contains "+%{key}@" $.Values.global.appConfig.incomingEmail.address) (contains "+%{key}@" $.Values.global.appConfig.serviceDeskEmail.address))) }}
 serviceDesk:
     When configuring Service Desk email, both incoming email and Service Desk email address must contain the "+%{key}" tag.
-    See https://docs.gitlab.com/ee/user/project/service_desk.html#using-custom-email-address
+    See https://docs.gitlab.com/user/project/service_desk/configure/#custom-email-address
 {{-     end -}}
 {{-   end -}}
 {{- end -}}
@@ -47,12 +47,12 @@ Ensure that tenantId and clientId are set if Microsoft Graph settings are used i
 {{-     if not .tenantId }}
 incomingEmail:
     When configuring Service Desk with Microsoft Graph, be sure to specify the tenant ID.
-    See https://docs.gitlab.com/ee/user/project/service_desk.html#microsoft-graph
+    See https://docs.gitlab.com/administration/incoming_email/#microsoft-graph
 {{-     end -}}
 {{-     if not .clientId }}
 incomingEmail:
     When configuring Service Desk with Microsoft Graph, be sure to specify the client ID.
-    See https://docs.gitlab.com/ee/user/project/service_desk.html#microsoft-graph
+    See https://docs.gitlab.com/administration/incoming_email/#microsoft-graph
 {{-     end -}}
 {{-   end -}}
 {{- end -}}

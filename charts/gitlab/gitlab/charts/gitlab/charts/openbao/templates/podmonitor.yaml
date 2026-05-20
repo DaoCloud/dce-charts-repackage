@@ -1,0 +1,32 @@
+{{- if and .Values.config.telemetry.enabled .Values.config.metricsListener.enabled .Values.podMonitor.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "openbao.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "openbao.labels" . | nindent 4 }}
+  {{- with .Values.podMonitor.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      {{- include "openbao.selectorLabels" . | nindent 6 }}
+    {{- with .Values.podMonitor.selectorLabels }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  podMetricsEndpoints:
+    - port: metrics
+      path: "/v1/sys/metrics"
+      params:
+        format:
+          - prometheus
+      scheme: {{ include "openbao.monitoring.scheme" . }}
+    {{- with .Values.podMonitor.endpointConfig }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+{{- end -}}

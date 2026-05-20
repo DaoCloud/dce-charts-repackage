@@ -16,6 +16,29 @@ data:
     fi
   enable_extensions.sh: |
     [[ -n "${POSTGRES_POSTGRES_PASSWORD_FILE:-}" ]] && POSTGRES_POSTGRES_PASSWORD=$(cat ${POSTGRES_POSTGRES_PASSWORD_FILE})
-    PGPASSWORD=${POSTGRES_POSTGRES_PASSWORD} psql -d {{ template "gitlab.psql.database" .}} -U postgres -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm; CREATE EXTENSION IF NOT EXISTS btree_gist;'
-# Leave this here - This line denotes end of block to the parser.
+    PGPASSWORD=${POSTGRES_POSTGRES_PASSWORD} psql -d {{ template "gitlab.psql.database" .}} -U postgres -c 'CREATE EXTENSION IF NOT EXISTS amcheck; CREATE EXTENSION IF NOT EXISTS pg_trgm; CREATE EXTENSION IF NOT EXISTS btree_gist;'
+  init_registry.sh: |
+    [[ -n "${POSTGRES_POSTGRES_PASSWORD_FILE:-}" ]] && POSTGRES_POSTGRES_PASSWORD=$(cat ${POSTGRES_POSTGRES_PASSWORD_FILE})
+
+    # Read registry database password from mounted secret file
+    REGISTRY_PASSWORD_FILE="/etc/gitlab/postgres/registry_database_password"
+    if [[ -f "${REGISTRY_PASSWORD_FILE}" ]]; then
+      REGISTRY_PASSWORD=$(cat ${REGISTRY_PASSWORD_FILE})
+    else
+      echo "ERROR: Registry database password file not found at ${REGISTRY_PASSWORD_FILE}"
+      exit 1
+    fi
+
+    # Create registry user if it doesn't exist
+    PGPASSWORD=${POSTGRES_POSTGRES_PASSWORD} psql -U postgres -tc "SELECT 1 FROM pg_user WHERE usename = '{{ include "registry.database.username" .}}'" | grep -q 1 || \
+    (echo "Creating registry user..." && PGPASSWORD=${POSTGRES_POSTGRES_PASSWORD} psql -U postgres -c "CREATE USER \"{{ include "registry.database.username" .}}\" WITH CREATEDB PASSWORD '${REGISTRY_PASSWORD}';")
+
+    # Create registry database if it doesn't exist
+    PGPASSWORD=${POSTGRES_POSTGRES_PASSWORD} psql -U postgres -lqt | cut -d \| -f 1 | grep -qw "{{ include "registry.database.name" .}}" || \
+    (echo "Creating registry database..." && PGPASSWORD=${POSTGRES_POSTGRES_PASSWORD} psql -U postgres -c "CREATE DATABASE \"{{ include "registry.database.name" .}}\" WITH OWNER \"{{ include "registry.database.username" .}}\";")
+
+    # Grant necessary privileges to registry user
+    echo "Granting privileges..."
+    PGPASSWORD=${POSTGRES_POSTGRES_PASSWORD} psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE \"{{ include "registry.database.name" .}}\" TO \"{{ include "registry.database.username" .}}\";"
+    # Leave this here - This line denotes end of block to the parser.
 {{- end -}}

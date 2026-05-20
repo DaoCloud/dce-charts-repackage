@@ -3,5 +3,5 @@
 {{- end -}}
 
 {{- define "gitlab.clickhouse.main.password.key" -}}
-{{- coalesce .Values.global.clickhouse.main.key "password" | quote -}}
+{{- coalesce .Values.global.clickhouse.main.password.key "password" | quote -}}
 {{- end -}}

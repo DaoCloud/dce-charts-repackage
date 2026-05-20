@@ -17,14 +17,14 @@ metadata:
     {{- if eq "nginx" .Values.global.ingress.provider }}
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/custom-http-errors: ""
-    {{- end }}
-    {{- if $.Values.global.kas.tls.enabled }}
+    {{-   if $.Values.global.kas.tls.enabled }}
     nginx.ingress.kubernetes.io/backend-protocol: https
-    {{-   if $.Values.global.kas.tls.verify }}
+    {{-     if $.Values.global.kas.tls.verify }}
     nginx.ingress.kubernetes.io/proxy-ssl-verify: 'on'
     nginx.ingress.kubernetes.io/proxy-ssl-name: {{ include "fullname" . }}.{{ $.Release.Namespace }}.svc
-    {{-     if $.Values.global.kas.tls.caSecretName }}
+    {{-       if $.Values.global.kas.tls.caSecretName }}
     nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ $.Release.Namespace }}/{{ $.Values.global.kas.tls.caSecretName }}
+    {{-       end }}
     {{-     end }}
     {{-   end }}
     {{- end }}
@@ -64,6 +64,30 @@ spec:
               serviceName: {{ template "gitlab.kas.serviceName" . }}
               servicePort: {{ .Values.service.externalPort }}
             {{- end }}
+          {{ if (.Values.autoflow).enabled }}
+          - path: "{{ trimSuffix "/" $.Values.ingress.autoflowCodecServerApiPath }}{{ $.Values.global.ingress.path }}"
+            {{ if or ($.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress") (eq $.Values.global.ingress.apiVersion "networking.k8s.io/v1") -}}
+            pathType: {{ default "Prefix" $.Values.global.ingress.pathType }}
+            backend:
+              service:
+                name: {{ template "gitlab.kas.serviceName" . }}
+                port:
+                  number: {{ .Values.service.autoflowCodecServerApiPort }}
+            {{- else -}}
+            backend:
+              serviceName: {{ template "gitlab.kas.serviceName" . }}
+              servicePort: {{ .Values.service.autoflowCodecServerApiPort }}
+            {{- end }}
+          {{- end }}
+          {{ if .Values.global.workspaces.enabled }}
+          - path: "{{ trimSuffix "/" $.Values.ingress.workspacesServerApiPath }}{{ $.Values.global.ingress.path }}"
+            pathType: {{ default "Prefix" $.Values.global.ingress.pathType }}
+            backend:
+              service:
+                name: {{ template "gitlab.kas.serviceName" . }}
+                port:
+                  number: {{ .Values.service.workspacesServerPort }}
+          {{- end }}
   {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true" )) }}
   tls:
     - hosts:
