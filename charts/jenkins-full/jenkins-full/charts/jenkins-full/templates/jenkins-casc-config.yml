@@ -22,6 +22,9 @@ data:
             connectTimeout: "600"
             readTimeout: "600"
             maxRequestsPerHostStr: "32"
+            garbageCollection:
+              namespaces: "{{ .Release.Namespace }}"
+              timeout: 300
             templates:
               - name: "base"
                 namespace: "{{ default .Release.Namespace .Values.Agent.WorkerNamespace }}"

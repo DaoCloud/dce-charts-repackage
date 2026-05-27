@@ -224,4 +224,15 @@ data:
 {{- end }}
 {{- else }}
 {{ include "override_config_map" . }}
+{{- end }}
+{{- if and (eq .Values.Agent.Builder.ContainerRuntime "podman") .Values.Agent.Builder.storageConfig }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storage-conf
+  namespace: {{ include "jenkins.namespace" . }}
+data:
+  storage.conf: |
+{{ .Values.Agent.Builder.storageConfig | indent 4 }}
 {{- end -}}
