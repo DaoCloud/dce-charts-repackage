@@ -75,10 +75,19 @@ https://github.com/helm/charts/issues/5167#issuecomment-619137759
     hostPath: "/var/run/docker.sock"
     mountPath: "/var/run/docker.sock"
 {{- else }}
+{{- if .Values.Agent.Builder.registriesConfig }}
 - configMapVolume:
     mountPath: /etc/containers/registries.conf.d
     configMapName: insecure-registries
     optional: true
+{{- end }}
+{{- if .Values.Agent.Builder.storageConfig }}
+- configMapVolume:
+    mountPath: /etc/containers/storage.conf
+    configMapName: storage-conf
+    subPath: storage.conf
+    optional: true
+{{- end }}
 {{- end }}
 {{- end -}}
 

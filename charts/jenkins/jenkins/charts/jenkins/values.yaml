@@ -20,7 +20,7 @@ Master:
     SchedulerName: ""
   Name: jenkins-master
   Image: "amamba-io/jenkins"
-  ImageTag: "v0.6.2-2.502"
+  ImageTag: "v0.7.0-2.541.3"
   ImagePullPolicy: "IfNotPresent"
   ImagePullSecret: ""
   Component: "jenkins-master"
@@ -39,7 +39,6 @@ Master:
 
   UsePodSecurityContext: true
   JavaOpts: |-
-    -XX:+PrintFlagsFinal
     -XX:MaxRAMPercentage=70.0
     -XX:MinHeapFreeRatio=8
     -XX:MaxHeapFreeRatio=15
@@ -54,11 +53,12 @@ Master:
     -Dhudson.slaves.NodeProvisioner.recurrencePeriod=5000
     -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true
     -Dio.jenkins.plugins.casc.ConfigurationAsCode.initialDelay=10000
-    -Djenkins.install.runSetupWizard=false  
+    -Djenkins.install.runSetupWizard=false
+    -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true
     -XX:+UseStringDeduplication
-    -XX:+ParallelRefProcEnabled
     -XX:+DisableExplicitGC
     -XX:+UnlockDiagnosticVMOptions
+    -XX:+PrintFlagsFinal
     -XX:+UnlockExperimentalVMOptions
     -Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ALLOW_ADMIN_APPROVAL_ENABLED=true
     -Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ADMIN_AUTO_APPROVAL_ENABLED=true
@@ -387,22 +387,34 @@ Agent:
   Builder:
     Base:
       Image: amamba-io/jenkins-agent-base
-      ImageTag: v0.6.2
+      ImageTag: v0.7.0
     NodeJs:
       Image: amamba-io/jenkins-agent-nodejs
-      ImageTag: v0.6.2-16.20.2
+      ImageTag: v0.7.0-16.20.2
       # Versions for auto generator Jenkins CASC Config and relock_k8s images.
       # must build image first.
     Maven:
       Image: amamba-io/jenkins-agent-maven
-      ImageTag: v0.6.2-jdk8
+      ImageTag: v0.7.0-jdk8
     Golang:
       Image: amamba-io/jenkins-agent-go
-      ImageTag: v0.6.2-1.22.6
+      ImageTag: v0.7.0-1.22.6
     Python:
       Image: amamba-io/jenkins-agent-python
-      ImageTag: v0.6.2-3.8.19
+      ImageTag: v0.7.0-3.8.19
     ContainerRuntime: podman # Available values: docker, podman
+    # Registry configuration for podman (registries.conf content)
+    # If not set, the image-baked registries.conf will be used
+    # registriesConfig: |
+    #   [[registry]]
+    #   location = "harbor.example.com"
+    #   insecure = true
+    # Storage configuration for podman (storage.conf content)
+    # If not set, the image-baked storage.conf will be used
+    # storageConfig: |
+    #   [storage]
+    #   driver = "overlay"
+    #   ...
 
 Persistence:
   Enabled: true
@@ -449,7 +461,7 @@ eventProxy:
   image:
     registry: release.daocloud.io
     repository: amamba/amamba-event-proxy
-    tag: "v0.18.0-alpha.0"
+    tag: "v0.40.0"
   imagePullPolicy: IfNotPresent
   configMap:
     eventProxy:
@@ -480,4 +492,4 @@ trace:
   image:
     registry: ghcr.io
     repository: open-telemetry/opentelemetry-operator/autoinstrumentation-java
-    tag: 1.17.0
+    tag: 2.26.1

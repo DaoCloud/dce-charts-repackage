@@ -21,7 +21,7 @@ jenkins:
       SchedulerName: ""
     Name: jenkins-master
     Image: "amamba-io/jenkins"
-    ImageTag: "v0.6.2-2.502"
+    ImageTag: "v0.7.0-2.541.3"
     ImagePullPolicy: "IfNotPresent"
     ImagePullSecret: ""
     Component: "jenkins-master"
@@ -39,7 +39,30 @@ jenkins:
     #   memory: "4096Mi"
 
     UsePodSecurityContext: true
-    JavaOpts: "-XX:+PrintFlagsFinal\n-XX:MaxRAMPercentage=70.0\n-XX:MinHeapFreeRatio=8\n-XX:MaxHeapFreeRatio=15\n-XX:MinRAMPercentage=20.0\n-XX:-UseAdaptiveSizePolicy\n-XX:-ShrinkHeapInSteps\n-Dhudson.slaves.NodeProvisioner.initialDelay=20\n-Dhudson.slaves.NodeProvisioner.MARGIN=50\n-Dhudson.slaves.NodeProvisioner.MARGIN0=0.85\n-Dhudson.model.LoadStatistics.clock=5000\n-Dhudson.model.LoadStatistics.decay=0.2\n-Dhudson.slaves.NodeProvisioner.recurrencePeriod=5000\n-Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true\n-Dio.jenkins.plugins.casc.ConfigurationAsCode.initialDelay=10000\n-Djenkins.install.runSetupWizard=false  \n-XX:+UseStringDeduplication\n-XX:+ParallelRefProcEnabled\n-XX:+DisableExplicitGC\n-XX:+UnlockDiagnosticVMOptions\n-XX:+UnlockExperimentalVMOptions\n-Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ALLOW_ADMIN_APPROVAL_ENABLED=true\n-Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ADMIN_AUTO_APPROVAL_ENABLED=true"
+    JavaOpts: |-
+      -XX:MaxRAMPercentage=70.0
+      -XX:MinHeapFreeRatio=8
+      -XX:MaxHeapFreeRatio=15
+      -XX:MinRAMPercentage=20.0
+      -XX:-UseAdaptiveSizePolicy
+      -XX:-ShrinkHeapInSteps
+      -Dhudson.slaves.NodeProvisioner.initialDelay=20
+      -Dhudson.slaves.NodeProvisioner.MARGIN=50
+      -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85
+      -Dhudson.model.LoadStatistics.clock=5000
+      -Dhudson.model.LoadStatistics.decay=0.2
+      -Dhudson.slaves.NodeProvisioner.recurrencePeriod=5000
+      -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true
+      -Dio.jenkins.plugins.casc.ConfigurationAsCode.initialDelay=10000
+      -Djenkins.install.runSetupWizard=false
+      -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true
+      -XX:+UseStringDeduplication
+      -XX:+DisableExplicitGC
+      -XX:+UnlockDiagnosticVMOptions
+      -XX:+PrintFlagsFinal
+      -XX:+UnlockExperimentalVMOptions
+      -Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ALLOW_ADMIN_APPROVAL_ENABLED=true
+      -Dorg.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.ADMIN_AUTO_APPROVAL_ENABLED=true
     Deploy:
       NotWithApiServer: false
       # If the cluster where jenkins is deployed and amamba-apiserver are not in the same cluster, you need to fill in this item
@@ -329,22 +352,34 @@ jenkins:
     Builder:
       Base:
         Image: amamba-io/jenkins-agent-base
-        ImageTag: v0.6.2
+        ImageTag: v0.7.0
       NodeJs:
         Image: amamba-io/jenkins-agent-nodejs
-        ImageTag: v0.6.2-16.20.2
+        ImageTag: v0.7.0-16.20.2
         # Versions for auto generator Jenkins CASC Config and relock_k8s images.
         # must build image first.
       Maven:
         Image: amamba-io/jenkins-agent-maven
-        ImageTag: v0.6.2-jdk8
+        ImageTag: v0.7.0-jdk8
       Golang:
         Image: amamba-io/jenkins-agent-go
-        ImageTag: v0.6.2-1.22.6
+        ImageTag: v0.7.0-1.22.6
       Python:
         Image: amamba-io/jenkins-agent-python
-        ImageTag: v0.6.2-3.8.19
+        ImageTag: v0.7.0-3.8.19
       ContainerRuntime: podman # Available values: docker, podman
+      # Registry configuration for podman (registries.conf content)
+      # If not set, the image-baked registries.conf will be used
+      # registriesConfig: |
+      #   [[registry]]
+      #   location = "harbor.example.com"
+      #   insecure = true
+      # Storage configuration for podman (storage.conf content)
+      # If not set, the image-baked storage.conf will be used
+      # storageConfig: |
+      #   [storage]
+      #   driver = "overlay"
+      #   ...
   Persistence:
     Enabled: true
     # if "-" use default sc.you can specify other sc,like: hwameistor-storage-lvm-hdd, hwameistor-storage-lvm-hdd-ha
@@ -386,7 +421,7 @@ jenkins:
     image:
       registry: release.daocloud.io
       repository: amamba/amamba-event-proxy
-      tag: "v0.18.0-alpha.0"
+      tag: "v0.40.0"
     imagePullPolicy: IfNotPresent
     configMap:
       eventProxy:
@@ -416,4 +451,4 @@ jenkins:
     image:
       registry: ghcr.m.daocloud.io
       repository: open-telemetry/opentelemetry-operator/autoinstrumentation-java
-      tag: 1.17.0
+      tag: 2.26.1
