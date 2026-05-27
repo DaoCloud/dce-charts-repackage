@@ -7,6 +7,7 @@ submariner:
   globalCidr: ""
   clustersetIpCidr: ""
   clustersetIpEnabled: false
+  brokerK8sSecret: ""
   loadBalancerEnabled: false
   natEnabled: false
   colorCodes: blue
@@ -25,11 +26,10 @@ broker:
   insecure: false
   ca: ""
   globalnet: false
-rbac:
-  create: true
 images: {}
 ipsec:
   psk: ""
+  pskSecret: ""
   debug: false
   forceUDPEncaps: false
   ikePort: 500
@@ -46,22 +46,3 @@ operator:
   resources: {}
   tolerations: []
   affinity: {}
-serviceAccounts:
-  operator:
-    create: true
-    name: ""
-  gateway:
-    create: true
-    name: ""
-  routeAgent:
-    create: true
-    name: ""
-  globalnet:
-    create: true
-    name: ""
-  lighthouseAgent:
-    create: true
-    name: ""
-  lighthouseCoreDns:
-    create: true
-    name: ""
