@@ -31,6 +31,13 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
+Allow the release namespace to be overridden
+*/}}
+{{- define "falco.namespace" -}}
+{{- default .Release.Namespace .Values.namespaceOverride -}}
+{{- end -}}
+
+{{/*
 Common labels
 */}}
 {{- define "falco.labels" -}}
@@ -51,6 +58,19 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Renders a value that contains template.
+Usage:
+{{ include "falco.renderTemplate" ( dict "value" .Values.path.to.the.Value "context" $) }}
+*/}}
+{{- define "falco.renderTemplate" -}}
+    {{- if typeIs "string" .value }}
+        {{- tpl .value .context }}
+    {{- else }}
+        {{- tpl (.value | toYaml) .context }}
+    {{- end }}
+{{- end -}}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "falco.serviceAccountName" -}}
@@ -69,7 +89,7 @@ Return the proper Falco image name
     {{- . }}/
 {{- end -}}
 {{- .Values.image.repository }}:
-{{- .Values.image.tag | default .Chart.AppVersion -}}
+{{- .Values.image.tag | default (printf "%s" .Chart.AppVersion) -}}
 {{- end -}}
 
 {{/*
@@ -84,12 +104,10 @@ Return the proper Falco driver loader image name
 {{- end -}}
 
 {{/*
-Extract the unixSocket's directory path
+Return the proper Falcoctl image name
 */}}
-{{- define "falco.unixSocketDir" -}}
-{{- if and .Values.falco.grpc.enabled .Values.falco.grpc.bind_address (hasPrefix "unix://" .Values.falco.grpc.bind_address) -}}
-{{- .Values.falco.grpc.bind_address | trimPrefix "unix://" | dir -}}
-{{- end -}}
+{{- define "falcoctl.image" -}}
+{{ printf "%s/%s:%s" .Values.falcoctl.image.registry .Values.falcoctl.image.repository .Values.falcoctl.image.tag }}
 {{- end -}}
 
 {{/*
@@ -134,18 +152,354 @@ Set appropriate falco configuration if falcosidekick has been configured.
 {{- end -}}
 
 {{/*
-Get port from .Values.falco.grpc.bind_addres.
+Disable the syscall source if some conditions are met.
+By default the syscall source is always enabled in falco. If no syscall source is enabled, falco
+exits. Here we check that no producers for syscalls event has been configured, and if true
+we just disable the sycall source.
 */}}
-{{- define "grpc.port" -}}
-{{- $error := "unable to extract listenPort from .Values.falco.grpc.bind_address. Make sure it is in the correct format" -}}
-{{- if and .Values.falco.grpc.enabled .Values.falco.grpc.bind_address (not (hasPrefix "unix://" .Values.falco.grpc.bind_address)) -}}
-    {{- $tokens := split ":" .Values.falco.grpc.bind_address -}}
-    {{- if $tokens._1 -}}
-        {{- $tokens._1 -}}
-    {{- else -}}
-        {{- fail $error -}}
-    {{- end -}}
+{{- define "falco.configSyscallSource" -}}
+{{- $userspaceDisabled := true -}}
+{{- $driverDisabled :=  (not .Values.driver.enabled) -}}
+{{- if or (has "-u" .Values.extra.args) (has "--userspace" .Values.extra.args) -}}
+{{- $userspaceDisabled = false -}}
+{{- end -}}
+{{- if and $driverDisabled $userspaceDisabled }}
+- --disable-source
+- syscall
+{{- end -}}
+{{- end -}}
+
+{{- define "falcoctl.initContainer" -}}
+- name: falcoctl-artifact-install
+  image: {{ include "falcoctl.image" . }}
+  imagePullPolicy: {{ .Values.falcoctl.image.pullPolicy }}
+  args:
+    - artifact
+    - install
+  {{- with .Values.falcoctl.artifact.install.args }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.falcoctl.artifact.install.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  securityContext:
+  {{- if .Values.falcoctl.artifact.install.securityContext }}
+    {{- toYaml .Values.falcoctl.artifact.install.securityContext | nindent 4 }}
+  {{- end }}
+  volumeMounts:
+    - mountPath: {{ .Values.falcoctl.config.artifact.install.pluginsDir }}
+      name: plugins-install-dir
+    - mountPath: {{ .Values.falcoctl.config.artifact.install.rulesfilesDir }}
+      name: rulesfiles-install-dir
+    - mountPath: /etc/falcoctl
+      name: falcoctl-config-volume
+    - mountPath: {{ .Values.falcoctl.config.artifact.install.stateDir }}
+      name: artifact-state-dir
+      {{- with .Values.falcoctl.artifact.install.mounts.volumeMounts }}
+        {{- toYaml . | nindent 4 }}
+      {{- end }}
+  {{- if .Values.falcoctl.artifact.install.env }}
+  env:
+  {{- include "falco.renderTemplate" ( dict "value" .Values.falcoctl.artifact.install.env "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if .Values.falcoctl.artifact.install.envFrom }}
+  envFrom:
+  {{- include "falco.renderTemplate" ( dict "value" .Values.falcoctl.artifact.install.envFrom "context" $) | nindent 4 }}
+  {{- end }}
+{{- end -}}
+
+{{- define "falcoctl.sidecar" -}}
+- name: falcoctl-artifact-follow
+  image: {{ include "falcoctl.image" . }}
+  imagePullPolicy: {{ .Values.falcoctl.image.pullPolicy }}
+  args:
+    - artifact
+    - follow
+  {{- with .Values.falcoctl.artifact.follow.args }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.falcoctl.artifact.follow.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  securityContext:
+  {{- if .Values.falcoctl.artifact.follow.securityContext }}
+    {{- toYaml .Values.falcoctl.artifact.follow.securityContext | nindent 4 }}
+  {{- end }}
+  volumeMounts:
+    - mountPath: {{ .Values.falcoctl.config.artifact.follow.pluginsDir }}
+      name: plugins-install-dir
+    - mountPath: {{ .Values.falcoctl.config.artifact.follow.rulesfilesDir }}
+      name: rulesfiles-install-dir
+    - mountPath: /etc/falcoctl
+      name: falcoctl-config-volume
+    - mountPath: {{ .Values.falcoctl.config.artifact.follow.stateDir }}
+      name: artifact-state-dir
+      {{- with .Values.falcoctl.artifact.follow.mounts.volumeMounts }}
+        {{- toYaml . | nindent 4 }}
+      {{- end }}
+  {{- if .Values.falcoctl.artifact.follow.env }}
+  env:
+  {{- include "falco.renderTemplate" ( dict "value" .Values.falcoctl.artifact.follow.env "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if .Values.falcoctl.artifact.follow.envFrom }}
+  envFrom:
+  {{- include "falco.renderTemplate" ( dict "value" .Values.falcoctl.artifact.follow.envFrom "context" $) | nindent 4 }}
+  {{- end }}
+{{- end -}}
+
+
+{{/*
+ Build configuration for k8smeta plugin and update the relevant variables.
+ * The configuration that needs to be built up is the initconfig section:
+    init_config:
+     collectorPort: 0
+     collectorHostname: ""
+     nodeName: ""
+    The falco chart exposes this configuriotino through two variable:
+       * collectors.kubenetetes.collectorHostname;
+       * collectors.kubernetes.collectorPort;
+    If those two variable are not set, then we take those values from the k8smetacollector subchart.
+    The hostname is built using the name of the service that exposes the collector endpoints and the
+    port is directly taken form the service's port that exposes the gRPC endpoint.
+    We reuse the helpers from the k8smetacollector subchart, by passing down the variables. There is a
+    hardcoded values that is the chart name for the k8s-metacollector chart.
+
+ * The falcoctl configuration is updated to allow  plugin artifacts to be installed. The refs in the install
+   section are updated by adding the reference for the k8s meta plugin that needs to be installed.
+ NOTE: It seems that the named templates run during the validation process. And then again during the
+ render phase. In our case we are setting global variable that persist during the various phases.
+ We need to make the helper idempotent.
+*/}}
+{{- define "k8smeta.configuration" -}}
+{{- if and .Values.collectors.kubernetes.enabled .Values.driver.enabled -}}
+{{- $hostname := "" -}}
+{{- if .Values.collectors.kubernetes.collectorHostname -}}
+{{- $hostname = .Values.collectors.kubernetes.collectorHostname -}}
 {{- else -}}
-    {{- fail $error -}}
+{{- $collectorContext := (dict "Release" .Release "Values" (index .Values "k8s-metacollector") "Chart" (dict "Name" "k8s-metacollector")) -}}
+{{- $hostname = printf "%s.%s.svc" (include "k8s-metacollector.fullname" $collectorContext) (include "k8s-metacollector.namespace" $collectorContext) -}}
+{{- end -}}
+{{- $hasConfig := false -}}
+{{- range .Values.falco.plugins -}}
+{{- if eq (get . "name") "k8smeta" -}}
+{{ $hasConfig = true -}}
 {{- end -}}
 {{- end -}}
+{{- if not $hasConfig -}}
+{{- $listenPort := default (index .Values "k8s-metacollector" "service" "ports" "broker-grpc" "port") .Values.collectors.kubernetes.collectorPort -}}
+{{- $listenPort = int $listenPort -}}
+{{- $pluginConfig := dict "name" "k8smeta" "library_path" "libk8smeta.so" "init_config" (dict "collectorHostname" $hostname "collectorPort" $listenPort "nodeName" "${FALCO_K8S_NODE_NAME}" "verbosity" .Values.collectors.kubernetes.verbosity "hostProc" .Values.collectors.kubernetes.hostProc) -}}
+{{- $newConfig := append .Values.falco.plugins $pluginConfig -}}
+{{- $_ := set .Values.falco "plugins" ($newConfig | uniq) -}}
+{{- $loadedPlugins := append .Values.falco.load_plugins "k8smeta" -}}
+{{- $_ = set .Values.falco "load_plugins" ($loadedPlugins | uniq) -}}
+{{- end -}}
+{{- $_ := set .Values.falcoctl.config.artifact.install "refs" ((append .Values.falcoctl.config.artifact.install.refs .Values.collectors.kubernetes.pluginRef) | uniq)}}
+{{- $_ = set .Values.falcoctl.config.artifact "allowedTypes" ((append .Values.falcoctl.config.artifact.allowedTypes "plugin") | uniq)}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Fail the rendering if the user provides chart configuration that has been removed.
+This should be updated at each new Chart major version release.
+*/}}
+{{- define "falco.removedConfigGuard" -}}
+{{- $removedDriverKinds := list "ebpf" "gvisor" -}}
+{{- $removedDriverKeys  := list "ebpf" "gvisor" -}}
+{{- $removedFalcoKeys   := list "grpc" "grpc_output" -}}
+{{- $found := list -}}
+{{- if has .Values.driver.kind $removedDriverKinds -}}
+  {{- $found = append $found (printf "driver.kind=%s" .Values.driver.kind) -}}
+{{- end -}}
+{{- range $key := $removedDriverKeys -}}
+  {{- if hasKey $.Values.driver $key -}}
+    {{- $found = append $found (printf "driver.%s" $key) -}}
+  {{- end -}}
+{{- end -}}
+{{- range $key := $removedFalcoKeys -}}
+  {{- if hasKey $.Values.falco $key -}}
+    {{- $found = append $found (printf "falco.%s" $key) -}}
+  {{- end -}}
+{{- end -}}
+{{- if gt (len $found) 0 -}}
+{{- fail (printf "The following chart configuration is no longer supported: %s. See BREAKING-CHANGES.md for migration guidance." (join ", " $found)) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Based on the user input it populates the driver configuration in the falco config map.
+*/}}
+{{- define "falco.engineConfiguration" -}}
+{{- if .Values.driver.enabled -}}
+{{- $supportedDrivers := list "kmod" "modern_ebpf" "auto" -}}
+{{- $aliasDrivers := list "module" "modern-bpf" -}}
+{{- if and (not (has .Values.driver.kind $supportedDrivers)) (not (has .Values.driver.kind $aliasDrivers)) -}}
+{{- fail (printf "unsupported driver kind: \"%s\". Supported drivers %s, alias %s" .Values.driver.kind $supportedDrivers $aliasDrivers) -}}
+{{- end -}}
+{{- if or (eq .Values.driver.kind "kmod") (eq .Values.driver.kind "module") -}}
+{{- $kmodConfig := dict "kind" "kmod" "kmod" (dict "buf_size_preset" .Values.driver.kmod.bufSizePreset "drop_failed_exit" .Values.driver.kmod.dropFailedExit) -}}
+{{- $_ := set .Values.falco "engine" $kmodConfig -}}
+{{- else if or (eq .Values.driver.kind "modern_ebpf") (eq .Values.driver.kind "modern-bpf") -}}
+{{- $ebpfConfig := dict "kind" "modern_ebpf" "modern_ebpf" (dict "buf_size_preset" .Values.driver.modernEbpf.bufSizePreset "drop_failed_exit" .Values.driver.modernEbpf.dropFailedExit "cpus_for_each_buffer" .Values.driver.modernEbpf.cpusForEachBuffer) -}}
+{{- $_ := set .Values.falco "engine" $ebpfConfig -}}
+{{- else if eq .Values.driver.kind "auto" -}}
+{{- $engineConfig := dict "kind" "modern_ebpf" "kmod" (dict "buf_size_preset" .Values.driver.kmod.bufSizePreset "drop_failed_exit" .Values.driver.kmod.dropFailedExit) "modern_ebpf" (dict "buf_size_preset" .Values.driver.modernEbpf.bufSizePreset "drop_failed_exit" .Values.driver.modernEbpf.dropFailedExit "cpus_for_each_buffer" .Values.driver.modernEbpf.cpusForEachBuffer) -}}
+{{- $_ := set .Values.falco "engine" $engineConfig -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+It returns "true" if the driver loader has to be enabled, otherwise false.
+*/}}
+{{- define "driverLoader.enabled" -}}
+{{- if or (eq .Values.driver.kind "modern_ebpf") (eq .Values.driver.kind "modern-bpf") (not .Values.driver.enabled) (not .Values.driver.loader.enabled) -}}
+false
+{{- else -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return "true" if we should mount the path specified by `driver.sysfsMountPath` in the Falco pod.
+It considers driver.enabled, driver.kind and the per-driver sysfsMount opt-outs in values.yaml.
+*/}}
+{{- define "falco.sysfsMount.enabled" -}}
+{{- if .Values.driver.enabled -}}
+  {{- if or (eq .Values.driver.kind "modern_ebpf") (eq .Values.driver.kind "modern-bpf") (eq .Values.driver.kind "auto") -}}
+    {{- if .Values.driver.modernEbpf.sysfsMount }}true{{- else }}false{{- end -}}
+  {{- end -}}
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return "true" if proc-fs should be mounted in the Falco pod.
+*/}}
+{{- define "falco.procfsMount.enabled" -}}
+{{- if or .Values.driver.enabled .Values.falco.plugins_hostinfo -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+Based on the user input it populates the metrics configuration in the falco config map.
+*/}}
+{{- define "falco.metricsConfiguration" -}}
+{{- if .Values.metrics.enabled -}}
+{{- $_ := set .Values.falco.webserver "prometheus_metrics_enabled" true -}}
+{{- $_ = set .Values.falco.webserver "enabled" true -}}
+{{- if not .Values.falco.metrics -}}
+{{- $_ = set .Values.falco "metrics" dict -}}
+{{- end -}}
+{{- $_ = set .Values.falco.metrics "enabled" .Values.metrics.enabled -}}
+{{- $_ = set .Values.falco.metrics "interval" .Values.metrics.interval -}}
+{{- $_ = set .Values.falco.metrics "output_rule" .Values.metrics.outputRule -}}
+{{- $_ = set .Values.falco.metrics "rules_counters_enabled" .Values.metrics.rulesCountersEnabled -}}
+{{- $_ = set .Values.falco.metrics "resource_utilization_enabled" .Values.metrics.resourceUtilizationEnabled -}}
+{{- $_ = set .Values.falco.metrics "state_counters_enabled" .Values.metrics.stateCountersEnabled -}}
+{{- $_ = set .Values.falco.metrics "kernel_event_counters_enabled" .Values.metrics.kernelEventCountersEnabled -}}
+{{- $_ = set .Values.falco.metrics "kernel_event_counters_per_cpu_enabled" .Values.metrics.kernelEventCountersPerCPUEnabled -}}
+{{- $_ = set .Values.falco.metrics "libbpf_stats_enabled" .Values.metrics.libbpfStatsEnabled -}}
+{{- $_ = set .Values.falco.metrics "plugins_metrics_enabled" .Values.metrics.pluginsMetricsEnabled -}}
+{{- $_ = set .Values.falco.metrics "jemalloc_stats_enabled" .Values.metrics.jemallocStatsEnabled -}}
+{{- $_ = set .Values.falco.metrics "convert_memory_to_mb" .Values.metrics.convertMemoryToMB -}}
+{{- $_ = set .Values.falco.metrics "include_empty_values" .Values.metrics.includeEmptyValues -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+This helper is used to add the container plugin to the falco configuration.
+*/}}
+{{ define "falco.containerPlugin" -}}
+{{ if and .Values.driver.enabled .Values.collectors.enabled -}}
+{{ if .Values.collectors.containerEngine.enabled -}}
+{{ $hasConfig := false -}}
+{{ range .Values.falco.plugins -}}
+{{ if eq (get . "name") "container" -}}
+{{ $hasConfig = true -}}
+{{ end -}}
+{{ end -}}
+{{ if not $hasConfig -}}
+{{ $pluginConfig := dict -}}
+{{ with .Values.collectors.containerEngine -}}
+{{ $pluginConfig = dict "name" "container" "library_path" "libcontainer.so" "init_config" (dict "label_max_len" .labelMaxLen "with_size" .withSize "hooks" .hooks "engines" .engines) -}}
+{{ end -}}
+{{ $newConfig := append .Values.falco.plugins $pluginConfig -}}
+{{ $_ := set .Values.falco "plugins" ($newConfig | uniq) -}}
+{{ $loadedPlugins := append .Values.falco.load_plugins "container" -}}
+{{ $_ = set .Values.falco "load_plugins" ($loadedPlugins | uniq) -}}
+{{ end -}}
+{{ $_ := set .Values.falcoctl.config.artifact.install "refs" ((append .Values.falcoctl.config.artifact.install.refs .Values.collectors.containerEngine.pluginRef) | uniq) -}}
+{{ $_ = set .Values.falcoctl.config.artifact "allowedTypes" ((append .Values.falcoctl.config.artifact.allowedTypes "plugin") | uniq) -}}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+
+{{/*
+This helper is used to add container plugin volumes to the falco pod.
+*/}}
+{{- define "falco.containerPluginVolumes" -}}
+{{- if and .Values.driver.enabled .Values.collectors.enabled -}}
+{{ $volumes := list -}}
+{{- if .Values.collectors.containerEngine.enabled -}}
+{{- $seenPaths := dict -}}
+{{- $idx := 0 -}}
+{{- $engineOrder := list "docker" "podman" "containerd" "cri" "lxc" "libvirt_lxc" "bpm" -}}
+{{- range $engineName := $engineOrder -}}
+{{- $val := index $.Values.collectors.containerEngine.engines $engineName -}}
+{{- if and $val $val.enabled -}}
+{{- range $index, $socket := $val.sockets -}}
+{{- $mountPath := print "/host" $socket -}}
+{{- if not (hasKey $seenPaths $mountPath) -}}
+{{ $volumes = append $volumes (dict "name" (printf "container-engine-socket-%d" $idx) "hostPath" (dict "path" $socket)) -}}
+{{- $idx = add $idx 1 -}}
+{{- $_ := set $seenPaths $mountPath true -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- if gt (len $volumes) 0 -}}
+{{ toYaml $volumes -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+This helper is used to add container plugin volumeMounts to the falco pod.
+*/}}
+{{- define "falco.containerPluginVolumeMounts" -}}
+{{- if and .Values.driver.enabled .Values.collectors.enabled -}}
+{{ $volumeMounts := list -}}
+{{- if .Values.collectors.containerEngine.enabled -}}
+{{- $seenPaths := dict -}}
+{{- $idx := 0 -}}
+{{- $engineOrder := list "docker" "podman" "containerd" "cri" "lxc" "libvirt_lxc" "bpm" -}}
+{{- range $engineName := $engineOrder -}}
+{{- $val := index $.Values.collectors.containerEngine.engines $engineName -}}
+{{- if and $val $val.enabled -}}
+{{- range $index, $socket := $val.sockets -}}
+{{- $mountPath := print "/host" $socket -}}
+{{- if not (hasKey $seenPaths $mountPath) -}}
+{{ $volumeMounts = append $volumeMounts (dict "name" (printf "container-engine-socket-%d" $idx) "mountPath" $mountPath) -}}
+{{- $idx = add $idx 1 -}}
+{{- $_ := set $seenPaths $mountPath true -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- if gt (len $volumeMounts) 0 -}}
+{{ toYaml ($volumeMounts) }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
