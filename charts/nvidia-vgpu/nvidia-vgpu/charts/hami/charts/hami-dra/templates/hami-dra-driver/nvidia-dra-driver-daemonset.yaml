@@ -17,6 +17,20 @@ spec:
         hami-dra-driver-component: kubelet-plugin
     spec:
       {{- include "hami.dra.driver.nvidia.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.drivers.nvidia.daemonSet }}
+      {{- with .Values.drivers.nvidia.daemonSet.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.drivers.nvidia.daemonSet.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.drivers.nvidia.daemonSet.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
       initContainers:
       - name: init-container
         image: {{ include "hami.dra.driver.nvidia.image" . }}
