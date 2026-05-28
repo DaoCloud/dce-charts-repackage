@@ -62,7 +62,7 @@ jobs:
           
       - name: upgrade
         env:
-          GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
         run: |
           set -x
           PROJECTS="${{ env.ENV_UPGRADE_PROJECT_LIST }}"
@@ -220,7 +220,7 @@ jobs:
 
       - name: result
         env:
-          GITHUB_TOKEN: ${{ secrets.WELAN_PAT}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
         run: |
           SUCCEED_PROJECT="${{ env.SUCCEED_PROJECT }}"
           FAILED_MESSAGE="${{ env.ENV_FAILED_MESSAGE }}"
