@@ -1,4 +1,4 @@
-{{- if .Values.drivers.nvidia.enabled }}
+{{- if or .Values.drivers.nvidia.enabled .Values.drivers.fake.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -85,6 +85,21 @@ rules:
   - resourceclaims/status
   verbs:
   - update
+- apiGroups:
+  - resource.k8s.io
+  resources:
+  - resourceclaims/driver
+  verbs:
+  - associated-node:update
+  - associated-node:patch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
 - apiGroups:
   - ""
   resources:
