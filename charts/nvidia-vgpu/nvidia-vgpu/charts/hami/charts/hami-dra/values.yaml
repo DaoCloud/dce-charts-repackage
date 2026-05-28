@@ -10,34 +10,34 @@ global:
   ## @param global.imagePullSecrets Global Docker image pull secrets
   imagePullSecrets: []
 
-#Nvidia GPU Parameters
+# Nvidia GPU Parameters
 resourceName: "nvidia.com/gpu"
 resourceMem: "nvidia.com/gpumem"
 resourceMemPercentage: "nvidia.com/gpumem-percentage"
 resourceCores: "nvidia.com/gpucores"
 resourcePriority: "nvidia.com/priority"
 
-#MLU Parameters
+# MLU Parameters
 mluResourceName: "cambricon.com/vmlu"
 mluResourceMem: "cambricon.com/mlu.smlu.vmemory"
 mluResourceCores: "cambricon.com/mlu.smlu.vcore"
 
-#Hygon DCU Parameters
+# Hygon DCU Parameters
 dcuResourceName: "hygon.com/dcunum"
 dcuResourceMem: "hygon.com/dcumem"
 dcuResourceCores: "hygon.com/dcucores"
 
-#Metax sGPU Parameters
+# Metax sGPU Parameters
 metaxResourceName: "metax-tech.com/sgpu"
 metaxResourceCore: "metax-tech.com/vcore"
 metaxResourceMem: "metax-tech.com/vmemory"
 metaxsGPUTopologyAware: "false"
 
-#Enflame VGCU Parameters
+# Enflame VGCU Parameters
 enflameResourceNameVGCU: "enflame.com/vgcu"
 enflameResourceNameVGCUPercentage: "enflame.com/vgcu-percentage"
 
-#Kunlun XPU Parameters
+# Kunlun XPU Parameters
 kunlunResourceName: "kunlunxin.com/xpu"
 kunlunResourceVCountName: "kunlunxin.com/vxpu"
 kunlunResourceVMemoryName: "kunlunxin.com/vxpu-memory"
@@ -47,12 +47,12 @@ webhook:
   image:
     registry: ghcr.io
     repository: project-hami/hami-dra-webhook
-    tag: "v0.1.0"
+    tag: "v0.2.0"
     ## Specify a imagePullPolicy
     ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
     ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
     ##
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
     ## Optionally specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## Example:
@@ -74,11 +74,26 @@ webhook:
   args:
     webhookName: ""  # Default: {{ .Release.Name }}-hami-dra-webhook
     secretName: ""  # Default: {{ .Release.Name }}-hami-dra-webhook-tls
+  dra:
+    # Leave empty to auto-select:
+    # - fake driver values when fake=true and nvidia=false
+    # - nvidia defaults otherwise
+    deviceClassName: ""
+    driverName: ""
   # Webhook configuration
   config:
     mutating:
       enabled: true
     validating:
+      enabled: true
+    scope:
+      enabled: true
+      # Always exclude the namespace where this chart is installed.
+      excludeReleaseNamespace: true
+      # Additional namespaces to exclude from webhook effects.
+      excludedNamespaces:
+        - kube-system
+    volcano:
       enabled: true
 
 # Monitor deployment configuration
@@ -88,12 +103,12 @@ monitor:
   image:
     registry: ghcr.io
     repository: project-hami/hami-dra-monitor
-    tag: "v0.1.0"
+    tag: "v0.2.0"
     ## Specify a imagePullPolicy
     ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
     ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
     ##
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
     ## Optionally specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## Example:
@@ -146,12 +161,18 @@ certs:
 drivers:
   nvidia:
     enabled: true
+    daemonSet:
+      nodeSelector:
+        gpu: "on"
+      tolerations: []
+      affinity: {}
+
     # If you are using gpu driver on host, you need to set this to false
     containerDriver: true
     image:
       registry: ghcr.io
-      repository: projecthami/k8s-dra-driver
-      tag: "v0.0.1-dev"
+      repository: project-hami/k8s-dra-driver
+      tag: "latest"
       ## Specify a imagePullPolicy
       ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
       ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -164,3 +185,35 @@ drivers:
       ##   - myRegistryKeySecretName
       ##
       pullSecrets: []
+  fake:
+    enabled: false
+    deviceClassName: fake-gpu.project-hami.io
+    image:
+      registry: ghcr.io
+      repository: project-hami/hami-dra-fake-driver
+      tag: "latest"
+      pullPolicy: IfNotPresent
+      pullSecrets: []
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    nodeSelector: {}
+    tolerations:
+      - operator: Exists
+    affinity: {}
+    driverName: fake.dra.hami.io
+    plugin:
+      kubeletRegistrarDirectoryPath: /var/lib/kubelet/plugins_registry
+      kubeletPluginsDirectoryPath: /var/lib/kubelet/plugins
+    configMap:
+      # If set, use an existing ConfigMap instead of creating one from this chart.
+      existingName: ""
+      name: ""
+      key: config.yaml
+      # Optional inline override. When empty, the chart renders a built-in default:
+      # 8 fake NVIDIA A100-SXM4-80GB devices on every node.
+      inlineData: ""
