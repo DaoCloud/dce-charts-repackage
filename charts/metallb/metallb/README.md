@@ -1,6 +1,6 @@
 # metallb
 
-![Version: 0.15.3](https://img.shields.io/badge/Version-0.15.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.15.3](https://img.shields.io/badge/AppVersion-0.15.3-informational?style=flat-square)
+![Version: 0.16.1](https://img.shields.io/badge/Version-0.16.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.16.1](https://img.shields.io/badge/AppVersion-0.16.1-informational?style=flat-square)
 
 A network load-balancer implementation for Kubernetes using standard routing protocols
 
@@ -8,7 +8,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://metallb.github.io/metallb | metallb | 0.15.3 |
+| https://metallb.github.io/metallb | metallb | 0.16.1 |
 
 ## Values
 
@@ -34,12 +34,13 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.image.pullPolicy | string | `nil` |  |
 | metallb.controller.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.controller.image.repository | string | `"metallb/controller"` |  |
-| metallb.controller.image.tag | string | `"v0.15.3"` |  |
+| metallb.controller.image.tag | string | `"v0.16.1"` |  |
 | metallb.controller.labels | object | `{}` |  |
 | metallb.controller.livenessProbe.enabled | bool | `true` |  |
 | metallb.controller.livenessProbe.failureThreshold | int | `3` |  |
 | metallb.controller.livenessProbe.initialDelaySeconds | int | `10` |  |
 | metallb.controller.livenessProbe.periodSeconds | int | `10` |  |
+| metallb.controller.livenessProbe.port | int | `17472` |  |
 | metallb.controller.livenessProbe.successThreshold | int | `1` |  |
 | metallb.controller.livenessProbe.timeoutSeconds | int | `1` |  |
 | metallb.controller.logLevel | string | `"info"` | Controller log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none` |
@@ -50,6 +51,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.readinessProbe.failureThreshold | int | `3` |  |
 | metallb.controller.readinessProbe.initialDelaySeconds | int | `10` |  |
 | metallb.controller.readinessProbe.periodSeconds | int | `10` |  |
+| metallb.controller.readinessProbe.port | int | `17472` |  |
 | metallb.controller.readinessProbe.successThreshold | int | `1` |  |
 | metallb.controller.readinessProbe.timeoutSeconds | int | `1` |  |
 | metallb.controller.resources.limits.cpu | string | `"500m"` |  |
@@ -64,15 +66,14 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.serviceAccount.create | bool | `true` |  |
 | metallb.controller.serviceAccount.name | string | `""` |  |
 | metallb.controller.strategy.type | string | `"RollingUpdate"` |  |
-| metallb.controller.tlsCipherSuites | string | `""` |  |
-| metallb.controller.tlsMinVersion | string | `"VersionTLS12"` |  |
 | metallb.controller.tolerations | list | `[]` |  |
 | metallb.controller.webhookMode | string | `"enabled"` |  |
 | metallb.crds.enabled | bool | `true` |  |
 | metallb.crds.validationFailurePolicy | string | `"Fail"` |  |
-| metallb.frrk8s.enabled | bool | `false` |  |
-| metallb.frrk8s.external | bool | `false` |  |
-| metallb.frrk8s.namespace | string | `""` |  |
+| metallb.frr-k8s.prometheus.serviceMonitor.enabled | bool | `false` | Enable Prometheus ServiceMonitor for frr-k8s metrics. |
+| metallb.frrk8s.enabled | bool | `true` | If set, enables frrk8s as a backend. This is mutually exclusive to frr mode. |
+| metallb.frrk8s.external | bool | `false` | If true, uses an external frr-k8s installation instead of the bundled subchart. |
+| metallb.frrk8s.namespace | string | `""` | Namespace where external frr-k8s is installed (only used when external=true). |
 | metallb.fullnameOverride | string | `""` |  |
 | metallb.imagePullSecrets | list | `[]` |  |
 | metallb.loadBalancerClass | string | `""` |  |
@@ -80,8 +81,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.networkpolicies.apiPort | int | `6443` |  |
 | metallb.networkpolicies.defaultDeny | bool | `false` |  |
 | metallb.networkpolicies.enabled | bool | `false` |  |
-| metallb.prometheus.controllerMetricsTLSSecret | string | `""` |  |
-| metallb.prometheus.metricsPort | int | `7472` |  |
+| metallb.prometheus.metricsPort | int | `9120` |  |
 | metallb.prometheus.namespace | string | `""` |  |
 | metallb.prometheus.podMonitor.additionalLabels | object | `{}` |  |
 | metallb.prometheus.podMonitor.annotations | object | `{}` |  |
@@ -112,10 +112,8 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.prometheus.prometheusRule.staleConfig.enabled | bool | `true` |  |
 | metallb.prometheus.prometheusRule.staleConfig.labels.severity | string | `"warning"` |  |
 | metallb.prometheus.rbacPrometheus | bool | `false` |  |
-| metallb.prometheus.rbacProxy.pullPolicy | string | `nil` |  |
 | metallb.prometheus.rbacProxy.registry | string | `"gcr.m.daocloud.io"` |  |
 | metallb.prometheus.rbacProxy.repository | string | `"kubebuilder/kube-rbac-proxy"` |  |
-| metallb.prometheus.rbacProxy.tag | string | `"v0.12.0"` |  |
 | metallb.prometheus.scrapeAnnotations | bool | `false` |  |
 | metallb.prometheus.serviceAccount | string | `""` |  |
 | metallb.prometheus.serviceMonitor.controller.additionalLabels."operator.insight.io/managed-by" | string | `"insight"` |  |
@@ -129,9 +127,9 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.prometheus.serviceMonitor.speaker.additionalLabels."operator.insight.io/managed-by" | string | `"insight"` |  |
 | metallb.prometheus.serviceMonitor.speaker.annotations | object | `{}` |  |
 | metallb.prometheus.serviceMonitor.speaker.tlsConfig.insecureSkipVerify | bool | `true` |  |
-| metallb.prometheus.speakerMetricsTLSSecret | string | `""` |  |
 | metallb.rbac.create | bool | `true` |  |
 | metallb.speaker.affinity | object | `{}` |  |
+| metallb.speaker.bgpDebounceTimeout | string | `nil` | BGP debounce timeout for FRR configuration reloads, in milliseconds. Only applies when BGP type is frr. Default (when unset) is 3000 ms. This feature is experimental |
 | metallb.speaker.enabled | bool | `true` |  |
 | metallb.speaker.excludeInterfaces.enabled | bool | `true` |  |
 | metallb.speaker.extraContainers | list | `[]` |  |
@@ -139,15 +137,15 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.frr.image.pullPolicy | string | `nil` |  |
 | metallb.speaker.frr.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.speaker.frr.image.repository | string | `"frrouting/frr"` |  |
-| metallb.speaker.frr.image.tag | string | `"10.4.1"` |  |
-| metallb.speaker.frr.metricsPort | int | `7473` |  |
+| metallb.speaker.frr.image.tag | string | `"10.5.3"` |  |
+| metallb.speaker.frr.metricsPort | int | `9121` |  |
 | metallb.speaker.frr.resources | object | `{}` |  |
 | metallb.speaker.frrMetrics.resources | object | `{}` |  |
 | metallb.speaker.ignoreExcludeLB | bool | `false` |  |
 | metallb.speaker.image.pullPolicy | string | `nil` |  |
 | metallb.speaker.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.speaker.image.repository | string | `"metallb/speaker"` |  |
-| metallb.speaker.image.tag | string | `"v0.15.3"` |  |
+| metallb.speaker.image.tag | string | `"v0.16.1"` |  |
 | metallb.speaker.initContainers.cpFrrFiles.resources | object | `{}` |  |
 | metallb.speaker.initContainers.cpMetrics.resources | object | `{}` |  |
 | metallb.speaker.initContainers.cpReloader.resources | object | `{}` |  |
@@ -156,6 +154,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.livenessProbe.failureThreshold | int | `3` |  |
 | metallb.speaker.livenessProbe.initialDelaySeconds | int | `10` |  |
 | metallb.speaker.livenessProbe.periodSeconds | int | `10` |  |
+| metallb.speaker.livenessProbe.port | int | `17472` |  |
 | metallb.speaker.livenessProbe.successThreshold | int | `1` |  |
 | metallb.speaker.livenessProbe.timeoutSeconds | int | `1` |  |
 | metallb.speaker.logLevel | string | `"info"` | Speaker log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none` |
@@ -170,6 +169,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.readinessProbe.failureThreshold | int | `3` |  |
 | metallb.speaker.readinessProbe.initialDelaySeconds | int | `10` |  |
 | metallb.speaker.readinessProbe.periodSeconds | int | `10` |  |
+| metallb.speaker.readinessProbe.port | int | `17472` |  |
 | metallb.speaker.readinessProbe.successThreshold | int | `1` |  |
 | metallb.speaker.readinessProbe.timeoutSeconds | int | `1` |  |
 | metallb.speaker.reloader.resources | object | `{}` |  |
@@ -188,6 +188,11 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.tolerateMaster | bool | `true` |  |
 | metallb.speaker.tolerations | list | `[]` |  |
 | metallb.speaker.updateStrategy.type | string | `"RollingUpdate"` |  |
+| metallb.tls.cipherSuites | string | `""` | Comma-separated list of TLS cipher suites. If empty, uses Go defaults. Only applies to TLS 1.2. |
+| metallb.tls.controllerMetricsTLSSecret | string | `""` | The name of the secret to be mounted in the controller pod to provide TLS certificates for metrics endpoints. If not present, a self-signed certificate is auto-generated. |
+| metallb.tls.curvePreferences | string | `""` | Comma-separated list of numeric CurveID values (e.g. 29,4588). See https://pkg.go.dev/crypto/tls#CurveID. If empty, uses Go defaults. |
+| metallb.tls.minVersion | string | `""` | Minimum TLS version (VersionTLS12 or VersionTLS13). Defaults to VersionTLS13. |
+| metallb.tls.speakerMetricsTLSSecret | string | `""` | The name of the secret to be mounted in the speaker pod to provide TLS certificates for metrics endpoints. If not present, a self-signed certificate is auto-generated. |
 
 ----------------------------------------------
 
