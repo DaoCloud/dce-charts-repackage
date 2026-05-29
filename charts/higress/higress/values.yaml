@@ -43,7 +43,7 @@ higress:
       # for internal usage only, not to be configured by users.
       autoscalingv2API: true
       # -- When deploying to a local cluster (e.g.: kind cluster), set this to true.
-      local: true
+      local: false
       kind: false # Deprecated. Please use "global.local" instead. Will be removed later.
       # -- If true, Higress Controller will monitor istio resources as well
       enableIstioAPI: true
