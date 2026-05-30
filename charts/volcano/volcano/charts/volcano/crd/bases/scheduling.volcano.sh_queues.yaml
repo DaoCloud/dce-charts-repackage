@@ -2,8 +2,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.6.0
-  creationTimestamp: null
+    controller-gen.kubebuilder.io/version: v0.18.0
   name: queues.scheduling.volcano.sh
 spec:
   group: scheduling.volcano.sh
@@ -17,26 +16,36 @@ spec:
     singular: queue
   scope: Cluster
   versions:
-  - name: v1beta1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.parent
+      name: PARENT
+      type: string
+    name: v1beta1
     schema:
       openAPIV3Schema:
         description: Queue is a queue of PodGroup.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
           spec:
-            description: 'Specification of the desired behavior of the queue. More
-              info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status'
+            description: |-
+              Specification of the desired behavior of the queue.
+              More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
             properties:
               affinity:
                 description: If specified, the pod owned by the queue will be scheduled
@@ -80,6 +89,13 @@ spec:
                   x-kubernetes-int-or-string: true
                 description: ResourceList is a set of (resource name, quantity) pairs.
                 type: object
+              dequeueStrategy:
+                default: traverse
+                description: DequeueStrategy defines the dequeue strategy of queue
+                enum:
+                - fifo
+                - traverse
+                type: string
               deserved:
                 additionalProperties:
                   anyOf:
@@ -129,16 +145,28 @@ spec:
                 type: object
               parent:
                 description: Parent define the parent of queue
+                maxLength: 253
+                pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                 type: string
+              priority:
+                description: Priority define the priority of queue. Higher values
+                  are prioritized for scheduling and considered later during reclamation.
+                format: int32
+                minimum: 0
+                type: integer
               reclaimable:
                 description: Reclaimable indicate whether the queue can be reclaimed
                   by other queue
                 type: boolean
               type:
                 description: Type define the type of queue
+                maxLength: 253
                 type: string
               weight:
+                default: 1
                 format: int32
+                maximum: 65535
+                minimum: 1
                 type: integer
             type: object
           status:
@@ -156,14 +184,17 @@ spec:
               completed:
                 description: The number of `Completed` PodGroup in this queue.
                 format: int32
+                minimum: 0
                 type: integer
               inqueue:
                 description: The number of `Inqueue` PodGroup in this queue.
                 format: int32
+                minimum: 0
                 type: integer
               pending:
                 description: The number of 'Pending' PodGroup in this queue.
                 format: int32
+                minimum: 0
                 type: integer
               reservation:
                 description: Reservation is the profile of resource reservation for
@@ -188,25 +219,24 @@ spec:
               running:
                 description: The number of 'Running' PodGroup in this queue.
                 format: int32
+                minimum: 0
                 type: integer
               state:
                 description: State is state of queue
+                enum:
+                - Open
+                - Closed
+                - Closing
+                - Unknown
                 type: string
               unknown:
                 description: The number of 'Unknown' PodGroup in this queue.
                 format: int32
+                minimum: 0
                 type: integer
-            required:
-            - allocated
             type: object
         type: object
     served: true
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
