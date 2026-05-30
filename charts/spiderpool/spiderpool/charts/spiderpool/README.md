@@ -148,12 +148,14 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 
 ### grafanaDashboard parameters
 
-| Name                           | Description                                                                                      | Value   |
-| ------------------------------ | ------------------------------------------------------------------------------------------------ | ------- |
-| `grafanaDashboard.install`     | install grafanaDashboard for spiderpool. This requires the grafana operator CRDs to be available | `false` |
-| `grafanaDashboard.namespace`   | the grafanaDashboard namespace. Default to the namespace of helm instance                        | `""`    |
-| `grafanaDashboard.annotations` | the additional annotations of spiderpool grafanaDashboard                                        | `{}`    |
-| `grafanaDashboard.labels`      | the additional label of spiderpool grafanaDashboard                                              | `{}`    |
+| Name                                            | Description                                                                                                               | Value   |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `grafanaDashboard.install`                      | install grafanaDashboard for spiderpool. This requires the grafana operator CRDs to be available                          | `false` |
+| `grafanaDashboard.namespace`                    | the grafanaDashboard namespace. Default to the namespace of helm instance                                                 | `""`    |
+| `grafanaDashboard.annotations`                  | the additional annotations of spiderpool grafanaDashboard                                                                 | `{}`    |
+| `grafanaDashboard.labels`                       | the additional label of spiderpool grafanaDashboard                                                                       | `{}`    |
+| `grafanaDashboard.allowCrossNamespaceImport`    | allow cross namespace import for Grafana dashboards                                                                       | `true`  |
+| `grafanaDashboard.instanceSelector.matchLabels` | Match labels for Grafana dashboards. If set to `null`, it defaults to matching `operator.insight.io/managed-by: insight`. | `nil`   |
 
 ### coordinator parameters
 
@@ -222,11 +224,12 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `plugins.installSriovCNI`        | install sriov cni to each node                             | `true`                                       |
 | `plugins.installibSriovCNI`      | install ib-sriov cni to each node                          | `true`                                       |
 | `plugins.installIpoibCNI`        | install ipoib cni to each node                             | `true`                                       |
+| `plugins.installVlanCNI`         | install vlan cni to each node                              | `true`                                       |
 | `plugins.image.registry`         | the image registry of plugins                              | `ghcr.io`                                    |
 | `plugins.image.repository`       | the image repository of plugins                            | `spidernet-io/spiderpool/spiderpool-plugins` |
 | `plugins.image.pullPolicy`       | the image pullPolicy of plugins                            | `IfNotPresent`                               |
 | `plugins.image.digest`           | the image digest of plugins                                | `""`                                         |
-| `plugins.image.tag`              | the image tag of plugins                                   | `27c4f118b1cec3773f2679b772e7583fc77e5686`   |
+| `plugins.image.tag`              | the image tag of plugins                                   | `bbd68a1183524257baae9c7456bbdcbfdbd9cb1e`   |
 | `plugins.image.imagePullSecrets` | the image imagePullSecrets of plugins                      | `[]`                                         |
 
 ### clusterDefaultPool parameters
@@ -291,7 +294,7 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `spiderpoolAgent.prometheus.serviceMonitor.namespace`                                | the serviceMonitor namespace. Default to the namespace of helm instance                                                                                                          | `""`                                       |
 | `spiderpoolAgent.prometheus.serviceMonitor.annotations`                              | the additional annotations of spiderpoolAgent serviceMonitor                                                                                                                     | `{}`                                       |
 | `spiderpoolAgent.prometheus.serviceMonitor.labels`                                   | the additional label of spiderpoolAgent serviceMonitor                                                                                                                           | `{}`                                       |
-| `spiderpoolAgent.prometheus.serviceMonitor.interval`                                 | represents the interval of spiderpoolAgent serviceMonitor's scraping action                                                                                                      | `10s`                                      |
+| `spiderpoolAgent.prometheus.serviceMonitor.interval`                                 | represents the interval of spiderpoolAgent serviceMonitor's scraping action                                                                                                      | `5s`                                       |
 | `spiderpoolAgent.prometheus.prometheusRule.install`                                  | install prometheusRule for spiderpool agent. This requires the prometheus CRDs to be available                                                                                   | `false`                                    |
 | `spiderpoolAgent.prometheus.prometheusRule.namespace`                                | the prometheusRule namespace. Default to the namespace of helm instance                                                                                                          | `""`                                       |
 | `spiderpoolAgent.prometheus.prometheusRule.annotations`                              | the additional annotations of spiderpoolAgent prometheusRule                                                                                                                     | `{}`                                       |
@@ -457,3 +460,9 @@ helm install spiderpool spiderpool/spiderpool --wait --namespace kube-system \
 | `sriov.injectortls.auto.certExpiration`              | server cert expiration for auto method                                                                      | `73000`                                               |
 | `sriov.injectortls.auto.extraIpAddresses`            | extra IP addresses of server certificate for auto method                                                    | `[]`                                                  |
 | `sriov.injectortls.auto.extraDnsNames`               | extra DNS names of server cert for auto method                                                              | `[]`                                                  |
+
+### IaaS Network Provider Integration
+
+| Name                            | Description                                                                                                                 | Value |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----- |
+| `iaasNetworkProvider.serverUrl` | the URL of the IaaS provider service. Must include scheme (http or https) and port. If empty, IaaS integration is disabled. | `""`  |

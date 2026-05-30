@@ -83,6 +83,12 @@ spiderpool:
     ## @param grafanaDashboard.labels the additional label of spiderpool grafanaDashboard
     labels:
       operator.insight.io/managed-by: insight
+    ## @param grafanaDashboard.allowCrossNamespaceImport allow cross namespace import for Grafana dashboards
+    ## default true
+    allowCrossNamespaceImport: true
+    instanceSelector:
+      ## @param grafanaDashboard.instanceSelector.matchLabels Match labels for Grafana dashboards. If set to `null`, it defaults to matching `operator.insight.io/managed-by: insight`.
+      matchLabels: null
   ## @section coordinator parameters
   ##
   coordinator:
@@ -228,6 +234,8 @@ spiderpool:
     installibSriovCNI: true
     ## @param plugins.installIpoibCNI install ipoib cni to each node
     installIpoibCNI: true
+    ## @param plugins.installVlanCNI install vlan cni to each node
+    installVlanCNI: true
     image:
       ## @param plugins.image.registry the image registry of plugins
       registry: ghcr.m.daocloud.io
@@ -238,7 +246,7 @@ spiderpool:
       ## @param plugins.image.digest the image digest of plugins
       digest: ""
       ## @param plugins.image.tag the image tag of plugins
-      tag: 27c4f118b1cec3773f2679b772e7583fc77e5686
+      tag: 19f19457ae7cec86457b0411543a3cf21dd9f95a
       ## @param plugins.image.imagePullSecrets the image imagePullSecrets of plugins
       imagePullSecrets: []
   ## @section clusterDefaultPool parameters
@@ -287,7 +295,7 @@ spiderpool:
       ## @param spiderpoolAgent.image.digest the image digest of spiderpoolAgent, which takes preference over tag
       digest: ""
       ## @param spiderpoolAgent.image.tag the image tag of spiderpoolAgent, overrides the image tag whose default is the chart appVersion.
-      tag: v1.1.2
+      tag: v1.2.0
       ## @param spiderpoolAgent.image.imagePullSecrets the image imagePullSecrets of spiderpoolAgent
       imagePullSecrets: []
       # - name: "image-pull-secret"
@@ -384,7 +392,7 @@ spiderpool:
         labels:
           operator.insight.io/managed-by: insight
         ## @param spiderpoolAgent.prometheus.serviceMonitor.interval represents the interval of spiderpoolAgent serviceMonitor's scraping action
-        interval: "10s"
+        interval: "5s"
       prometheusRule:
         ## @param spiderpoolAgent.prometheus.prometheusRule.install install prometheusRule for spiderpool agent. This requires the prometheus CRDs to be available
         install: false
@@ -430,7 +438,7 @@ spiderpool:
       ## @param spiderpoolController.image.digest the image digest of spiderpoolController, which takes preference over tag
       digest: ""
       ## @param spiderpoolController.image.tag the image tag of spiderpoolController, overrides the image tag whose default is the chart appVersion.
-      tag: v1.1.2
+      tag: v1.2.0
       ## @param spiderpoolController.image.imagePullSecrets the image imagePullSecrets of spiderpoolController
       imagePullSecrets: []
       # - name: "image-pull-secret"
@@ -646,7 +654,7 @@ spiderpool:
       ## @param spiderpoolInit.image.digest the image digest of spiderpoolInit, which takes preference over tag
       digest: ""
       ## @param spiderpoolInit.image.tag the image tag of spiderpoolInit, overrides the image tag whose default is the chart appVersion.
-      tag: v1.1.2
+      tag: v1.2.0
       ## @param spiderpoolInit.image.imagePullSecrets the image imagePullSecrets of spiderpoolInit
       imagePullSecrets: []
       # - name: "image-pull-secret"
@@ -826,3 +834,8 @@ spiderpool:
         extraIpAddresses: []
         ## @param sriov.injectortls.auto.extraDnsNames extra DNS names of server cert for auto method
         extraDnsNames: []
+  ## @section IaaS Network Provider Integration
+  ##
+  iaasNetworkProvider:
+    ## @param iaasNetworkProvider.serverUrl the URL of the IaaS provider service. Must include scheme (http or https) and port. If empty, IaaS integration is disabled.
+    serverUrl: ""
