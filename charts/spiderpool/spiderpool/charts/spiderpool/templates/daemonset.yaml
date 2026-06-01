@@ -80,7 +80,7 @@ spec:
                       - linux
       {{- end }}
       initContainers:
-        {{- if or .Values.plugins.installCNI .Values.plugins.installRdmaCNI .Values.plugins.installOvsCNI .Values.plugins.installibSriovCNI .Values.plugins.installIpoibCNI }}
+        {{- if or .Values.plugins.installCNI .Values.plugins.installRdmaCNI .Values.plugins.installOvsCNI .Values.plugins.installibSriovCNI .Values.plugins.installIpoibCNI .Values.plugins.installVlanCNI }}
         - name: install-plugins
           image: {{ include "plugins.image" . | quote }}
           imagePullPolicy: {{ .Values.plugins.image.pullPolicy }}
@@ -97,6 +97,8 @@ spec:
               value: {{ .Values.plugins.installibSriovCNI | quote }}
             - name: INSTALL_IPOIB_PLUGIN
               value: {{ .Values.plugins.installIpoibCNI | quote }}
+            - name: INSTALL_VLAN_PLUGIN
+              value: {{ .Values.plugins.installVlanCNI | quote }}
           command:
             - "/bin/sh"
             - "entrypoint.sh"
@@ -111,16 +113,16 @@ spec:
           image: {{ include "spiderpool.multus.image" . | quote }}
           imagePullPolicy: IfNotPresent
           command:
-            - /install_multus
+          - /install_multus
           args:
-            - --type
-            - thin
+          - --type
+          - thin
           securityContext:
             privileged: true
           volumeMounts:
-            - mountPath: /host/opt/cni/bin
-              mountPropagation: Bidirectional
-              name: cni-bin-path
+          - mountPath: /host/opt/cni/bin
+            mountPropagation: Bidirectional
+            name: cni-bin-path
         {{- end }}
       containers:
         - name: {{ .Values.spiderpoolAgent.name | trunc 63 | trimSuffix "-" }}
@@ -258,20 +260,20 @@ spec:
           image: {{ include "spiderpool.spiderpoolAgent.image" . | quote }}
           imagePullPolicy: {{ .Values.spiderpoolAgent.image.pullPolicy }}
           command:
-            - "/home/entrypoint.sh"
+          - "/home/entrypoint.sh"
           securityContext:
             privileged: true
           env:
-            - name: MULTUS_CLUSTER_NETWORK
-              valueFrom:
-                configMapKeyRef:
-                  key: clusterNetwork
-                  name: spiderpool-conf
-            - name: MULTUS_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.namespace
+          - name: MULTUS_CLUSTER_NETWORK
+            valueFrom:
+              configMapKeyRef:
+                key: clusterNetwork
+                name: spiderpool-conf
+          - name: MULTUS_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
           resources:
             limits:
               cpu: 100m
