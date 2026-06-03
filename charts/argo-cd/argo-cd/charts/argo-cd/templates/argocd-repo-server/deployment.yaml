@@ -86,7 +86,7 @@ spec:
         {{- end }}
         env:
           {{- with (concat .Values.global.env .Values.repoServer.env) }}
-            {{- toYaml . | nindent 10 }}
+            {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
           {{- if .Values.openshift.enabled }}
           - name: USER_NAME
@@ -423,7 +423,7 @@ spec:
         - sh
         - '-c'
         args:
-        - /bin/cp --update=none /usr/local/bin/argocd /var/run/argocd/argocd && /bin/ln -sf /var/run/argocd/argocd /var/run/argocd/argocd-cmp-server
+        - /bin/cp {{ .Values.repoServer.copyutil.extraArgs }} /usr/local/bin/argocd /var/run/argocd/argocd && /bin/ln -sf /var/run/argocd/argocd /var/run/argocd/argocd-cmp-server
         image: {{ include "global.images.image" (dict "imageRoot" .Values.repoServer.image "global" .Values.global ) }}
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.repoServer.image.imagePullPolicy }}
         name: copyutil
