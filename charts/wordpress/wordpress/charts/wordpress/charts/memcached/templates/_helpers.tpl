@@ -1,3 +1,8 @@
+{{/*
+Copyright Broadcom, Inc. All Rights Reserved.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{/* vim: set filetype=mustache: */}}
 
 {{/*
@@ -14,7 +19,6 @@ Return the proper image name (for the metrics image)
 {{ include "common.images.image" (dict "imageRoot" .Values.metrics.image "global" .Values.global) }}
 {{- end -}}
 
-
 {{/*
 Return the proper image name (for the init container volume-permissions image)
 */}}
@@ -26,7 +30,7 @@ Return the proper image name (for the init container volume-permissions image)
 Return the proper Docker Image Registry Secret Names
 */}}
 {{- define "memcached.imagePullSecrets" -}}
-{{- include "common.images.pullSecrets" (dict "images" (list .Values.image .Values.metrics.image .Values.volumePermissions.image) "global" .Values.global) -}}
+{{- include "common.images.renderPullSecrets" (dict "images" (list .Values.image .Values.metrics.image .Values.volumePermissions.image) "context" .) -}}
 {{- end -}}
 
 {{/*
@@ -37,6 +41,15 @@ Return the proper Docker Image Registry Secret Names
     {{ default (include "common.names.fullname" .) .Values.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Check if admin credentials secret is based on user-provided credentials via chart values
+*/}}
+{{- define "memcached.valuesBasedSecret" -}}
+{{- if and .Values.auth.enabled (not .Values.auth.existingPasswordSecret) (not (empty .Values.auth.password)) }}
+    {{- true -}}
 {{- end -}}
 {{- end -}}
 
