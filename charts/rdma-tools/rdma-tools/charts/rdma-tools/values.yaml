@@ -55,3 +55,8 @@ extraVolumeMounts: []
 
 service:
   type: ClusterIP
+
+ssh_port: 2022
+
+# echo server for http and udp
+echo_server_port: 80
