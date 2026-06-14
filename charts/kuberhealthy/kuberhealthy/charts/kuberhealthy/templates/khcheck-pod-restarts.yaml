@@ -7,11 +7,17 @@ metadata:
 spec:
   runInterval: {{ .Values.check.podRestarts.runInterval }}
   timeout: {{ .Values.check.podRestarts.timeout }}
+  {{- include "kuberhealthy.extraAnnotations" .Values.check.podRestarts.extraAnnotations | nindent 2 }}
+  {{- include "kuberhealthy.extraLabels" .Values.check.podRestarts.extraLabels | nindent 2 }}
   podSpec:
     {{- if .Values.securityContext.enabled }}
     securityContext:
       runAsUser: {{ .Values.securityContext.runAsUser }}
       fsGroup: {{ .Values.securityContext.fsGroup }}
+      {{- if .Values.securityContext.seccompProfile }}
+      seccompProfile:
+        {{- toYaml .Values.securityContext.seccompProfile | nindent 8 }}
+      {{- end }}
     {{- end}}
     {{- if .Values.imagePullSecrets }}
     imagePullSecrets:
@@ -106,7 +112,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: pod-restart-rb
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -119,7 +125,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: pod-restart-role
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
 rules:
   - apiGroups:
       - ""
@@ -146,6 +152,6 @@ metadata:
 {{- if .Values.check.podRestarts.allNamespaces }}
   namespace: kuberhealthy
 {{- else }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
 {{- end}}
 {{- end }}
