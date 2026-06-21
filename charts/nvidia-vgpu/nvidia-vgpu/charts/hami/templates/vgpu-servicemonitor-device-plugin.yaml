@@ -8,25 +8,20 @@ metadata:
   namespace: {{ .Release.Namespace | quote }}
 spec:
   endpoints:
-  - bearerTokenSecret:
-      key: ""
-    interval: 15s
-    metricRelabelings:
-    - action: replace
-      sourceLabels:
-      - podname
-      targetLabel: exported_pod
-    - action: replace
-      sourceLabels:
-      - podnamespace
-      targetLabel: exported_namespace
-    path: /metrics
-    port: monitorport
-    relabelings:
-    - action: replace
-      sourceLabels:
-      - __meta_kubernetes_endpoint_node_name
-      targetLabel: node
+    - honorLabels: false
+      interval: 15s
+      metricRelabelings:
+        - action: replace
+          sourceLabels:
+            - device_uuid
+          targetLabel: deviceuuid
+      path: /metrics
+      port: monitorport
+      relabelings:
+        - action: replace
+          sourceLabels:
+            - __meta_kubernetes_endpoint_node_name
+          targetLabel: node
   jobLabel: app
   namespaceSelector:
     matchNames:
