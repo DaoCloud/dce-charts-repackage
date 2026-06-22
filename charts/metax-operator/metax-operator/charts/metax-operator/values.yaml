@@ -4,6 +4,8 @@
 
 registry: release.daocloud.io
 pullPolicy: IfNotPresent
+kind:
+  enabled: false
 log:
   dir: /var/log/metax
   level: info
@@ -51,7 +53,7 @@ controller:
   nodeSelector: {}
   image:
     name: metax/operator-controller
-    version: 0.14.2
+    version: 0.15.2
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -65,7 +67,7 @@ gpuLabel:
   log:
   image:
     name: metax/gpu-label
-    version: 0.14.2
+    version: 0.15.2
 # kernel module driver config
 driver:
   deployPolicy: "PreferCloud"
@@ -88,6 +90,7 @@ driver:
   payload:
     name: "metax/driver-image"
     version: "3.2.1.12-amd64"
+  # legacy fields (used when cmInit is not provided)
   vfnumsConfig:
     nodes:
       sample-node:
@@ -98,43 +101,95 @@ driver:
   nodeModuleParams:
   log:
   # please modify vfio config before using
+  # vfio config only applies to v1; for v2 configure driverConfig directly
   vfioConfig:
     - nodeName: worker-node1
       gpus: ""
   driverConfig:
+  # cmInit: ConfigMap initialization config (passthrough to ConfigMap.data)
+  # Example:
+  #
+  #   cmInit:
+  #     config:                          # -> driver-config ConfigMap
+  #       version: "v2"
+  #       nodes-config: |
+  #         - nodeName: worker-1
+  #           vfNum: 4
+  #       module-params: |
+  #         gpu_model: 1
+  #    # vfio config only applies to v1; for v2 configure driverConfig directly
+  #     vfio:                            # -> metax-vfio-config ConfigMap
+  #       vfio: |
+  #         - nodeName: worker-1
+  #           gpus: "0,1"
+  cmInit: {}
   image:
     name: metax/driver-manager
-    version: 0.14.2
+    version: 0.15.2
 # maca config
 maca:
   # payload contains the UMD package
   payload:
+    # Full reference to the container images.
+    # Supported formats:
+    # - Tag-based: <image-name>:<tag>
+    # - Digest-based: <image-name>@sha256:<hash>
     images:
       name: metax/maca-native
       version: 3.2.1.4-ubuntu20.04-amd64
+  # legacy fields (used when cmInit is not provided)
   cleanupConfig:
     threshold: 5
     #policy: Never/OlderVersionFirst/OlderTimestampFirst
     cleanupPolicy: Never
   log:
+  # cmInit is ConfigMap initialization config (passthrough to ConfigMap.data)
+  # Example
+  #
+  #   cmInit:
+  #     config:                          # -> maca-config ConfigMap
+  #       cleanup: |
+  #         threshold: 5
+  #         cleanupPolicy: OlderVersionFirst
+  cmInit: {}
   image:
     name: metax/driver-manager
-    version: 0.14.2
+    version: 0.15.2
 # container runtime config
 runtime:
   log:
+  config:
+    cdiMode:
   image:
     name: metax/container-runtime
-    version: 0.14.2
+    version: 0.15.2
 # device plugin config
 gpuDevice:
   healthyInterval: 5
   connectDetectPeriod: 0s
+  # legacy field (used when cmInit is not provided)
   sGPUHybridMode: false
   log:
+  config:
+    mode: native
+    sgpuHybrid: null
+    shareNums: 4
+    deviceAllocationStrategy: native
+  # cmInit: ConfigMap initialization config (passthrough to ConfigMap.data)
+  # Example:
+  #
+  #   cmInit:
+  #     config:                          # -> metax-device-config ConfigMap
+  #       version: "v1"
+  #       cluster-config: |
+  #         mode: "native"
+  #       nodes-config: |
+  #         - nodeName: worker-1
+  #           mode: "sgpu"
+  cmInit: {}
   image:
     name: metax/gpu-device
-    version: 0.14.2
+    version: 0.15.2
 # data exporter config
 dataExporter:
   deploy: false
@@ -143,7 +198,7 @@ dataExporter:
     port: 30445
   image:
     name: metax/mx-exporter
-    version: 0.14.2
+    version: 0.15.2
 topoDiscovery:
   deploy: false
   # config/dragonfly/switchbox
@@ -193,15 +248,17 @@ topoDiscovery:
                       values: [""]
     image:
       name: metax/topo-master
-      version: 0.14.2
+      version: 0.15.2
   worker:
     metricsPort: 9002
     log:
     image:
       name: metax/topo-worker
-      version: 0.14.2
+      version: 0.15.2
 gpuScheduler:
   deploy: false
+  version: v1
+  # v1 (extender mode)
   kubeScheduler:
     image:
       registry: "release.daocloud.io"
@@ -210,4 +267,14 @@ gpuScheduler:
   gpuAware:
     image:
       name: metax/gpu-aware
-      version: 0.14.2
+      version: 0.15.2
+  # v2 (framework mode)
+  scheduler:
+    image:
+    metricsPort: 31993
+  cmInit: {}
+openshift:
+  deploy: null
+cluster:
+  type:
+  version:

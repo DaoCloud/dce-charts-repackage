@@ -4,19 +4,49 @@ metadata:
   name: metax-pre-delete-configmap
   namespace: {{ .Release.Namespace }}
 data:
+  delete_metax_label.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    VENDOR_DOMAIN="${VENDOR_DOMAIN:-metax-tech.com}"
+    echo "Deleting labels with prefix: ${VENDOR_DOMAIN}"
+    for node in $(kubectl get nodes -o name); do
+        echo "Processing ${node}"
+        labels=$(kubectl get "${node}" \
+          -o go-template='{{`{{range $k, $v := .metadata.labels}}{{printf "%s\n" $k}}{{end}}`}}')
+        OLDIFS=$IFS
+        IFS=$'\n'
+        for key in $labels; do
+            case "${key}" in
+                ${VENDOR_DOMAIN}*)
+                    echo "Deleting label ${key} from ${node}"
+                    kubectl label "${node}" "${key}-"
+                    ;;
+            esac
+        done
+        IFS=$OLDIFS
+    done
+    echo "All matching labels deleted."
+
   delete_metax_annotations.sh: |
     #!/bin/bash
+    set -euo pipefail
+    VENDOR_DOMAIN="${VENDOR_DOMAIN:-metax-tech.com}"
+    echo "Deleting annotations with prefix: ${VENDOR_DOMAIN}"
     for node in $(kubectl get nodes -o name); do
-      annotations=$(kubectl get $node -o jsonpath='{.metadata.annotations}' | sed 's/[{}]//g' | tr ',' '\n' | tr -d '" ')
-      for entry in $annotations; do
-        key=$(echo "$entry" | awk -F: '{print $1}')
-        case "$key" in
-          metax-tech.com*)
-            echo "Deleting annotation $key from $node"
-            kubectl annotate $node $key-
-            ;;
-        esac
-      done
+        echo "Processing ${node}"
+        annotations=$(kubectl get "${node}" \
+          -o go-template='{{`{{range $k, $v := .metadata.annotations}}{{printf "%s\n" $k}}{{end}}`}}')
+        OLDIFS=$IFS
+        IFS=$'\n'
+        for key in $annotations; do
+            case "${key}" in
+                ${VENDOR_DOMAIN}*)
+                    echo "Deleting annotation ${key} from ${node}"
+                    kubectl annotate "${node}" "${key}-"
+                    ;;
+            esac
+        done
+        IFS=$OLDIFS
     done
     echo "All matching annotations deleted."
 
@@ -24,9 +54,14 @@ data:
     #!/bin/bash
 
     NAMESPACE="{{ .Release.Namespace }}"
-    CURRENT_POD_NAME=$(hostname)
 
-    PODS=$(kubectl get pods -n $NAMESPACE --no-headers=true 2>/dev/null | awk -v current="$CURRENT_POD_NAME" '/^metax-operator-/ && $1 != current {print $1}')
+    PODS=""
+    while IFS=' ' read -r name rest; do
+        if [[ "$name" == metax-operator-* ]] && [[ "$name" != "$POD_NMAE" ]]; then
+            PODS="$PODS $name"
+        fi
+    done < <(kubectl get pods -n $NAMESPACE --no-headers=true 2>/dev/null)
+    PODS=$(echo $PODS)
 
     if [ -z "$PODS" ]; then
       echo "cannot get metax-operator controller's pod"

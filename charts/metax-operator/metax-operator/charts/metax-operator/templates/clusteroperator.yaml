@@ -25,7 +25,7 @@ spec:
     {{- with include "gpuLabel.podTemplateSpec" . | trim }}{{ . | nindent 4 }}{{- end }}
 
   driver:
-    deploy: {{ if not (kindIs "invalid" .Values.driver.deploy) }}{{ .Values.driver.deploy | toString }}{{ else }}true{{ end }}
+    deploy: {{ if eq .Values.kind.enabled true }}false{{ else if not (kindIs "invalid" .Values.driver.deploy) }}{{ .Values.driver.deploy | toString }}{{ else }}true{{ end }}
     deployPolicy:    {{ default "PreferCloud"           .Values.driver.deployPolicy }}
     fwUpgradePolicy: {{ default "Never"                 .Values.driver.fwUpgradePolicy }}
     fwEffectPolicy:  {{ default "NextReboot"            .Values.driver.fwEffectPolicy }}
@@ -59,6 +59,7 @@ spec:
       rotationTime: {{ default .Values.log.rotationTime ((.Values.driver).log).rotationTime }}
       maxAge:       {{ default .Values.log.maxAge       ((.Values.driver).log).maxAge }}
     {{- with include "driver.podTemplateSpec" . | trim }}{{ . | nindent 4 }}{{- end }}
+    {{- with include "cmInit.driver" . | trim }}{{ . | nindent 4 }}{{- end }}
     deviceAsRootGroup: {{ default "false"               .Values.driver.deviceAsRootGroup }}
 
   maca:
@@ -84,13 +85,14 @@ spec:
       format:       {{ default .Values.log.format       ((.Values.maca).log).format }}
       rotationTime: {{ default .Values.log.rotationTime ((.Values.maca).log).rotationTime }}
       maxAge:       {{ default .Values.log.maxAge       ((.Values.maca).log).maxAge }}
+    {{- with include "cmInit.maca" . | trim }}{{ . | nindent 4 }}{{- end }}
     {{- with include "maca.podTemplateSpec" . | trim }}{{ . | nindent 4 }}{{- end }}
 
   runtime:
     deploy: {{ if not (kindIs "invalid" .Values.runtime.deploy) }}{{ .Values.runtime.deploy | toString }}{{ else }}true{{ end }}
     image:
       name:         {{ default "container-runtime"      ((.Values.runtime).image).name }}
-      version:      {{ default .Chart.Version           ((.Values.runtime).image).version }}
+      version:      {{ default .Chart.Version           ((.Values.runtime).image).version | quote}}
       pullPolicy:   {{ default .Values.pullPolicy       ((.Values.runtime).image).pullPolicy }}
       registry:     {{ default .Values.registry         ((.Values.runtime).image).registry }}
     log:
@@ -99,6 +101,8 @@ spec:
       format:       {{ default .Values.log.format       ((.Values.runtime).log).format }}
       rotationTime: {{ default .Values.log.rotationTime ((.Values.runtime).log).rotationTime }}
       maxAge:       {{ default .Values.log.maxAge       ((.Values.runtime).log).maxAge }}
+    config:
+      cdiMode:      {{ default "env"                    ((.Values.runtime).config).cdiMode }}
     {{- with include "runtime.podTemplateSpec" . | trim }}{{ . | nindent 4 }}{{- end }}
 
   devicePlugin:
@@ -116,6 +120,7 @@ spec:
       maxAge:       {{ default .Values.log.maxAge       ((.Values.gpuDevice).log).maxAge }}
     healthyInterval: {{ .Values.gpuDevice.healthyInterval }}
     connectDetectPeriod: {{ .Values.gpuDevice.connectDetectPeriod }}
+    {{- with include "cmInit.devicePlugin" . | trim }}{{ . | nindent 4 }}{{- end }}
     {{- with include "gpuDevice.podTemplateSpec" . | trim }}{{ . | nindent 4 }}{{- end }}
 
   dataExporter:
@@ -181,3 +186,46 @@ spec:
         maxAge:       {{ default .Values.log.maxAge       ((.Values.topoDiscovery.worker).log).maxAge }}
       {{- with include "topoDiscovery.worker.podTemplateSpec" . | trim }}{{ . | nindent 6 }}{{- end }}
       metricsPort:      {{ .Values.topoDiscovery.worker.metricsPort }}
+
+  gpuScheduler:
+    deploy: {{ ne .Values.gpuScheduler.deploy false }}
+    version: {{ .Values.gpuScheduler.version }}
+    v1:
+      image:
+        name:         {{ include "kubeScheduler.name" . }}
+        version:      {{ include "kubeScheduler.version" . }}
+        pullPolicy:   {{ include "kubeScheduler.pullPolicy" . }}
+        registry:     {{ include "kubeScheduler.registry" . }}
+      gpuAware:
+        image:
+          name:         {{ default "gpu-aware"             ((.Values.gpuScheduler.gpuAware).image).name }}
+          version:      {{ default .Chart.Version          ((.Values.gpuScheduler.gpuAware).image).version }}
+          pullPolicy:   {{ default .Values.pullPolicy      ((.Values.gpuScheduler.gpuAware).image).pullPolicy }}
+          registry:     {{ default .Values.registry        ((.Values.gpuScheduler.gpuAware).image).registry }}
+        log:
+          dir:          {{ default .Values.log.dir          ((.Values.gpuScheduler.gpuAware).log).dir }}
+          level:        {{ default .Values.log.level        ((.Values.gpuScheduler.gpuAware).log).level }}
+          format:       {{ default .Values.log.format       ((.Values.gpuScheduler.gpuAware).log).format }}
+          rotationTime: {{ default .Values.log.rotationTime ((.Values.gpuScheduler.gpuAware).log).rotationTime }}
+          maxAge:       {{ default .Values.log.maxAge       ((.Values.gpuScheduler.gpuAware).log).maxAge }}
+    v2:
+      image:
+        name:         {{ include "scheduler.name" . }}
+        version:      {{ include "scheduler.version" . }}
+        pullPolicy:   {{ include "scheduler.pullPolicy" . }}
+        registry:     {{ include "scheduler.registry" . }}
+    {{- with include "cmInit.gpuScheduler" . | trim }}{{ . | nindent 4 }}{{- end }}
+    {{- with include "gpuScheduler.podTemplateSpec" . | trim }}{{ . | nindent 4 }}{{- end }}
+  
+  openshift:
+    {{- if (hasKey .Values.openshift "deploy") }}
+    deploy: {{ if kindIs "bool" .Values.openshift.deploy }}{{ .Values.openshift.deploy }}{{ else }}null{{ end }}
+    {{- end }}
+
+  vendor:
+    {{- with include "vendor.config" . | trim }}{{ . | nindent 4 }}{{- end }}
+
+  cluster:
+    type:     {{ default "auto"      (.Values.cluster).type }}
+    version:  {{ default "auto"      (.Values.cluster).version }}
+  

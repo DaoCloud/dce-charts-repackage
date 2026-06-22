@@ -103,6 +103,19 @@ Create the name of the service account to use
 {{- default .Values.registry ((.Values.topoDiscovery.master).image).registry }}
 {{- end }}
 
+{{- define "scheduler.name" -}}
+{{- default "gpu-scheduler" ((.Values.gpuScheduler.scheduler).image).name }}
+{{- end }}
+{{- define "scheduler.version" -}}
+{{- default .Chart.Version ((.Values.gpuScheduler.scheduler).image).version }}
+{{- end }}
+{{- define "scheduler.registry" -}}
+{{- default .Values.registry ((.Values.gpuScheduler.scheduler).image).registry }}
+{{- end }}
+{{- define "scheduler.pullPolicy" -}}
+{{- default .Values.pullPolicy ((.Values.gpuScheduler.scheduler).image).pullPolicy }}
+{{- end }}
+
 {{- define "kubeScheduler.name" -}}
 {{- default "kube-scheduler" ((.Values.gpuScheduler.kubeScheduler).image).name }}
 {{- end }}
@@ -199,6 +212,132 @@ podTemplateSpec:
 {{- end }}
 {{- end -}}
 
+{{/*
+cmInit mappings for ClusterOperator spec (values -> legacy -> empty)
+*/}}
+{{- define "cmInit.driver" -}}
+{{- $driverCmInitSet := and (hasKey .Values.driver "cmInit") (not (empty .Values.driver.cmInit)) -}}
+{{- $driverLegacyV2 := or (not (empty .Values.driver.driverConfig)) (not (empty .Values.driver.driverConfigFile)) -}}
+{{- if $driverCmInitSet }}
+cmInit:
+  {{- toYaml .Values.driver.cmInit | nindent 2 }}
+{{- else if $driverLegacyV2 }}
+cmInit:
+  config:
+    {{- $config := dict }}
+    {{- if .Values.driver.driverConfigFile }}
+      {{- $config = .Values.driver.driverConfigFile | fromYaml | default dict }}
+    {{- else }}
+      {{- $config = .Values.driver.driverConfig | default dict }}
+    {{- end }}
+    version: v2
+    nodes-config: |
+      {{- $config.nodesConfig | default list | toYaml | nindent 6 }}
+    module-params: |
+      {{- $config.moduleParams | default dict | toYaml | nindent 6 }}
+    node-vfnums: ""
+    node-module-params: ""
+{{- else }}
+cmInit:
+  config:
+    version: v1
+    node-vfnums: |
+      {{- toYaml .Values.driver.vfnumsConfig | nindent 6 }}
+    module-params: |
+      {{- toYaml .Values.driver.moduleParams | nindent 6 }}
+    node-module-params: |
+      {{- toYaml .Values.driver.nodeModuleParams | nindent 6 }}
+    nodes-config: ""
+{{- end }}
+  vfio:
+    vfio: |
+      {{- range .Values.driver.vfioConfig }}
+      - nodeName: {{ .nodeName }}
+        gpus: "{{ .gpus }}"
+      {{- end }}
+{{- end }}
+
+{{- define "cmInit.maca" -}}
+{{- $macaCmInitSet := and (hasKey .Values.maca "cmInit") (not (empty .Values.maca.cmInit)) -}}
+{{- $macaLegacy := not (empty .Values.maca.cleanupConfig) -}}
+{{- if $macaCmInitSet }}
+cmInit:
+  {{- toYaml .Values.maca.cmInit | nindent 2 }}
+{{- else if $macaLegacy }}
+cmInit:
+  config:
+    cleanup: |
+      threshold: {{ .Values.maca.cleanupConfig.threshold }}
+      cleanupPolicy: {{ .Values.maca.cleanupConfig.cleanupPolicy }}
+{{- end }}
+{{- end -}}
+
+{{- define "cmInit.gpuScheduler" -}}
+{{- $gpuSchedulerCmInitSet := and (hasKey .Values.gpuScheduler "cmInit") (not (empty .Values.gpuScheduler.cmInit)) -}}
+
+{{- if $gpuSchedulerCmInitSet -}}
+cmInit:
+  {{- toYaml .Values.gpuScheduler.cmInit | nindent 2 -}}
+{{- end }}
+{{- end -}}
+
+
+{{- define "cmInit.devicePlugin" -}}
+{{- $gpuDeviceCmInitSet := and (hasKey .Values.gpuDevice "cmInit") (not (empty .Values.gpuDevice.cmInit)) -}}
+{{- $filterData := dict }}
+{{- if .Values.kind.enabled }}
+  {{- if .Values.kind.configDataFile }}
+    {{- $filterData = fromYaml .Values.kind.configDataFile }}
+  {{- else if .Values.kind.configData }}
+    {{- $filterData = .Values.kind.configData }}
+  {{- else }}
+    {{- $gpuConfig := lookup "v1" "ConfigMap" "default" "mx-gpu-config" }}
+    {{- if $gpuConfig }}
+      {{- $filterData = $gpuConfig.data }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- if $gpuDeviceCmInitSet }}
+cmInit:
+  {{- toYaml .Values.gpuDevice.cmInit | nindent 2 }}
+{{- else if or $filterData .Values.gpuDevice.sGPUHybridMode }}
+cmInit:
+  config:
+    version: v1
+  {{- if $filterData }}
+    kind-config: |
+  {{- toYaml $filterData | nindent 6 }}
+  {{- end }}
+    cluster-config: |
+    {{- if .Values.gpuDevice.sGPUHybridMode }}
+      mode: "sgpu"
+    {{- else }}
+      mode: "native"
+    {{- end }}
+{{- else }}
+cmInit:
+  config:
+    version: v1
+    cluster-config: |
+      mode: {{ .Values.gpuDevice.config.mode | default "" | quote }}
+{{- end }}
+{{- with .Values.gpuDevice.config }}
+      sgpuHybrid: {{ .sgpuHybrid | toYaml }}
+      shareNums: {{ .shareNums }}
+      deviceAllocationStrategy: {{ .deviceAllocationStrategy | default "" | quote }}
+{{- end }}
+{{- end -}}
+
+{{- define "vendor.config" -}}
+{{- $vendor := .Values.vendor | default (dict) -}}
+{{- $vendorConfig := omit $vendor "deploy" | default (fromYaml ($.Files.Get "vendor.yaml")) -}}
+vendorID: {{ $vendorConfig.vendorID | quote }}
+domain: {{ $vendorConfig.domain }}
+charDev: {{ $vendorConfig.charDev }}
+driver: {{ $vendorConfig.driver }}
+virtDriver: {{ $vendorConfig.virtDriver }}
+{{- end }}
+
 {{- define "dataExporter.podTemplateSpec" -}}
 {{- if or .Values.dataExporter.podTemplateSpecFile .Values.dataExporter.podTemplateSpec }}
 podTemplateSpec:
@@ -237,3 +376,14 @@ podTemplateSpec:
 {{- print "true" -}}
 {{- end }}
 {{- end }}
+
+{{- define "gpuScheduler.podTemplateSpec" -}}
+{{- if or .Values.gpuScheduler.podTemplateSpecFile .Values.gpuScheduler.podTemplateSpec }}
+podTemplateSpec:
+{{- if .Values.gpuScheduler.podTemplateSpecFile }}
+{{- .Values.gpuScheduler.podTemplateSpecFile | fromYaml | toYaml | nindent 2 }}
+{{- else }}
+{{- .Values.gpuScheduler.podTemplateSpec | toYaml | nindent 2 }}
+{{- end }}
+{{- end }}
+{{- end -}}
