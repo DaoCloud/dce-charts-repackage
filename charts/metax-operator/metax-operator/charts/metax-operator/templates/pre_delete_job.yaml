@@ -14,16 +14,23 @@ spec:
       serviceAccountName:  metax-pre-delete
       containers:
       - name: pre-delete
-        image: {{ include "topoMaster.registry" . }}/{{ include "topoMaster.name" . }}:{{ include "topoMaster.version" . }}
+        image: {{ include "controller.registry" . }}/{{ include "controller.name" . }}:{{ include "controller.version" . }}
         command: [
                     "/bin/sh",
                     "-c",
-                    "/usr/local/topo-master/clean_topology.sh;
+                    "/host/scripts/delete_metax_label.sh;
                     /host/scripts/delete_metax_annotations.sh;
                     /host/scripts/check_metax_pods.sh;
                     kubectl delete clusteroperators.gpu.metax-tech.com cluster-operator --wait --ignore-not-found
                     "
                   ]
+        env:
+        - name: VENDOR_DOMAIN
+          value: {{ default "metax-tech.com"      (.Values.vendor).domain | quote }}
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         volumeMounts:
           - name: send-event
             mountPath: /host/scripts
@@ -36,4 +43,4 @@ spec:
       - name: send-event
         configMap:
           name: metax-pre-delete-configmap
-          defaultMode: 0500
+          defaultMode: 0555
