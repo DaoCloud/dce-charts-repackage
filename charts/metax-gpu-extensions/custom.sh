@@ -18,7 +18,7 @@ echo "extract original chart from file/"
 rm -rf ${CURRENT_DIR_PATH}/metax-gpu-extensions
 mkdir -p ${CURRENT_DIR_PATH}/metax-gpu-extensions
 mkdir -p ${CURRENT_DIR_PATH}/metax-gpu-extensions/charts
-tar -xzf ${CURRENT_DIR_PATH}/file/metax-gpu-extensions-0.14.2.tgz -C ${CURRENT_DIR_PATH}/metax-gpu-extensions/charts/
+tar -xzf ${CURRENT_DIR_PATH}/file/metax-gpu-extensions-${VERSION}.tgz -C ${CURRENT_DIR_PATH}/metax-gpu-extensions/charts/
 
 echo "copy parent files to metax-gpu-extensions"
 cp -rf ${CURRENT_DIR_PATH}/parent/. ${CURRENT_DIR_PATH}/metax-gpu-extensions/
@@ -26,11 +26,11 @@ cp -rf ${CURRENT_DIR_PATH}/parent/. ${CURRENT_DIR_PATH}/metax-gpu-extensions/
 CHART_DIR="${CURRENT_DIR_PATH}/metax-gpu-extensions/charts/metax-gpu-extensions"
 
 echo "inject image and resources blocks into subchart values.yaml (bottom-up to preserve line numbers)"
-sed -i '78 a\  image:\n    registry: "cr.metax-tech.com"\n    repository: "cloud/gpu-aware"\n    tag: "0.14.2"\n    pullPolicy: IfNotPresent\n  resources:\n    limits:\n      cpu: 500m\n      memory: 512Mi\n    requests:\n      cpu: 100m\n      memory: 128Mi' ${CHART_DIR}/values.yaml
-sed -i '73 a\    image:\n      registry: "cr.metax-tech.com"\n      repository: "cloud/topo-worker"\n      tag: "0.14.2"\n      pullPolicy: IfNotPresent\n    resources:\n      limits:\n        cpu: 500m\n        memory: 512Mi\n      requests:\n        cpu: 100m\n        memory: 128Mi' ${CHART_DIR}/values.yaml
-sed -i '71 a\    image:\n      registry: "cr.metax-tech.com"\n      repository: "cloud/topo-master"\n      tag: "0.14.2"\n      pullPolicy: IfNotPresent\n    resources:\n      limits:\n        cpu: 500m\n        memory: 512Mi\n      requests:\n        cpu: 100m\n        memory: 128Mi' ${CHART_DIR}/values.yaml
-sed -i '25 a\  image:\n    registry: "cr.metax-tech.com"\n    repository: "cloud/gpu-label"\n    tag: "0.14.2"\n    pullPolicy: IfNotPresent\n  resources:\n    limits:\n      cpu: 500m\n      memory: 512Mi\n    requests:\n      cpu: 100m\n      memory: 128Mi' ${CHART_DIR}/values.yaml
-sed -i '22 a\  image:\n    registry: "cr.metax-tech.com"\n    repository: "cloud/gpu-device"\n    tag: "0.14.2"\n    pullPolicy: IfNotPresent\n  resources:\n    limits:\n      cpu: 500m\n      memory: 512Mi\n    requests:\n      cpu: 100m\n      memory: 128Mi' ${CHART_DIR}/values.yaml
+sed -i '78 a\  image:\n    registry: "cr.metax-tech.com"\n    repository: "cloud/gpu-aware"\n    tag: "'"${VERSION}"'"\n    pullPolicy: IfNotPresent\n  resources:\n    limits:\n      cpu: 500m\n      memory: 512Mi\n    requests:\n      cpu: 100m\n      memory: 128Mi' ${CHART_DIR}/values.yaml
+sed -i '73 a\    image:\n      registry: "cr.metax-tech.com"\n      repository: "cloud/topo-worker"\n      tag: "'"${VERSION}"'"\n      pullPolicy: IfNotPresent\n    resources:\n      limits:\n        cpu: 500m\n        memory: 512Mi\n      requests:\n        cpu: 100m\n        memory: 128Mi' ${CHART_DIR}/values.yaml
+sed -i '71 a\    image:\n      registry: "cr.metax-tech.com"\n      repository: "cloud/topo-master"\n      tag: "'"${VERSION}"'"\n      pullPolicy: IfNotPresent\n    resources:\n      limits:\n        cpu: 500m\n        memory: 512Mi\n      requests:\n        cpu: 100m\n        memory: 128Mi' ${CHART_DIR}/values.yaml
+sed -i '25 a\  image:\n    registry: "cr.metax-tech.com"\n    repository: "cloud/gpu-label"\n    tag: "'"${VERSION}"'"\n    pullPolicy: IfNotPresent\n  resources:\n    limits:\n      cpu: 500m\n      memory: 512Mi\n    requests:\n      cpu: 100m\n      memory: 128Mi' ${CHART_DIR}/values.yaml
+sed -i '22 a\  image:\n    registry: "cr.metax-tech.com"\n    repository: "cloud/gpu-device"\n    tag: "'"${VERSION}"'"\n    pullPolicy: IfNotPresent\n  resources:\n    limits:\n      cpu: 500m\n      memory: 512Mi\n    requests:\n      cpu: 100m\n      memory: 128Mi' ${CHART_DIR}/values.yaml
 
 echo "rewrite template image references to {registry}/{repository}:{tag} format"
 sed -i 's|image: {{ .Values.registry }}/{{ include "GPUExt.deviceImage" . }}|image: "{{ .Values.gpuDevice.image.registry }}/{{ .Values.gpuDevice.image.repository }}:{{ .Values.gpuDevice.image.tag }}"|' ${CHART_DIR}/templates/gpudevice_daemonset.yaml

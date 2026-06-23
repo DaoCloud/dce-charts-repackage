@@ -32,4 +32,7 @@ spec:
       - name: topo-clean
         image: "{{ .Values.topoDiscovery.master.image.registry }}/{{ .Values.topoDiscovery.master.image.repository }}:{{ .Values.topoDiscovery.master.image.tag }}"
         command: ["/bin/bash", "-c", "/usr/local/topo-master/clean_topology.sh"]
+        env:
+        - name: VENDOR_DOMAIN
+          value: {{ (.Values.vendor).domain | quote }}
 {{- end }}

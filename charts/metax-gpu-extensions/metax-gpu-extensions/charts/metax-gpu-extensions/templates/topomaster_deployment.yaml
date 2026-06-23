@@ -27,14 +27,27 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      containers:
-      - name: topo-master
+      initContainers:
+      - name: init-log-dir
         image: "{{ .Values.topoDiscovery.master.image.registry }}/{{ .Values.topoDiscovery.master.image.repository }}:{{ .Values.topoDiscovery.master.image.tag }}"
         imagePullPolicy: {{ default .Values.pullPolicy ((.Values.topoDiscovery.master).image).pullPolicy }}
         {{- with .Values.topoDiscovery.master.resources }}
         resources:
           {{- toYaml . | nindent 12 }}
         {{- end }}
+        securityContext:
+          runAsUser: 0  
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            chmod 775 /var/log
+        volumeMounts:
+        - name: log
+          mountPath: /var/log
+      containers:
+      - name: topo-master
+        image: "{{ .Values.topoDiscovery.master.image.registry }}/{{ .Values.topoDiscovery.master.image.repository }}:{{ .Values.topoDiscovery.master.image.tag }}"
+        imagePullPolicy: {{ default .Values.pullPolicy ((.Values.topoDiscovery.master).image).pullPolicy }}
         command: ["/usr/local/topo-master/topo-master"]
         args:
         - --log-file=/var/log/topo-master.log

@@ -5,7 +5,7 @@ metax-gpu-extensions:
       registry: release.daocloud.io
       repository: metax/gpu-device
       pullPolicy: IfNotPresent
-      tag: "0.14.2"
+      tag: "0.15.2"
     resources:
       limits:
         cpu: 500m
@@ -18,7 +18,7 @@ metax-gpu-extensions:
       registry: release.daocloud.io
       repository: metax/gpu-label
       pullPolicy: IfNotPresent
-      tag: "0.14.2"
+      tag: "0.15.2"
     resources:
       limits:
         cpu: 500m
@@ -33,7 +33,7 @@ metax-gpu-extensions:
         registry: release.daocloud.io
         repository: metax/topo-master
         pullPolicy: IfNotPresent
-        tag: "0.14.2"
+        tag: "0.15.2"
       resources:
         limits:
           cpu: 500m
@@ -46,7 +46,7 @@ metax-gpu-extensions:
         registry: release.daocloud.io
         repository: metax/topo-worker
         pullPolicy: IfNotPresent
-        tag: "0.14.2"
+        tag: "0.15.2"
       resources:
         limits:
           cpu: 500m
@@ -59,7 +59,7 @@ metax-gpu-extensions:
       registry: release.daocloud.io
       repository: metax/gpu-aware
       pullPolicy: IfNotPresent
-      tag: "0.14.2"
+      tag: "0.15.2"
     resources:
       limits:
         cpu: 500m
