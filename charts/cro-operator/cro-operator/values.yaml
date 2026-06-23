@@ -1,0 +1,84 @@
+## Default values for charts.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+
+## @param global admission global config
+global:
+  ## @param global.imageRegistry Global Docker image registry
+  imageRegistry: ""
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  imagePullSecrets: []
+
+## @param installCRDs define flag whether to install CRD resources
+##
+installCRDs: true
+
+## @param admission.labels
+labels: {}
+## @param admission.replicaCount target replicas
+replicaCount: 1
+## @param admission.podAnnotations
+podAnnotations: {}
+## @param admission.podLabels
+podLabels: {}
+
+## @param image.registry admission image registry
+## @param image.repository admission image repository
+## @param image.tag admission image tag (immutable tags are recommended)
+## @param image.pullPolicy admission image pull policy
+## @param image.pullSecrets Specify docker-registry secret names as an array
+##
+image:
+  registry: ghcr.io
+  repository: megacloudcontainer/cluster-resource-override-admission-operator
+  tag: "v0.4.23"
+  ## Specify a imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## Example:
+  ## pullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  pullSecrets: []
+## @param controllerManager.resources
+resources:
+  {}
+  # If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+## @param controllerManager.nodeSelector
+nodeSelector: {}
+## @param controllerManager.affinity
+affinity: {}
+## @param controllerManager.tolerations
+tolerations: {}
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /healthz
+    port: 8080
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 5
+
+clusterResourceOverride:
+  image:
+    registry: ghcr.io
+    repository: megacloudcontainer/cluster-resource-override-admission
+    tag: "v0.4.23"
+  version: "v1"

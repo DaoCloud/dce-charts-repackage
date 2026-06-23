@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openshift.clusterResourceOverride.operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    control-plane: {{ include "openshift.clusterResourceOverride.operator.fullname" . }}
+    {{- if .Values.labels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.labels "context" $ ) | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      control-plane: {{ include "openshift.clusterResourceOverride.operator.fullname" . }}
+  template:
+    metadata:
+      {{- if .Values.podAnnotations }}
+      annotations:
+      {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
+      {{- end }}
+      labels:
+        control-plane: {{ include "openshift.clusterResourceOverride.operator.fullname" . }}
+        {{- if .Values.podLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.podLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- include "openshift.clusterResourceOverride.operator.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: {{ include "openshift.clusterResourceOverride.operator.fullname" . }}
+          image: {{ include "openshift.clusterResourceOverride.operator.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+          - /bin/cluster-resource-override-admission-operator
+          - start
+          - --namespace={{ .Release.Namespace }}
+          - --v=2
+          {{- if .Values.resources }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          env:
+            - name: OPERATOR_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: OPERAND_IMAGE
+              value: {{ include "openshift.clusterResourceOverride.image" . }}
+            - name: OPERAND_VERSION
+              value: {{ required "Please set operand version" .Values.clusterResourceOverride.version }}
+          ports:
+            - containerPort: 8080
+          {{- if .Values.readinessProbe.enabled}}
+          readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.livenessProbe.enabled}}
+          livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openshift.clusterResourceOverride.operator.fullname" . }}
