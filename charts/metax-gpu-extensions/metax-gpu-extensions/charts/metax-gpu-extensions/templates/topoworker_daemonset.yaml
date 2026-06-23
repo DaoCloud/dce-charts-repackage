@@ -24,14 +24,27 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      containers:
-      - name: topo-worker
+      initContainers:
+      - name: init-log-dir
         image: "{{ .Values.topoDiscovery.worker.image.registry }}/{{ .Values.topoDiscovery.worker.image.repository }}:{{ .Values.topoDiscovery.worker.image.tag }}"
         imagePullPolicy: {{ default .Values.pullPolicy ((.Values.topoDiscovery.worker).image).pullPolicy }}
         {{- with .Values.topoDiscovery.worker.resources }}
         resources:
           {{- toYaml . | nindent 12 }}
         {{- end }}
+        securityContext:
+          runAsUser: 0  
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            chmod 775 /var/log
+        volumeMounts:
+        - name: log
+          mountPath: /var/log
+      containers:
+      - name: topo-worker
+        image: "{{ .Values.topoDiscovery.worker.image.registry }}/{{ .Values.topoDiscovery.worker.image.repository }}:{{ .Values.topoDiscovery.worker.image.tag }}"
+        imagePullPolicy: {{ default .Values.pullPolicy ((.Values.topoDiscovery.worker).image).pullPolicy }}
         command: ['/usr/local/topo-worker/topo-worker' ]
         args:
         - --log-file=/var/log/topo-worker.log

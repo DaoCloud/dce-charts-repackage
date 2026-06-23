@@ -23,7 +23,7 @@ gpuDevice:
   image:
     registry: "cr.metax-tech.com"
     repository: "cloud/gpu-device"
-    tag: "0.14.2"
+    tag: "0.15.2"
     pullPolicy: IfNotPresent
   resources:
     limits:
@@ -38,7 +38,7 @@ gpuLabel:
   image:
     registry: "cr.metax-tech.com"
     repository: "cloud/gpu-label"
-    tag: "0.14.2"
+    tag: "0.15.2"
     pullPolicy: IfNotPresent
   resources:
     limits:
@@ -96,7 +96,7 @@ topoDiscovery:
     image:
       registry: "cr.metax-tech.com"
       repository: "cloud/topo-master"
-      tag: "0.14.2"
+      tag: "0.15.2"
       pullPolicy: IfNotPresent
     resources:
       limits:
@@ -110,7 +110,7 @@ topoDiscovery:
     image:
       registry: "cr.metax-tech.com"
       repository: "cloud/topo-worker"
-      tag: "0.14.2"
+      tag: "0.15.2"
       pullPolicy: IfNotPresent
     resources:
       limits:
@@ -127,7 +127,7 @@ gpuAware:
   image:
     registry: "cr.metax-tech.com"
     repository: "cloud/gpu-aware"
-    tag: "0.14.2"
+    tag: "0.15.2"
     pullPolicy: IfNotPresent
   resources:
     limits:
