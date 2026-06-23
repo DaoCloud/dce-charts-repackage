@@ -31,7 +31,7 @@ podLabels: {}
 ## @param image.pullSecrets Specify docker-registry secret names as an array
 ##
 image:
-  registry: ghcr.io
+  registry: ghcr.m.daocloud.io
   repository: megacloudcontainer/cluster-resource-override-admission-operator
   tag: "v0.4.23"
   ## Specify a imagePullPolicy
@@ -48,15 +48,12 @@ image:
   pullSecrets: []
 ## @param controllerManager.resources
 resources:
-  {}
-  # If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+  limits:
+    cpu: 100m
+    memory: 300Mi
+  requests:
+    cpu: 100m
+    memory: 200Mi
 ## @param controllerManager.nodeSelector
 nodeSelector: {}
 ## @param controllerManager.affinity
@@ -78,7 +75,7 @@ livenessProbe:
 
 clusterResourceOverride:
   image:
-    registry: ghcr.io
+    registry: ghcr.m.daocloud.io
     repository: megacloudcontainer/cluster-resource-override-admission
     tag: "v0.4.23"
   version: "v1"
