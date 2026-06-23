@@ -24,7 +24,7 @@ jobs:
     steps:
       # some event, the tag is not sha, so checkout it and get sha
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
           ref: ${{ github.event.inputs.ref }}
@@ -72,7 +72,7 @@ jobs:
     needs: [ package ]
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           ref: ${{ env.MERGE_BRANCH }}
           persist-credentials: "true"
