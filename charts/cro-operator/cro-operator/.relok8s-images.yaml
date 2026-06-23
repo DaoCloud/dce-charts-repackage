@@ -1,0 +1,2 @@
+- "{{ .image.registry }}/{{ .image.repository }}:{{ .image.tag }}"
+- "{{ .clusterResourceOverride.image.registry }}/{{ .clusterResourceOverride.image.repository }}:{{ .clusterResourceOverride.image.tag }}"
