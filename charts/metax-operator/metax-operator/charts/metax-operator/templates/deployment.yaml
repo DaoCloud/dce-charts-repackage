@@ -44,8 +44,6 @@ spec:
           value: {{ .Values.minimalMode | default false | quote }}
         - name: OPERATOR_REGISTRY
           value: {{ include "controller.registry" . }}
-        - name: METAX_GPU_SCHEDULER_ON
-          value: "{{ .Values.gpuScheduler.deploy }}"
         command: ["/metax-operator"]
         args:
         - --leader-elect

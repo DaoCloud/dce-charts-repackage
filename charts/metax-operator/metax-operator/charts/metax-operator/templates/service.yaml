@@ -30,3 +30,20 @@ spec:
       targetPort: 9443
   selector:
     app.kubernetes.io/name: metax-operator
+---
+{{- if eq .Values.gpuScheduler.version "v2" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: metax-gpu-scheduler-metrics
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+      app: metax-gpu-scheduler
+  type: NodePort
+  ports:
+    - port: 10259
+      targetPort: 10259
+      nodePort: {{ .Values.gpuScheduler.scheduler.metricsPort }}
+      protocol: TCP
+{{- end }}

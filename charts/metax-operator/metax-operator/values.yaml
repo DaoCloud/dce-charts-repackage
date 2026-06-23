@@ -11,12 +11,12 @@ metax-operator:
     name: operator-controller
     image:
       name: metax/operator-controller
-      version: 0.14.2
+      version: 0.15.2
 
   gpuLabel:
     image:
       name: metax/gpu-label
-      version: 0.14.2
+      version: 0.15.2
 
   driver:
     payload:
@@ -24,12 +24,12 @@ metax-operator:
       version: 3.7.0.23-amd64
     image:
       name: metax/driver-manager
-      version: 0.14.2
+      version: 0.15.2
 
   maca:
     image:
       name: metax/driver-manager
-      version: 0.14.2
+      version: 0.15.2
     payload:
       images:
         name: metax/maca
@@ -38,17 +38,17 @@ metax-operator:
   runtime:
     image:
       name: metax/container-runtime
-      version: 0.14.2
+      version: 0.15.2
 
   gpuDevice:
     image:
       name: metax/gpu-device
-      version: 0.14.2
+      version: 0.15.2
 
   dataExporter:
     deploy: true
     image:
-      version: 0.14.2
+      version: 0.15.2
       name: metax/mx-exporter
 
   topoDiscovery:
@@ -56,11 +56,11 @@ metax-operator:
     master:
       image:
         name: metax/topo-master
-        version: 0.14.2
+        version: 0.15.2
     worker:
       image:
         name: metax/topo-worker
-        version: 0.14.2
+        version: 0.15.2
 
   gpuScheduler:
     deploy: false
@@ -72,4 +72,6 @@ metax-operator:
     gpuAware:
       image:
         name: metax/gpu-aware
-        version: 0.14.2
+        version: 0.15.2
+  openshift:
+    deploy: false

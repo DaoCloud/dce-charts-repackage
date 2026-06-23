@@ -20,7 +20,7 @@ echo "extract original chart from file/"
 rm -rf ${CURRENT_DIR_PATH}/metax-operator
 mkdir -p ${CURRENT_DIR_PATH}/metax-operator
 mkdir -p ${CURRENT_DIR_PATH}/metax-operator/charts
-tar -xzf ${CURRENT_DIR_PATH}/file/metax-operator-0.14.2.tgz -C ${CURRENT_DIR_PATH}/metax-operator/charts/
+tar -xzf ${CURRENT_DIR_PATH}/file/metax-operator-${VERSION}.tgz -C ${CURRENT_DIR_PATH}/metax-operator/charts/
 
 echo "copy parent files to metax-operator"
 cp -rf ${CURRENT_DIR_PATH}/parent/. ${CURRENT_DIR_PATH}/metax-operator/
@@ -32,32 +32,32 @@ echo "patch ${VALUES_FILE}"
 yq -i "
   .registry = \"release.daocloud.io\" |
   .controller.image.name = \"metax/operator-controller\" |
-  .controller.image.version = \"0.14.2\" |
+  .controller.image.version = \"${VERSION}\" |
   .gpuLabel.image.name = \"metax/gpu-label\" |
-  .gpuLabel.image.version = \"0.14.2\" |
+  .gpuLabel.image.version = \"${VERSION}\" |
   .driver.image.name = \"metax/driver-manager\" |
-  .driver.image.version = \"0.14.2\" |
+  .driver.image.version = \"${VERSION}\" |
   .driver.payload.name = \"metax/driver-image\" |
   .driver.payload.version = \"3.2.1.12-amd64\" |
   .maca.image.name = \"metax/driver-manager\" |
-  .maca.image.version = \"0.14.2\" |
+  .maca.image.version = \"${VERSION}\" |
   del(.maca.payload.registry) |
   .maca.payload.images = {\"name\": \"metax/maca-native\", \"version\": \"3.2.1.4-ubuntu20.04-amd64\"} |
   .runtime.image.name = \"metax/container-runtime\" |
-  .runtime.image.version = \"0.14.2\" |
+  .runtime.image.version = \"${VERSION}\" |
   .gpuDevice.image.name = \"metax/gpu-device\" |
-  .gpuDevice.image.version = \"0.14.2\" |
+  .gpuDevice.image.version = \"${VERSION}\" |
   .dataExporter.image.name = \"metax/mx-exporter\" |
-  .dataExporter.image.version = \"0.14.2\" |
+  .dataExporter.image.version = \"${VERSION}\" |
   .topoDiscovery.master.image.name = \"metax/topo-master\" |
-  .topoDiscovery.master.image.version = \"0.14.2\" |
+  .topoDiscovery.master.image.version = \"${VERSION}\" |
   .topoDiscovery.worker.image.name = \"metax/topo-worker\" |
-  .topoDiscovery.worker.image.version = \"0.14.2\" |
+  .topoDiscovery.worker.image.version = \"${VERSION}\" |
   .gpuScheduler.kubeScheduler.image.registry = \"release.daocloud.io\" |
   .gpuScheduler.kubeScheduler.image.name = \"metax/kube-scheduler\" |
   .gpuScheduler.kubeScheduler.image.version = \"v1.28.2\" |
   .gpuScheduler.gpuAware.image.name = \"metax/gpu-aware\" |
-  .gpuScheduler.gpuAware.image.version = \"0.14.2\"
+  .gpuScheduler.gpuAware.image.version = \"${VERSION}\"
 " "${VALUES_FILE}"
 
 # Cross-platform sed -i wrapper (BSD sed on macOS vs GNU sed on Linux)
