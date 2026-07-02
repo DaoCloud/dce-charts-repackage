@@ -64,6 +64,9 @@ yq -i '
     .spiderpool.clusterDefaultPool.ipv6IPRanges = ["fd00::10-fd00::100"] + .spiderpool.clusterDefaultPool.ipv6IPRanges |
     .spiderpool.spiderpoolAgent.prometheus.serviceMonitor.labels."operator.insight.io/managed-by"="insight" |
     .spiderpool.spiderpoolAgent.image.registry="ghcr.m.daocloud.io" |
+    .spiderpool.spiderpoolAgent.networkResourcePlugin.devicePluginAffinity.nodeSelector.matchLabels."kubernetes.io/os"="linux" |
+    .spiderpool.spiderpoolAgent.networkResourcePlugin.resourceAdvertisement.subENI.rules=[{"resourceName":"spidernet.io/sub-eni","defaultMaxCount":256,"nodeSelector":{"matchLabels":{"kubernetes.io/os":"linux"}}}] |
+    .spiderpool.spiderpoolAgent.networkResourcePlugin.resourceAdvertisement.masterNIC.rules=[{"defaultMaxCount":10000,"nodeSelector":{"matchLabels":{"kubernetes.io/os":"linux"}},"includeInterfaces":["eth*"],"excludeInterfaces":[]}] |
     .spiderpool.spiderpoolAgent.resources.requests.cpu=strenv(CUSTOM_SPIDERPOOL_AGENT_CPU) |
     .spiderpool.spiderpoolAgent.resources.requests.memory=strenv(CUSTOM_SPIDERPOOL_AGENT_MEMORY) |
     .spiderpool.spiderpoolController.image.registry="ghcr.m.daocloud.io" |
@@ -80,6 +83,37 @@ yq -i '
     .spiderpool.sriov.image.resourcesInjector.tag="v1.5" |
     .spiderpool.spiderpoolController.podResourceInject.enabled=true
 ' ${CHART_DIRECTORY}/values.yaml
+
+yq -i '
+    .spiderpoolAgent.networkResourcePlugin.devicePluginAffinity.nodeSelector={"matchLabels":{"kubernetes.io/os":"linux"}} |
+    .spiderpoolAgent.networkResourcePlugin.resourceAdvertisement.subENI.rules=[{"resourceName":"spidernet.io/sub-eni","defaultMaxCount":256,"nodeSelector":{"matchLabels":{"kubernetes.io/os":"linux"}}}] |
+    .spiderpoolAgent.networkResourcePlugin.resourceAdvertisement.masterNIC.rules=[{"defaultMaxCount":10000,"nodeSelector":{"matchLabels":{"kubernetes.io/os":"linux"}},"includeInterfaces":["eth*"],"excludeInterfaces":[]}]
+' ${CHART_DIRECTORY}/charts/spiderpool/values.yaml
+
+for VALUES_FILE in ${CHART_DIRECTORY}/values.yaml ${CHART_DIRECTORY}/charts/spiderpool/values.yaml; do
+    ${SED_COMMAND} -i 's/node label selector for nodes that advertise Spiderpool network resources\. Empty selector matches all nodes\./node label selector for nodes that advertise Spiderpool network resources./' ${VALUES_FILE}
+    ${SED_COMMAND} -i 's/auxiliary ENI slot advertisement rules\. Empty rules disable sub-ENI advertisement\./auxiliary ENI slot advertisement rules./' ${VALUES_FILE}
+    ${SED_COMMAND} -i 's/node\/interface selection rules for advertised master NIC resources\. Empty rules disable master NIC advertisement\./node\/interface selection rules for advertised master NIC resources./' ${VALUES_FILE}
+done
+
+for README_FILE in ${CHART_DIRECTORY}/README.md ${CHART_DIRECTORY}/charts/spiderpool/README.md; do
+    awk '
+        index($0, "`spiderpoolAgent.networkResourcePlugin.devicePluginAffinity.nodeSelector`") {
+            print "| `spiderpoolAgent.networkResourcePlugin.devicePluginAffinity.nodeSelector`            | node label selector for nodes that advertise Spiderpool network resources.                                                                                                       | `{\"matchLabels\":{\"kubernetes.io/os\":\"linux\"}}` |"
+            next
+        }
+        index($0, "`spiderpoolAgent.networkResourcePlugin.resourceAdvertisement.subENI.rules`") {
+            print "| `spiderpoolAgent.networkResourcePlugin.resourceAdvertisement.subENI.rules`           | auxiliary ENI slot advertisement rules.                                                                                                                                         | `[{\"resourceName\":\"spidernet.io/sub-eni\",\"defaultMaxCount\":256,\"nodeSelector\":{\"matchLabels\":{\"kubernetes.io/os\":\"linux\"}}}]` |"
+            next
+        }
+        index($0, "`spiderpoolAgent.networkResourcePlugin.resourceAdvertisement.masterNIC.rules`") {
+            print "| `spiderpoolAgent.networkResourcePlugin.resourceAdvertisement.masterNIC.rules`        | node/interface selection rules for advertised master NIC resources.                                                                                                             | `[{\"defaultMaxCount\":10000,\"nodeSelector\":{\"matchLabels\":{\"kubernetes.io/os\":\"linux\"}},\"includeInterfaces\":[\"eth*\"],\"excludeInterfaces\":[]}]` |"
+            next
+        }
+        { print }
+    ' ${README_FILE} >${README_FILE}.tmp
+    mv ${README_FILE}.tmp ${README_FILE}
+done
 
 # spiderpool.sriov.image.resourcesInjector.tag="v1.5" is used as a fallback
 # because resourcesInjector v1.6.0 does not include an ARM64 image
