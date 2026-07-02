@@ -229,13 +229,21 @@ routing:
     # default: error
     # @schema
     # zapStacktraceLevel: error
-# String: Zap time encoding (one of 'epoch', 'millis', 'nano', 'iso8601', 'rfc3339' or 'rfc3339nano'). Defaults to 'epoch'
-# @schema
-# enum: [epoch,millis,nano,iso8601,rfc3339,rfc3339nano]
-# default: epoch
-# @schema
-# zapTimeEncoding: epoch
 
+    # String: Zap time encoding (one of 'epoch', 'millis', 'nano', 'iso8601', 'rfc3339' or 'rfc3339nano'). Defaults to 'epoch'
+    # @schema
+    # enum: [epoch,millis,nano,iso8601,rfc3339,rfc3339nano]
+    # default: epoch
+    # @schema
+    # zapTimeEncoding: epoch
+
+    # -- Resource requests and limits for the routing proxy sidecar container.
+    # When not set, no resource constraints are applied (resources: {}).
+    # @schema
+    # type: object
+    # additionalProperties: true
+    # @schema
+    resources: {}
 # @schema
 # additionalProperties: true
 # @schema
