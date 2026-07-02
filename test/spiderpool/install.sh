@@ -50,6 +50,7 @@ helm install spiderpool chart-museum/spiderpool ${HELM_MUST_OPTION} \
   --set rdma.rdmaSharedDevicePlugin.install=true \
   --set plugins.installCNI=true --set plugins.installRdmaCNI=true --set plugins.installOvsCNI=true \
   --set spiderpool.ipam.enableIPv4=true --set spiderpool.ipam.enableIPv6=true \
+  --set spiderpool.spiderpoolAgent.networkResourcePlugin.enabled=true \
   --set spiderpool.clusterDefaultPool.installIPv4IPPool=true --set spiderpool.clusterDefaultPool.installIPv6IPPool=true \
   --set spiderpool.clusterDefaultPool.ipv4Subnet=${Ipv4Subnet} --set spiderpool.clusterDefaultPool.ipv4IPRanges={${Ipv4Range}} --set spiderpool.clusterDefaultPool.ipv4Gateway=${Ipv4GW} \
   --set spiderpool.clusterDefaultPool.ipv6Subnet=${Ipv6Subnet} --set spiderpool.clusterDefaultPool.ipv6IPRanges={${Ipv6Range}} --set spiderpool.clusterDefaultPool.ipv6Gateway=${Ipv6GW}

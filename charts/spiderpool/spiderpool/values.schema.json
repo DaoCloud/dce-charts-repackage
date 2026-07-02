@@ -75,6 +75,61 @@
                                     "default": false
                                 }
                             }
+                        },
+                        "networkResourcePlugin": {
+                            "title": "Spiderpool Agent Network Resource Plugin Setting",
+                            "description": "Configure spiderpool-agent network resource advertisement through the kubelet device plugin API.",
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "title": "Enable",
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "resourceAdvertisement": {
+                                    "type": "object",
+                                    "properties": {
+                                        "subENI": {
+                                            "type": "object",
+                                            "properties": {
+                                                "rules": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "resourceName": {
+                                                                "type": "string",
+                                                                "default": "spidernet.io/sub-eni"
+                                                            },
+                                                            "defaultMaxCount": {
+                                                                "type": "integer",
+                                                                "default": 256
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "masterNIC": {
+                                            "type": "object",
+                                            "properties": {
+                                                "rules": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "defaultMaxCount": {
+                                                                "type": "integer",
+                                                                "default": 10000
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -442,6 +497,18 @@
                                     "fd00::10-fd00::200"
                                 ]
                             ]
+                        }
+                    }
+                },
+                "iaasNetworkProvider": {
+                    "title": "IaaS Network Provider Integration",
+                    "type": "object",
+                    "properties": {
+                        "serverUrl": {
+                            "title": "IaaS Provider Server URL",
+                            "description": "The URL of the IaaS provider service. Must include scheme (http or https) and port. If empty, IaaS integration is disabled. For example: https://iaas-network-provider.iaas-network-provider-system.svc:443",
+                            "type": "string",
+                            "default": ""
                         }
                     }
                 }
