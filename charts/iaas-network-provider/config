@@ -1,0 +1,23 @@
+export USE_OPENSOURCE_CHART=false
+
+# must
+export REPO_URL=oci://ghcr.io/daocloud/charts/iaas-network-provider
+export REPO_NAME=iaas-network-provider
+export CHART_NAME=iaas-network-provider
+export VERSION=0.1.0-rc1
+export IS_OCI_REPO=true
+export OCI_CHART_REF=oci://ghcr.io/daocloud/charts/iaas-network-provider
+
+# pr, issue, none
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=cyclinder
+export TEST_ASSIGNER=cyclinder
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon
+
+# optional, for wrapper chart
+export CUSTOM_SHELL=custom.sh
+
+export CHECK_IMAGES_SOURCE_INSTALL=true
+export NO_TRIVY=true

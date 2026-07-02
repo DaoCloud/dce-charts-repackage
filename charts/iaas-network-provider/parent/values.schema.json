@@ -1,0 +1,233 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "title": "IaaS Network Provider Values",
+  "description": "Schema for the iaas-network-provider wrapper chart values.",
+  "properties": {
+    "iaas-network-provider": {
+      "type": "object",
+      "title": "IaaS Network Provider",
+      "description": "Values passed to the vendored iaas-network-provider subchart.",
+      "properties": {
+        "replicaCount": {
+          "type": "integer",
+          "title": "Replicas",
+          "description": "Number of iaas-network-provider controller replicas.",
+          "default": 1,
+          "minimum": 0
+        },
+        "image": {
+          "type": "object",
+          "title": "Image",
+          "description": "Container image settings for the iaas-network-provider controller.",
+          "properties": {
+            "registry": {
+              "type": "string",
+              "title": "Image registry",
+              "description": "Container image registry.",
+              "default": "ghcr.m.daocloud.io"
+            },
+            "repository": {
+              "type": "string",
+              "title": "Image repository",
+              "description": "Container image repository path.",
+              "default": "daocloud/iaas-network-provider/controller"
+            },
+            "tag": {
+              "type": "string",
+              "title": "Image tag",
+              "description": "Container image tag. If empty in the child chart, the chart defaults to v + appVersion.",
+              "default": "v0.1.0-rc1"
+            }
+          }
+        },
+        "config": {
+          "type": "object",
+          "title": "Provider Config",
+          "description": "Runtime configuration rendered into the iaas-network-provider config file.",
+          "properties": {
+            "logLevel": {
+              "type": "string",
+              "title": "Log level",
+              "description": "Controller log level.",
+              "default": "info",
+              "enum": [
+                "debug",
+                "info",
+                "warn",
+                "error"
+              ]
+            },
+            "bindAddress": {
+              "type": "string",
+              "title": "Bind address",
+              "description": "Controller listen address. With tls.enabled=true the default HTTPS listen port is 8443; with tls.enabled=false the HTTP listen port is 8080.",
+              "default": ":8443"
+            },
+            "iaasProvider": {
+              "type": "object",
+              "title": "IaaS provider",
+              "description": "Cloud provider API configuration. The default provider is Huawei Cloud.",
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "title": "Provider",
+                  "description": "IaaS provider name.",
+                  "default": "huaweicloud"
+                },
+                "endpoint": {
+                  "type": "string",
+                  "title": "Provider endpoint",
+                  "description": "Base endpoint for the IaaS provider API.",
+                  "default": ""
+                },
+                "region": {
+                  "type": "string",
+                  "title": "Region",
+                  "description": "Cloud provider region.",
+                  "default": ""
+                },
+                "projectID": {
+                  "type": "string",
+                  "title": "Project ID",
+                  "description": "Cloud provider project ID.",
+                  "default": ""
+                },
+                "projectName": {
+                  "type": "string",
+                  "title": "Project name",
+                  "description": "Cloud provider project name.",
+                  "default": ""
+                },
+                "vpcEndpoint": {
+                  "type": "string",
+                  "title": "VPC endpoint",
+                  "description": "Optional VPC service endpoint. Leave empty to use the provider default endpoint.",
+                  "default": ""
+                },
+                "ecsEndpoint": {
+                  "type": "string",
+                  "title": "ECS endpoint",
+                  "description": "Optional ECS service endpoint. Leave empty to use the provider default endpoint.",
+                  "default": ""
+                },
+                "securityGroups": {
+                  "type": "array",
+                  "title": "Security groups",
+                  "description": "Security group IDs used by the provider, for example securityGroupID1.",
+                  "default": [],
+                  "items": {
+                    "type": "string",
+                    "description": "Security group ID."
+                  }
+                },
+                "auth": {
+                  "type": "object",
+                  "title": "Authentication",
+                  "description": "Authentication settings for the IaaS provider API.",
+                  "properties": {
+                    "mode": {
+                      "type": "string",
+                      "title": "Authentication mode",
+                      "description": "Authentication mode. Supported values are token and ak-sk; token is the default.",
+                      "default": "token",
+                      "enum": [
+                        "token"
+                      ]
+                    },
+                    "aksk": {
+                      "type": "object",
+                      "title": "AK/SK authentication",
+                      "description": "AK/SK authentication settings.",
+                      "properties": {
+                        "credentialsSecret": {
+                          "type": "string",
+                          "title": "Credentials secret",
+                          "description": "Existing Secret containing CLOUD_ACCESS_KEY and CLOUD_SECRET_KEY.",
+                          "default": "huawei-credentials"
+                        }
+                      }
+                    },
+                    "token": {
+                      "type": "object",
+                      "title": "Token authentication",
+                      "description": "Token authentication settings.",
+                      "properties": {
+                        "username": {
+                          "type": "string",
+                          "title": "Username",
+                          "description": "Token authentication username.",
+                          "default": ""
+                        },
+                        "password": {
+                          "type": "string",
+                          "title": "Password",
+                          "description": "Token authentication password.",
+                          "default": ""
+                        },
+                        "iamDomain": {
+                          "type": "string",
+                          "title": "IAM domain",
+                          "description": "IAM domain, for example audn_f82356b7-dd13-4c14-aa1e-1a3.",
+                          "default": ""
+                        },
+                        "agencyName": {
+                          "type": "string",
+                          "title": "Agency name",
+                          "description": "Agency name. If trustTenantName is set, the controller can query SC and override this value from the matched trust tenant.",
+                          "default": ""
+                        },
+                        "iamEndpoint": {
+                          "type": "string",
+                          "title": "IAM endpoint",
+                          "description": "IAM endpoint, for example https://iam-apigateway-proxy.nbcbcloud.com.",
+                          "default": ""
+                        },
+                        "scEndpoint": {
+                          "type": "string",
+                          "title": "SC endpoint",
+                          "description": "SC service endpoint used to query delegated tenant information, for example https://sc.nbcbcloud.com.",
+                          "default": ""
+                        },
+                        "trustTenantName": {
+                          "type": "string",
+                          "title": "Trust tenant name",
+                          "description": "Delegated tenant name used to match agency_name from trust_vdc_list, for example nbyh.",
+                          "default": ""
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "hostAliases": {
+          "type": "array",
+          "title": "Host aliases",
+          "description": "Entries injected into the pod /etc/hosts file to bypass DNS resolution. Useful for mapping IaaS provider endpoints to specific IPs without relying on CoreDNS.",
+          "default": [],
+          "items": {
+            "type": "object",
+            "description": "Host alias entry added to the pod /etc/hosts file.",
+            "properties": {
+              "ip": {
+                "type": "string",
+                "description": "IP address to add to /etc/hosts, for example 10.20.1.100."
+              },
+              "hostnames": {
+                "type": "array",
+                "description": "Hostnames mapped to the IP address, for example iam-apigateway-proxy.nbcbcloud.com.",
+                "items": {
+                  "type": "string",
+                  "description": "Hostname mapped to the host alias IP address."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
