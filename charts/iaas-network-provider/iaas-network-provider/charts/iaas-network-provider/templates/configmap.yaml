@@ -1,0 +1,60 @@
+{{- include "iaas-network-provider.validateValues" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "iaas-network-provider.fullname" . }}
+  labels:
+    {{- include "iaas-network-provider.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    logLevel: {{ .Values.config.logLevel }}
+    server:
+      bindAddress: "{{ .Values.config.bindAddress }}"
+      tls:
+        enabled: {{ .Values.tls.enabled }}
+        certFile: "{{ .Values.config.tls.certFile }}"
+        keyFile: "{{ .Values.config.tls.keyFile }}"
+    k8sClientConfig:
+      qps: {{ .Values.config.k8sClientConfig.qps }}
+      burst: {{ .Values.config.k8sClientConfig.burst }}
+    rateLimit:
+      qps: {{ .Values.config.rateLimit.qps }}
+      burst: {{ default 10 .Values.config.rateLimit.burst }}
+      queueTimeoutSeconds: {{ .Values.config.rateLimit.queueTimeoutSeconds }}
+      maxTransactionTimeoutSeconds: {{ default 0 .Values.config.rateLimit.maxTransactionTimeoutSeconds }}
+    leaderElection:
+      enabled: {{ .Values.config.leaderElection.enabled }}
+      leaseName: {{ .Values.config.leaderElection.leaseName }}
+      leaseNamespace: {{ .Release.Namespace }}
+      leaseDurationSeconds: {{ .Values.config.leaderElection.leaseDurationSeconds }}
+      renewDeadlineSeconds: {{ .Values.config.leaderElection.renewDeadlineSeconds }}
+      retryPeriodSeconds: {{ .Values.config.leaderElection.retryPeriodSeconds }}
+    cache:
+      preloadOnStartup: {{ .Values.config.cache.preloadOnStartup }}
+      iaasNetCacheTTLMinutes: {{ .Values.config.cache.iaasNetCacheTTLMinutes }}
+    iaasProvider:
+      provider: "{{ .Values.config.iaasProvider.provider }}"
+      endpoint: "{{ .Values.config.iaasProvider.endpoint }}"
+      region: "{{ .Values.config.iaasProvider.region }}"
+      projectID: "{{ .Values.config.iaasProvider.projectID }}"
+      projectName: "{{ .Values.config.iaasProvider.projectName }}"
+      vpcEndpoint: "{{ .Values.config.iaasProvider.vpcEndpoint }}"
+      ecsEndpoint: "{{ .Values.config.iaasProvider.ecsEndpoint }}"
+      securityGroups:
+      {{- range .Values.config.iaasProvider.securityGroups }}
+        - {{ . }}
+      {{- end }}
+      auth:
+        mode: "{{ .Values.config.iaasProvider.auth.mode }}"
+        token:
+          username: "{{ .Values.config.iaasProvider.auth.token.username }}"
+          password: "{{ .Values.config.iaasProvider.auth.token.password }}"
+          iamDomain: "{{ .Values.config.iaasProvider.auth.token.iamDomain }}"
+          agencyName: "{{ .Values.config.iaasProvider.auth.token.agencyName }}"
+          iamEndpoint: "{{ .Values.config.iaasProvider.auth.token.iamEndpoint }}"
+          scEndpoint: "{{ .Values.config.iaasProvider.auth.token.scEndpoint }}"
+          trustTenantName: "{{ .Values.config.iaasProvider.auth.token.trustTenantName }}"
+          tokenRefreshInterval: "{{ .Values.config.iaasProvider.auth.token.tokenRefreshInterval }}"
+          tokenRefreshBeforeExpiry: "{{ .Values.config.iaasProvider.auth.token.tokenRefreshBeforeExpiry }}"
+          tokenRefreshRetryInterval: "{{ .Values.config.iaasProvider.auth.token.tokenRefreshRetryInterval }}"
+          tokenRefreshFailThreshold: {{ .Values.config.iaasProvider.auth.token.tokenRefreshFailThreshold }}

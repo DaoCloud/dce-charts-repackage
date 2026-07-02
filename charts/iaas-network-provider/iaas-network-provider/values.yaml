@@ -1,0 +1,112 @@
+# child values
+iaas-network-provider:
+  replicaCount: 1
+  image:
+    registry: ghcr.m.daocloud.io
+    repository: daocloud/iaas-network-provider/controller
+    tag: "v0.1.0-rc1"
+    pullPolicy: IfNotPresent
+  serviceAccount:
+    create: true
+    name: iaas-network-provider
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  tls:
+    enabled: true
+    autoGenerate: true
+    # Valid for ~100 years
+    certValidityDays: 36500
+    # If provided, this secret is used directly and autoGenerate is ignored.
+    existingSecret: ""
+  service:
+    type: ClusterIP
+    port: 8080 # HTTP 端口（当 tls.enabled=false 时使用）
+    tlsPort: 443 # HTTPS 端口（当 tls.enabled=true 时使用）
+    nodePort:
+      http: "" # NodePort for HTTP (when type=NodePort and tls.enabled=false)
+      https: "" # NodePort for HTTPS (when type=NodePort and tls.enabled=true)
+  config:
+    logLevel: info
+    bindAddress: ":8443" # 监听端口，tls.enabled=true -> 8443 HTTPS, tls.enabled=false-> 8080 HTTP
+    # 证书挂载路径（容器内路径）
+    tls:
+      certFile: /etc/iaas-network-provider/tls/tls.crt
+      keyFile: /etc/iaas-network-provider/tls/tls.key
+    # Kubernetes Client Config，控制 informer / client-go 请求速率
+    k8sClientConfig:
+      qps: 200 # API QPS 限流
+      burst: 400 # API 突发请求数限流
+    # IPAM Rate Limit，控制 AllocateIPs / ReleaseIP 入口请求速率
+    rateLimit:
+      qps: 2
+      queueTimeoutSeconds: 30
+      maxTransactionTimeoutSeconds: 16 # 单次 IPAM（AllocateIPs/ReleaseIP）与云侧交互的最大事务超时时间
+    # Leader Election，控制 leader 选举
+    leaderElection:
+      enabled: true
+      leaseName: iaas-network-provider-leader
+      leaseNamespace: "{{ .Release.Namespace }}"
+      leaseDurationSeconds: 60
+      renewDeadlineSeconds: 40
+      retryPeriodSeconds: 15
+    cache:
+      preloadOnStartup: true
+      iaasNetCacheTTLMinutes: 240 # 240 minutes = 4 hours
+    # IaaS Provider，控制云厂商 API 的配置
+    iaasProvider:
+      provider: huaweicloud
+      endpoint: ""
+      region: ""
+      projectID: ""
+      projectName: ""
+      vpcEndpoint: ""
+      ecsEndpoint: ""
+      # securityGroups:
+      #   - securityGroupID1
+      securityGroups: []
+      auth:
+        mode: token # ak-sk or token, default is token
+        aksk: # ak-sk auth config
+          # Name of the existing Secret containing CLOUD_ACCESS_KEY and CLOUD_SECRET_KEY
+          credentialsSecret: huawei-credentials
+        token: # token auth config
+          username: "" # 用户名
+          password: "" # 密码
+          iamDomain: "" # IAMDomain， 如 audn_f82356b7-dd13-4c14-aa1e-1a3
+          agencyName: "" # agencyName（静态配置，若 trustTenantName 非空则自动从 SC 查询覆盖）
+          iamEndpoint: "" # IAMEndpoint， 如 https://iam-apigateway-proxy.nbcbcloud.com
+          scEndpoint: "" # SC 服务端点，用于查询代维租户信息， 如 https://sc.nbcbcloud.com
+          trustTenantName: "" # 代维租户名称，用于从 trust_vdc_list 匹配 agency_name， 如 nbyh
+          tokenRefreshInterval: "23h" # Token refresh interval, e.g. 23h
+          tokenRefreshBeforeExpiry: "1h" # Refresh before expiry, e.g. 1h
+          tokenRefreshRetryInterval: "30s" # Retry interval after refresh failure
+          tokenRefreshFailThreshold: 3 # Consecutive refresh failures threshold
+  # 示例:
+  # affinity:
+  #   nodeAffinity:
+  #     preferredDuringSchedulingIgnoredDuringExecution:
+  #     - weight: 100
+  #       preference:
+  #         matchExpressions:
+  #         - key: node-role.kubernetes.io/control-plane
+  #           operator: Exists
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  # hostAliases injects entries into Pod's /etc/hosts to bypass DNS resolution.
+  # Useful for mapping IaaS provider endpoints to specific IPs without relying on CoreDNS.
+  # Example:
+  # hostAliases:
+  #   - ip: "10.20.1.100"
+  #     hostnames:
+  #       - "iam-apigateway-proxy.nbcbcloud.com"
+  #       - "ecs.lab-yz-1.nbcbcloud.com"
+  #   - ip: "10.20.1.101"
+  #     hostnames:
+  #       - "vpc.lab-yz-1.nbcbcloud.com"
+  hostAliases: []

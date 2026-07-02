@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "iaas-network-provider.fullname" . }}
+  labels:
+    {{- include "iaas-network-provider.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "iaas-network-provider.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "iaas-network-provider.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "iaas-network-provider.serviceAccountName" . }}
+      {{- if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ include "iaas-network-provider.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --config=/etc/iaas-network-provider/config.yaml
+          ports:
+            - name: {{ ternary "https" "http" .Values.tls.enabled }}
+              containerPort: {{ ternary 8443 8080 .Values.tls.enabled }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /v1/apis/network.iaas.io/healthz
+              port: {{ ternary "https" "http" .Values.tls.enabled }}
+              scheme: {{ ternary "HTTPS" "HTTP" .Values.tls.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /v1/apis/network.iaas.io/ready
+              port: {{ ternary "https" "http" .Values.tls.enabled }}
+              scheme: {{ ternary "HTTPS" "HTTP" .Values.tls.enabled }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            {{- if and .Values.config.iaasProvider.auth (eq .Values.config.iaasProvider.auth.mode "ak-sk") }}
+            - name: CLOUD_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.iaasProvider.auth.aksk.credentialsSecret }}
+                  key: CLOUD_ACCESS_KEY
+            - name: CLOUD_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.iaasProvider.auth.aksk.credentialsSecret }}
+                  key: CLOUD_SECRET_KEY
+            {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/iaas-network-provider
+              readOnly: true
+            {{- if .Values.tls.enabled }}
+            - name: tls
+              mountPath: /etc/iaas-network-provider/tls
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "iaas-network-provider.fullname" . }}
+        {{- if .Values.tls.enabled }}
+        - name: tls
+          secret:
+            secretName: {{ default (printf "%s-tls" (include "iaas-network-provider.fullname" .)) .Values.tls.existingSecret }}
+        {{- end }}
