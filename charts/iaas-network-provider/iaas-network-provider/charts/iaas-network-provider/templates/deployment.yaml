@@ -45,6 +45,11 @@ spec:
             - name: {{ ternary "https" "http" .Values.tls.enabled }}
               containerPort: {{ ternary 8443 8080 .Values.tls.enabled }}
               protocol: TCP
+            {{- if .Values.config.pprof.enabled }}
+            - name: pprof
+              containerPort: {{ include "iaas-network-provider.pprofPort" . }}
+              protocol: TCP
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /v1/apis/network.iaas.io/healthz

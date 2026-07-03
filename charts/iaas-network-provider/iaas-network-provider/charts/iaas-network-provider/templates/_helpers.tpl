@@ -68,6 +68,21 @@ ServiceAccount name
 {{- end }}
 
 {{/*
+Parse the numeric TCP port from config.pprof.bindAddress for containerPort.
+Supports ":6060", "0.0.0.0:7070", and "127.0.0.1:6060".
+*/}}
+{{- define "iaas-network-provider.pprofPort" -}}
+{{- $addr := .Values.config.pprof.bindAddress | trim -}}
+{{- if hasPrefix ":" $addr -}}
+{{- trimPrefix ":" $addr -}}
+{{- else if contains ":" $addr -}}
+{{- (splitList ":" $addr | last) -}}
+{{- else -}}
+{{- $addr -}}
+{{- end -}}
+{{- end }}
+
+{{/*
 Validate required chart values and fail fast on empty inputs.
 */}}
 {{- define "iaas-network-provider.validateValues" -}}
@@ -88,5 +103,12 @@ Validate required chart values and fail fast on empty inputs.
 {{- $_ := required "values.config.iaasProvider.auth.aksk.credentialsSecret is required when auth.mode=ak-sk" .Values.config.iaasProvider.auth.aksk.credentialsSecret -}}
 {{- else -}}
 {{- fail (printf "values.config.iaasProvider.auth.mode must be either \"token\" or \"ak-sk\", got %q" .Values.config.iaasProvider.auth.mode) -}}
+{{- end -}}
+
+{{- if .Values.config.pprof.enabled -}}
+{{- $port := include "iaas-network-provider.pprofPort" . -}}
+{{- if or (not $port) (not (regexMatch "^[0-9]+$" $port)) (lt (int $port) 1) (gt (int $port) 65535) -}}
+{{- fail (printf "config.pprof.bindAddress %q must contain a valid TCP port (1-65535) when pprof.enabled=true" .Values.config.pprof.bindAddress) -}}
+{{- end -}}
 {{- end -}}
 {{- end }}

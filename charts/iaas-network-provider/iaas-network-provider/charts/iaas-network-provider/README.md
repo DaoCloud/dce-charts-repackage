@@ -1,6 +1,6 @@
 # iaas-network-provider
 
-![Version: 0.1.0-rc1](https://img.shields.io/badge/Version-0.1.0--rc1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0-rc1](https://img.shields.io/badge/AppVersion-0.1.0--rc1-informational?style=flat-square)
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
 
 IaaS Network Provider — IPAM bridge between Spiderpool and Huawei Cloud
 
@@ -27,6 +27,7 @@ IaaS Network Provider — IPAM bridge between Spiderpool and Huawei Cloud
 | config.iaasProvider.auth.token.username | string | `""` |  |
 | config.iaasProvider.ecsEndpoint | string | `""` |  |
 | config.iaasProvider.endpoint | string | `""` |  |
+| config.iaasProvider.httpRequestTimeout | string | `"30s"` |  |
 | config.iaasProvider.projectID | string | `""` |  |
 | config.iaasProvider.projectName | string | `""` |  |
 | config.iaasProvider.provider | string | `"huaweicloud"` |  |
@@ -42,6 +43,8 @@ IaaS Network Provider — IPAM bridge between Spiderpool and Huawei Cloud
 | config.leaderElection.renewDeadlineSeconds | int | `40` |  |
 | config.leaderElection.retryPeriodSeconds | int | `15` |  |
 | config.logLevel | string | `"info"` |  |
+| config.pprof.bindAddress | string | `":6060"` |  |
+| config.pprof.enabled | bool | `false` |  |
 | config.rateLimit.maxTransactionTimeoutSeconds | int | `16` |  |
 | config.rateLimit.qps | int | `2` |  |
 | config.rateLimit.queueTimeoutSeconds | int | `30` |  |

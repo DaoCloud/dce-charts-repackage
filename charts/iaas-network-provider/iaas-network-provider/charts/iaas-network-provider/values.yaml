@@ -37,6 +37,10 @@ service:
 config:
   logLevel: info
   bindAddress: ":8443"   # 监听端口，tls.enabled=true -> 8443 HTTPS, tls.enabled=false-> 8080 HTTP
+  # pprof 性能分析，用于性能优化和调试
+  pprof:
+    enabled: false
+    bindAddress: ":6060" # 同时决定 pprof 进程监听端口与 Deployment containerPort（named port: pprof）
   # 证书挂载路径（容器内路径）
   tls:
     certFile: /etc/iaas-network-provider/tls/tls.crt
@@ -70,6 +74,7 @@ config:
     projectName: ""
     vpcEndpoint: ""
     ecsEndpoint: ""
+    httpRequestTimeout: "30s"  # Single cloud API HTTP round-trip timeout
     # securityGroups:
     #   - securityGroupID1
     securityGroups: []

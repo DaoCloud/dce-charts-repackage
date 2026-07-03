@@ -14,6 +14,9 @@ data:
         enabled: {{ .Values.tls.enabled }}
         certFile: "{{ .Values.config.tls.certFile }}"
         keyFile: "{{ .Values.config.tls.keyFile }}"
+    pprof:
+      enabled: {{ .Values.config.pprof.enabled }}
+      bindAddress: "{{ .Values.config.pprof.bindAddress }}"
     k8sClientConfig:
       qps: {{ .Values.config.k8sClientConfig.qps }}
       burst: {{ .Values.config.k8sClientConfig.burst }}
@@ -40,6 +43,7 @@ data:
       projectName: "{{ .Values.config.iaasProvider.projectName }}"
       vpcEndpoint: "{{ .Values.config.iaasProvider.vpcEndpoint }}"
       ecsEndpoint: "{{ .Values.config.iaasProvider.ecsEndpoint }}"
+      httpRequestTimeout: "{{ .Values.config.iaasProvider.httpRequestTimeout }}"
       securityGroups:
       {{- range .Values.config.iaasProvider.securityGroups }}
         - {{ . }}

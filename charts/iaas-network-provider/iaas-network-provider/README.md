@@ -1,6 +1,6 @@
 # iaas-network-provider
 
-![Version: 0.1.0-rc1](https://img.shields.io/badge/Version-0.1.0--rc1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0-rc1](https://img.shields.io/badge/AppVersion-0.1.0--rc1-informational?style=flat-square)
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
 
 IaaS Network Provider — IPAM bridge between Spiderpool and Huawei Cloud
 
@@ -8,7 +8,7 @@ IaaS Network Provider — IPAM bridge between Spiderpool and Huawei Cloud
 
 | Repository | Name | Version |
 |------------|------|---------|
-| oci://ghcr.io/daocloud/charts | iaas-network-provider | 0.1.0-rc1 |
+| oci://ghcr.io/daocloud/charts | iaas-network-provider | 0.1.0 |
 
 ## Values
 
@@ -33,6 +33,7 @@ IaaS Network Provider — IPAM bridge between Spiderpool and Huawei Cloud
 | iaas-network-provider.config.iaasProvider.auth.token.username | string | `""` |  |
 | iaas-network-provider.config.iaasProvider.ecsEndpoint | string | `""` |  |
 | iaas-network-provider.config.iaasProvider.endpoint | string | `""` |  |
+| iaas-network-provider.config.iaasProvider.httpRequestTimeout | string | `"30s"` |  |
 | iaas-network-provider.config.iaasProvider.projectID | string | `""` |  |
 | iaas-network-provider.config.iaasProvider.projectName | string | `""` |  |
 | iaas-network-provider.config.iaasProvider.provider | string | `"huaweicloud"` |  |
@@ -48,6 +49,8 @@ IaaS Network Provider — IPAM bridge between Spiderpool and Huawei Cloud
 | iaas-network-provider.config.leaderElection.renewDeadlineSeconds | int | `40` |  |
 | iaas-network-provider.config.leaderElection.retryPeriodSeconds | int | `15` |  |
 | iaas-network-provider.config.logLevel | string | `"info"` |  |
+| iaas-network-provider.config.pprof.bindAddress | string | `":6060"` |  |
+| iaas-network-provider.config.pprof.enabled | bool | `false` |  |
 | iaas-network-provider.config.rateLimit.maxTransactionTimeoutSeconds | int | `16` |  |
 | iaas-network-provider.config.rateLimit.qps | int | `2` |  |
 | iaas-network-provider.config.rateLimit.queueTimeoutSeconds | int | `30` |  |
@@ -57,7 +60,7 @@ IaaS Network Provider — IPAM bridge between Spiderpool and Huawei Cloud
 | iaas-network-provider.image.pullPolicy | string | `"IfNotPresent"` |  |
 | iaas-network-provider.image.registry | string | `"ghcr.m.daocloud.io"` |  |
 | iaas-network-provider.image.repository | string | `"daocloud/iaas-network-provider/controller"` |  |
-| iaas-network-provider.image.tag | string | `"v0.1.0-rc1"` |  |
+| iaas-network-provider.image.tag | string | `"v0.1.0"` |  |
 | iaas-network-provider.nodeSelector | object | `{}` |  |
 | iaas-network-provider.replicaCount | int | `1` |  |
 | iaas-network-provider.resources.limits.cpu | string | `"500m"` |  |
