@@ -1,15 +1,15 @@
 apiVersion: v2
 appVersion: 0.1.0
+dependencies:
+- name: iaas-network-provider
+  repository: oci://ghcr.io/daocloud/charts
+  version: 0.1.0
 description: IaaS Network Provider — IPAM bridge between Spiderpool and Huawei Cloud
+keywords:
+- kubernetes
+- networking
+- ipam
+- iaas
 name: iaas-network-provider
 type: application
 version: 0.1.0
-dependencies:
-  - name: iaas-network-provider
-    version: "0.1.0"
-    repository: "oci://ghcr.io/daocloud/charts"
-keywords:
-  - kubernetes
-  - networking
-  - ipam
-  - iaas
