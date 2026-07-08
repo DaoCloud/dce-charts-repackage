@@ -19,7 +19,7 @@ data:
       resourcePriorityName: {{ .Values.resourcePriority }}
       deviceClassName: {{ include "hami.dra.webhook.deviceClassName" . }}
       draDriverName: {{ include "hami.dra.webhook.driverName" . }}
-      overwriteEnv: false
+      overwriteEnv: true
       defaultMemory: 0
       defaultCores: 0
       defaultGPUNum: 1
