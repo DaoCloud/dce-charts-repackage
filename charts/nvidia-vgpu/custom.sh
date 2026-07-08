@@ -160,6 +160,28 @@ yq -i '.scheduler.serviceMonitor.enable=false' charts/hami/values.yaml
 
 yq -i '.hami.scheduler.serviceMonitor.enable=false' values.yaml
 
+# Prevent users from overriding scheduler-injected GPU envs such as
+# NVIDIA_VISIBLE_DEVICES.
+yq -i '.scheduler.overwriteEnv="true"' charts/hami/values.yaml
+
+yq -i '.hami.scheduler.overwriteEnv="true"' values.yaml
+
+if [ -f charts/hami/templates/scheduler/device-configmap.yaml ]; then
+    if [ $os == "Darwin" ];then
+        sed -i "" 's/default "false"/default "true"/g' charts/hami/templates/scheduler/device-configmap.yaml
+    elif [ $os == "Linux" ];then
+        sed -i 's/default "false"/default "true"/g' charts/hami/templates/scheduler/device-configmap.yaml
+    fi
+fi
+
+if [ -f charts/hami/charts/hami-dra/templates/webhook/device-config.yaml ]; then
+    if [ $os == "Darwin" ];then
+        sed -i "" "s/overwriteEnv: false/overwriteEnv: true/g" charts/hami/charts/hami-dra/templates/webhook/device-config.yaml
+    elif [ $os == "Linux" ];then
+        sed -i "s/overwriteEnv: false/overwriteEnv: true/g" charts/hami/charts/hami-dra/templates/webhook/device-config.yaml
+    fi
+fi
+
 yq -i '.devicePlugin.deviceCoreScaling=1.0' charts/hami/values.yaml
 
 yq -i '.hami.devicePlugin.deviceCoreScaling=1.0' values.yaml
