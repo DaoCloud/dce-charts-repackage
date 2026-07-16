@@ -1,0 +1,3 @@
+- "{{ .kcover.global.imageRegistry }}/baizeai/kcover-controller:{{ .kcover.controller.image.tag }}"
+- "{{ .kcover.global.imageRegistry }}/baizeai/kcover-agent:{{ .kcover.agent.image.tag }}"
+- "{{ .kcover.global.imageRegistry }}/baizeai/kcover-agent-metax:{{ .kcover.agent.image.tag }}"

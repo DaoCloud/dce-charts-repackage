@@ -1,0 +1,16 @@
+apiVersion: v2
+appVersion: v0.12.0
+description: A Helm chart for Kubernetes
+kubeVersion: '>=1.25.0-0'
+name: kcover
+type: application
+version: 0.12.0
+dependencies:
+  - name: kcover
+    version: "0.12.0"
+    repository: "https://baizeai.github.io/charts"
+annotations:
+  addon.kpanda.io/release-name: kcover
+  addon.kpanda.io/namespace: kcover-system
+keywords:
+  - kcover
