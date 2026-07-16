@@ -24,7 +24,9 @@ yq e -i '
 
 yq e -i '
   .kcover.global.imageRegistry = "ghcr.m.daocloud.io" |
+  .kcover.agent.image.registry = "ghcr.m.daocloud.io" |
   .kcover.agent.image.tag = strenv(APP_VERSION) |
+  .kcover.controller.image.registry = "ghcr.m.daocloud.io" |
   .kcover.controller.image.tag = strenv(APP_VERSION) |
   .kcover.agent.resources = {
     "limits": {"cpu": "1", "memory": "1Gi"},
