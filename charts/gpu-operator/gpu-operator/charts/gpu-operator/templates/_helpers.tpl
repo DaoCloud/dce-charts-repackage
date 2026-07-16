@@ -80,8 +80,8 @@ Full image name with tag
 {{- end }}
 
 {{- define "toolkit.version" -}}
-{{- if and (eq .Values.systemOS "ubuntu20.04") .Values.toolkit.versionubuntu20 }}
- {{- default .Values.toolkit.versionubuntu20 }}
+{{- if and (eq .Values.systemOS "ubuntu24.04") .Values.toolkit.versionubuntu24 }}
+ {{- default .Values.toolkit.versionubuntu24 }}
 {{- else }}
  {{- default .Values.toolkit.version  }}
 {{- end }}
