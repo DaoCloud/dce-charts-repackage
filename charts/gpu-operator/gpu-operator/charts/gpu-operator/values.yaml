@@ -10,7 +10,7 @@ nfd:
 psa:
   enabled: false
 cdi:
-  enabled: true
+  enabled: false
   nriPluginEnabled: false
 sandboxWorkloads:
   enabled: false
@@ -105,6 +105,7 @@ operator:
   initContainer:
     repository: nvcr.m.daocloud.io
     image: nvidia/cuda
+    version: 12.8.1-base-ubi9
 mig: {}
 driver:
   enabled: true
@@ -122,7 +123,7 @@ driver:
   usePrecompiled: false
   repository: nvcr.m.daocloud.io
   image: nvidia/driver
-  version: "570.148.08"
+  version: "580.126.20"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   startupProbe:
@@ -196,19 +197,17 @@ driver:
   # Name of Kubernetes Secret which contains secrets to be passed in as environment variables
   secretEnv: ""
   hostNetwork: false
-  versionubunt20: 570.148.08
 toolkit:
   enabled: true
   repository: nvcr.m.daocloud.io
   image: nvidia/k8s/container-toolkit
-  version: v1.17.5-ubi8
+  version: v1.19.1
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
   resources: {}
   installDir: "/usr/local/nvidia"
   hostNetwork: false
-  versionubuntu20: v1.17.5-ubuntu20.04
 devicePlugin:
   enabled: true
   repository: nvcr.m.daocloud.io
@@ -425,8 +424,8 @@ gds:
   args: []
 gdrcopy:
   enabled: false
-  repository: nvcr.io/nvidia/cloud-native
-  image: gdrdrv
+  repository: nvcr.m.daocloud.io
+  image: nvidia/cloud-native/gdrdrv
   version: "v2.5.2"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
@@ -442,8 +441,8 @@ vgpuManager:
   env: []
   resources: {}
   driverManager:
-    repository: nvcr.io/nvidia/cloud-native
-    image: k8s-driver-manager
+    repository: nvcr.m.daocloud.io
+    image: nvidia/cloud-native/k8s-driver-manager
     # When choosing a different version of k8s-driver-manager, DO NOT downgrade to a version lower than v0.6.4
     # to ensure k8s-driver-manager stays compatible with gpu-operator starting from v24.3.0
     version: v0.11.0
@@ -507,8 +506,8 @@ sandboxDevicePlugin:
 # Kata sandbox device plugin (used when sandboxWorkloads.mode is "kata").
 kataSandboxDevicePlugin:
   enabled: true
-  repository: nvcr.io/nvidia/cloud-native
-  image: nvidia-sandbox-device-plugin
+  repository: nvcr.m.daocloud.io
+  image: nvidia/cloud-native/nvidia-sandbox-device-plugin
   version: "v0.0.3"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
