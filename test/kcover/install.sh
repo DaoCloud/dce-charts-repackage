@@ -12,13 +12,19 @@ RELEASE=kcover
 [ -n "${CHART_VERSION}" ] || { echo "error, failed to find chart version"; exit 1; }
 
 diagnostics() {
+  local rc=${1:-1}
+
+  trap - ERR
   set +e
+
   echo "kcover installation diagnostics"
   helm --kubeconfig "${KIND_KUBECONFIG}" -n "${NAMESPACE}" status "${RELEASE}"
   kubectl --kubeconfig "${KIND_KUBECONFIG}" -n "${NAMESPACE}" get all -o wide
   kubectl --kubeconfig "${KIND_KUBECONFIG}" -n "${NAMESPACE}" get events --sort-by=.lastTimestamp
+
+  exit "${rc}"
 }
-trap diagnostics ERR
+trap 'diagnostics "$?"' ERR
 
 echo "CURRENT_DIR_PATH: ${CURRENT_DIR_PATH}"
 echo "KIND_KUBECONFIG: ${KIND_KUBECONFIG}"
