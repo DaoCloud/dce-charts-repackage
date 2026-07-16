@@ -26,7 +26,7 @@ kcover:
       path: /etc/kcover-agent/config.yaml
       data: {}
     image:
-      registry: ''
+      registry: 'ghcr.m.daocloud.io'
       # Leave empty to select the default repository from agent.flavor.
       repository: ''
       pullPolicy: IfNotPresent
@@ -132,7 +132,7 @@ kcover:
       # to run without leader election.
       enabled: true
     image:
-      registry: ''
+      registry: 'ghcr.m.daocloud.io'
       repository: baizeai/kcover-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.

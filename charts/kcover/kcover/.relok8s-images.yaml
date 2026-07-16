@@ -1,3 +1,4 @@
-- "{{ .kcover.global.imageRegistry }}/baizeai/kcover-controller:{{ .kcover.controller.image.tag }}"
-- "{{ .kcover.global.imageRegistry }}/baizeai/kcover-agent:{{ .kcover.agent.image.tag }}"
-- "{{ .kcover.global.imageRegistry }}/baizeai/kcover-agent-metax:{{ .kcover.agent.image.tag }}"
+# The default offline bundle supports the base flavor only. MetaX must use a
+# dedicated flavor bundle instead of inflating or constraining the base bundle.
+- "{{ .kcover.controller.image.registry }}/{{ .kcover.controller.image.repository }}:{{ .kcover.controller.image.tag }}"
+- "{{ .kcover.agent.image.registry }}/baizeai/kcover-agent:{{ .kcover.agent.image.tag }}"
