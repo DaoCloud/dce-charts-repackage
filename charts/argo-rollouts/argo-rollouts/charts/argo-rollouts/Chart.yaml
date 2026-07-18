@@ -1,7 +1,7 @@
 annotations:
   artifacthub.io/changes: |
     - kind: added
-      description: Add first-class values for AWS EKS Auto Mode (awsVerifyTargetGroup, awsTargetGroupBindingAPIVersion, albTagKeyResourceID), self-service notifications, pprof profiling address, and dashboard rootPath
+      description: Add Gateway API HTTPRoute support for the dashboard
   artifacthub.io/signKey: |
     fingerprint: 2B8F22F57260EFA67BE1C5824B11F800CD9D2252
     url: https://argoproj.github.io/argo-helm/pgp_keys.asc
@@ -19,4 +19,4 @@ maintainers:
 name: argo-rollouts
 sources:
 - https://github.com/argoproj/argo-rollouts
-version: 2.40.9
+version: 2.41.0
