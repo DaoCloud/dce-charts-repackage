@@ -16,11 +16,11 @@ APP_VERSION=$(yq e '.appVersion' Chart.yaml)
 
 yq e -i '
   .annotations |= ((. // {}) + {
-    "addon.kpanda.io/release-name": "kcover-metax",
+    "addon.kpanda.io/release-name": "kcover",
     "addon.kpanda.io/namespace": "kcover-system"
   }) |
   .name = "kcover-metax" |
-  .keywords = (["kcover-metax", "kcover"] + (.keywords // []) | unique)
+  .keywords = (["kcover", "kcover-metax"] + (.keywords // []) | unique)
 ' Chart.yaml
 
 yq e -i '
@@ -29,6 +29,7 @@ yq e -i '
   .kcover.agent.flavor = "metax" |
   .kcover.agent.image.repository = "baizeai/kcover-agent-metax" |
   .kcover.agent.image.tag = strenv(APP_VERSION) |
+  .kcover.agent.nodeSelector = {"kubernetes.io/arch": "amd64"} |
   .kcover.controller.image.registry = "ghcr.m.daocloud.io" |
   .kcover.controller.image.tag = strenv(APP_VERSION) |
   .kcover.agent.resources = {
@@ -41,13 +42,17 @@ yq e -i '
   }
 ' values.yaml
 
-yq e -i '.properties.kcover.properties.agent.properties.flavor.default = "metax"' values.schema.json
+yq e -o=json -i '.properties.kcover.properties.agent.properties.flavor.default = "metax" | .properties.kcover.properties.agent.properties.flavor.enum = ["metax"]' values.schema.json
+jq -c . values.schema.json > values.schema.json.tmp && mv values.schema.json.tmp values.schema.json
 
 yq e -i '
   .agent.flavor = "metax" |
   .agent.image.registry = "ghcr.m.daocloud.io" |
   .agent.image.repository = "baizeai/kcover-agent-metax" |
-  .agent.image.tag = strenv(APP_VERSION)
+  .agent.image.tag = strenv(APP_VERSION) |
+  .agent.nodeSelector = {"kubernetes.io/arch": "amd64"}
 ' charts/kcover/values.yaml
 
-yq e -i '.properties.agent.properties.flavor.default = "metax"' charts/kcover/values.schema.json
+yq e -o=json -i '.properties.agent.properties.flavor.default = "metax" | .properties.agent.properties.flavor.enum = ["metax"]' charts/kcover/values.schema.json
+jq -c . charts/kcover/values.schema.json > charts/kcover/values.schema.json.tmp && mv charts/kcover/values.schema.json.tmp charts/kcover/values.schema.json
+sed -i -e 's/# Agent deployment flavor. Supported values: base, metax./# Agent deployment flavor for this MetaX chart. Only metax is supported./' -e '/# base uses the generic multi-arch agent image; metax uses the MetaX-specific agent image/d' -e '/# and enables MetaX-only host mounts./d' values.yaml charts/kcover/values.yaml

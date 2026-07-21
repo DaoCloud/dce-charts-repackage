@@ -11,9 +11,7 @@ agent:
     # The name of the agent ServiceAccount. A name is generated when empty.
     name: ""
     annotations: {}
-  # Agent deployment flavor. Supported values: base, metax.
-  # base uses the generic multi-arch agent image; metax uses the MetaX-specific agent image
-  # and enables MetaX-only host mounts.
+  # Agent deployment flavor for this MetaX chart. Only metax is supported.
   flavor: metax
   # Additional CLI args for kcover-agent process (for example: ["-v=2"]).
   # --config is always injected by the chart and does not need to be repeated here.
@@ -110,7 +108,8 @@ agent:
         - name: host-localtime
           mountPath: /etc/localtime
           readOnly: true
-  nodeSelector: {}
+  nodeSelector:
+    kubernetes.io/arch: amd64
   tolerations: []
   affinity: {}
 controller:
