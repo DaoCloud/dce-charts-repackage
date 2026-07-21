@@ -1,0 +1,6 @@
+# Offline packaging scope: the default bundle contains the controller and the
+# base agent only. agent.flavor=metax remains available for online installs,
+# but its image is not included here, so this bundle does not support offline
+# MetaX installation.
+- "{{ .kcover.controller.image.registry }}/{{ .kcover.controller.image.repository }}:{{ .kcover.controller.image.tag }}"
+- "{{ .kcover.agent.image.registry }}/baizeai/kcover-agent:{{ .kcover.agent.image.tag }}"

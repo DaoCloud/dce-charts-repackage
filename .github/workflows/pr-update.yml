@@ -1,7 +1,12 @@
 name: 'Update PR'
 
+permissions:
+  contents: read
+  pull-requests: read
+
+# PR code is untrusted; run it without pull_request_target privileges.
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - main
     paths:
@@ -12,14 +17,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout bitnami-labs/readme-generator-for-helm
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: 'bitnami-labs/readme-generator-for-helm'
           ref: '1af12881436b1f58f0643d733fd5196b4a11caa8'
           path: readme-generator-for-helm
 
       - name: Cache node modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           cache-name: cache-node-modules
         with:
@@ -35,15 +40,13 @@ jobs:
           npm install
 
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          ref: ${{github.event.pull_request.head.ref}}
           path: thisPorject
 
       - name: Execute readme-generator-for-helm
         run: |
-          # Using the Github API to detect the files changed as git merge-base stops working when the branch is behind
-          # and jitterbit/get-changed-files does not support pull_request_target
+          # Use the GitHub API because git merge-base is unreliable when the branch is behind
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
           files_changed_data=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -X GET -G "$URL")
           echo "files_changed_data: $files_changed_data"
