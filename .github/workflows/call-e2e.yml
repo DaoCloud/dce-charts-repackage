@@ -19,7 +19,8 @@ on:
         required: true
         type: string
 
-permissions: write-all
+permissions:
+  contents: read
 
 jobs:
   e2e:

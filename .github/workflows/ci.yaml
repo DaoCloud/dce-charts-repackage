@@ -5,8 +5,12 @@ env:
   IMAGE_HINT_FILE_NAME: ".relok8s-images.yaml"
   SCHEMA_FILE_NAME: "values.schema.json"
 
+permissions:
+  contents: read
+  pull-requests: read
+
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - main
 
@@ -16,8 +20,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: check chart config
         run : |
@@ -62,15 +64,12 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
           
       - name: check change
         id: check_change
         run: |
           set -x
-          # Using the Github API to detect the files changed as git merge-base stops working when the branch is behind
-          # and jitterbit/get-changed-files does not support pull_request_target
+          # Use the GitHub API because git merge-base is unreliable when the branch is behind
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
           files_changed_data=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -X GET -G "$URL")
           echo "files_changed_data: $files_changed_data"
@@ -260,7 +259,6 @@ jobs:
     with:
       project: ${{ needs.check_change.outputs.project }}
       ref: ${{ github.event.pull_request.head.sha }}
-    secrets: inherit
 
 #  nofity_version_changed:
 #    runs-on: ubuntu-latest
