@@ -1,0 +1,4 @@
+# Offline packaging scope: this MetaX bundle contains controller and MetaX
+# agent images. agent.flavor=metax is the default for this variant.
+- "{{ .kcover.controller.image.registry }}/{{ .kcover.controller.image.repository }}:{{ .kcover.controller.image.tag }}"
+- "{{ .kcover.agent.image.registry }}/baizeai/kcover-agent-metax:{{ .kcover.agent.image.tag }}"
