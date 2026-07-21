@@ -9,6 +9,7 @@ permissions:
   contents: read
   pull-requests: read
 
+# PR code is untrusted; run it without pull_request_target privileges.
 on:
   pull_request:
     branches:
