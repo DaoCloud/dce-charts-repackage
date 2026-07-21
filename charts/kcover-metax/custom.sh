@@ -55,4 +55,5 @@ yq e -i '
 
 yq e -o=json -i '.properties.agent.properties.flavor.default = "metax" | .properties.agent.properties.flavor.enum = ["metax"]' charts/kcover/values.schema.json
 jq -c . charts/kcover/values.schema.json > charts/kcover/values.schema.json.tmp && mv charts/kcover/values.schema.json.tmp charts/kcover/values.schema.json
-sed -i -e 's/# Agent deployment flavor. Supported values: base, metax./# Agent deployment flavor for this MetaX chart. Only metax is supported./' -e '/# base uses the generic multi-arch agent image; metax uses the MetaX-specific agent image/d' -e '/# and enables MetaX-only host mounts./d' values.yaml charts/kcover/values.yaml
+sed -i.bak -e 's/# Agent deployment flavor. Supported values: base, metax./# Agent deployment flavor for this MetaX chart. Only metax is supported./' -e '/# base uses the generic multi-arch agent image; metax uses the MetaX-specific agent image/d' -e '/# and enables MetaX-only host mounts./d' values.yaml charts/kcover/values.yaml
+rm -f values.yaml.bak charts/kcover/values.yaml.bak
