@@ -1,3 +1,4 @@
+# MetaX agent is amd64-only; the chart defaults agent scheduling to amd64 nodes.
 # Offline packaging scope: this MetaX bundle contains controller and MetaX
 # agent images. agent.flavor=metax is the default for this variant.
 - "{{ .kcover.controller.image.registry }}/{{ .kcover.controller.image.repository }}:{{ .kcover.controller.image.tag }}"

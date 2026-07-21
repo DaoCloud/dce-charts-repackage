@@ -6,7 +6,7 @@ CURRENT_DIR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
 KIND_KUBECONFIG=${1:-}
 CHART_VERSION=${3:-}
 NAMESPACE=kcover-system
-RELEASE=kcover-metax
+RELEASE=kcover
 
 [ -f "${KIND_KUBECONFIG}" ] || { echo "error, failed to find kubeconfig ${KIND_KUBECONFIG}"; exit 1; }
 [ -n "${CHART_VERSION}" ] || { echo "error, failed to find chart version"; exit 1; }
@@ -17,7 +17,7 @@ diagnostics() {
   trap - ERR
   set +e
 
-  echo "kcover-metax installation diagnostics"
+  echo "kcover installation diagnostics"
   helm --kubeconfig "${KIND_KUBECONFIG}" -n "${NAMESPACE}" status "${RELEASE}"
   kubectl --kubeconfig "${KIND_KUBECONFIG}" -n "${NAMESPACE}" get all -o wide
   kubectl --kubeconfig "${KIND_KUBECONFIG}" -n "${NAMESPACE}" get events --sort-by=.lastTimestamp
@@ -47,10 +47,10 @@ helm install "${RELEASE}" chart-museum/kcover-metax \
   --kubeconfig "${KIND_KUBECONFIG}"
 
 kubectl --kubeconfig "${KIND_KUBECONFIG}" -n "${NAMESPACE}" \
-  rollout status deployment/kcover-metax-controller --timeout=5m
+  rollout status deployment/kcover-controller --timeout=5m
 kubectl --kubeconfig "${KIND_KUBECONFIG}" -n "${NAMESPACE}" \
-  rollout status daemonset/kcover-metax-agent --timeout=5m
+  rollout status daemonset/kcover-agent --timeout=5m
 helm --kubeconfig "${KIND_KUBECONFIG}" -n "${NAMESPACE}" status "${RELEASE}"
 
 trap - ERR
-echo "succeeded to deploy kcover-metax"
+echo "succeeded to deploy kcover"
