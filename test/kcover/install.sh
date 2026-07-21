@@ -41,7 +41,6 @@ helm install "${RELEASE}" chart-museum/kcover \
   --version "${CHART_VERSION}" \
   --namespace "${NAMESPACE}" \
   --create-namespace \
-  --set kcover.agent.flavor=base \
   --timeout 10m0s \
   --wait \
   --debug \
