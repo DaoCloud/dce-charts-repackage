@@ -4,6 +4,7 @@ set -Eeuo pipefail
 
 CURRENT_DIR_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
 KIND_KUBECONFIG=${1:-}
+# Arguments: kubeconfig, kind cluster name, chart version.
 CHART_VERSION=${3:-}
 NAMESPACE=kcover-system
 RELEASE=kcover
