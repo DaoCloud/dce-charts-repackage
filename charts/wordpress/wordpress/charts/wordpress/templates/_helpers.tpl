@@ -1,3 +1,8 @@
+{{/*
+Copyright Broadcom, Inc. All Rights Reserved.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
 {{/* vim: set filetype=mustache: */}}
 
 {{/*
@@ -41,7 +46,7 @@ Return the proper image name (for the init container volume-permissions image)
 Return the proper Docker Image Registry Secret Names
 */}}
 {{- define "wordpress.imagePullSecrets" -}}
-{{- include "common.images.pullSecrets" (dict "images" (list .Values.image .Values.metrics.image .Values.volumePermissions.image) "global" .Values.global) -}}
+{{- include "common.images.renderPullSecrets" (dict "images" (list .Values.image .Values.metrics.image .Values.volumePermissions.image) "context" .) -}}
 {{- end -}}
 
 {{/*
@@ -54,6 +59,19 @@ Return the proper Docker Image Registry Secret Names
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Gets the host to be used for WordPress
+*/}}
+{{- define "wordpress.host" -}}
+{{- if not (empty .Values.wordpressHost) -}}
+    {{- print .Values.wordpressHost -}}
+{{- else if .Values.httpRoute.enabled }}
+    {{- printf "%s/" (.Values.httpRoute.hostnames | first) | default "" -}}
+{{- else if .Values.ingress.enabled }}
+    {{- printf "%s%s" .Values.ingress.hostname .Values.ingress.path | default "" -}}
+{{- end }}
+{{- end }}
 
 {{/*
 Create chart name and version as used by the chart label.
