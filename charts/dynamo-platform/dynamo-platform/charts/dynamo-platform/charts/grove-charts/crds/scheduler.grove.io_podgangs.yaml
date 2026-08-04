@@ -1,0 +1,306 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.3
+  name: podgangs.scheduler.grove.io
+spec:
+  group: scheduler.grove.io
+  names:
+    kind: PodGang
+    listKind: PodGangList
+    plural: podgangs
+    shortNames:
+    - pg
+    singular: podgang
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: PodGang defines a specification of a group of pods that should
+          be scheduled together.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Spec defines the specification of the PodGang.
+            properties:
+              podgroups:
+                description: PodGroups is a list of member pod groups in the PodGang.
+                items:
+                  description: PodGroup defines a set of pods in a PodGang that share
+                    the same PodTemplateSpec.
+                  properties:
+                    minReplicas:
+                      description: |-
+                        MinReplicas is the number of replicas that needs to be gang scheduled.
+                        If the MinReplicas is greater than len(PodReferences) then scheduler makes the best effort to schedule as many pods beyond
+                        MinReplicas. However, guaranteed gang scheduling is only provided for MinReplicas.
+                      format: int32
+                      type: integer
+                    name:
+                      description: Name is the name of the PodGroup.
+                      type: string
+                    podReferences:
+                      description: PodReferences is a list of references to the Pods
+                        that are part of this group.
+                      items:
+                        description: |-
+                          NamespacedName is a struct that contains the namespace and name of an object.
+                          types.NamespacedName does not have json tags, so we define our own for the time being.
+                          If https://github.com/kubernetes/kubernetes/issues/131313 is resolved, we can switch to using the APIMachinery type instead.
+                        properties:
+                          name:
+                            description: Name is the name of the object.
+                            type: string
+                          namespace:
+                            description: Namespace is the namespace of the object.
+                            type: string
+                        required:
+                        - name
+                        - namespace
+                        type: object
+                      type: array
+                    topologyConstraint:
+                      description: |-
+                        TopologyConstraint defines topology packing constraints for this PodGroup.
+                        Enables PodClique-level topology constraints.
+                        Updated by operator when PodClique topology constraints change.
+                      properties:
+                        packConstraint:
+                          description: |-
+                            PackConstraint defines topology packing constraint with required and preferred levels.
+                            Operator translates user's level name to corresponding topologyKeys.
+                          properties:
+                            preferred:
+                              description: |-
+                                Preferred defines best-effort topology constraint. Topology domains that provide the most optimized performance
+                                with dense packing (e.g. host or numa) are typically used as preferred constraints for topology packing. It might be
+                                harder to satisfy these constraints if the topology domains are limited in compute capacity. Since it is preferred
+                                constraint, it is therefore not binding on the scheduler to mandatorily satisfy this packing constraint. Scheduler
+                                can fall back to higher topology levels (upto Required constraint) if preferred cannot be satisfied.
+                                Example: "kubernetes.io/hostname"
+                              type: string
+                            required:
+                              description: |-
+                                Required defines a topology constraint that must be satisfied as a hard requirement. The workload will not be
+                                scheduled if this constraint cannot be satisfied. Generally, it is easier for the scheduler to satisfy constraints
+                                on topology domains with larger compute capacity, (e.g. zone or datacenter), than smaller domains, (e.g. host or
+                                numa). Holds topologyKey (not level name) translated from user's packLevel specification.
+                                Example: "topology.kubernetes.io/rack"
+                              type: string
+                          type: object
+                      type: object
+                  required:
+                  - minReplicas
+                  - name
+                  - podReferences
+                  type: object
+                type: array
+              priorityClassName:
+                description: PriorityClassName is the name of the PriorityClass for
+                  the PodGang.
+                type: string
+              reuseReservationRef:
+                description: |-
+                  ReuseReservationRef holds the reference to another PodGang resource scheduled previously.
+                  During updates, an operator can suggest to reuse the reservation of the previous PodGang for a newer version of the
+                  PodGang resource. This is a suggestion for the scheduler and not a requirement that must be met. If the scheduler plugin
+                  finds that the reservation done previously was network optimised and there are no better alternatives available, then it
+                  will reuse the reservation. If there are better alternatives available, then the scheduler will ignore this suggestion.
+                properties:
+                  name:
+                    description: Name is the name of the object.
+                    type: string
+                  namespace:
+                    description: Namespace is the namespace of the object.
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+              topologyConstraint:
+                description: |-
+                  TopologyConstraint defines topology packing constraints for entire pod gang.
+                  This is the top level topology constraint that applies to all PodGroups in the PodGang.
+                  Updated by operator on each reconciliation when PodCliqueSet topology constraints change.
+                properties:
+                  packConstraint:
+                    description: |-
+                      PackConstraint defines topology packing constraint with required and preferred levels.
+                      Operator translates user's level name to corresponding topologyKeys.
+                    properties:
+                      preferred:
+                        description: |-
+                          Preferred defines best-effort topology constraint. Topology domains that provide the most optimized performance
+                          with dense packing (e.g. host or numa) are typically used as preferred constraints for topology packing. It might be
+                          harder to satisfy these constraints if the topology domains are limited in compute capacity. Since it is preferred
+                          constraint, it is therefore not binding on the scheduler to mandatorily satisfy this packing constraint. Scheduler
+                          can fall back to higher topology levels (upto Required constraint) if preferred cannot be satisfied.
+                          Example: "kubernetes.io/hostname"
+                        type: string
+                      required:
+                        description: |-
+                          Required defines a topology constraint that must be satisfied as a hard requirement. The workload will not be
+                          scheduled if this constraint cannot be satisfied. Generally, it is easier for the scheduler to satisfy constraints
+                          on topology domains with larger compute capacity, (e.g. zone or datacenter), than smaller domains, (e.g. host or
+                          numa). Holds topologyKey (not level name) translated from user's packLevel specification.
+                          Example: "topology.kubernetes.io/rack"
+                        type: string
+                    type: object
+                type: object
+              topologyConstraintGroupConfigs:
+                description: TopologyConstraintGroupConfigs defines TopologyConstraints
+                  for a strict subset of PodGroups.
+                items:
+                  description: TopologyConstraintGroupConfig defines topology constraints
+                    for a group of PodGroups.
+                  properties:
+                    name:
+                      description: Name is the name of the topology constraint group.
+                      type: string
+                    podGroupNames:
+                      description: PodGroupNames is the list of PodGroup names in
+                        the topology constraint group.
+                      items:
+                        type: string
+                      type: array
+                    topologyConstraint:
+                      description: TopologyConstraint defines topology packing constraints
+                        for this group.
+                      properties:
+                        packConstraint:
+                          description: |-
+                            PackConstraint defines topology packing constraint with required and preferred levels.
+                            Operator translates user's level name to corresponding topologyKeys.
+                          properties:
+                            preferred:
+                              description: |-
+                                Preferred defines best-effort topology constraint. Topology domains that provide the most optimized performance
+                                with dense packing (e.g. host or numa) are typically used as preferred constraints for topology packing. It might be
+                                harder to satisfy these constraints if the topology domains are limited in compute capacity. Since it is preferred
+                                constraint, it is therefore not binding on the scheduler to mandatorily satisfy this packing constraint. Scheduler
+                                can fall back to higher topology levels (upto Required constraint) if preferred cannot be satisfied.
+                                Example: "kubernetes.io/hostname"
+                              type: string
+                            required:
+                              description: |-
+                                Required defines a topology constraint that must be satisfied as a hard requirement. The workload will not be
+                                scheduled if this constraint cannot be satisfied. Generally, it is easier for the scheduler to satisfy constraints
+                                on topology domains with larger compute capacity, (e.g. zone or datacenter), than smaller domains, (e.g. host or
+                                numa). Holds topologyKey (not level name) translated from user's packLevel specification.
+                                Example: "topology.kubernetes.io/rack"
+                              type: string
+                          type: object
+                      type: object
+                  required:
+                  - name
+                  - podGroupNames
+                  type: object
+                type: array
+            required:
+            - podgroups
+            type: object
+          status:
+            description: Status defines the status of the PodGang.
+            properties:
+              conditions:
+                description: Conditions is a list of conditions that describe the
+                  current state of the PodGang.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              phase:
+                description: Phase is the current phase of a PodGang.
+                type: string
+              placementScore:
+                description: |-
+                  PlacementScore is network optimality score for the PodGang. If the choice that the scheduler has made corresponds to the
+                  best possible placement of the pods in the PodGang, then the score will be 1.0. Higher the score, better the placement.
+                type: number
+            required:
+            - phase
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

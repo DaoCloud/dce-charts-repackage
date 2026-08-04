@@ -1,0 +1,220 @@
+# NOTE: The helmValues struct in operator/e2e/setup/grove.go generates values for this chart.
+# Keep both in sync when modifying.
+
+# ReplicaCount is the value for spec.replicas for the grove-operator deployment resource.
+replicaCount: 1
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: ai-dynamo/grove/grove-operator
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: v0.1.0-alpha.11
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  registry: ghcr.m.daocloud.io
+resources:
+  limits:
+    memory: 1Gi
+  requests:
+    cpu: 50m
+    memory: 128Mi
+    ephemeral-storage: 128Mi
+# Node selector to constrain the operator pod to nodes with matching labels.
+nodeSelector: {}
+# Set of tolerations to apply to the operator deployment.
+tolerations: []
+# Annotations to apply to the operator pod template.
+podAnnotations: {}
+# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: false
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "grove-operator"
+  labels:
+    app.kubernetes.io/component: operator-serviceaccount
+    app.kubernetes.io/name: grove-operator-service-account
+    app.kubernetes.io/part-of: grove
+config:
+  runtimeClientConnection:
+    qps: 100
+    burst: 150
+  leaderElection:
+    enabled: true
+    leaseDuration: 15s
+    renewDeadline: 10s
+    retryPeriod: 2s
+    resourceLock: leases
+    resourceName: grove-operator-leader-election
+  server:
+    webhooks:
+      # NOTE to mantainers: If you change this default value, also update DefaultWebhookPort in operator/e2e/setup/constants.go
+      port: 9443
+      # serverCertDir is the directory path where certificate files are located.
+      # The operator will look for tls.crt and tls.key in this directory.
+      # NOTE to maintainers: If you change this, also update DefaultWebhookServerCertDir in operator/e2e/setup/constants.go
+      serverCertDir: /etc/grove-operator/webhook-certs
+      # secretName is the name of the Kubernetes Secret containing webhook certificates.
+      # The Secret must contain tls.crt, tls.key, and ca.crt.
+      # Default: "grove-webhook-server-cert"
+      secretName: "grove-webhook-server-cert"
+      # certProvisionMode controls how webhook certificates are provisioned.
+      # Values:
+      #   "auto" (default): cert-controller automatically generates self-signed certificates.
+      #     - Best for development/testing
+      #     - No manual certificate management needed
+      #     - Certificates auto-rotate before expiry
+      #   "manual": certificates must be provided externally (e.g., cert-manager, cluster admin).
+      #     - Best for production
+      #     - Use your own CA or Let's Encrypt
+      #     - Requires Secret to exist before operator starts
+      certProvisionMode: auto
+    healthProbes:
+      enable: false
+      port: 9444
+    metrics:
+      port: 9445
+  debugging:
+    enableProfiling: false
+    pprofBindHost: "127.0.0.1"
+    pprofBindPort: 2753
+  controllers:
+    podCliqueSet:
+      concurrentSyncs: 3
+    podClique:
+      concurrentSyncs: 3
+    podCliqueScalingGroup:
+      concurrentSyncs: 3
+  # Scheduler configures which scheduler backends are active. default-scheduler is always available.
+  # List profiles to enable backends; set defaultProfileName to the profile that is the default backend.
+  # Optional scheduler backends, such as volcano and lpx-scheduler, must be added explicitly when
+  # their scheduler dependencies are installed in the cluster.
+  scheduler:
+    profiles:
+      - name: default-scheduler
+      - name: kai-scheduler
+        # Uncomment optional scheduler profiles only when their dependencies are installed.
+        # - name: volcano
+        # - name: lpx-scheduler
+  logLevel: info
+  logFormat: json
+  topologyAwareScheduling:
+    enabled: false
+  authorizer:
+    enabled: false
+    exemptServiceAccountUserNames:
+      - system:serviceaccount:kube-system:generic-garbage-collector
+      - system:serviceaccount:kube-system:horizontal-pod-autoscaler
+      - system:kube-controller-manager
+      - system:serviceaccount:kai-scheduler:pod-grouper
+      - system:serviceaccount:kai-scheduler:binder
+  network:
+    autoMNNVLEnabled: false
+configMap:
+  labels:
+    app.kubernetes.io/component: operator-configmap
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+deployment:
+  labels:
+    app.kubernetes.io/component: operator-deployment
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+  env: []
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # NOTE: If you are going to change the service name then ensure that SAN entries in the webhook certificate also reflect the change.
+  name: grove-operator
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 80
+  labels:
+    app.kubernetes.io/component: operator-service
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+clusterRole:
+  name: grove:system:grove-operator
+  labels:
+    app.kubernetes.io/component: operator-clusterrole
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+clusterRoleBinding:
+  name: grove:system:grove-operator
+  labels:
+    app.kubernetes.io/component: operator-clusterrolebinding
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+leaseRole:
+  name: grove:system:grove-operator-lease
+  labels:
+    app.kubernetes.io/component: operator-lease-role
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+leaseRoleBinding:
+  name: grove:system:grove-operator-lease
+  labels:
+    app.kubernetes.io/component: operator-lease-rolebinding
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+webhooks:
+  # Shared CA bundle for all webhooks. This is the base64-encoded CA certificate
+  # that signed the webhook server's TLS certificate.
+  caBundle: ""
+  podCliqueSetValidationWebhook:
+    labels:
+      app.kubernetes.io/component: operator-pcs-validating-webhook
+      app.kubernetes.io/name: pcs-validating-webhook
+      app.kubernetes.io/part-of: grove
+    annotations: {}
+  podCliqueSetDefaultingWebhook:
+    labels:
+      app.kubernetes.io/component: operator-pcs-defaulting-webhook
+      app.kubernetes.io/name: pcs-defaulting-webhook
+      app.kubernetes.io/part-of: grove
+    annotations: {}
+  clusterTopologyValidationWebhook:
+    labels:
+      app.kubernetes.io/component: operator-clustertopology-validating-webhook
+      app.kubernetes.io/name: clustertopology-validating-webhook
+      app.kubernetes.io/part-of: grove
+    annotations: {}
+  authorizerWebhook:
+    labels:
+      app.kubernetes.io/component: operator-authorizer-webhook
+      app.kubernetes.io/name: authorizer-webhook
+      app.kubernetes.io/part-of: grove
+    annotations: {}
+webhookServerSecret:
+  # enabled controls whether Helm renders the empty webhook TLS Secret.
+  # Set to false when deploying via `helm template | kubectl apply` or GitOps tools
+  # (ArgoCD, FluxCD), where the empty secret in the template overwrites auto-generated
+  # certificates on every apply. The operator will create the secret itself if missing.
+  # Defaults to true for backward compatibility. 
+  enabled: true
+  labels:
+    app.kubernetes.io/component: operator-webhook-server-secret
+    app.kubernetes.io/name: grove-webhook-server-secret
+    app.kubernetes.io/part-of: grove
+priorityClass:
+  enabled: false
+  name: grove-operator-priority-critical
+  value: 999999550
+crdInstaller:
+  # enabled controls whether the operator automatically installs/upgrades Grove CRDs on startup
+  # via an init container. Defaults to false — CRDs are installed by Helm on fresh install via
+  # the crds/ directory, and upgrades are managed manually by the user.
+  # Set to true to opt in to automated CRD upgrades on every helm upgrade.
+  # WARNING: when enabled, the operator ServiceAccount receives apiextensions.k8s.io permissions.
+  enabled: false
+  image:
+    repository: ai-dynamo/grove/grove-install-crds
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: v0.1.0-alpha.11
+    pullPolicy: IfNotPresent
+    registry: ghcr.m.daocloud.io
+initContainer:
+  image:
+    registry: ghcr.m.daocloud.io
+    repository: ai-dynamo/grove/grove-initc
+    tag: v0.1.0-alpha.11
