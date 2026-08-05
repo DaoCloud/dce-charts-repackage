@@ -46,7 +46,7 @@ spec:
           imagePullPolicy: {{ .Values.scheduler.kubeScheduler.image.pullPolicy }}
           command:
             - kube-scheduler
-            {{- if ge (regexReplaceAll "[^0-9]" .Capabilities.KubeVersion.Minor "" | int) 22 }}
+            {{- if ge (index (splitList "." (trimPrefix "v" (include "resolvedKubeSchedulerTag" .))) 1 | int) 22 }}
             {{- range .Values.scheduler.kubeScheduler.extraNewArgs }}
             - {{ . }}
             {{- end }}
