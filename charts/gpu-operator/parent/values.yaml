@@ -304,6 +304,12 @@ gpu-operator:
           sourceLabels:
             - __meta_kubernetes_endpoint_node_name
           targetLabel: node
+          # - source_labels:
+          #     - __meta_kubernetes_pod_node_name
+          #   regex: (.*)
+          #   target_label: instance
+          #   replacement: $1
+          #   action: replace
     # DCGM Exporter configuration
     # This block is used to configure DCGM Exporter to emit a customized list of metrics.
     # Use "name" to either point to an existing ConfigMap or to create a new one with a
