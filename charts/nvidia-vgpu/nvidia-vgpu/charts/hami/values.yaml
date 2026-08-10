@@ -79,7 +79,7 @@ scheduler:
     image:
       registry: "k8s-gcr.m.daocloud.io"
       repository: "kubernetes/kube-scheduler"
-      tag: "v1.28.0"
+      tag: "" # leave empty: overriding it disables both the compatibility lookup and the upstream per-cluster derivation
       ## Specify a imagePullPolicy
       ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
       ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -114,6 +114,14 @@ scheduler:
     extraArgs:
       - --policy-config-file=/config/config.json
       - -v=4
+    compatibility:
+      # kube-scheduler image per cluster version: the greatest kube_gte_<minor> not above the running cluster wins, so the scheduler stays within one minor of the apiserver. Every tag is declared here so .relok8s-images.yaml can resolve it statically for offline relocation.
+      kube_gte_122: v1.22.0
+      kube_gte_124: v1.24.0
+      kube_gte_126: v1.26.0
+      kube_gte_128: v1.28.0
+      kube_gte_130: v1.30.0
+      kube_gte_132: v1.32.0
   extender:
     ## @param image.registry scheduler extender image registry
     ## @param image.repository scheduler extender image repository

@@ -101,7 +101,19 @@ app.kubernetes.io/instance: {{ .Release.Name }}
     Resolve the tag for kubeScheduler.
 */}}
 {{- define "resolvedKubeSchedulerTag" -}}
-{{- if .Values.scheduler.kubeScheduler.image.tag }}
+{{- $cur := printf "1%s" (regexReplaceAll "[^0-9]" .Capabilities.KubeVersion.Minor "") | int -}}
+{{- $best := -1 -}}
+{{- $selected := "" -}}
+{{- range $key, $val := (.Values.scheduler.kubeScheduler.compatibility | default dict) -}}
+{{- $threshold := regexReplaceAll "[^0-9]" $key "" | int -}}
+{{- if and (le $threshold $cur) (gt $threshold $best) -}}
+{{- $best = $threshold -}}
+{{- $selected = $val -}}
+{{- end -}}
+{{- end -}}
+{{- if $selected }}
+{{- $selected | trim -}}
+{{- else if .Values.scheduler.kubeScheduler.image.tag }}
 {{- .Values.scheduler.kubeScheduler.image.tag | trim -}}
 {{- else }}
 {{- include "strippedKubeVersion" . | trim -}}

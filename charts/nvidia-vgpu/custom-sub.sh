@@ -23,11 +23,10 @@ echo "custom-sub.sh"
 yq -i '.resourceName="nvidia.com/vgpu"' charts/hami/values.yaml
 
 
-# 2) kube-scheduler 镜像信息（registry/repository/tag）
+# 2) kube-scheduler 镜像信息（registry/repository，tag 由 custom.sh 统一处理）
 yq -i '
   .scheduler.kubeScheduler.image.registry = "k8s-gcr.m.daocloud.io" |
-  .scheduler.kubeScheduler.image.repository = "kubernetes/kube-scheduler" |
-  .scheduler.kubeScheduler.image.tag = "v1.28.0"
+  .scheduler.kubeScheduler.image.repository = "kubernetes/kube-scheduler"
 ' charts/hami/values.yaml
 
 # 3) extender 镜像 registry（仓库名保持不变）
