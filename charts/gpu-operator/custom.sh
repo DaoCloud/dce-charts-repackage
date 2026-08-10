@@ -79,6 +79,7 @@ yq -i '
 # set default enabled value
 yq -i '
     .gpu-operator.devicePlugin.enabled=true |
+    .gpu-operator.dcgm.enabled=true |
     .gpu-operator.cdi.enabled=false |
     .gpu-operator.migManager.enabled=false |
     .gpu-operator.vgpuDeviceManager.enabled=false |
@@ -88,6 +89,7 @@ yq -i '
 
 yq -i '
     .devicePlugin.enabled=true |
+    .dcgm.enabled=true |
     .cdi.enabled=false |
     .migManager.enabled=false |
     .vgpuDeviceManager.enabled=false |
