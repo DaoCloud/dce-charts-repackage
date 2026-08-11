@@ -1,0 +1,33 @@
+apiVersion: v2
+appVersion: 1.3.0
+dependencies:
+- condition: dynamo-operator.enabled
+  name: dynamo-operator
+  repository: file://components/operator
+  version: 1.3.0
+- condition: global.nats.install
+  name: nats
+  repository: https://nats-io.github.io/k8s/helm/charts/
+  version: 1.3.2
+- condition: global.etcd.install
+  name: etcd
+  repository: https://charts.bitnami.com/bitnami
+  version: 12.0.18
+- condition: global.kai-scheduler.install
+  name: kai-scheduler
+  repository: oci://ghcr.io/kai-scheduler/kai-scheduler
+  version: v0.13.4
+- alias: grove
+  condition: global.grove.install
+  name: grove-charts
+  repository: oci://ghcr.io/ai-dynamo/grove
+  version: v0.1.0-alpha.11
+description: A Helm chart for NVIDIA Dynamo Platform.
+home: https://nvidia.com
+kubeVersion: '>=1.30.0-0'
+maintainers:
+- name: NVIDIA, Inc.
+  url: https://www.nvidia.com
+name: dynamo-platform
+type: application
+version: 1.3.0

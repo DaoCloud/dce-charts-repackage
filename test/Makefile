@@ -128,7 +128,8 @@ sync-with-dt: checkBin checkSyncDTTools
 	set -x ; CHART_PATH=$(ROOT_DIR)/charts/$(PROJECT) ; \
 	echo "chart move $(PROJECT) $${VERSION}" ; \
 	mkdir -p _tmp && DIR=_tmp; \
-	VERSION_NORMAL=$${VERSION:1}; \
+	VERSION_NORMAL=$${VERSION#v}; \
+	[[ "$${VERSION_NORMAL}" =~ ^[0-9]+(\.[0-9]+)*$$ ]] || { echo "error, normalized VERSION must contain only numbers and dots: $${VERSION_NORMAL}" ; exit 1 ; } ; \
 	helm dt wrap $${CHART_PATH}/$(PROJECT) --output-file $${DIR}/$(PROJECT)-$${VERSION_NORMAL}.wrap.tgz --platforms linux/amd64 || { echo "error, failed to save charts and images to local" ; exit 1 ; } ; \
 	CONFIG="\
 source:\n\
