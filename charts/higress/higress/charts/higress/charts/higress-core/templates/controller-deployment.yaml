@@ -38,7 +38,12 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.controller.securityContext | nindent 12 }}
-          image: "{{ .Values.controller.hub | default .Values.global.hub }}/{{ .Values.controller.image | default "higress" }}:{{ .Values.controller.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.controller.hub | default .Values.global.hub }}/higress/{{ .Values.controller.image | default "higress" }}:{{ .Values.controller.tag | default .Chart.AppVersion }}"
+          {{- if .Values.controller.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.controller.imagePullPolicy }}
+          {{- else if .Values.global.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          {{- end }}
           args:
           - "serve"
           - --gatewaySelectorKey=higress
@@ -49,6 +54,7 @@ spec:
           - --enableStatus={{ .Values.global.enableStatus }}
           {{- end }}
           - --ingressClass={{ .Values.global.ingressClass }}
+          - --gatewayClass={{ .Values.global.gatewayClass }}
           {{- if .Values.global.watchNamespace }}
           - --watchNamespace={{ .Values.global.watchNamespace }}
           {{- end }}
@@ -77,7 +83,7 @@ spec:
           - name: PILOT_ENABLE_GATEWAY_API
             value: "{{ .Values.global.enableGatewayAPI }}"
           - name: PILOT_ENABLE_ALPHA_GATEWAY_API
-            value: "{{ .Values.global.enableGatewayAPI }}"
+            value: "{{ .Values.global.enableAlphaGatewayAPI }}"
           {{- if .Values.global.enableInferenceExtension }}
           - name: ENABLE_GATEWAY_API_INFERENCE_EXTENSION
             value: "true"
@@ -104,8 +110,10 @@ spec:
           - name: log
             mountPath: /var/log
         - name: discovery
-          image: "{{ .Values.pilot.hub | default .Values.global.hub }}/{{ .Values.pilot.image | default "pilot" }}:{{ .Values.pilot.tag | default .Chart.AppVersion }}"
-{{- if .Values.global.imagePullPolicy }}
+          image: "{{ .Values.pilot.hub | default .Values.global.hub }}/higress/{{ .Values.pilot.image | default "pilot" }}:{{ .Values.pilot.tag | default .Chart.AppVersion }}"
+{{- if .Values.controller.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.controller.imagePullPolicy }}
+{{- else if .Values.global.imagePullPolicy }}
           imagePullPolicy: {{ .Values.global.imagePullPolicy }}
 {{- end }}
           args:
