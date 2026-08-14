@@ -29,11 +29,13 @@
                     "required": [
                         "install"
                     ],
-                    "install": {
-                        "type": "boolean",
-                        "title": "Install GrafanaDashboard",
-                        "description": "Install GrafanaDashboard for spiderpool, This requires the grafana operator CRDs to be available. Default to false",
-                        "default": false
+                    "properties": {
+                        "install": {
+                            "type": "boolean",
+                            "title": "Install GrafanaDashboard",
+                            "description": "Install GrafanaDashboard for spiderpool, This requires the grafana operator CRDs to be available. Default to false",
+                            "default": false
+                        }
                     }
                 },
                 "spiderpoolAgent": {
@@ -171,7 +173,7 @@
                             "properties": {
                                 "enabled": {
                                     "type": "boolean",
-                                    "default": "true"
+                                    "default": true
                                 }
                             }
                         }
