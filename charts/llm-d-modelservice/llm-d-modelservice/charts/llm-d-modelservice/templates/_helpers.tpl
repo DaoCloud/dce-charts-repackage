@@ -130,7 +130,11 @@ affinity:
 {{- end }}
   ports:
     - containerPort: {{ default 8000 .servicePort }}
+  {{- if .proxy.resources }}
+  resources: {{- toYaml .proxy.resources | nindent 4 }}
+  {{- else }}
   resources: {}
+  {{- end }}
   restartPolicy: Always
   securityContext:
     allowPrivilegeEscalation: false
@@ -240,14 +244,23 @@ Context is helm root context plus key "role" ("decode" or "prefill")
 nvidia.com/gpu
 {{- end -}}
 {{- end }}
-{{/* Get accelerator environment variables based on type */}}
+{{/*
+Get accelerator environment variables based on type.
+Filter out any that are
+*/}}
 {{- define "llm-d-modelservice.acceleratorEnv" -}}
 {{- $acceleratorType := include "llm-d-modelservice.acceleratorType" . -}}
 {{- if and (ne $acceleratorType "cpu") (hasKey .Values.accelerator.env $acceleratorType) -}}
 {{- $envVars := index .Values.accelerator.env $acceleratorType -}}
+{{- $userNames := list -}}
+{{- range (default (list) .container.env) -}}
+  {{- $userNames = append $userNames .name -}}
+{{- end -}}
 {{- range $envVars }}
+{{- if not (has .name $userNames) }}
 - name: {{ .name }}
   value: {{ .value | quote }}
+{{- end }}
 {{- end -}}
 {{- end -}}
 {{- end }}
