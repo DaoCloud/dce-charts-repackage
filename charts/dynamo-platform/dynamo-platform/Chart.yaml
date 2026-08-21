@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: 1.3.0
+appVersion: 1.4.0
 description: A Helm chart for NVIDIA Dynamo Platform.
 home: https://nvidia.com
 kubeVersion: '>=1.30.0-0'
@@ -8,17 +8,17 @@ maintainers:
     url: https://www.nvidia.com
 name: dynamo-platform
 type: application
-version: 1.3.0
+version: 1.4.0
 dependencies:
   - name: dynamo-platform
-    version: "1.3.0"
+    version: "1.4.0"
     repository: "https://helm.ngc.nvidia.com/nvidia/ai-dynamo"
 keywords:
   - ai
   - inference
 annotations:
   images: |-
-    - image: nvcr.m.daocloud.io/nvidia/ai-dynamo/kubernetes-operator:1.3.0
+    - image: nvcr.m.daocloud.io/nvidia/ai-dynamo/kubernetes-operator:1.4.0
       name: dynamo-operator
     - image: docker.m.daocloud.io/library/nats:2.10.21-alpine
       name: nats
@@ -28,9 +28,9 @@ annotations:
       name: prometheus-nats-exporter
     - image: docker.m.daocloud.io/natsio/nats-box:0.14.5
       name: nats-box
-    - image: ghcr.m.daocloud.io/ai-dynamo/grove/grove-operator:v0.1.0-alpha.11
+    - image: ghcr.m.daocloud.io/ai-dynamo/grove/grove-operator:v0.1.0-alpha.12-rc1
       name: grove-operator
-    - image: ghcr.m.daocloud.io/ai-dynamo/grove/grove-install-crds:v0.1.0-alpha.11
+    - image: ghcr.m.daocloud.io/ai-dynamo/grove/grove-install-crds:v0.1.0-alpha.12-rc1
       name: grove-install-crds
-    - image: ghcr.m.daocloud.io/ai-dynamo/grove/grove-initc:v0.1.0-alpha.11
+    - image: ghcr.m.daocloud.io/ai-dynamo/grove/grove-initc:v0.1.0-alpha.12-rc1
       name: grove-initc
