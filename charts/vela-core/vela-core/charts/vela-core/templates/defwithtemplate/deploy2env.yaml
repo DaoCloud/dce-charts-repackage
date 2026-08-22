@@ -18,7 +18,6 @@ spec:
         import (
         	"vela/op"
         )
-
         app: op.#ApplyEnvBindApp & {
         	env:      parameter.env
         	policy:   parameter.policy
