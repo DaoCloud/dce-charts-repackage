@@ -15,7 +15,6 @@ spec:
         import (
         	"vela/config"
         )
-
         output: config.#ReadConfig & {
         	$params: parameter
         }
