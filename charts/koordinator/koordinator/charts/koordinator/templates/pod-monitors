@@ -1,0 +1,43 @@
+{{- if and .Values.descheduler.monitorEnabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: koord-descheduler-metrics-podmonitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    koord-app: koord-descheduler
+spec:
+  selector:
+    matchLabels:
+      koord-app: koord-descheduler
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  podMetricsEndpoints:
+    - interval: 30s
+      path: /metrics
+      port: metrics
+{{- end }}
+
+{{- if and .Values.scheduler.monitorEnabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: koord-scheduler-metrics-podmonitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    koord-app: koord-scheduler
+spec:
+  selector:
+    matchLabels:
+      koord-app: koord-scheduler
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  podMetricsEndpoints:
+    - interval: 30s
+      path: /metrics
+      port: metrics
+{{- end }}
