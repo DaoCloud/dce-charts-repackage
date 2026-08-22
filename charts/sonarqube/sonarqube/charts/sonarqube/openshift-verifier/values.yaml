@@ -1,0 +1,15 @@
+community:
+  enabled: true
+
+OpenShift:
+  enabled: true
+  route:
+      enabled: true
+
+image:
+  pullSecrets:
+    - name: pullsecret
+  repository: "sonarsource/sonarqube"
+  tag: "26.7.0.124771-master-community"
+
+monitoringPasscode: "test"
