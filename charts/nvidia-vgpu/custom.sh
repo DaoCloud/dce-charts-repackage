@@ -33,9 +33,6 @@ yq -i '
   .hami.scheduler.kubeScheduler.image.repository = "kubernetes/kube-scheduler"
 ' values.yaml
 
-# 默认将 kube-scheduler tag 设为 v1.28.0（新结构字段为 image.tag）
-yq -i '.hami.scheduler.kubeScheduler.image.tag = "v1.28.0"' values.yaml
-
 # 3) extender 镜像 registry 调整（仓库名保持为 projecthami/hami）
 yq -i '.hami.scheduler.extender.image.registry = "docker.m.daocloud.io"' values.yaml
 
@@ -230,8 +227,98 @@ yq -i '
 #yq -i '.devicePlugin.registry="release.daocloud.io"' charts/hami/values.yaml
 
 
-yq -i '.hami.scheduler.kubeScheduler.image.tag="v1.28.0"' values.yaml
-yq -i '.scheduler.kubeScheduler.image.tag="v1.28.0"' charts/hami/values.yaml
+# image.tag 留空，写成固定值会关掉推导链：compatibility -> image.tag -> 按集群版本推导
+SCHED_TAG_COMMENT="leave empty: overriding it disables both the compatibility lookup and the upstream per-cluster derivation"
+yq -i "
+  .hami.scheduler.kubeScheduler.image.tag=\"\" |
+  .hami.scheduler.kubeScheduler.image.tag lineComment=\"${SCHED_TAG_COMMENT}\"
+" values.yaml
+yq -i "
+  .scheduler.kubeScheduler.image.tag=\"\" |
+  .scheduler.kubeScheduler.image.tag lineComment=\"${SCHED_TAG_COMMENT}\"
+" charts/hami/values.yaml
+
+
+# compatibility 表：声明可离线持久化的 scheduler 镜像，同时作为推导结果的收敛点。
+# 上游推导出的是集群精确 patch 版本（无界），relok8s 只能持久化有限集合，两者必须对齐。
+# skew 允许 scheduler 比 apiserver 旧一个小版本，故一个 tag 覆盖 N / N+1，1.22~1.33 需 6 个。
+# 新增 k8s 版本时同步追加 parent/.relok8s-images.yaml。
+SCHED_COMPATIBILITY="122:v1.22.0 124:v1.24.0 126:v1.26.0 128:v1.28.0 130:v1.30.0 132:v1.32.0"
+for entry in ${SCHED_COMPATIBILITY}; do
+    minor="${entry%%:*}"
+    tag="${entry##*:}"
+    yq -i ".hami.scheduler.kubeScheduler.compatibility.kube_gte_${minor}=\"${tag}\"" values.yaml
+    yq -i ".scheduler.kubeScheduler.compatibility.kube_gte_${minor}=\"${tag}\"" charts/hami/values.yaml
+done
+SCHED_COMPAT_COMMENT="kube-scheduler image per cluster version: the greatest kube_gte_<minor> not above the running cluster wins, so the scheduler stays within one minor of the apiserver. Every tag is declared here so .relok8s-images.yaml can resolve it statically for offline relocation."
+yq -i ".hami.scheduler.kubeScheduler.compatibility headComment=\"${SCHED_COMPAT_COMMENT}\"" values.yaml
+yq -i ".scheduler.kubeScheduler.compatibility headComment=\"${SCHED_COMPAT_COMMENT}\"" charts/hami/values.yaml
+
+
+# resolvedKubeSchedulerTag: 先查 compatibility，再回落 image.tag，最后回落集群版本
+target_file="charts/hami/templates/_helpers.tpl"
+if [ -f "$target_file" ]; then
+  tmp_out="$(mktemp)"
+  awk '
+    /^\{\{- define "resolvedKubeSchedulerTag" -\}\}$/ {
+      print "{{- define \"resolvedKubeSchedulerTag\" -}}"
+      print "{{- $cur := printf \"1%s\" (regexReplaceAll \"[^0-9]\" .Capabilities.KubeVersion.Minor \"\") | int -}}"
+      print "{{- $best := -1 -}}"
+      print "{{- $selected := \"\" -}}"
+      print "{{- range $key, $val := (.Values.scheduler.kubeScheduler.compatibility | default dict) -}}"
+      print "{{- $threshold := regexReplaceAll \"[^0-9]\" $key \"\" | int -}}"
+      print "{{- if and (le $threshold $cur) (gt $threshold $best) -}}"
+      print "{{- $best = $threshold -}}"
+      print "{{- $selected = $val -}}"
+      print "{{- end -}}"
+      print "{{- end -}}"
+      print "{{- if $selected }}"
+      print "{{- $selected | trim -}}"
+      print "{{- else if .Values.scheduler.kubeScheduler.image.tag }}"
+      print "{{- .Values.scheduler.kubeScheduler.image.tag | trim -}}"
+      print "{{- else }}"
+      print "{{- include \"strippedKubeVersion\" . | trim -}}"
+      print "{{- end }}"
+      print "{{- end }}"
+      skip = 1
+      ends = 0
+      next
+    }
+    skip == 1 {
+      if ($0 ~ /^\{\{- end \}\}$/) { ends++ ; if (ends == 2) skip = 0 }
+      next
+    }
+    { print }
+  ' "$target_file" > "$tmp_out" && mv "$tmp_out" "$target_file"
+fi
+
+
+# 配置格式必须跟随实际选中的二进制，而非集群版本：v1beta2 在 kube-scheduler 1.28 已移除
+target_file="charts/hami/templates/scheduler/configmap.yaml"
+if [ -f "$target_file" ]; then
+  tmp_out="$(mktemp)"
+  awk '
+    /^\{\{- \$k8sMinor := / {
+      print "{{- $schedTag := include \"resolvedKubeSchedulerTag\" . -}}"
+      print "{{- $k8sMinor := index (splitList \".\" (trimPrefix \"v\" $schedTag)) 1 | int -}}"
+      next
+    }
+    { print }
+  ' "$target_file" > "$tmp_out" && mv "$tmp_out" "$target_file"
+fi
+
+# 启动参数的新旧选择同理
+target_file="charts/hami/templates/scheduler/deployment.yaml"
+if [ -f "$target_file" ]; then
+  tmp_out="$(mktemp)"
+  awk '
+    index($0, "{{- if ge (regexReplaceAll \"[^0-9]\" .Capabilities.KubeVersion.Minor \"\" | int) 22 }}") > 0 {
+      print "            {{- if ge (index (splitList \".\" (trimPrefix \"v\" (include \"resolvedKubeSchedulerTag\" .))) 1 | int) 22 }}"
+      next
+    }
+    { print }
+  ' "$target_file" > "$tmp_out" && mv "$tmp_out" "$target_file"
+fi
 
 
 # ---- Inject Helm logic into scheduler ClusterRoleBinding roleRef.name ----

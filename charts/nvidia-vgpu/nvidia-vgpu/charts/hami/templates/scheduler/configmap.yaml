@@ -1,5 +1,6 @@
 {{- if and .Values.scheduler.kubeScheduler.enabled (not .Values.dra.enabled) -}}
-{{- $k8sMinor := regexReplaceAll "[^0-9]" .Capabilities.KubeVersion.Minor "" | int -}}
+{{- $schedTag := include "resolvedKubeSchedulerTag" . -}}
+{{- $k8sMinor := index (splitList "." (trimPrefix "v" $schedTag)) 1 | int -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:

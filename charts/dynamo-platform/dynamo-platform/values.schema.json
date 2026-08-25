@@ -1,0 +1,1181 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "dynamo-platform": {
+            "type": "object",
+            "properties": {
+                "dynamo-operator": {
+                    "type": "object",
+                    "properties": {
+                        "checkpoint": {
+                            "type": "object",
+                            "properties": {
+                                "cleanupImage": {
+                                    "type": "string"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "storage": {
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "controllerManager": {
+                            "type": "object",
+                            "properties": {
+                                "affinity": {
+                                    "type": "object"
+                                },
+                                "leaderElection": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "namespace": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "manager": {
+                                    "type": "object",
+                                    "properties": {
+                                        "args": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "image": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pullPolicy": {
+                                                    "type": "string"
+                                                },
+                                                "registry": {
+                                                    "type": "string"
+                                                },
+                                                "repository": {
+                                                    "type": "string"
+                                                },
+                                                "tag": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "tolerations": {
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "discoveryBackend": {
+                            "type": "string"
+                        },
+                        "dynamo": {
+                            "type": "object",
+                            "properties": {
+                                "dockerRegistry": {
+                                    "type": "object",
+                                    "properties": {
+                                        "existingSecretName": {
+                                            "type": "null"
+                                        },
+                                        "password": {
+                                            "type": "null"
+                                        },
+                                        "secure": {
+                                            "type": "boolean"
+                                        },
+                                        "server": {
+                                            "type": "null"
+                                        },
+                                        "useKubernetesSecret": {
+                                            "type": "boolean"
+                                        },
+                                        "username": {
+                                            "type": "null"
+                                        }
+                                    }
+                                },
+                                "groveTerminationDelay": {
+                                    "type": "string"
+                                },
+                                "ingress": {
+                                    "type": "object",
+                                    "properties": {
+                                        "className": {
+                                            "type": "null"
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "tlsSecretName": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "ingressHostSuffix": {
+                                    "type": "string"
+                                },
+                                "istio": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "gateway": {
+                                            "type": "null"
+                                        }
+                                    }
+                                },
+                                "metrics": {
+                                    "type": "object",
+                                    "properties": {
+                                        "prometheusEndpoint": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "mpiRun": {
+                                    "type": "object",
+                                    "properties": {
+                                        "secretName": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "serviceMesh": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "istio": {
+                                            "type": "object",
+                                            "properties": {
+                                                "caCertificates": {
+                                                    "type": "string"
+                                                },
+                                                "clientCertificate": {
+                                                    "type": "string"
+                                                },
+                                                "insecureSkipVerify": {
+                                                    "type": "boolean"
+                                                },
+                                                "privateKey": {
+                                                    "type": "string"
+                                                },
+                                                "tlsMode": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "provider": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "virtualServiceSupportsHTTPS": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "env": {
+                            "type": "array"
+                        },
+                        "etcdAddr": {
+                            "type": "string"
+                        },
+                        "gpuDiscovery": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "imagePullSecrets": {
+                            "type": "array"
+                        },
+                        "modelExpressURL": {
+                            "type": "string"
+                        },
+                        "namespaceRestriction": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "lease": {
+                                    "type": "object",
+                                    "properties": {
+                                        "duration": {
+                                            "type": "string"
+                                        },
+                                        "renewInterval": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "targetNamespace": {
+                                    "type": "null"
+                                }
+                            }
+                        },
+                        "natsAddr": {
+                            "type": "string"
+                        },
+                        "upgradeCRD": {
+                            "type": "boolean"
+                        },
+                        "webhook": {
+                            "type": "object",
+                            "properties": {
+                                "caBundle": {
+                                    "type": "string"
+                                },
+                                "certManager": {
+                                    "type": "object",
+                                    "properties": {
+                                        "certificate": {
+                                            "type": "object",
+                                            "properties": {
+                                                "duration": {
+                                                    "type": "string"
+                                                },
+                                                "renewBefore": {
+                                                    "type": "string"
+                                                },
+                                                "rootCA": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "duration": {
+                                                            "type": "string"
+                                                        },
+                                                        "renewBefore": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
+                                "certificateSecret": {
+                                    "type": "object",
+                                    "properties": {
+                                        "external": {
+                                            "type": "boolean"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "failurePolicy": {
+                                    "type": "string"
+                                },
+                                "namespaceSelector": {
+                                    "type": "object"
+                                },
+                                "podCheckpointRestoreFailurePolicy": {
+                                    "type": "string"
+                                },
+                                "timeoutSeconds": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                },
+                "etcd": {
+                    "type": "object",
+                    "properties": {
+                        "affinity": {
+                            "type": "object"
+                        },
+                        "auth": {
+                            "type": "object",
+                            "properties": {
+                                "rbac": {
+                                    "type": "object",
+                                    "properties": {
+                                        "create": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "livenessProbe": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "pdb": {
+                            "type": "object",
+                            "properties": {
+                                "create": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "persistence": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "size": {
+                                    "type": "string"
+                                },
+                                "storageClass": {
+                                    "type": "null"
+                                }
+                            }
+                        },
+                        "preUpgradeJob": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "readinessProbe": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "replicaCount": {
+                            "type": "integer"
+                        },
+                        "tolerations": {
+                            "type": "array"
+                        }
+                    }
+                },
+                "global": {
+                    "type": "object",
+                    "properties": {
+                        "etcd": {
+                            "type": "object",
+                            "properties": {
+                                "install": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "grove": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "install": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "kai-scheduler": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "install": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "nats": {
+                            "type": "object",
+                            "properties": {
+                                "install": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "volcano-scheduler": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                },
+                "grove": {
+                    "type": "object",
+                    "properties": {
+                        "affinity": {
+                            "type": "object"
+                        },
+                        "crdInstaller": {
+                            "type": "object",
+                            "properties": {
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "deployment": {
+                            "type": "object",
+                            "properties": {
+                                "env": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "value": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "registry": {
+                                    "type": "string"
+                                },
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "initContainer": {
+                            "type": "object",
+                            "properties": {
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tolerations": {
+                            "type": "array"
+                        }
+                    }
+                },
+                "kai-scheduler": {
+                    "type": "object",
+                    "properties": {
+                        "global": {
+                            "type": "object",
+                            "properties": {
+                                "affinity": {
+                                    "type": "object"
+                                },
+                                "tolerations": {
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    }
+                },
+                "nats": {
+                    "type": "object",
+                    "properties": {
+                        "config": {
+                            "type": "object",
+                            "properties": {
+                                "cluster": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "replicas": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "gateway": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
+                                "jetstream": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "fileStore": {
+                                            "type": "object",
+                                            "properties": {
+                                                "dir": {
+                                                    "type": "string"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "maxSize": {
+                                                    "type": "null"
+                                                },
+                                                "pvc": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "enabled": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "merge": {
+                                                            "type": "object"
+                                                        },
+                                                        "name": {
+                                                            "type": "null"
+                                                        },
+                                                        "patch": {
+                                                            "type": "array"
+                                                        },
+                                                        "size": {
+                                                            "type": "string"
+                                                        },
+                                                        "storageClassName": {
+                                                            "type": "null"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "memoryStore": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "merge": {
+                                            "type": "object"
+                                        },
+                                        "patch": {
+                                            "type": "array"
+                                        }
+                                    }
+                                },
+                                "leafnodes": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
+                                "merge": {
+                                    "type": "object",
+                                    "properties": {
+                                        "max_payload": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "monitor": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "port": {
+                                            "type": "integer"
+                                        },
+                                        "tls": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "mqtt": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
+                                "nats": {
+                                    "type": "object",
+                                    "properties": {
+                                        "port": {
+                                            "type": "integer"
+                                        },
+                                        "tls": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "merge": {
+                                                    "type": "object"
+                                                },
+                                                "patch": {
+                                                    "type": "array"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "patch": {
+                                    "type": "array"
+                                },
+                                "profiling": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "port": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "resolver": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
+                                "serverNamePrefix": {
+                                    "type": "string"
+                                },
+                                "websocket": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "configMap": {
+                            "type": "object",
+                            "properties": {
+                                "merge": {
+                                    "type": "object"
+                                },
+                                "name": {
+                                    "type": "null"
+                                },
+                                "patch": {
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "container": {
+                            "type": "object",
+                            "properties": {
+                                "env": {
+                                    "type": "object"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "pullPolicy": {
+                                            "type": "null"
+                                        },
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "merge": {
+                                    "type": "object"
+                                },
+                                "patch": {
+                                    "type": "array"
+                                },
+                                "ports": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cluster": {
+                                            "type": "object"
+                                        },
+                                        "gateway": {
+                                            "type": "object"
+                                        },
+                                        "leafnodes": {
+                                            "type": "object"
+                                        },
+                                        "monitor": {
+                                            "type": "object"
+                                        },
+                                        "mqtt": {
+                                            "type": "object"
+                                        },
+                                        "nats": {
+                                            "type": "object"
+                                        },
+                                        "profiling": {
+                                            "type": "object"
+                                        },
+                                        "websocket": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "headlessService": {
+                            "type": "object",
+                            "properties": {
+                                "merge": {
+                                    "type": "object"
+                                },
+                                "name": {
+                                    "type": "null"
+                                },
+                                "patch": {
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "natsBox": {
+                            "type": "object",
+                            "properties": {
+                                "container": {
+                                    "type": "object",
+                                    "properties": {
+                                        "env": {
+                                            "type": "object"
+                                        },
+                                        "image": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pullPolicy": {
+                                                    "type": "null"
+                                                },
+                                                "registry": {
+                                                    "type": "string"
+                                                },
+                                                "repository": {
+                                                    "type": "string"
+                                                },
+                                                "tag": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "merge": {
+                                            "type": "object"
+                                        },
+                                        "patch": {
+                                            "type": "array"
+                                        }
+                                    }
+                                },
+                                "contexts": {
+                                    "type": "object",
+                                    "properties": {
+                                        "default": {
+                                            "type": "object",
+                                            "properties": {
+                                                "creds": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "contents": {
+                                                            "type": "null"
+                                                        },
+                                                        "dir": {
+                                                            "type": "null"
+                                                        },
+                                                        "key": {
+                                                            "type": "string"
+                                                        },
+                                                        "secretName": {
+                                                            "type": "null"
+                                                        }
+                                                    }
+                                                },
+                                                "merge": {
+                                                    "type": "object"
+                                                },
+                                                "nkey": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "contents": {
+                                                            "type": "null"
+                                                        },
+                                                        "dir": {
+                                                            "type": "null"
+                                                        },
+                                                        "key": {
+                                                            "type": "string"
+                                                        },
+                                                        "secretName": {
+                                                            "type": "null"
+                                                        }
+                                                    }
+                                                },
+                                                "patch": {
+                                                    "type": "array"
+                                                },
+                                                "tls": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "cert": {
+                                                            "type": "string"
+                                                        },
+                                                        "dir": {
+                                                            "type": "null"
+                                                        },
+                                                        "key": {
+                                                            "type": "string"
+                                                        },
+                                                        "secretName": {
+                                                            "type": "null"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "defaultContextName": {
+                                    "type": "string"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "podTemplate": {
+                                    "type": "object",
+                                    "properties": {
+                                        "merge": {
+                                            "type": "object",
+                                            "properties": {
+                                                "spec": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "affinity": {
+                                                            "type": "object"
+                                                        },
+                                                        "tolerations": {
+                                                            "type": "array"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "patch": {
+                                            "type": "array"
+                                        }
+                                    }
+                                },
+                                "serviceAccount": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "podDisruptionBudget": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "podTemplate": {
+                            "type": "object",
+                            "properties": {
+                                "configChecksumAnnotation": {
+                                    "type": "boolean"
+                                },
+                                "merge": {
+                                    "type": "object",
+                                    "properties": {
+                                        "metadata": {
+                                            "type": "object",
+                                            "properties": {
+                                                "annotations": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "sidecar.istio.io/inject": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "spec": {
+                                            "type": "object",
+                                            "properties": {
+                                                "affinity": {
+                                                    "type": "object"
+                                                },
+                                                "tolerations": {
+                                                    "type": "array"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "patch": {
+                                    "type": "array"
+                                },
+                                "topologySpreadConstraints": {
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "promExporter": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "reloader": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "env": {
+                                    "type": "object"
+                                },
+                                "image": {
+                                    "type": "object",
+                                    "properties": {
+                                        "pullPolicy": {
+                                            "type": "null"
+                                        },
+                                        "registry": {
+                                            "type": "string"
+                                        },
+                                        "repository": {
+                                            "type": "string"
+                                        },
+                                        "tag": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "merge": {
+                                    "type": "object"
+                                },
+                                "natsVolumeMountPrefixes": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "patch": {
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "service": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "merge": {
+                                    "type": "object"
+                                },
+                                "name": {
+                                    "type": "null"
+                                },
+                                "patch": {
+                                    "type": "array"
+                                },
+                                "ports": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cluster": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "gateway": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "leafnodes": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "monitor": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "mqtt": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "nats": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "profiling": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "websocket": {
+                                            "type": "object",
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "serviceAccount": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "statefulSet": {
+                            "type": "object",
+                            "properties": {
+                                "merge": {
+                                    "type": "object"
+                                },
+                                "name": {
+                                    "type": "null"
+                                },
+                                "patch": {
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "tlsCA": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
