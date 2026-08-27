@@ -97,6 +97,16 @@ yq -i '
     .sandboxDevicePlugin.enabled=false
 ' charts/gpu-operator/values.yaml
 
+yq -i '
+    .gpu-operator.operator.resources.limits.memory="700Mi" |
+    .gpu-operator.operator.resources.requests.memory="300Mi"
+' values.yaml
+
+yq -i '
+    .operator.resources.limits.memory="700Mi" |
+    .operator.resources.requests.memory="300Mi"
+' charts/gpu-operator/values.yaml
+
 # set image
 yq -i '
     .gpu-operator.gds.version="2.20.5-ubuntu22.04" 
