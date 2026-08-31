@@ -57,6 +57,8 @@ Create redis name and version as used by the chart label.
 {{- if $redisHa.enabled -}}
     {{- if $redisHa.haproxy.enabled -}}
         {{- printf "%s-haproxy" (include "redis-ha.fullname" $redisHaContext) | trunc 63 | trimSuffix "-" -}}
+    {{- else -}}
+        {{- include "redis-ha.fullname" $redisHaContext | trunc 63 | trimSuffix "-" -}}
     {{- end -}}
 {{- else -}}
 {{- printf "%s-%s" (include "argo-cd.fullname" .) .Values.redis.name | trunc 63 | trimSuffix "-" -}}
@@ -214,9 +216,15 @@ Argo Configuration Preset Values (Influenced by Values configuration)
 Merge Argo Configuration with Preset Configuration
 */}}
 {{- define "argo-cd.config.cm" -}}
-{{- $config := omit .Values.configs.cm "create" "annotations" -}}
+{{- $config := omit .Values.configs.cm "create" "annotations" "resourceExclusionsAdditional" -}}
 {{- $preset := include "argo-cd.config.cm.presets" . | fromYaml | default dict -}}
-{{- range $key, $value := mergeOverwrite $preset $config }}
+{{- $merged := mergeOverwrite $preset $config -}}
+{{- if .Values.configs.cm.resourceExclusionsAdditional }}
+{{- $existing := get $merged "resource.exclusions" | default "" | trimSuffix "\n" }}
+{{- $additional := .Values.configs.cm.resourceExclusionsAdditional | toYaml }}
+{{- $_ := set $merged "resource.exclusions" (list $existing $additional | compact | join "\n") -}}
+{{- end }}
+{{- range $key, $value := $merged }}
 {{- $fmted := $value | toString }}
 {{- if not (eq $fmted "") }}
 {{ $key }}: {{ $fmted | toYaml }}
