@@ -58,7 +58,7 @@ argo-rollouts:
 
     imageRegistry: quay.m.daocloud.io
     repository: argoproj/argo-rollouts
-    tag: v1.9.0
+    tag: v1.9.1
   controller:
     # -- Value of label `app.kubernetes.io/component`
     component: rollouts-controller
@@ -105,7 +105,7 @@ argo-rollouts:
       # -- Repository to use
       repository: argoproj/argo-rollouts
       # -- Overrides the image tag (default is the chart appVersion)
-      tag: "v1.9.0"
+      tag: "v1.9.1"
       # -- Image pull policy
       pullPolicy: IfNotPresent
     # -- Enable AWS target group verification before progressing through steps (requires AWS privileges)
@@ -197,16 +197,7 @@ argo-rollouts:
       successThreshold: 1
       timeoutSeconds: 10
     # -- Configure readiness [probe] for the controller
-    # @default -- See [values.yaml]
-    readinessProbe:
-      httpGet:
-        path: /metrics
-        port: metrics
-      initialDelaySeconds: 15
-      periodSeconds: 5
-      failureThreshold: 3
-      successThreshold: 1
-      timeoutSeconds: 4
+    readinessProbe: {}
     ## Configure Pod Disruption Budget for the controller
     pdb:
       # -- Labels to be added to controller [Pod Disruption Budget]
@@ -358,7 +349,7 @@ argo-rollouts:
       # --  Repository to use
       repository: argoproj/kubectl-argo-rollouts
       # -- Overrides the image tag (default is the chart appVersion)
-      tag: "v1.9.0"
+      tag: "v1.9.1"
       # -- Image pull policy
       pullPolicy: IfNotPresent
     # -- Set the root path of the dashboard (e.g. `/rollouts`). Useful when running behind a reverse proxy with a path prefix.
@@ -463,6 +454,41 @@ argo-rollouts:
       # - secretName: argorollouts-example-tls
       #   hosts:
       #     - argorollouts.example.com
+    ## HTTPRoute configuration (Gateway API).
+    ## ref: https://gateway-api.sigs.k8s.io/api-types/httproute/
+    ##
+    httproute:
+      # -- Enable HTTPRoute resource for the dashboard (Gateway API)
+      enabled: false
+      # -- Additional HTTPRoute labels
+      labels: {}
+      # -- Additional HTTPRoute annotations
+      annotations: {}
+      # -- Gateway API parentRefs for the HTTPRoute
+      ## Must reference an existing Gateway
+      # @default -- `[]` (See [values.yaml])
+      parentRefs: []
+      # - name: example-gateway
+      #   namespace: example-gateway-namespace
+      #   sectionName: https
+      # -- List of hostnames for the HTTPRoute
+      # @default -- `[]` (See [values.yaml])
+      hostnames: []
+      # - argorollouts.example.com
+      # -- HTTPRoute rules configuration
+      # @default -- `[]` (See [values.yaml])
+      rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+          # filters: []
+          #   - type: RequestHeaderModifier
+          #     requestHeaderModifier:
+          #       add:
+          #         - name: X-Custom-Header
+          #           value: custom-value
+          # timeouts: {}
     # -- Additional volumes to add to the dashboard pod
     volumes: []
     # -- Additional volumeMounts to add to the dashboard container
