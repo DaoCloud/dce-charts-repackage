@@ -5,6 +5,14 @@
         "kueue": {
             "type": "object",
             "properties": {
+                "certManager": {
+                    "type": "object",
+                    "properties": {
+                        "issuerRef": {
+                            "type": "object"
+                        }
+                    }
+                },
                 "controllerManager": {
                     "type": "object",
                     "properties": {
@@ -184,6 +192,9 @@
                 "enableVisibilityAPF": {
                     "type": "boolean"
                 },
+                "enableVisibilityAuthReaderRoleBinding": {
+                    "type": "boolean"
+                },
                 "fullnameOverride": {
                     "type": "string"
                 },
@@ -196,6 +207,28 @@
                         "backend": {
                             "type": "object",
                             "properties": {
+                                "auth": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mode": {
+                                            "type": "string"
+                                        },
+                                        "tokenReviewConfig": {
+                                            "type": "object",
+                                            "properties": {
+                                                "audiences": {
+                                                    "type": "string"
+                                                },
+                                                "cacheTTL": {
+                                                    "type": "string"
+                                                },
+                                                "negativeCacheTTL": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
                                 "containerSecurityContext": {
                                     "type": "object",
                                     "properties": {
@@ -262,6 +295,9 @@
                                                     "type": "string"
                                                 }
                                             }
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
                                         },
                                         "host": {
                                             "type": "string"
@@ -335,18 +371,7 @@
                                     "type": "object"
                                 },
                                 "env": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "name": {
-                                                "type": "string"
-                                            },
-                                            "value": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
+                                    "type": "array"
                                 },
                                 "image": {
                                     "type": "object",
@@ -378,6 +403,9 @@
                                                     "type": "string"
                                                 }
                                             }
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
                                         },
                                         "host": {
                                             "type": "string"
