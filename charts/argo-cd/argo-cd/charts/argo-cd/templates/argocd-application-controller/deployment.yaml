@@ -24,9 +24,9 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/cmd-params: {{ include (print $.Template.BasePath "/argocd-configs/argocd-cmd-params-cm.yaml") . | sha256sum }}
+        checksum/cmd-params: {{ include "argo-cd.config.checksum" (dict "context" $ "path" "/argocd-configs/argocd-cmd-params-cm.yaml") }}
         {{- if .Values.configs.cm.create }}
-        checksum/cm: {{ include (print $.Template.BasePath "/argocd-configs/argocd-cm.yaml") . | sha256sum }}
+        checksum/cm: {{ include "argo-cd.config.checksum" (dict "context" $ "path" "/argocd-configs/argocd-cm.yaml") }}
         {{- end }}
         {{- with (mergeOverwrite (deepCopy .Values.global.podAnnotations) .Values.controller.podAnnotations) }}
         {{- range $key, $value := . }}
@@ -80,7 +80,7 @@ spec:
         name: {{ .Values.controller.name }}
         env:
           {{- with (concat .Values.global.env .Values.controller.env) }}
-            {{- toYaml . | nindent 10 }}
+            {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
           - name: ARGOCD_ENABLE_DYNAMIC_CLUSTER_DISTRIBUTION
             value: "true"
