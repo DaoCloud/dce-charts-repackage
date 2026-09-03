@@ -1,0 +1,8 @@
+- "{{ .dynamo-platform.dynamo-operator.controllerManager.manager.image.registry }}/{{ .dynamo-platform.dynamo-operator.controllerManager.manager.image.repository }}:{{ .dynamo-platform.dynamo-operator.controllerManager.manager.image.tag }}"
+- "{{ .dynamo-platform.nats.container.image.registry }}/{{ .dynamo-platform.nats.container.image.repository }}:{{ .dynamo-platform.nats.container.image.tag }}"
+- "{{ .dynamo-platform.nats.reloader.image.registry }}/{{ .dynamo-platform.nats.reloader.image.repository }}:{{ .dynamo-platform.nats.reloader.image.tag }}"
+- "{{ .dynamo-platform.nats.promExporter.image.registry }}/{{ .dynamo-platform.nats.promExporter.image.repository }}:{{ .dynamo-platform.nats.promExporter.image.tag }}"
+- "{{ .dynamo-platform.nats.natsBox.container.image.registry }}/{{ .dynamo-platform.nats.natsBox.container.image.repository }}:{{ .dynamo-platform.nats.natsBox.container.image.tag }}"
+- "{{ .dynamo-platform.grove.image.registry }}/{{ .dynamo-platform.grove.image.repository }}:{{ .dynamo-platform.grove.image.tag }}"
+- "{{ .dynamo-platform.grove.crdInstaller.image.registry }}/{{ .dynamo-platform.grove.crdInstaller.image.repository }}:{{ .dynamo-platform.grove.crdInstaller.image.tag }}"
+- "{{ .dynamo-platform.grove.initContainer.image.registry }}/{{ .dynamo-platform.grove.initContainer.image.repository }}:{{ .dynamo-platform.grove.initContainer.image.tag }}"

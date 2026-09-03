@@ -79,6 +79,7 @@ yq -i '
 # set default enabled value
 yq -i '
     .gpu-operator.devicePlugin.enabled=true |
+    .gpu-operator.dcgm.enabled=true |
     .gpu-operator.cdi.enabled=false |
     .gpu-operator.migManager.enabled=false |
     .gpu-operator.vgpuDeviceManager.enabled=false |
@@ -88,11 +89,22 @@ yq -i '
 
 yq -i '
     .devicePlugin.enabled=true |
+    .dcgm.enabled=true |
     .cdi.enabled=false |
     .migManager.enabled=false |
     .vgpuDeviceManager.enabled=false |
     .vfioManager.enabled=false |
     .sandboxDevicePlugin.enabled=false
+' charts/gpu-operator/values.yaml
+
+yq -i '
+    .gpu-operator.operator.resources.limits.memory="700Mi" |
+    .gpu-operator.operator.resources.requests.memory="300Mi"
+' values.yaml
+
+yq -i '
+    .operator.resources.limits.memory="700Mi" |
+    .operator.resources.requests.memory="300Mi"
 ' charts/gpu-operator/values.yaml
 
 # set image

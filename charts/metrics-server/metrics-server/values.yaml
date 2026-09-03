@@ -6,7 +6,7 @@ metrics-server:
   image:
     repository: metrics-server/metrics-server
     # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
-    tag: "v0.8.0"
+    tag: "v0.8.1"
     pullPolicy: IfNotPresent
     registry: k8s.m.daocloud.io
   imagePullSecrets: []

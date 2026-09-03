@@ -9,6 +9,10 @@ dataset:
     debug: false
   config:
     dataset_job_spec: {}
+    # NFS protocol version used when creating new NFS PVs. Supported values are
+    # 3, 4.0, 4.1, and 4.2. This value is passed to the controller through
+    # DATASET_NFS_VERSION.
+    dataset_nfs_version: "4.1"
     # Enable cascading deletion of reference datasets when source dataset is deleted
     # Default: false (disabled for safety)
     enable_cascading_deletion: false
@@ -64,9 +68,9 @@ dataset:
     image:
       registry: 'ghcr.m.daocloud.io'
       repository: baizeai/dataset-controller
-      tag: v0.1.10
+      tag: v0.1.12
   dataloader:
     image:
       registry: 'ghcr.m.daocloud.io'
       repository: baizeai/dataset-data-loader
-      tag: v0.1.10
+      tag: v0.1.12
