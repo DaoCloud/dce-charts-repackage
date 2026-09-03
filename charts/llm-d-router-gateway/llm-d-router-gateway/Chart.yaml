@@ -1,0 +1,12 @@
+apiVersion: v2
+appVersion: v0.10.0
+description: A Helm chart for llm-d-router-gateway
+name: llm-d-router-gateway
+type: application
+version: v0.10.0
+dependencies:
+  - name: llm-d-router-gateway
+    version: "v0.10.0"
+    repository: "oci://ghcr.io/llm-d/charts"
+keywords:
+  - inference
