@@ -5,11 +5,25 @@
         "kueue": {
             "type": "object",
             "properties": {
+                "certManager": {
+                    "type": "object",
+                    "properties": {
+                        "issuerRef": {
+                            "type": "object"
+                        }
+                    }
+                },
                 "controllerManager": {
                     "type": "object",
                     "properties": {
+                        "dnsPolicy": {
+                            "type": "string"
+                        },
                         "featureGates": {
                             "type": "array"
+                        },
+                        "hostNetwork": {
+                            "type": "boolean"
                         },
                         "imagePullSecrets": {
                             "type": "array"
@@ -164,6 +178,9 @@
                         "replicas": {
                             "type": "integer"
                         },
+                        "strategy": {
+                            "type": "object"
+                        },
                         "tolerations": {
                             "type": "array"
                         },
@@ -178,10 +195,16 @@
                 "enableKueueViz": {
                     "type": "boolean"
                 },
+                "enableMutatingAdmissionPolicy": {
+                    "type": "boolean"
+                },
                 "enablePrometheus": {
                     "type": "boolean"
                 },
                 "enableVisibilityAPF": {
+                    "type": "boolean"
+                },
+                "enableVisibilityAuthReaderRoleBinding": {
                     "type": "boolean"
                 },
                 "fullnameOverride": {
@@ -196,6 +219,28 @@
                         "backend": {
                             "type": "object",
                             "properties": {
+                                "auth": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mode": {
+                                            "type": "string"
+                                        },
+                                        "tokenReviewConfig": {
+                                            "type": "object",
+                                            "properties": {
+                                                "audiences": {
+                                                    "type": "string"
+                                                },
+                                                "cacheTTL": {
+                                                    "type": "string"
+                                                },
+                                                "negativeCacheTTL": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
                                 "containerSecurityContext": {
                                     "type": "object",
                                     "properties": {
@@ -263,10 +308,16 @@
                                                 }
                                             }
                                         },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
                                         "host": {
                                             "type": "string"
                                         },
                                         "ingressClassName": {
+                                            "type": "null"
+                                        },
+                                        "tlsEnabled": {
                                             "type": "null"
                                         },
                                         "tlsSecretName": {
@@ -335,18 +386,7 @@
                                     "type": "object"
                                 },
                                 "env": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "name": {
-                                                "type": "string"
-                                            },
-                                            "value": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
+                                    "type": "array"
                                 },
                                 "image": {
                                     "type": "object",
@@ -379,10 +419,16 @@
                                                 }
                                             }
                                         },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
                                         "host": {
                                             "type": "string"
                                         },
                                         "ingressClassName": {
+                                            "type": "null"
+                                        },
+                                        "tlsEnabled": {
                                             "type": "null"
                                         },
                                         "tlsSecretName": {

@@ -25,7 +25,7 @@ metadata:
     {{- if .Values.enableCertManager }}
     cert-manager.io/inject-ca-from: '{{ .Release.Namespace }}/{{ include "kueue.fullname" . }}-serving-cert'
     {{- end }}
-    controller-gen.kubebuilder.io/version: v0.20.0
+    controller-gen.kubebuilder.io/version: v0.20.1
   name: multikueueclusters.kueue.x-k8s.io
 spec:
   conversion:
@@ -43,6 +43,8 @@ spec:
     kind: MultiKueueCluster
     listKind: MultiKueueClusterList
     plural: multikueueclusters
+    shortNames:
+      - mkc
     singular: multikueuecluster
   scope: Cluster
   versions:

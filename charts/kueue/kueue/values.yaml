@@ -12,8 +12,19 @@ kueue:
   enablePrometheus: false
   # -- Enable x509 automated certificate management using cert-manager (cert-manager.io)
   enableCertManager: false
+  certManager:
+    # -- Override the default self-signed cert-manager issuer reference. When set, the chart skips creating its own Issuer and uses this reference for webhook, metrics, and visibility certificates. The referenced issuer must provide the CA data required by Kueue's cert-manager integration.
+    issuerRef: {}
+    # issuerRef:
+    #   name: my-cluster-issuer
+    #   kind: ClusterIssuer
+    #   group: cert-manager.io
   # -- Enable API Priority and Fairness configuration for the visibility API
   enableVisibilityAPF: false
+  # -- Enable MutatingAdmissionPolicy for clearing nominatedClusterNames on admission or eviction (requires K8s 1.36+)
+  enableMutatingAdmissionPolicy: false
+  # -- Enable the visibility server's auth-reader RoleBinding. It is always created in the kube-system namespace because it binds to the built-in extension-apiserver-authentication-reader Role, which only exists there. Disable when deploying under a GitOps project that cannot target kube-system, then create the RoleBinding out-of-band.
+  enableVisibilityAuthReaderRoleBinding: true
   # -- Enable KueueViz dashboard
   enableKueueViz: false
   # -- Kubernetes cluster's domain
@@ -23,6 +34,15 @@ kueue:
     featureGates: []
     #  - name: PartialAdmission
     #    enabled: true
+    # -- ControllerManager Deployment's update strategy. When hostNetwork is enabled the
+    # manager's ports bind to the node, so the default RollingUpdate surge cannot schedule
+    # a second pod onto an already-occupied node; set maxSurge: 0 to roll in place.
+    strategy: {}
+    # -- Run the ControllerManager pod on the host network. Needed where the API server
+    # reaches the webhook/visibility endpoints via node IPs rather than pod IPs.
+    hostNetwork: false
+    # -- ControllerManager pod's dnsPolicy. Set to ClusterFirstWithHostNet when hostNetwork is enabled.
+    dnsPolicy: ""
     manager:
       # -- ControllerManager's pod priorityClassName
       priorityClassName:
@@ -30,7 +50,7 @@ kueue:
         # -- ControllerManager's image repository
         repository: k8s.m.daocloud.io/kueue/kueue
         # -- ControllerManager's image tag
-        tag: v0.16.4
+        tag: v0.18.6
         # -- ControllerManager's image pullPolicy.
         # This should be set to 'IfNotPresent' for released version
         pullPolicy: IfNotPresent
@@ -133,6 +153,8 @@ kueue:
       #    backoffBaseSeconds: 60
       #    backoffMaxSeconds: 3600
       #manageJobsWithoutQueueName: true
+      # See "Opt-in Namespace Management" for guidance on namespace management:
+      # https://kueue.sigs.k8s.io/docs/tasks/manage/enforce_job_management/opt_in_namespace_management/
       #managedJobsNamespaceSelector:
       #  matchExpressions:
       #    - key: kubernetes.io/metadata.name
@@ -147,15 +169,17 @@ kueue:
         - "batch/job"
         - "kubeflow.org/mpijob"
         - "ray.io/rayjob"
+        - "ray.io/rayservice"
         - "ray.io/raycluster"
         - "jobset.x-k8s.io/jobset"
-        - "trainer.kubeflow.org/trainjob"
         - "kubeflow.org/paddlejob"
         - "kubeflow.org/pytorchjob"
         - "kubeflow.org/tfjob"
         - "kubeflow.org/xgboostjob"
         - "kubeflow.org/jaxjob"
         - "workload.codeflare.dev/appwrapper"
+        - "trainer.kubeflow.org/trainjob"
+      #  - "sparkoperator.k8s.io/sparkapplication"
         - "pod"
         - "deployment"
         - "statefulset"
@@ -173,6 +197,7 @@ kueue:
       #    example.com/gpu: 100 # and you care only about GPUs usage
       #resources:
       #  excludeResourcePrefixes: []
+      #  quotaCheckStrategy: "BlockUndeclared"
       # transformations:
       # - input: nvidia.com/mig-4g.5gb
       #   strategy: Replace | Retain
@@ -250,6 +275,8 @@ kueue:
         - name: KUEUEVIZ_ALLOWED_ORIGINS
           value: "https://frontend.kueueviz.local"
       ingress:
+        # -- Enable KueueViz dashboard backend ingress
+        enabled: true
         # -- KueueViz dashboard backend ingress annotations
         annotations:
           nginx.ingress.kubernetes.io/rewrite-target: "/"
@@ -258,13 +285,26 @@ kueue:
         ingressClassName:
         # -- KueueViz dashboard backend ingress host
         host: "backend.kueueviz.local"
+        # -- If true, enable KueueViz dashboard backend ingress tls. Defaults to true if tlsSecretName is set.
+        tlsEnabled: ~
         # -- KueueViz dashboard backend ingress tls secret name
         tlsSecretName: "kueueviz-backend-tls"
+      auth:
+        # -- Authentication mode: "Disabled" or "TokenReview" (Alpha, disabled by default)
+        mode: "Disabled"
+        # -- TokenReview-specific configuration (only used when mode is "TokenReview")
+        tokenReviewConfig:
+          # -- Optional comma-separated list of audiences for TokenReview
+          audiences: ""
+          # -- TTL for successful authentication cache
+          cacheTTL: "60s"
+          # -- TTL for failed authentication cache (prevents API server abuse)
+          negativeCacheTTL: "5s"
       image:
         # -- KueueViz dashboard backend image repository
         repository: "k8s.m.daocloud.io/kueue/kueueviz-backend"
         # -- KueueViz dashboard backend image tag
-        tag: v0.16.4
+        tag: v0.18.6
         # -- KueueViz dashboard backend image pullPolicy.
         # This should be set to 'IfNotPresent' for released version
         pullPolicy: IfNotPresent
@@ -291,10 +331,10 @@ kueue:
       # -- KueueViz frontend container securityContext
       containerSecurityContext: {}
       # -- Environment variables for KueueViz frontend deployment
-      env:
-        - name: REACT_APP_WEBSOCKET_URL
-          value: "wss://backend.kueueviz.local"
+      env: []
       ingress:
+        # -- Enable KueueViz dashboard frontend ingress
+        enabled: true
         # -- KueueViz dashboard frontend ingress annotations
         annotations:
           nginx.ingress.kubernetes.io/rewrite-target: "/"
@@ -303,13 +343,15 @@ kueue:
         ingressClassName:
         # -- KueueViz dashboard frontend ingress host
         host: "frontend.kueueviz.local"
+        # -- If true, enable KueueViz dashboard frontend ingress tls. Defaults to true if tlsSecretName is set.
+        tlsEnabled: ~
         # -- KueueViz dashboard frontend ingress tls secret name
         tlsSecretName: "kueueviz-frontend-tls"
       image:
         # -- KueueViz dashboard frontend image repository
         repository: "k8s.m.daocloud.io/kueue/kueueviz-frontend"
         # -- KueueViz dashboard frontend image tag
-        tag: v0.16.4
+        tag: v0.18.6
         # -- KueueViz dashboard frontend image pullPolicy.
         # This should be set to 'IfNotPresent' for released version
         pullPolicy: IfNotPresent
