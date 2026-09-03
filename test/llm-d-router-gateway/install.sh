@@ -1,0 +1,44 @@
+#!/bin/bash
+
+CURRENT_FILENAME=$( basename "$0" )
+CURRENT_DIR_PATH=$(cd `dirname $0` ; pwd )
+
+KIND_KUBECONFIG=$1
+CHART_VERSION=$3
+
+[ -f "$KIND_KUBECONFIG" ] || {
+  echo "error, failed to find kubeconfig $KIND_KUBECONFIG "
+  exit 1
+}
+[ -n "$CHART_VERSION" ] || {
+  echo "error, failed to find chart version $CHART_VERSION "
+  exit 1
+}
+
+echo "KIND_KUBECONFIG: $KIND_KUBECONFIG"
+echo "CHART_VERSION: $CHART_VERSION"
+
+helm repo update chart-museum --kubeconfig ${KIND_KUBECONFIG}
+HELM_MUST_OPTION=" --version ${CHART_VERSION} --timeout 10m0s --wait --debug --kubeconfig ${KIND_KUBECONFIG} "
+
+#==================== add your deploy code bellow =============
+#==================== notice , prometheus CRD has been deployed , so you no need to =============
+
+set -x
+
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api-inference-extension/releases/download/${CHART_VERSION}/manifests.yaml \
+  --kubeconfig ${KIND_KUBECONFIG}
+
+helm install llm-d-router-gateway chart-museum/llm-d-router-gateway ${HELM_MUST_OPTION} \
+  --set llm-d-router-gateway.router.modelServers\.matchLabels.app=vllm-llama3-8b-instruct \
+  --set llm-d-router-gateway.router.epp.replicas=2 \
+  --set llm-d-router-gateway.router.epp.ha.enableLeaderElection=true \
+  --set llm-d-router-gateway.router.epp.deploymentStrategy.type=RollingUpdate \
+  --namespace llm-d-router-gateway --create-namespace
+
+if (($?==0)) ; then
+  echo "succeeded to deploy $CHART_DIR"
+else
+  echo "error, failed to deploy $CHART_DIR"
+  exit 1
+fi
