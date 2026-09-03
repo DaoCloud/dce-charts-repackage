@@ -150,8 +150,8 @@ yq -i "
 
 yq eval -i '.keywords |= (. + ["inference"] | unique)' Chart.yaml
 
-yq -i '.annotations.images = "- image: ghcr.m.daocloud.io/llm-d/llm-d-routing-sidecar:latest
-  name: llm-d-routing-sidecar
+yq -i '.annotations.images = "- image: ghcr.m.daocloud.io/llm-d/llm-d-router-disagg-sidecar:latest
+  name: llm-d-router-disagg-sidecar
 - image: ghcr.m.daocloud.io/llm-d/llm-d-inference-sim:latest
   name: llm-d-inference-sim
 "' Chart.yaml
