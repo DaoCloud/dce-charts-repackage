@@ -17,7 +17,6 @@ spec:
         import (
         	"vela/op"
         )
-
         app: op.#ShareCloudResource & {
         	env:        parameter.env
         	policy:     parameter.policy
