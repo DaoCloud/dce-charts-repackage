@@ -131,7 +131,7 @@ For full list of changes please check ArtifactHub [changelog].
 | controller.podLabels | object | `{}` | Labels to be added to the application controller pods |
 | controller.pprofAddress | string | `""` | Enable pprof profiling on the controller by specifying a listen address (e.g. `:6060` or `localhost:6060`) |
 | controller.priorityClassName | string | `""` | [priorityClassName] for the controller |
-| controller.readinessProbe | object | See [values.yaml] | Configure readiness [probe] for the controller |
+| controller.readinessProbe | object | `{}` | Configure readiness [probe] for the controller |
 | controller.replicas | int | `2` | The number of controller pods to run |
 | controller.resources | object | `{}` | Resource limits and requests for the controller pods. |
 | controller.selfServiceNotification | bool | `false` | Enable self-service notification support, allowing the controller to pull notification config from the rollout's namespace |
@@ -163,6 +163,12 @@ For full list of changes please check ArtifactHub [changelog].
 | dashboard.enabled | bool | `false` | Deploy dashboard server |
 | dashboard.extraArgs | list | `[]` | Additional command line arguments to pass to rollouts-dashboard. A list of flags. |
 | dashboard.extraEnv | list | `[]` | Additional environment variables for rollouts-dashboard. A list of name/value maps. |
+| dashboard.httproute.annotations | object | `{}` | Additional HTTPRoute annotations |
+| dashboard.httproute.enabled | bool | `false` | Enable HTTPRoute resource for the dashboard (Gateway API) |
+| dashboard.httproute.hostnames | list | `[]` (See [values.yaml]) | List of hostnames for the HTTPRoute |
+| dashboard.httproute.labels | object | `{}` | Additional HTTPRoute labels |
+| dashboard.httproute.parentRefs | list | `[]` (See [values.yaml]) | Gateway API parentRefs for the HTTPRoute |
+| dashboard.httproute.rules | list | `[]` (See [values.yaml]) | HTTPRoute rules configuration |
 | dashboard.image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
 | dashboard.image.registry | string | `"quay.io"` | Registry to use |
 | dashboard.image.repository | string | `"argoproj/kubectl-argo-rollouts"` | Repository to use |
