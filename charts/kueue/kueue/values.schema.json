@@ -16,8 +16,14 @@
                 "controllerManager": {
                     "type": "object",
                     "properties": {
+                        "dnsPolicy": {
+                            "type": "string"
+                        },
                         "featureGates": {
                             "type": "array"
+                        },
+                        "hostNetwork": {
+                            "type": "boolean"
                         },
                         "imagePullSecrets": {
                             "type": "array"
@@ -172,6 +178,9 @@
                         "replicas": {
                             "type": "integer"
                         },
+                        "strategy": {
+                            "type": "object"
+                        },
                         "tolerations": {
                             "type": "array"
                         },
@@ -184,6 +193,9 @@
                     "type": "boolean"
                 },
                 "enableKueueViz": {
+                    "type": "boolean"
+                },
+                "enableMutatingAdmissionPolicy": {
                     "type": "boolean"
                 },
                 "enablePrometheus": {
@@ -305,6 +317,9 @@
                                         "ingressClassName": {
                                             "type": "null"
                                         },
+                                        "tlsEnabled": {
+                                            "type": "null"
+                                        },
                                         "tlsSecretName": {
                                             "type": "string"
                                         }
@@ -411,6 +426,9 @@
                                             "type": "string"
                                         },
                                         "ingressClassName": {
+                                            "type": "null"
+                                        },
+                                        "tlsEnabled": {
                                             "type": "null"
                                         },
                                         "tlsSecretName": {
