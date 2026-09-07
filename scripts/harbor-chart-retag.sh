@@ -54,7 +54,7 @@ done
 [ -z "${HARBOR_USER:-}" ] && echo "error: HARBOR_USER is required" >&2 && exit 1
 [ -z "${HARBOR_PASSWORD:-}" ] && echo "error: HARBOR_PASSWORD is required" >&2 && exit 1
 
-for BIN in curl jq helm; do
+for BIN in curl jq helm perl tar; do
     command -v "$BIN" >/dev/null || { echo "error: $BIN not found" >&2; exit 1; }
 done
 helm cm-push --help >/dev/null 2>&1 || {
@@ -69,17 +69,28 @@ WORK_DIR=$(mktemp -d)
 trap 'rm -rf "${WORK_DIR}"' EXIT
 
 $APPLY || echo ">>> DRY-RUN 模式, 不会有任何写操作 (加 --apply 才执行)"
+if $DELETE_OLD && ! $APPLY; then
+    echo ">>> 注意: --delete-old 需要与 --apply 同时使用, 当前仅打印计划"
+fi
 
 # 1. 列出待处理的 chart
 if [ -n "$CHART" ]; then
     CHART_LIST="$CHART"
 else
-    CHART_LIST=$(curl -sSf -u "$AUTH" "${HARBOR_URL}/api/chartrepo/${PROJECT}/charts" | jq -r '.[].name')
+    # 先落盘再解析, 避免 curl 的失败被管道 + '|| true' 吞掉
+    if ! curl -sSf -u "$AUTH" -o "${WORK_DIR}/charts.json" \
+         "${HARBOR_URL}/api/chartrepo/${PROJECT}/charts"; then
+        echo "error: 无法列出项目 ${PROJECT} 的 chart" >&2
+        echo "       确认 ${HARBOR_URL} 是否仍提供 ChartMuseum API (Harbor 2.8+ 已移除该组件)" >&2
+        exit 1
+    fi
+    CHART_LIST=$(jq -r '.[].name' "${WORK_DIR}/charts.json")
 fi
 [ -z "$CHART_LIST" ] && echo "no chart found in project ${PROJECT}" && exit 0
 
 if $APPLY; then
-    helm repo add "$REPO_ALIAS" "${HARBOR_URL}/chartrepo/${PROJECT}" \
+    # --force-update: 否则 alias 已存在时 helm 会直接报错退出
+    helm repo add "$REPO_ALIAS" "${HARBOR_URL}/chartrepo/${PROJECT}" --force-update \
         --username="$HARBOR_USER" --password="$HARBOR_PASSWORD" >/dev/null
 fi
 
@@ -89,9 +100,17 @@ FAILED_LIST=""
 
 for NAME in $CHART_LIST; do
     # 2. 找出该 chart 下所有含 '+' 的版本
-    VERSIONS=$(curl -sSf -u "$AUTH" "${HARBOR_URL}/api/chartrepo/${PROJECT}/charts/${NAME}" \
-                 | jq -r '.[].version' | grep -F '+' || true)
-    [ -z "$VERSIONS" ] && continue
+    if ! curl -sSf -u "$AUTH" -o "${WORK_DIR}/${NAME}-versions.json" \
+         "${HARBOR_URL}/api/chartrepo/${PROJECT}/charts/${NAME}"; then
+        echo "error: 无法读取 ${NAME} 的版本列表 (chart 不存在或 API 不可用)" >&2
+        FAILED_LIST+=" ${NAME}"
+        continue
+    fi
+    VERSIONS=$(jq -r '.[].version' "${WORK_DIR}/${NAME}-versions.json" | grep -F '+' || true)
+    if [ -z "$VERSIONS" ]; then
+        echo "skip  : ${NAME} 没有含 '+' 的版本"
+        continue
+    fi
 
     for OLD_VER in $VERSIONS; do
         NEW_VER="${OLD_VER//+/-}"
@@ -119,7 +138,11 @@ for NAME in $CHART_LIST; do
         SRC_DIR="${WORK_DIR}/src-${NAME}-${OLD_VER}"
         OUT_DIR="${WORK_DIR}/out-${NAME}-${OLD_VER}"
         mkdir -p "$SRC_DIR" "$OUT_DIR"
-        tar -xzf "$TGZ" -C "$SRC_DIR"
+        if ! tar -xzf "$TGZ" -C "$SRC_DIR"; then
+            echo "error: failed to extract ${NAME}-${OLD_VER}.tgz" >&2
+            FAILED_LIST+=" ${NAME}-${OLD_VER}"
+            continue
+        fi
         CHART_YAML="${SRC_DIR}/${NAME}/Chart.yaml"
         [ ! -f "$CHART_YAML" ] && echo "error: ${CHART_YAML} not found" >&2 && FAILED_LIST+=" ${NAME}-${OLD_VER}" && continue
         # 只改顶层 version 行, 不动 appVersion 和子 chart
@@ -130,7 +153,11 @@ for NAME in $CHART_LIST; do
             FAILED_LIST+=" ${NAME}-${OLD_VER}"
             continue
         fi
-        helm package "${SRC_DIR}/${NAME}" --destination "$OUT_DIR" >/dev/null
+        if ! helm package "${SRC_DIR}/${NAME}" --destination "$OUT_DIR" >/dev/null; then
+            echo "error: failed to package ${NAME}-${NEW_VER}" >&2
+            FAILED_LIST+=" ${NAME}-${OLD_VER}"
+            continue
+        fi
 
         # 5. 上传新版本
         if ! helm cm-push "${OUT_DIR}/${NAME}-${NEW_VER}.tgz" "$REPO_ALIAS" \
