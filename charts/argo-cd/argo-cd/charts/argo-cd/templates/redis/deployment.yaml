@@ -79,7 +79,7 @@ spec:
               name: argocd-redis
               key: auth
         {{- with (concat .Values.global.env .Values.redis.env) }}
-          {{- toYaml . | nindent 8 }}
+          {{- tpl (toYaml .) $ | nindent 8 }}
         {{- end }}
         {{- with .Values.redis.envFrom }}
         envFrom:
@@ -142,7 +142,7 @@ spec:
               name: argocd-redis
               key: auth
         {{- with (concat .Values.global.env .Values.redis.exporter.env) }}
-          {{- toYaml . | nindent 8 }}
+          {{- tpl (toYaml .) $ | nindent 8 }}
         {{- end }}
         ports:
         - name: metrics
@@ -214,6 +214,9 @@ spec:
             defaultMode: 493
       {{- with .Values.redis.volumes }}
         {{- toYaml . | nindent 8}}
+      {{- end }}
+      {{- if .Values.redis.hostNetwork }}
+      hostNetwork: {{ .Values.redis.hostNetwork }}
       {{- end }}
       {{- with .Values.redis.dnsConfig }}
       dnsConfig:
