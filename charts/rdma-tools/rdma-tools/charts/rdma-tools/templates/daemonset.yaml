@@ -66,7 +66,7 @@ spec:
                 [sh, -c, 'ls /tmp/ready']
           ports:
             - name: ssh
-              containerPort: 22
+              containerPort: {{ .Values.ssh_port }}
               protocol: TCP
           {{- with .Values.resources }}
           resources:
@@ -93,6 +93,10 @@ spec:
                   fieldPath: spec.nodeName
             - name: ENV_SERVICE_NAME
               value: {{ include "project.name" . | trunc 63 | trimSuffix "-" | quote }}
+            - name: ENV_SSH_PORT
+              value: {{ .Values.ssh_port | quote }} 
+            - name: ENV_ECHO_SERVER_PORT
+              value: {{ .Values.echo_server_port | quote }}
             - name: ENV_POD_NAMESPACE
               valueFrom:
                 fieldRef:
