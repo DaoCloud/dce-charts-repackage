@@ -27,6 +27,9 @@ hostPaths:
   # driverInstallDir represents the root at which driver files including libraries,
   # config files, and executables can be found.
   driverInstallDir: "/run/nvidia/driver"
+  # kubeletRootDir represents the root with the kubelet base directory
+  # if empty will use /var/lib/kubelet as the default path
+  # kubeletRootDir: ""
 daemonsets:
   labels: {}
   annotations: {}
@@ -47,7 +50,7 @@ validator:
   repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/gpu-operator-validator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v26.3.3"
+  version: "v26.7.0"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -60,11 +63,14 @@ operator:
   repository: nvcr.m.daocloud.io
   image: nvidia/gpu-operator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v26.3.3"
+  version: "v26.7.0"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
+  env: []
   priorityClassName: system-node-critical
   runtimeClass: nvidia
+  nodeSelector:
+    kubernetes.io/os: linux
   use_ocp_driver_toolkit: false
   # cleanup CRD on chart un-install
   cleanupCRD: false
@@ -102,6 +108,18 @@ operator:
     requests:
       cpu: 200m
       memory: 300Mi
+      # metrics:
+      #   serviceMonitor:
+      #     interval: 15s
+      #     honorLabels: false
+      #     additionalLabels: {}
+      #     relabelings: []
+      #     # - sourceLabels:
+      #     #     - __meta_kubernetes_pod_node_name
+      #     #   regex: (.*)
+      #     #   targetLabel: instance
+      #     #   replacement: $1
+      #     #   action: replace
   initContainer:
     repository: nvcr.m.daocloud.io
     image: nvidia/cuda
@@ -123,7 +141,7 @@ driver:
   usePrecompiled: false
   repository: nvcr.m.daocloud.io
   image: nvidia/driver
-  version: "580.126.20"
+  version: "595.91.07"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   startupProbe:
@@ -173,7 +191,7 @@ driver:
     image: nvidia/cloud-native/k8s-driver-manager
     # When choosing a different version of k8s-driver-manager, DO NOT downgrade to a version lower than v0.6.4
     # to ensure k8s-driver-manager stays compatible with gpu-operator starting from v24.3.0
-    version: v0.11.0
+    version: v0.12.0
     imagePullPolicy: IfNotPresent
     env: []
   env: []
@@ -201,7 +219,7 @@ toolkit:
   enabled: true
   repository: nvcr.m.daocloud.io
   image: nvidia/k8s/container-toolkit
-  version: v1.19.1
+  version: v1.20.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -212,7 +230,7 @@ devicePlugin:
   enabled: true
   repository: nvcr.m.daocloud.io
   image: nvidia/k8s-device-plugin
-  version: v0.19.3
+  version: v0.20.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   args: []
@@ -258,7 +276,7 @@ dcgm:
   enabled: true
   repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/dcgm
-  version: 4.5.2-1-ubuntu22.04
+  version: 4.6.0-1-ubuntu24.04
   imagePullPolicy: IfNotPresent
   args: []
   env: []
@@ -269,7 +287,7 @@ dcgmExporter:
   annotations: {}
   repository: nvcr.m.daocloud.io
   image: nvidia/k8s/dcgm-exporter
-  version: 4.5.3-4.8.2-distroless
+  version: 4.6.0-4.8.3-distroless
   imagePullPolicy: IfNotPresent
   env: []
   resources: {}
@@ -294,6 +312,7 @@ dcgmExporter:
   serviceMonitor:
     enabled: true
     interval: 15s
+    scrapeTimeout: 10s
     honorLabels: false
     additionalLabels:
       operator.insight.io/managed-by: insight
@@ -302,10 +321,10 @@ dcgmExporter:
         sourceLabels:
           - __meta_kubernetes_endpoint_node_name
         targetLabel: node
-        # - source_labels:
+        # - sourceLabels:
         #     - __meta_kubernetes_pod_node_name
         #   regex: (.*)
-        #   target_label: instance
+        #   targetLabel: instance
         #   replacement: $1
         #   action: replace
   # DCGM Exporter configuration
@@ -335,7 +354,7 @@ gfd:
   enabled: true
   repository: nvcr.m.daocloud.io
   image: nvidia/k8s-device-plugin
-  version: v0.19.3
+  version: v0.20.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -345,7 +364,7 @@ migManager:
   enabled: true
   repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/k8s-mig-manager
-  version: v0.14.2
+  version: v0.15.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -408,7 +427,7 @@ nodeStatusExporter:
   repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/gpu-operator-validator
   # If version is not specified, then default is to use chart.AppVersion
-  version: "v26.3.3"
+  version: "v26.7.0"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   resources: {}
@@ -426,7 +445,7 @@ gdrcopy:
   enabled: false
   repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/gdrdrv
-  version: "v2.5.2"
+  version: "v2.6"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -445,7 +464,7 @@ vgpuManager:
     image: nvidia/cloud-native/k8s-driver-manager
     # When choosing a different version of k8s-driver-manager, DO NOT downgrade to a version lower than v0.6.4
     # to ensure k8s-driver-manager stays compatible with gpu-operator starting from v24.3.0
-    version: v0.11.0
+    version: v0.12.0
     imagePullPolicy: IfNotPresent
     env: []
     # kernel module configuration for vGPU manager
@@ -456,7 +475,7 @@ vgpuDeviceManager:
   enabled: false
   repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/vgpu-device-manager
-  version: v0.4.2
+  version: v0.5.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -468,7 +487,7 @@ vfioManager:
   enabled: false
   repository: nvcr.m.daocloud.io
   image: nvidia/cuda
-  version: v0.11.0
+  version: v0.12.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
@@ -478,7 +497,7 @@ vfioManager:
     image: nvidia/cloud-native/k8s-driver-manager
     # When choosing a different version of k8s-driver-manager, DO NOT downgrade to a version lower than v0.6.4
     # to ensure k8s-driver-manager stays compatible with gpu-operator starting from v24.3.0
-    version: v0.11.0
+    version: v0.12.0
     imagePullPolicy: IfNotPresent
     env: []
   hostNetwork: false
@@ -496,7 +515,7 @@ sandboxDevicePlugin:
   enabled: false
   repository: nvcr.m.daocloud.io
   image: nvidia/kubevirt-gpu-device-plugin
-  version: v1.5.0
+  version: v1.6.0
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   args: []
@@ -508,7 +527,7 @@ kataSandboxDevicePlugin:
   enabled: true
   repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/nvidia-sandbox-device-plugin
-  version: "v0.0.3"
+  version: "v0.0.5"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   args: []
@@ -520,11 +539,59 @@ ccManager:
   defaultMode: "on"
   repository: nvcr.m.daocloud.io
   image: nvidia/cloud-native/k8s-cc-manager
-  version: v0.4.0
+  version: v0.4.3
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   resources: {}
   hostNetwork: false
+# The ClusterPolicy CR stores the desired state of the GPU
+# enablement stack based on the Kubernetes Device Plugin framework.
+clusterPolicy:
+  deployCR: true
+# The GPUCluster CR stores the desired state of the GPU
+# enablement stack based on Dynamic Resource Allocation (DRA).
+# This is an experimental feature and is disabled by default.
+#
+# To enable the GPUCluster (DRA) enablement stack, set
+# gpuCluster.deployCR=true and clusterPolicy.deployCR=false
+# It is an invalid configuration for both CRs to exist.
+gpuCluster:
+  deployCR: false
+# draDriver configures the NVIDIA DRA driver for GPUs which
+# is managed by the GPUCluster CR (rendered only when
+# gpuCluster.deployCR=true).
+draDriver:
+  repository: nvcr.io/nvidia
+  image: dra-driver-nvidia-gpu
+  version: v0.5.0
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets: []
+  # featureGates toggles DRA driver feature gates; rendered as FEATURE_GATES.
+  # e.g. featureGates: {MPSSupport: true, NVMLDeviceHealthCheck: true}
+  featureGates: {}
+  # gpus configures the gpu.nvidia.com / mig.nvidia.com / vfio.gpu.nvidia.com
+  # capability (the gpus container of the kubelet-plugin DaemonSet). It is
+  # always deployed.
+  gpus:
+    # kubeletPlugin overrides env/resources for the gpus container.
+    # Scheduling is opinionated and not configurable here. All fields are optional:
+    kubeletPlugin: {}
+    #   env: []                          # list of {name, value}
+    #   resources: {}                    # requests/limits
+    #   healthcheck: {}                  # {enabled, port}; port defaults to 51516/51515
+  # computeDomains configures the Multi-Node NVLink (MNNVL) compute-domain
+  # capability: a controller Deployment plus the compute-domains kubelet-plugin
+  # container.
+  computeDomains:
+    enabled: true
+    # controller overrides env/resources for the compute-domain controller Deployment.
+    # Scheduling is opinionated and not configurable here. All fields are optional:
+    controller: {}
+    #   env: []
+    #   resources: {}
+    # kubeletPlugin overrides the compute-domains container (same fields as
+    # gpus.kubeletPlugin above).
+    kubeletPlugin: {}
 # Array of extra K8s manifests to deploy
 # Supports use of custom Helm templates
 extraObjects: []
@@ -573,5 +640,5 @@ node-feature-discovery:
   image:
     registry: k8s.m.daocloud.io
     repository: nfd/node-feature-discovery
-    tag: v0.18.3
+    tag: v0.19.0
 systemOS: ubuntu22.04
