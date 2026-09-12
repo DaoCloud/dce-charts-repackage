@@ -15,7 +15,6 @@ spec:
         import (
         	"vela/kube"
         )
-
         output: kube.#Read & {
         	$params: {
         		cluster: parameter.cluster

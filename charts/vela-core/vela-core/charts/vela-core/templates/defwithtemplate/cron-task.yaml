@@ -11,6 +11,7 @@ spec:
   schematic:
     cue:
       template: |
+        import "list"
         mountsArray: {
         	pvc: *[
         		for v in parameter.volumeMounts.pvc {
@@ -130,7 +131,7 @@ spec:
         		},
         	] | []
         }
-        volumesList: volumesArray.pvc + volumesArray.configMap + volumesArray.secret + volumesArray.emptyDir + volumesArray.hostPath
+        volumesList: list.Concat([volumesArray.pvc, volumesArray.configMap, volumesArray.secret, volumesArray.emptyDir, volumesArray.hostPath])
         deDupVolumesArray: [
         	for val in [
         		for i, vi in volumesList {
@@ -230,7 +231,7 @@ spec:
         									}}]
         							}
         							if parameter["volumeMounts"] != _|_ {
-        								volumeMounts: mountsArray.pvc + mountsArray.configMap + mountsArray.secret + mountsArray.emptyDir + mountsArray.hostPath
+        								volumeMounts: list.Concat([mountsArray.pvc, mountsArray.configMap, mountsArray.secret, mountsArray.emptyDir, mountsArray.hostPath])
         							}
         						}]
         						if parameter["volumes"] != _|_ if parameter["volumeMounts"] == _|_ {
