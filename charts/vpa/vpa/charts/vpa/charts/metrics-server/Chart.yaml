@@ -1,15 +1,13 @@
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: "Added default Metrics Server resource requests."
+    - kind: fixed
+      description: "Conditionally render `insecureSkipTLSVerify` field in APIService template to prevent GitOps sync drift when value is `false`."
+    - kind: fixed
+      description: "Do not render annotations as null in APIService template to prevent permanent OutOfSync in ArgoCD."
     - kind: changed
-      description: "Updated the Metrics Server OCI image to v0.6.3."
-    - kind: changed
-      description: "Updated the addon resizer OCI image to v1.8.19."
-    - kind: changed
-      description: "Changed the default addon resizer nanny resource configuration to match the documented Metrics Server autoscaling values."
+      description: "Update the Metrics Server OCI image to [`0.8.1`](https://github.com/kubernetes-sigs/metrics-server/releases/tag/v0.8.1)."
 apiVersion: v2
-appVersion: 0.6.4
+appVersion: 0.8.1
 description: Metrics Server is a scalable, efficient source of container resource
   metrics for Kubernetes built-in autoscaling pipelines.
 home: https://github.com/kubernetes-sigs/metrics-server
@@ -29,4 +27,4 @@ name: metrics-server
 sources:
 - https://github.com/kubernetes-sigs/metrics-server
 type: application
-version: 3.11.0
+version: 3.13.1
