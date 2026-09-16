@@ -16,7 +16,7 @@ replicaCount: 1
 image:
   repository: ghcr.m.daocloud.io/nvidia/nvsentinel/csp-health-monitor
   pullPolicy: IfNotPresent
-  tag: "v1.22.0"
+  tag: "v1.23.0"
 resources:
   limits:
     cpu: "1"
@@ -29,7 +29,7 @@ quarantineTriggerEngine:
   image:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/maintenance-notifier
     pullPolicy: IfNotPresent
-    tag: v1.22.0
+    tag: v1.23.0
   resources:
     limits:
       cpu: "500m"

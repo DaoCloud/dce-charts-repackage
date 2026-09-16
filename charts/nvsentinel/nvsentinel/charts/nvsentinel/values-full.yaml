@@ -242,6 +242,12 @@ global:
   # charts/preflight/values.yaml. See docs/configuration/preflight.md
   preflight:
     enabled: false
+  # NVCRE Certification Monitor - publishes health events for nodes that failed
+  # an NVCRE Certification, one per (node, variant, reason)
+  # Requires: cluster-readiness-engine installed (Certification CRD present),
+  # fault-quarantine enabled for the taint to be applied
+  nvcreCertificationMonitor:
+    enabled: false
 ################################################################################
 # PLATFORM CONNECTOR CONFIGURATION
 #
@@ -260,7 +266,7 @@ platformConnector:
     # Never: Never pull, use local image only
     pullPolicy: IfNotPresent
     # Image tag override - leave empty to use global.image.tag
-    tag: "v1.22.0"
+    tag: "v1.23.0"
   # Resource limits and requests
   # Limits: Maximum resources the pod can use
   # Requests: Resources guaranteed to be available
@@ -418,7 +424,7 @@ fault-quarantine:
   image:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/fault-quarantine
     pullPolicy: IfNotPresent
-    tag: "v1.22.0"
+    tag: "v1.23.0"
   # Pod resource limits and requests
   resources:
     limits:
@@ -569,6 +575,27 @@ fault-quarantine:
               !('k8saas.nvidia.com/ManagedByNVSentinel' in node.metadata.labels && node.metadata.labels['k8saas.nvidia.com/ManagedByNVSentinel'] == "false")
       cordon:
         shouldCordon: true
+    # Example rule 6: Taint nodes that failed an NVCRE certification
+    # NVCRE does not run on cordoned nodes (it reports them as
+    # HardwareFailureDetected and skips them), so a cordoned node could never be
+    # re-certified. Taint instead: ordinary workloads stay off the node while
+    # certification pods tolerate the taint and can rerun.
+    - enabled: true
+      version: "1"
+      name: "NVCRE certification monitor failure ruleset"
+      match:
+        all:
+          - kind: "HealthEvent"
+            expression: "event.agent == 'nvcre-certification-monitor' && event.checkName == 'NVCRECertFailed' && event.isFatal == true"
+          - kind: "Node"
+            expression: |
+              !('k8saas.nvidia.com/ManagedByNVSentinel' in node.metadata.labels && node.metadata.labels['k8saas.nvidia.com/ManagedByNVSentinel'] == "false")
+      cordon:
+        shouldCordon: false
+      taint:
+        key: "nvsentinel.dgxc.nvidia.com/nvcre-cert-failed"
+        value: "true"
+        effect: "NoSchedule"
 ################################################################################
 # NODE-DRAINER MODULE CONFIGURATION
 #
@@ -592,7 +619,7 @@ node-drainer:
   image:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/node-drainer
     pullPolicy: IfNotPresent
-    tag: "v1.22.0"
+    tag: "v1.23.0"
   # Pod resource limits and requests
   resources:
     limits:
@@ -629,7 +656,12 @@ node-drainer:
   # (indicating assigned GPU devices) are eligible for draining
   # Default: false if not specified
   drainGPUPods: false
-  # Namespace-specific eviction strategies
+  # Pod-label eviction strategies, evaluated in order; the first matching policy wins.
+  # Set userNamespaces: [] before adding policies; both lists cannot be non-empty.
+  # Unmatched pods are outside the drain scope. Cannot be combined with customDrain.
+  # See docs/configuration/node-drainer.md#pod-drain-policies for examples.
+  podDrainPolicies: []
+  # Namespace-specific eviction strategies (alternative to podDrainPolicies)
   # Define how pods in different namespaces should be evicted
   # Multiple rules can be defined with namespace patterns
   userNamespaces:
@@ -677,7 +709,7 @@ fault-remediation:
   image:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/fault-remediation
     pullPolicy: IfNotPresent
-    tag: "v1.22.0"
+    tag: "v1.23.0"
   # Pod resource limits and requests
   resources:
     limits:
@@ -803,7 +835,7 @@ fault-remediation:
     image:
       repository: ghcr.m.daocloud.io/nvidia/nvsentinel/log-collector
       pullPolicy: IfNotPresent
-      tag: v1.22.0
+      tag: v1.23.0
     # HTTP endpoint where logs will be uploaded
     # Should be the incluster-file-server or external storage
     # Logs are uploaded as tar.gz files
@@ -838,6 +870,21 @@ kubernetes-object-monitor:
   # Large clusters may require a longer timeout while caches are populated.
   cacheSyncTimeout: 10m
 ################################################################################
+# NVCRE-CERTIFICATION-MONITOR CONFIGURATION
+#
+# Watches NVIDIA Cluster Readiness Engine (NVCRE) Certification CRs and
+# publishes one health event per (node, variant, reason) failure. Requires the
+# cluster-readiness-engine operator and its Certification CRD to be installed.
+################################################################################
+nvcre-certification-monitor:
+  # How often a full reconciliation of all Certification CRs runs.
+  resyncInterval: 15m
+  # CEL policies evaluated against every (category, failedNode) entry of a
+  # failed Certification; a true result publishes an unhealthy event.
+  policies:
+    - name: certification-failures
+      match: "(failedNode.reason == 'ThresholdViolation') || (failedNode.reason == 'WorkloadFailed')"
+################################################################################
 # GPU-HEALTH-MONITOR CONFIGURATION
 #
 # Monitors GPU hardware health using NVIDIA DCGM (Data Center GPU Manager).
@@ -851,7 +898,7 @@ gpu-health-monitor:
   image:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/gpu-health-monitor
     pullPolicy: IfNotPresent
-    tag: "v1.22.0"
+    tag: "v1.23.0"
   # DCGM integration configuration
   # DCGM must be running in the cluster (typically via GPU Operator)
   dcgm:
@@ -881,6 +928,28 @@ gpu-health-monitor:
     # GpuDcgmConnectivityFailure with CONTACT_SUPPORT regardless of this setting.
     # Set to false only after validating embedded-mode detections on your fleet.
     probeStoreOnly: true
+  # DCGM connection lifecycle configuration
+  dcgmConnectivity:
+    # Optional startup gate for remote DCGM modes. The init container waits
+    # indefinitely until a functional DCGM API request succeeds. It is disabled
+    # by default for backward compatibility and cannot be used in embedded-mode.
+    startupGate:
+      # Enables the startup gate. This value must be a YAML boolean.
+      enabled: false
+      # Seconds to wait between failed readiness attempts.
+      retryIntervalSeconds: 5
+      # Maximum seconds allowed for one DCGM connection and discovery attempt.
+      # A timed-out attempt is terminated before the next retry begins.
+      connectTimeoutSeconds: 10
+    # Debounce runtime connectivity transitions after the monitor has started.
+    # Defaults preserve the existing fail-once, recover-once behavior.
+    runtimeDebounce:
+      # Example: failureThreshold: 4 and successThreshold: 2 publishes failure
+      # after four failed cycles and recovery after two successful cycles.
+      # Consecutive failed cycles required to publish an unhealthy event.
+      failureThreshold: 1
+      # Consecutive successful cycles required to clear a published failure.
+      successThreshold: 1
   # Use host networking for GPU health monitor pods
   # Required when:
   # - DCGM is running as hostProcess (not as service)
@@ -979,7 +1048,7 @@ labeler:
   image:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/labeler
     pullPolicy: IfNotPresent
-    tag: "v1.22.0"
+    tag: "v1.23.0"
   podAnnotations: {}
   # Kata Containers detection configuration
   # Labeler checks node labels to determine Kata support
@@ -1068,7 +1137,7 @@ labeler:
 # Watches maintenance CRDs created by fault-remediation and performs the
 # actual infrastructure operations.
 #
-# Supports: AWS, GCP, Azure, OCI, kind (for testing), kwok (for testing)
+# Supports: AWS, GCP, Azure, OCI, generic, label, kind (for testing), kwok (for testing)
 ################################################################################
 janitor:
   # Number of pod replicas (recommend 1 for consistency)
@@ -1077,7 +1146,7 @@ janitor:
   image:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/janitor
     pullPolicy: IfNotPresent
-    tag: "v1.22.0"
+    tag: "v1.23.0"
   # Kubernetes service account configuration
   serviceAccount:
     # Create service account
@@ -1455,7 +1524,7 @@ event-exporter:
   image:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/event-exporter
     pullPolicy: IfNotPresent
-    tag: "v1.22.0"
+    tag: "v1.23.0"
   # Pod annotations
   # Example - for Istio service mesh:
   # podAnnotations:
@@ -1610,7 +1679,7 @@ preflight:
   image:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight
     pullPolicy: IfNotPresent
-    tag: "v1.22.0"
+    tag: "v1.23.0"
   imagePullSecrets: []
   imageCache:
     # Enables a DaemonSet that keeps all configured preflight check images
@@ -1709,7 +1778,7 @@ preflight:
       inheritUserVolumeMounts: false
       image:
         repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-dcgm-diag
-        tag: "v1.22.0"
+        tag: "v1.23.0"
       volumeMounts:
         - name: nvsentinel-socket
           mountPath: /var/run
@@ -1727,7 +1796,7 @@ preflight:
       inheritUserVolumeMounts: false
       image:
         repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-loopback
-        tag: "v1.22.0"
+        tag: "v1.23.0"
       env:
         - name: BW_THRESHOLD_GBPS
           value: "150"
@@ -1755,7 +1824,7 @@ preflight:
       inheritUserVolumeMounts: false
       image:
         repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-allreduce
-        tag: "v1.22.0"
+        tag: "v1.23.0"
       securityContext:
         capabilities:
           add: ["IPC_LOCK"] # Required for RDMA memory registration
@@ -1917,3 +1986,10 @@ janitor-provider:
     audience: "nvsentinel-csp-provider"
     allowedUsernames: []
   janitorServiceAccountName: "janitor"
+  csp:
+    # Set provider to "label" on Forge/NKE (or any platform that remediates from node labels).
+    # After reboot completion, the external controller MUST remove the reboot label.
+    # provider: "label"
+    label:
+      rebootKey: "nke.nvidia.com/reboot=requested-by-nvsentinel"
+      terminateKey: "nke.nvidia.com/terminate=requested-by-nvsentinel"

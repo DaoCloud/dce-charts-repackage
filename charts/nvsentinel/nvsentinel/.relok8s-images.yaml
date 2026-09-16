@@ -23,6 +23,7 @@
 - "{{ .nvsentinel.janitor-provider.csp.generic.rebootImage }}"
 - "{{ .nvsentinel.kubernetes-object-monitor.image.repository }}:{{ .nvsentinel.kubernetes-object-monitor.image.tag }}"
 - "{{ .nvsentinel.lifecycle-manager.image.repository }}:{{ .nvsentinel.lifecycle-manager.image.tag }}"
+- "{{ .nvsentinel.nvcre-certification-monitor.image.repository }}:{{ .nvsentinel.nvcre-certification-monitor.image.tag }}"
 - "{{ .nvsentinel.lifecycle-manager.config.tests.dcgm-diag-test.image }}"
 - "{{ .nvsentinel.nic-health-monitor.image.repository }}:{{ .nvsentinel.nic-health-monitor.image.tag }}"
 - "{{ .nvsentinel.node-drainer.image.repository }}:{{ .nvsentinel.node-drainer.image.tag }}"
