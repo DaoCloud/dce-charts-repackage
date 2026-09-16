@@ -76,6 +76,18 @@ while IFS= read -r -d '' template_file; do
   ' "$template_file"
 done < <(find . -path '*/templates/*' -type f \( -name '*.yaml' -o -name '*.yml' -o -name '*.tpl' \) -print0)
 
+# The upstream chart currently does not ship a README.md; add a minimal
+# description for the repackaged chart.
+if [ ! -s README.md ]; then
+  cat > README.md <<'EOF'
+# NVSentinel
+
+NVSentinel is NVIDIA's Kubernetes-native platform for GPU cluster health monitoring and remediation.
+
+This Helm chart deploys NVSentinel and its related components in a Kubernetes cluster.
+EOF
+fi
+
 # The source chart has no keywords, while the repository CI requires them on
 # every generated chart.
 yq -i '.keywords = ["gpu", "monitoring", "nvsentinel"]' Chart.yaml
