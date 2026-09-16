@@ -81,6 +81,8 @@ global:
     enabled: false
   kubernetesObjectMonitor:
     enabled: true
+  nvcreCertificationMonitor:
+    enabled: true
   slurmDrainMonitor:
     enabled: true
   nicHealthMonitor:
@@ -221,6 +223,8 @@ gpu-health-monitor:
 # Override log levels for all modules during testing
 fault-quarantine:
   logLevel: debug
+  validation:
+    enabled: true
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -571,12 +575,19 @@ kubernetes-object-monitor:
             matchLabels:
               kubernetes.io/metadata.name: kube-system
           topologyKey: kubernetes.io/hostname
+nvcre-certification-monitor:
+  logLevel: debug
+  # Short sweep interval for faster test feedback (production default is 15m).
+  # Tilt installs only the cluster-readiness-engine Certification CRD
+  # (tilt/nvcre-certification-crd.yaml), not the NVCRE controller; the e2e test
+  # writes Certification status itself.
+  resyncInterval: 30s
 event-exporter:
   replicaCount: 1
   image:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/event-exporter
     pullPolicy: IfNotPresent
-    tag: v1.22.0
+    tag: v1.23.0
   podAnnotations: {}
   resources:
     limits:
@@ -633,7 +644,7 @@ lifecycle-manager:
     tests:
       e2e-smoke-test:
         provider: k8s-job-provider
-        image: alpine:3.21
+        image: m.daocloud.io/public.ecr.aws/docker/library/alpine:3.21
         command:
           - sh
           - -c

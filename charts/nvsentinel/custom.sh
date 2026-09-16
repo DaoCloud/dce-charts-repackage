@@ -22,7 +22,7 @@ export VERSION
 # Rewrite both registry-qualified repositories and separate registry/repository
 # image settings. Upstream leaves several component tags empty so they fall back
 # to the chart appVersion; make those tags explicit for relok8s.
-# Keep slurm-drain-monitor's tag unchanged for now. The upstream v1.22.0 release
+# Keep slurm-drain-monitor's tag unchanged for now. The upstream v1.23.0 release
 # did not publish that image consistently; only its registry is mirrored below.
 mirror_values() {
   local values_file=$1
