@@ -21,7 +21,7 @@ logLevel: info
 image:
   repository: ghcr.m.daocloud.io/nvidia/nvsentinel/slurm-drain-monitor
   pullPolicy: IfNotPresent
-  tag: ""
+  tag: "v1.23.0"
 podAnnotations: {}
 maxConcurrentReconciles: 1
 resyncPeriod: 5m
