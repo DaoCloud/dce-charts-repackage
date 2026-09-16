@@ -50,7 +50,7 @@ kueue:
         # -- ControllerManager's image repository
         repository: k8s.m.daocloud.io/kueue/kueue
         # -- ControllerManager's image tag
-        tag: v0.18.6
+        tag: v0.18.8
         # -- ControllerManager's image pullPolicy.
         # This should be set to 'IfNotPresent' for released version
         pullPolicy: IfNotPresent
@@ -112,7 +112,7 @@ kueue:
     podDisruptionBudget:
       # -- Enable PodDisruptionBudget
       enabled: false
-      # -- PodDisruptionBudget's topologySpreadConstraints
+      # -- PodDisruptionBudget's minAvailable
       minAvailable: 1
   managerConfig:
     # -- controller_manager_config.yaml.
@@ -304,7 +304,7 @@ kueue:
         # -- KueueViz dashboard backend image repository
         repository: "k8s.m.daocloud.io/kueue/kueueviz-backend"
         # -- KueueViz dashboard backend image tag
-        tag: v0.18.6
+        tag: v0.18.8
         # -- KueueViz dashboard backend image pullPolicy.
         # This should be set to 'IfNotPresent' for released version
         pullPolicy: IfNotPresent
@@ -351,7 +351,7 @@ kueue:
         # -- KueueViz dashboard frontend image repository
         repository: "k8s.m.daocloud.io/kueue/kueueviz-frontend"
         # -- KueueViz dashboard frontend image tag
-        tag: v0.18.6
+        tag: v0.18.8
         # -- KueueViz dashboard frontend image pullPolicy.
         # This should be set to 'IfNotPresent' for released version
         pullPolicy: IfNotPresent
