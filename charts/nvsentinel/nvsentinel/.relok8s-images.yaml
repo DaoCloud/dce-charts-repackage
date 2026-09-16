@@ -31,6 +31,7 @@
 - "{{ (index .nvsentinel.preflight.initContainers 0).image.repository }}:{{ (index .nvsentinel.preflight.initContainers 0).image.tag }}"
 - "{{ (index .nvsentinel.preflight.initContainers 1).image.repository }}:{{ (index .nvsentinel.preflight.initContainers 1).image.tag }}"
 - "{{ (index .nvsentinel.preflight.initContainers 2).image.repository }}:{{ (index .nvsentinel.preflight.initContainers 2).image.tag }}"
+- "{{ .nvsentinel.slurm-drain-monitor.image.repository }}:{{ .nvsentinel.slurm-drain-monitor.image.tag }}"
 - "{{ .nvsentinel.mongodb-store.mongodb.helperImages.kubectl.repository }}:{{ .nvsentinel.mongodb-store.mongodb.helperImages.kubectl.tag }}"
 - "{{ .nvsentinel.mongodb-store.mongodb.helperImages.mongosh.repository }}:{{ .nvsentinel.mongodb-store.mongodb.helperImages.mongosh.tag }}"
 - "{{ .nvsentinel.mongodb-store.mongodb.image.registry }}/{{ .nvsentinel.mongodb-store.mongodb.image.repository }}:{{ .nvsentinel.mongodb-store.mongodb.image.tag }}"
