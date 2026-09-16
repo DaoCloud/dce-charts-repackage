@@ -29,15 +29,15 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/cmd-params: {{ include (print $.Template.BasePath "/argocd-configs/argocd-cmd-params-cm.yaml") . | sha256sum }}
+        checksum/cmd-params: {{ include "argo-cd.config.checksum" (dict "context" $ "path" "/argocd-configs/argocd-cmd-params-cm.yaml") }}
         {{- if .Values.repoServer.certificateSecret.enabled }}
-        checksum/repo-server-tls: {{ include (print $.Template.BasePath "/argocd-configs/argocd-repo-server-tls-secret.yaml") . | sha256sum }}
+        checksum/repo-server-tls: {{ include "argo-cd.config.checksum" (dict "context" $ "path" "/argocd-configs/argocd-repo-server-tls-secret.yaml") }}
         {{- end }}
         {{- if .Values.configs.cm.create }}
-        checksum/cm: {{ include (print $.Template.BasePath "/argocd-configs/argocd-cm.yaml") . | sha256sum }}
+        checksum/cm: {{ include "argo-cd.config.checksum" (dict "context" $ "path" "/argocd-configs/argocd-cm.yaml") }}
         {{- end }}
         {{- if .Values.configs.cmp.create }}
-        checksum/cmp-cm: {{ include (print $.Template.BasePath "/argocd-configs/argocd-cmp-cm.yaml") . | sha256sum }}
+        checksum/cmp-cm: {{ include "argo-cd.config.checksum" (dict "context" $ "path" "/argocd-configs/argocd-cmp-cm.yaml") }}
         {{- end }}
         {{- with (mergeOverwrite (deepCopy .Values.global.podAnnotations) .Values.repoServer.podAnnotations) }}
         {{- range $key, $value := . }}
@@ -86,7 +86,7 @@ spec:
         {{- end }}
         env:
           {{- with (concat .Values.global.env .Values.repoServer.env) }}
-            {{- toYaml . | nindent 10 }}
+            {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
           {{- if .Values.openshift.enabled }}
           - name: USER_NAME
@@ -386,7 +386,7 @@ spec:
         {{- if .Values.repoServer.livenessProbe.enabled }}
         livenessProbe:
           httpGet:
-            path: /healthz?full=true
+            path: {{ .Values.repoServer.livenessProbe.httpPath }}
             port: metrics
           initialDelaySeconds: {{ .Values.repoServer.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.repoServer.livenessProbe.periodSeconds }}
@@ -397,13 +397,24 @@ spec:
         {{- if .Values.repoServer.readinessProbe.enabled }}
         readinessProbe:
           httpGet:
-            path: /healthz
+            path: {{ .Values.repoServer.readinessProbe.httpPath }}
             port: metrics
           initialDelaySeconds: {{ .Values.repoServer.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.repoServer.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.repoServer.readinessProbe.timeoutSeconds }}
           successThreshold: {{ .Values.repoServer.readinessProbe.successThreshold }}
           failureThreshold: {{ .Values.repoServer.readinessProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.repoServer.startupProbe.enabled }}
+        startupProbe:
+          httpGet:
+            path: {{ .Values.repoServer.startupProbe.httpPath }}
+            port: metrics
+          initialDelaySeconds: {{ .Values.repoServer.startupProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.repoServer.startupProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.repoServer.startupProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.repoServer.startupProbe.successThreshold }}
+          failureThreshold: {{ .Values.repoServer.startupProbe.failureThreshold }}
         {{- end }}
         resources:
           {{- toYaml .Values.repoServer.resources | nindent 10 }}
@@ -423,7 +434,7 @@ spec:
         - sh
         - '-c'
         args:
-        - /bin/cp --update=none /usr/local/bin/argocd /var/run/argocd/argocd && /bin/ln -sf /var/run/argocd/argocd /var/run/argocd/argocd-cmp-server
+        - /bin/cp {{ .Values.repoServer.copyutil.extraArgs }} /usr/local/bin/argocd /var/run/argocd/argocd && /bin/ln -sf /var/run/argocd/argocd /var/run/argocd/argocd-cmp-server
         image: {{ include "global.images.image" (dict "imageRoot" .Values.repoServer.image "global" .Values.global ) }}
         imagePullPolicy: {{ default .Values.global.image.imagePullPolicy .Values.repoServer.image.imagePullPolicy }}
         name: copyutil
@@ -518,6 +529,7 @@ spec:
       - name: tls-certs
         configMap:
           name: argocd-tls-certs-cm
+          optional: true
       - name: gpg-keys
         configMap:
           name: argocd-gpg-keys-cm
