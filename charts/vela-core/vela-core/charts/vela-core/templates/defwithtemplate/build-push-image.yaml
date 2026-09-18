@@ -17,10 +17,8 @@ spec:
         	"vela/builtin"
         	"vela/kube"
         	"vela/util"
-        	"encoding/json"
         	"strings"
         )
-
         url: {
         	if parameter.context.git != _|_ {
         		address: strings.TrimPrefix(parameter.context.git, "git://")
