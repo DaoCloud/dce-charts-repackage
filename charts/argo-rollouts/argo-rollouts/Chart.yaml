@@ -1,12 +1,12 @@
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: Add first-class values for AWS EKS Auto Mode (awsVerifyTargetGroup, awsTargetGroupBindingAPIVersion, albTagKeyResourceID), self-service notifications, pprof profiling address, and dashboard rootPath
+    - kind: changed
+      description: Hash only the ConfigMap data in the checksum/cm annotation so a chart version bump no longer restarts the controller. Adopting this release recomputes the annotation once, so the controller rolls a single time on this specific upgrade.
   artifacthub.io/signKey: |
     fingerprint: 2B8F22F57260EFA67BE1C5824B11F800CD9D2252
     url: https://argoproj.github.io/argo-helm/pgp_keys.asc
 apiVersion: v2
-appVersion: v1.9.0
+appVersion: v1.10.0
 description: A Helm chart for Argo Rollouts
 home: https://github.com/argoproj/argo-helm
 icon: https://argoproj.github.io/argo-rollouts/assets/logo.png
@@ -19,8 +19,8 @@ maintainers:
 name: argo-rollouts
 sources:
   - https://github.com/argoproj/argo-rollouts
-version: 2.40.9
+version: 2.43.2
 dependencies:
   - name: argo-rollouts
-    version: "2.40.9"
+    version: "2.43.2"
     repository: "https://argoproj.github.io/argo-helm"
