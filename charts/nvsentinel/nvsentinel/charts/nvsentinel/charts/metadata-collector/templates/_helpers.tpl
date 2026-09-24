@@ -4,6 +4,7 @@ Expand the name of the chart.
 {{- define "metadata-collector.name" -}}
 {{- .Chart.Name | trunc 63 | trimSuffix "-" }}
 {{- end }}
+
 {{/*
 Create a default fully qualified app name.
 */}}
@@ -37,3 +38,4 @@ Selector labels
 app.kubernetes.io/name: {{ include "metadata-collector.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
