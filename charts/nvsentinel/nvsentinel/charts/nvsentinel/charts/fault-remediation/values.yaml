@@ -20,7 +20,7 @@ clientCertMountPath: /etc/ssl/client-certs
 image:
   repository: ghcr.m.daocloud.io/nvidia/nvsentinel/fault-remediation
   pullPolicy: IfNotPresent
-  tag: "v1.23.0"
+  tag: "v1.22.0"
 resources:
   limits:
     cpu: "200m"
@@ -152,7 +152,7 @@ logCollector:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/log-collector
     # tag: latest  # Optional: Override global.image.tag for log-collector
     pullPolicy: IfNotPresent
-    tag: v1.23.0
+    tag: v1.22.0
   # HTTP endpoint where collected logs will be uploaded
   uploadURL: "http://nvsentinel-incluster-file-server.nvsentinel.svc.cluster.local/upload"
   # Comma-separated list of namespaces where GPU operator components run (for collecting GPU operator logs)

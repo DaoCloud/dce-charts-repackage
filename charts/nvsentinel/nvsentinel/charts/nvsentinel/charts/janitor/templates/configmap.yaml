@@ -94,7 +94,6 @@ data:
       resetJob:
         writeSysLogEvent: "{{ .Values.config.controllers.gpuReset.resetJob.writeSysLogEvent }}"
         runtimeClassName: "{{ .Values.config.controllers.gpuReset.resetJob.runtimeClassName }}"
-        hostDriverRootPath: "{{ .Values.config.controllers.gpuReset.resetJob.hostDriverRootPath }}"
         {{- if $gpuResetUploadURL }}
         uploadURL: {{ $gpuResetUploadURL | quote }}
         {{- end }}
