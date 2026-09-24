@@ -22,8 +22,8 @@ export VERSION
 # Rewrite both registry-qualified repositories and separate registry/repository
 # image settings. Upstream leaves several component tags empty so they fall back
 # to the chart appVersion; make those tags explicit for relok8s.
-# The upstream v1.23.0 slurm-drain-monitor image is available, so its empty tag
-# can be normalized to v1.23.0 together with the other release images.
+# Keep slurm-drain-monitor's tag unchanged for now. The upstream v1.22.0 release
+# did not publish that image consistently; only its registry is mirrored below.
 mirror_values() {
   local values_file=$1
 
@@ -45,6 +45,7 @@ mirror_values() {
        (.repository | test("^quay\\.m\\.daocloud\\.io/")) or
        (.repository | test("^nvcr\\.m\\.daocloud\\.io/")) or
        (.repository | test("^m\\.daocloud\\.io/public\\.ecr\\.aws/"))) and
+      ((.repository | test("/slurm-drain-monitor$") | not)) and
       has("tag") and .tag == "") | .tag
   ) = strenv(VERSION)' "$values_file"
 
@@ -55,6 +56,7 @@ mirror_values() {
        (.repository | test("^quay\\.m\\.daocloud\\.io/")) or
        (.repository | test("^nvcr\\.m\\.daocloud\\.io/")) or
        (.repository | test("^m\\.daocloud\\.io/public\\.ecr\\.aws/"))) and
+      ((.repository | test("/slurm-drain-monitor$") | not)) and
       .tag == null)
   ) |= (.tag = strenv(VERSION))' "$values_file"
 }

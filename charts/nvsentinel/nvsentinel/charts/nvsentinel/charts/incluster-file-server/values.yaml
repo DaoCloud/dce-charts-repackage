@@ -57,7 +57,7 @@ metrics:
 cleanupMetrics:
   image:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/file-server-cleanup
-    tag: "v1.23.0"
+    tag: "v1.22.0"
     pullPolicy: IfNotPresent
 # Pod priority for this component. Overridden by the matching global when that is set.
 priorityClassName: ""

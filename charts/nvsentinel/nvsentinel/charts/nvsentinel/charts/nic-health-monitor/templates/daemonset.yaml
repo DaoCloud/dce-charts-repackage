@@ -20,11 +20,9 @@ metadata:
     {{- include "nic-health-monitor.labels" . | nindent 4 }}
 spec:
   updateStrategy:
-    type: {{ .Values.updateStrategy.type }}
-    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
-    {{- end }}
+      maxUnavailable: 5%
   selector:
     matchLabels:
       {{- include "nic-health-monitor.selectorLabels" . | nindent 6 }}

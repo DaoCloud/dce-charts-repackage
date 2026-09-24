@@ -16,7 +16,7 @@ replicaCount: 1
 image:
   repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight
   pullPolicy: IfNotPresent
-  tag: "v1.23.0"
+  tag: "v1.22.0"
 imagePullSecrets: []
 imageCache:
   # Enables a DaemonSet that keeps all configured preflight check images
@@ -122,7 +122,7 @@ initContainers:
     inheritUserVolumeMounts: true
     image:
       repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-dcgm-diag
-      tag: "v1.23.0"
+      tag: "v1.22.0"
     env:
       - name: DCGM_HOSTENGINE_ADDR
         value: "nvidia-dcgm.gpu-operator.svc:5555"
@@ -156,7 +156,7 @@ initContainers:
     inheritUserVolumeMounts: true
     image:
       repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-loopback
-      tag: "v1.23.0"
+      tag: "v1.22.0"
     env:
       - name: BW_THRESHOLD_GBPS
         # Minimum acceptable bus bandwidth
@@ -184,7 +184,7 @@ initContainers:
     inheritUserVolumeMounts: true
     image:
       repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-allreduce
-      tag: "v1.23.0"
+      tag: "v1.22.0"
     securityContext:
       capabilities:
         add: ["IPC_LOCK"] # Required for RDMA memory registration

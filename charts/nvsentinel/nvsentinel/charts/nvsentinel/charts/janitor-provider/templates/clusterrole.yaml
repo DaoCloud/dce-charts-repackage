@@ -26,10 +26,6 @@ rules:
       - get
       - list
       - watch
-      {{- if eq (lower (.Values.csp.provider | default "kind")) "label" }}
-      - patch
-      - update
-      {{- end }}
   {{- if .Values.auth.enabled }}
   - apiGroups:
       - authentication.k8s.io

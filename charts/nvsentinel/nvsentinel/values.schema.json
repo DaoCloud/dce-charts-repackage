@@ -263,14 +263,6 @@
                         "nodeSelector": {
                             "type": "object"
                         },
-                        "nvcreCertificationMonitor": {
-                            "type": "object",
-                            "properties": {
-                                "enabled": {
-                                    "type": "boolean"
-                                }
-                            }
-                        },
                         "platformConnectorAuth": {
                             "type": "object",
                             "properties": {
@@ -642,22 +634,6 @@
                 },
                 "socketPath": {
                     "type": "string"
-                },
-                "updateStrategy": {
-                    "type": "object",
-                    "properties": {
-                        "rollingUpdate": {
-                            "type": "object",
-                            "properties": {
-                                "maxUnavailable": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "type": {
-                            "type": "string"
-                        }
-                    }
                 }
             }
         }

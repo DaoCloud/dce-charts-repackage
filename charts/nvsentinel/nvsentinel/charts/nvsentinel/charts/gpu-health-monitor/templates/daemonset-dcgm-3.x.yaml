@@ -19,11 +19,9 @@ metadata:
     {{- include "gpu-health-monitor.labels" . | nindent 4 }}
 spec:
   updateStrategy:
-    type: {{ .Values.updateStrategy.type }}
-    {{- if eq .Values.updateStrategy.type "RollingUpdate" }}
+    type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable }}
-    {{- end }}
+      maxUnavailable: 5%
   selector:
     matchLabels:
       {{- include "gpu-health-monitor.selectorLabels" . | nindent 6 }}
@@ -40,10 +38,6 @@ spec:
       {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- if include "gpu-health-monitor.dcgmStartupGateEnabled" . }}
-      initContainers:
-        {{- include "gpu-health-monitor.dcgmStartupGate" (dict "root" . "dcgmVersion" "3.x") | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
