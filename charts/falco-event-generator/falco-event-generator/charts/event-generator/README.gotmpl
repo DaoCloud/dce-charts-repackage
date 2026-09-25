@@ -1,4 +1,112 @@
-{{ template "chart.header" . }}
-{{ template "chart.description" . }}
-{{ template "chart.valuesSection" . }}
+# Event-generator
 
+[event-generator](https://github.com/falcosecurity/event-generator) is a tool designed to generate events for both syscalls and k8s audit. The tool can be used to check if Falco is working properly. It does so by performing a variety of suspect actions which trigger security events. The event-generator implements a [minimalistic framework](https://github.com/falcosecurity/event-generator/tree/main/events) which makes it easy to implement new actions.
+
+## Introduction
+
+This chart helps to deploy the event-generator in a kubernetes cluster in order to test an already deployed Falco instance.
+
+## Adding `falcosecurity` repository
+
+Before installing the chart, add the `falcosecurity` charts repository:
+
+```bash
+helm repo add falcosecurity https://falcosecurity.github.io/charts
+helm repo update
+```
+
+## Installing the Chart
+
+To install the chart with default values and release name `event-generator` run:
+
+```bash
+helm install event-generator falcosecurity/event-generator
+```
+
+After a few seconds, event-generator should be running in the `default` namespace.
+
+In order to install the event-generator in a custom namespace run:
+
+```bash
+# change the name of the namespace to fit your requirements.
+kubectl create ns "ns-event-generator"
+helm install event-generator falcosecurity/event-generator --namespace "ns-event-generator"
+```
+With the default values in `values.yaml`, the chart deploys the event-generator as a k8s `deployment` running the `run` command against syscall actions in a loop.
+For more info check the next section.
+
+> **Tip**: List all releases using `helm list`, a release is a name used to track a specific deployment
+
+### Commands, actions and options
+
+The event-generator tool accepts four commands: `run`, `test`, `suite-run` and `suite-test`. `run` and `test` exercise a hardcoded set of Go-coded actions; the suite commands consume YAML-described test scenarios instead. `test` and `suite-test` additionally verify that Falco triggered the expected rule for each generated action; see the [`suite` documentation](https://github.com/falcosecurity/event-generator/blob/main/docs/event-generator_suite.md) for the YAML format.
+
+`run` and `test` accept an argument that determines the actions to be performed:
+
+```bash
+event-generator run/test [regexp]
+```
+
+Without arguments, all actions are performed; otherwise, only those actions matching the given regular expression. If we want to `test` just the actions related to k8s the following command does the trick:
+
+```bash
+event-generator test ^k8saudit
+```
+The list of the supported actions can be found [here](https://github.com/falcosecurity/event-generator#list-actions).
+
+Two more options apply to `run` and `test`:
++ `--loop` to run actions in a loop
++ `--sleep` to set the length of time to wait before running an action (default to 1s)
+
+### Deployment modes in k8s
+Based on commands, actions and options configured the event-generator could be deployed as a k8s `job` or `deployment`. If `config.loop` is set, a `deployment` is used since it is a long running process, otherwise a `job`. Suite commands always run once and therefore always render as a `job`.
+
+For example, to run `test` once against the k8s audit actions instead of the defaults:
+```yaml
+config:
+  command: test
+  actions: "^k8saudit"
+  loop: false
+```
+
+When the command is `test` or `suite-test`, the event-generator runs an HTTP server that Falco posts alerts to. The chart provisions a Service exposing this server on port `8080` by default. Falco must be configured with `http_output.enabled=true` and `http_output.url` pointing at this Service (with default settings, `http://<release-name>-event-generator.<namespace>.svc.cluster.local:8080`), and with `json_output=true` so alerts are delivered as JSON. `suite-test` additionally requires Falco to append `proc.env` to its alert output fields (`append_output[]={"extra_fields": ["proc.env"]}`), since the event-generator matches alerts back to the originating test by inspecting a test UID it propagates through the process-chain environment. TLS or mTLS is configurable via `config.http.securityMode` and `config.http.tls.existingSecret`, which must reference a Kubernetes Secret holding the cert material; if the Secret stores its entries under non-default keys, override `config.http.tls.secretKeys.{cert,key,caRoot}` to match. For `suite-test`, set `config.suite.skipOutcomeVerification: true` to disable outcome verification entirely; the HTTP server and Service are not rendered, and the suite behaves like `suite-run`.
+
+### Test suites
+The `suite-run` and `suite-test` commands consume YAML test descriptions. There are two ways to provide them: set `config.suite.descriptions` to render them inline into a chart-managed ConfigMap, or set `config.suite.existingConfigMap` to mount a ConfigMap you already created. Either way, the descriptions land at `config.suite.descriptionDir` inside the pod, and each top-level map key becomes a separate file.
+
+Suite commands default to `securityContext.privileged: true`, since they could perform complex actions that require a wide range of capabilities. Set `securityContext.privileged: false` to opt out.
+
+A minimal `suite-run` deployment with inline descriptions:
+```yaml
+config:
+  command: suite-run
+  loop: false
+  suite:
+    descriptions:
+      example.yaml: |
+        tests:
+          - name: read_sensitive_file
+            rule: Read sensitive file untrusted
+            runner: HostRunner
+            steps:
+              - type: syscall
+                name: open_etc_shadow
+                syscall: open
+                args: { pathname: /etc/shadow, flags: O_RDONLY }
+```
+
+See the [`suite` documentation](https://github.com/falcosecurity/event-generator/blob/main/docs/event-generator_suite.md) for the YAML format.
+
+
+## Uninstalling the Chart
+To uninstall the `event-generator` release:
+```bash
+helm uninstall event-generator
+```
+The command removes all the Kubernetes components associated with the chart and deletes the release.
+
+## Configuration
+
+The following table lists the main configurable parameters of the {{ template "chart.name" . }} chart v{{ template "chart.version" . }} and their default values. See `values.yaml` for full list.
+
+{{ template "chart.valuesSection" . }}
