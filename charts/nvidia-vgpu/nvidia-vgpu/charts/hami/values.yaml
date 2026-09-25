@@ -9,7 +9,7 @@ global:
   ##   - myRegistryKeySecretName
   ## @param global.imagePullSecrets Global Docker image pull secrets
   imagePullSecrets: []
-  imageTag: "v2.9.0"
+  imageTag: "v2.10.0"
   gpuHookPath: /usr/local
   labels: {}
   annotations: {}
@@ -38,15 +38,18 @@ metaxResourceName: "metax-tech.com/sgpu"
 metaxResourceCore: "metax-tech.com/vcore"
 metaxResourceMem: "metax-tech.com/vmemory"
 metaxsGPUTopologyAware: "false"
-#Enflame VGCU Parameters
-enflameResourceNameVGCU: "enflame.com/vgcu"
-enflameResourceNameVGCUPercentage: "enflame.com/vgcu-percentage"
+#Enflame DRS Parameters
+enflameResourceNameDRSGCU: "enflame.com/drs-gcu"
+enflameResourceNameGCUMemory: "enflame.com/gcu-memory"
+enflameResourceNameGCUCore: "enflame.com/gcu-core"
 #Kunlun XPU Parameters
 kunlunResourceName: "kunlunxin.com/xpu"
 kunlunResourceVCountName: "kunlunxin.com/vxpu"
 kunlunResourceVMemoryName: "kunlunxin.com/vxpu-memory"
 #Vastai Parameters
 vastaiResourceName: "vastaitech.com/va"
+#Biren Parameters
+birenResourceName: "birentech.com/gpu"
 schedulerName: "hami-scheduler"
 podSecurityPolicy:
   enabled: false
@@ -183,6 +186,11 @@ scheduler:
     # - default
     # - kube-system
     # - istio-system
+    # manageNamespaceSelector controls whether the chart renders and manages the webhook's
+    # namespaceSelector field. Keep it true on standard Kubernetes clusters.
+    # Set it to false on managed platforms (e.g. AKS) where the platform mutates and owns
+    # the namespaceSelector field, to avoid server-side apply ownership conflicts.
+    manageNamespaceSelector: true
     # namespaceSelector controls which namespaces the webhook will be applied to.
     # The default matchExpressions exclude namespaces with label "hami.io/webhook: ignore".
     # You can add additional matchLabels or matchExpressions to further filter namespaces.
@@ -283,6 +291,9 @@ devicePlugin:
   gpuOperatorToolkitReady:
     enabled: false
     hostPath: "/run/nvidia/validations"
+    securityContext:
+      privileged: true
+      runAsUser: 0
   ## @param image.registry devicePlugin image registry
   ## @param image.repository devicePlugin image repository
   ## @param image.tag devicePlugin image tag (immutable tags are recommended)
@@ -331,6 +342,11 @@ devicePlugin:
     extraArgs:
       - -v=4
     extraEnvs: {}
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+        add: ["SYS_ADMIN"]
     resources:
       limits:
         cpu: 500m
@@ -350,6 +366,10 @@ devicePlugin:
   deviceSplitCount: 10
   deviceMemoryScaling: 1.0
   deviceCoreScaling: 1.0
+  # Advertise the physical GPU's NUMA node on each vGPU replica so kubelet's
+  # TopologyManager can align CPU and GPU NUMA nodes. Opt-in because it changes
+  # admission behavior when topologyManagerPolicy is single-numa-node.
+  enableNumaTopology: false
   # Pre-configured device memory in MB for GPUs that don't support memory query (e.g., unified memory architecture GPUs like NVIDIA GB10/DGX Spark).
   # Set to 0 to use auto-detection (default). For unified memory GPUs, set to the total GPU memory (e.g., 131072 for 128GB).
   # Can be overridden per-node via nodeConfiguration.config.
@@ -367,6 +387,7 @@ devicePlugin:
             "devicememoryscaling": 1,
             "devicesplitcount": 10,
             "preconfigureddevicememory": 0,
+            "enablenumatopology": false,
             "migstrategy": "none",
             "filterdevices": {
               "uuid": [],
@@ -403,6 +424,14 @@ devicePlugin:
   pluginPath: /var/lib/kubelet/device-plugins
   libPath: /usr/local/vgpu
   podAnnotations: {}
+  hostPID: true
+  hostNetwork: false
+  securityContext:
+    privileged: true
+    allowPrivilegeEscalation: true
+    capabilities:
+      drop: ["ALL"]
+      add: ["SYS_ADMIN"]
   nvidiaNodeSelector:
     nvidia.com/gpu.deploy.container-toolkit: "true"
     nvidia.com/vgpu.deploy.device-plugin: "true"
@@ -455,27 +484,12 @@ mockDevicePlugin:
     ##   - myRegistryKeySecretName
     ##
     pullSecrets: []
-# If this option is enabled, the DRA will be installed and the scheduler extender will not be installed.
-dra:
-  enabled: false
-# Configuration for the hami-dra subchart, which includes DRA drivers.
-# This is part of config for DRA, please refer to the DRA documentation for more details.
-hami-dra:
-  monitor:
-    enabled: true
-  drivers:
-    nvidia:
-      enabled: true
-      # If you are using gpu driver on host, you need to set this to false
-      containerDriver: true
-      image:
-        repository: ghcr.io/project-hami/k8s-dra-driver
-        tag: "main"
 devices:
   amd:
     customresources:
       - amd.com/gpu
-      - amd.com/gpu-memory
+      - amd.com/gpumem
+      - amd.com/gpucores
   awsneuron:
     customresources:
       - aws.amazon.com/neuron
@@ -489,8 +503,9 @@ devices:
   enflame:
     enabled: true
     customresources:
-      - enflame.com/vgcu
-      - enflame.com/vgcu-percentage
+      - enflame.com/drs-gcu
+      - enflame.com/gcu-memory
+      - enflame.com/gcu-core
       - enflame.com/gcu
   mthreads:
     enabled: true
@@ -500,6 +515,10 @@ devices:
     enabled: true
     customresources:
       - vastaitech.com/va
+  biren:
+    enabled: true
+    customresources:
+      - birentech.com/gpu
   nvidia:
     gpuCorePolicy: default
     libCudaLogLevel: 1
@@ -553,3 +572,15 @@ devices:
 legacyMetrics: false
 prometheus:
   enabled: false
+# Device config overrides
+# If content is set under device-config.content, it will be used as the device-config.yaml
+# payload in the hami-scheduler-device ConfigMap instead of files/device-config.yaml or the default config.
+# Example:
+# device-config:
+#   content: |
+#     nvidia:
+#       migProfileAllowlist:
+#         - models: [ "RTX 6000 Ada" ]
+#           profiles: [ "1g.6gb", "2g.12gb", "4g.24gb" ]
+device-config:
+  content: ""
