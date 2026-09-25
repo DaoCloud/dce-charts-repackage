@@ -9122,6 +9122,14 @@ spec:
                   - observedAt
                   type: object
                 type: array
+              lastScheduled:
+                description: |-
+                  LastScheduled is the time at which the PodCliqueScheduled condition most recently became True.
+                  It is nil until the PodClique is first scheduled and is never reset to nil once set. If the
+                  PodClique later drops below its scheduled count and is then scheduled again, this advances to
+                  the time of that later transition.
+                format: date-time
+                type: string
               observedGeneration:
                 description: ObservedGeneration is the most recent generation observed
                   by the controller.

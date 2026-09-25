@@ -1,0 +1,239 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+image:
+  operator:
+    repository: ghcr.io/ai-dynamo/snapshot/operator
+    # Defaults to the chart's appVersion when empty (see templates).
+    tag: ""
+    pullPolicy: IfNotPresent
+    imagePullSecrets: []
+  agent:
+    repository: ghcr.io/ai-dynamo/snapshot/agent
+    # Defaults to the chart's appVersion when empty (see templates).
+    tag: ""
+    pullPolicy: Always
+
+replicaCount: 1
+
+operator:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+  artifactCleanup:
+    # Frequency of authoritative orphan artifact scans.
+    scanInterval: 10m
+    # Maximum orphan roots removed serially in one scan.
+    batchSize: 10
+    # Total metadata-list attempts before a scan fails closed.
+    listAttempts: 3
+
+# `helm upgrade` leaves CRDs alone by design; the crd-installer init container
+# closes that gap on every rollout, and is a no-op when nothing changed.
+crdUpgrade:
+  # NOTICE FOR THE CLUSTER ADMIN: disabling this makes keeping the CRDs current
+  # your job, otherwise the operator runs against stale definitions and silently
+  # drops new fields:
+  #   kubectl apply --server-side --force-conflicts -f ./charts/snapshot/crds/
+  enabled: true
+
+  # trace, debug, info, warn, error
+  logLevel: info
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+# Container runtime backend. Leave socketPath empty to use the conventional
+# path for the chosen type.
+runtime:
+  type: containerd  # containerd | crio
+  socketPath: ""
+
+# Gates the OCP RBAC template and the DS required-scc annotation. Keep false
+# on vanilla Kubernetes (it references an OCP-only built-in SCC).
+openshift:
+  enabled: false
+
+# Storage configuration for checkpoints
+storage:
+  # Storage type stays snapshot-owned for future backend expansion.
+  # Only pvc is implemented today.
+  type: pvc
+
+  # PVC configuration (when type=pvc)
+  pvc:
+    # Create a new PVC (set to false if using existing PVC)
+    create: true
+    # PVC name used by the agent checkpoint store
+    name: snapshot-pvc
+    # PVC size
+    size: 1Ti
+    # Storage class (leave empty for default)
+    storageClass: ""
+    # Fixed PVC mount path inside every snapshot-agent pod. The privileged
+    # mount helper independently enforces this source root.
+    basePath: /checkpoints
+
+  # Reserved for future snapshot-owned backends. Unsupported today.
+  s3:
+    uri: ""
+
+  # Reserved for future snapshot-owned backends. Unsupported today.
+  oci:
+    uri: ""
+
+# DaemonSet configuration for the checkpoint/restore agent
+daemonset:
+  # Agent and nsrestore log level (trace, debug, info, warn, error)
+  snapshotLogLevel: info
+
+  # The shipped agent image is public on GHCR. Set this only when an image
+  # override is hosted in a private registry.
+  imagePullSecrets: []
+
+  # Resource limits and requests
+  resources:
+    limits:
+      cpu: 4
+      memory: 4Gi
+    requests:
+      cpu: 2
+      memory: 1Gi
+
+  # Node selector - target GPU nodes
+  nodeSelector:
+    nvidia.com/gpu.present: "true"
+
+  # Tolerations for GPU nodes
+  tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+    - key: dedicated
+      operator: Exists
+      effect: NoSchedule
+
+  # Pod labels
+  podLabels: {}
+
+  # Pod annotations
+  podAnnotations: {}
+
+  # Affinity rules
+  affinity: {}
+
+  # Init container configuration
+  initContainer:
+    # Busybox image for seccomp profile deployment. Pinned by digest: this is
+    # the one image the chart pulls that NVIDIA does not build, and a mutable
+    # tag would let its contents change under an unchanged chart version.
+    image: busybox:1.37.0@sha256:9db7b59979c38555a39def84a31fb98b5296952f9e3afd4f6f11f05b07adfab0
+    # Left empty so the template derives it: IfNotPresent for a digest-pinned
+    # image, Always otherwise. Overriding `image` with a mutable tag therefore
+    # keeps pulling, instead of silently reusing a stale cached layer.
+    imagePullPolicy: ""
+    # The agent's resources do not cover this container. Defaults are small: it
+    # copies one file and exits, but a namespace with a ResourceQuota that
+    # requires limits would reject the pod without them.
+    resources:
+      limits:
+        cpu: 100m
+        memory: 64Mi
+      requests:
+        cpu: 10m
+        memory: 16Mi
+
+# Seccomp profile configuration
+# CRIU can't checkpoint io_uring; this gates the block-iouring ConfigMap and
+# the initContainer that writes the profile. Set to false on RHCOS 9.6+, which
+# already blocks io_uring at the kernel.
+seccomp:
+  # Deploy seccomp profile for blocking io_uring (required for CRIU).
+  # Use seccomp.deploy; seccomp.enabled is not a chart value.
+  deploy: true
+
+# Service account configuration for the agent
+serviceAccount:
+  # Create service account
+  create: true
+  # Service account name (generated if not set)
+  name: ""
+  # Annotations for service account (e.g., for IRSA)
+  annotations: {}
+
+# RBAC configuration
+rbac:
+  # Create RBAC resources (agent and operator)
+  create: true
+
+# Static agent configuration (loaded from ConfigMap)
+# Dynamic values such as NODE_NAME come from environment variables.
+config:
+  overlay:
+    # Rootfs diff tar exclusions. Absolute-looking paths are normalized
+    # relative to the tar root, and patterns starting with * are passed
+    # through as tar globs unchanged.
+    exclusions:
+      - /proc
+      - /sys
+      - /dev
+      - "*/.cache/huggingface"
+      - "*/__pycache__"
+      - "*.pyc"
+
+  restore:
+    # Maximum seconds to allow a restore attempt before the agent marks it failed
+    restoreTimeoutSeconds: 7200
+
+  criu:
+    # Path to the criu binary
+    binaryPath: /usr/local/sbin/criu
+    # Ghost file size limit in bytes. Deleted-but-open files smaller than this
+    # are saved inline in the checkpoint image as ghost files.
+    ghostLimit: 536870912
+    # CRIU logging verbosity (0-4)
+    logLevel: 4
+    # CRIU work directory for temporary files
+    workDir: /var/criu-work
+
+    # K8s-specific options (recommended defaults for containers)
+    # Note: the source process is always terminated by a checkpoint; there is
+    # no leave-running mode.
+    shellJob: true          # Containers are often session leaders
+    tcpClose: false         # Do not close non-listening TCP sockets on restore
+    tcpEstablished: true    # Preserve established TCP sockets during restore
+    fileLocks: true         # Applications use file locks
+    orphanPtsMaster: true   # Containers with TTYs
+    extUnixSk: true         # External Unix sockets
+    linkRemap: true         # Required for deleted-but-open files (e.g. POSIX semaphores in /dev/shm)
+    extMasters: true        # External bind mount masters
+    manageCgroupsMode: soft # CRIU cgroup management mode (ignore/soft/full/strict)
+    imageIoMode: direct     # CRIU image I/O mode (writeback/direct); direct uses O_DIRECT to avoid page-cache double-buffering
+
+    # Restore-specific options (only apply during CRIU restore, not dump)
+    rstSibling: true         # Restore as sibling process (required for go-criu swrk mode)
+    mntnsCompatMode: false   # Mount namespace compatibility mode
+    evasiveDevices: true     # Use any device path if original is inaccessible
+    forceIrmap: true         # Force resolving inotify/fsnotify watch names
+
+    # Advanced options
+    autoDedup: false        # Auto-deduplication of memory pages
+    lazyPages: false        # Lazy page migration (experimental)
+
+    # Config file options (NOT available via RPC - written to criu.conf)
+    # Dedicated directory for the CRIU plugins used by this chart.
+    # Do not point this at CRIU's global plugin dir, which can load unrelated
+    # plugins such as the CRIU CUDA plugin.
+    libDir: "/usr/local/lib/snapshot/criu-plugins"
+    allowUprobes: true             # Leave enabled for kernel/userspace probe compatibility
+    skipInFlight: true             # Skip in-flight TCP connections

@@ -1,0 +1,116 @@
+{{- if .Values.rbac.create }}
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "snapshot.operatorServiceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "snapshot.labels" . | nindent 4 }}
+    app.kubernetes.io/component: operator
+---
+# ClusterRole for the operator reconcilers. Mirrors their kubebuilder RBAC markers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "snapshot.fullname" . }}-operator
+  labels:
+    {{- include "snapshot.labels" . | nindent 4 }}
+    app.kubernetes.io/component: operator
+rules:
+  - apiGroups: ["nvidia.com"]
+    resources: ["podsnapshots"]
+    verbs: ["create", "get", "list", "watch", "update", "patch"]
+  - apiGroups: ["nvidia.com"]
+    resources: ["podsnapshots/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["nvidia.com"]
+    resources: ["podsnapshots/finalizers"]
+    verbs: ["update"]
+  - apiGroups: ["nvidia.com"]
+    resources: ["podsnapshotcontents"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["nvidia.com"]
+    resources: ["podsnapshotcontents/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["nvidia.com"]
+    resources: ["snapshotjobs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["nvidia.com"]
+    resources: ["snapshotjobs/status"]
+    verbs: ["patch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["create", "get", "list", "watch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  {{- if .Values.crdUpgrade.enabled }}
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["create", "list", "watch"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    resourceNames:
+      - podsnapshots.nvidia.com
+      - podsnapshotcontents.nvidia.com
+      - snapshotjobs.nvidia.com
+    verbs: ["get", "patch"]
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "snapshot.fullname" . }}-operator
+  labels:
+    {{- include "snapshot.labels" . | nindent 4 }}
+    app.kubernetes.io/component: operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "snapshot.fullname" . }}-operator
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "snapshot.operatorServiceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+---
+# Namespaced leader-election access (Lease + Event) for the operator manager.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "snapshot.fullname" . }}-operator-leaderelection
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "snapshot.labels" . | nindent 4 }}
+    app.kubernetes.io/component: operator
+rules:
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    # LeaseLock only reads, creates, and renews its own lease.
+    verbs: ["get", "create", "update"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "snapshot.fullname" . }}-operator-leaderelection
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "snapshot.labels" . | nindent 4 }}
+    app.kubernetes.io/component: operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "snapshot.fullname" . }}-operator-leaderelection
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "snapshot.operatorServiceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
