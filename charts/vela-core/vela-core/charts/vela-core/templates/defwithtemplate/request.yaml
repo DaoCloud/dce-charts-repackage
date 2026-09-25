@@ -18,7 +18,6 @@ spec:
         	"vela/http"
         	"encoding/json"
         )
-
         req: http.#HTTPDo & {
         	$params: {
         		method: parameter.method

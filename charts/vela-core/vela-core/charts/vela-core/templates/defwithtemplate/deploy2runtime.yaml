@@ -18,7 +18,6 @@ spec:
         import (
         	"vela/op"
         )
-
         app: op.#Steps & {
         	load: op.#Load
         	clusters: [...string]
