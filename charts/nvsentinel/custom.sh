@@ -69,14 +69,13 @@ while IFS= read -r -d '' values_file; do
   mirror_values "$values_file"
 done < <(find . -type f -name 'values*.yaml' -print0)
 
-# Keep every shipped values profile on the same Percona implementation. Some
-# Tilt profiles explicitly selected Bitnami upstream; leaving those overrides
-# in place would make the packaged chart use an inactive amd64-only branch.
+# Keep the Percona selection in the mongodb-store subchart defaults below.
+# Profile files inherit those defaults; remove profile-local mode flags so they
+# do not duplicate the implementation choice or drift on future upgrades.
 while IFS= read -r -d '' values_file; do
   if yq -e 'has("mongodb-store")' "$values_file" >/dev/null 2>&1; then
     yq -i '
-      ."mongodb-store".useBitnami = false |
-      ."mongodb-store".usePerconaOperator = true
+      del(."mongodb-store".useBitnami, ."mongodb-store".usePerconaOperator)
     ' "$values_file"
   fi
 done < <(find . -type f -name 'values*.yaml' -print0)

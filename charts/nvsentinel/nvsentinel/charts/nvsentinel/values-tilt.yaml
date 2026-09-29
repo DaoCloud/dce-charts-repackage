@@ -112,8 +112,6 @@ preflight:
       command: ["/bin/sh", "-c"]
       args: ["echo 'preflight-dcgm-diag: no real GPU, exiting ok'; exit 0"]
 mongodb-store:
-  useBitnami: false
-  usePerconaOperator: true
   job:
     nodeSelector:
       node-role.kubernetes.io/control-plane: ""
