@@ -17,6 +17,16 @@ image:
   repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight
   pullPolicy: IfNotPresent
   tag: "v1.22.0"
+  initContainers:
+    dcgmDiag:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-dcgm-diag
+      tag: "v1.22.0"
+    ncclLoopback:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-loopback
+      tag: "v1.22.0"
+    ncclAllreduce:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-allreduce
+      tag: "v1.22.0"
 imagePullSecrets: []
 imageCache:
   # Enables a DaemonSet that keeps all configured preflight check images
@@ -120,9 +130,7 @@ initContainers:
     # Boolean: true copies workload mounts matching volumeMountPatterns.
     # Set false to avoid mounting workload-provided paths into this check.
     inheritUserVolumeMounts: true
-    image:
-      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-dcgm-diag
-      tag: "v1.22.0"
+    image: '{{ .Values.image.initContainers.dcgmDiag.repository }}:{{ .Values.image.initContainers.dcgmDiag.tag }}'
     env:
       - name: DCGM_HOSTENGINE_ADDR
         value: "nvidia-dcgm.gpu-operator.svc:5555"
@@ -154,9 +162,7 @@ initContainers:
     # Boolean: true copies workload mounts matching volumeMountPatterns.
     # Set false to avoid workload-provided paths affecting local GPU checks.
     inheritUserVolumeMounts: true
-    image:
-      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-loopback
-      tag: "v1.22.0"
+    image: '{{ .Values.image.initContainers.ncclLoopback.repository }}:{{ .Values.image.initContainers.ncclLoopback.tag }}'
     env:
       - name: BW_THRESHOLD_GBPS
         # Minimum acceptable bus bandwidth
@@ -182,9 +188,7 @@ initContainers:
     # Boolean: true intentionally inherits workload fabric mounts matched by
     # volumeMountPatterns. Set false to use only chart-defined mounts.
     inheritUserVolumeMounts: true
-    image:
-      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-allreduce
-      tag: "v1.22.0"
+    image: '{{ .Values.image.initContainers.ncclAllreduce.repository }}:{{ .Values.image.initContainers.ncclAllreduce.tag }}'
     securityContext:
       capabilities:
         add: ["IPC_LOCK"] # Required for RDMA memory registration

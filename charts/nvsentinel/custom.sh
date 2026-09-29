@@ -67,6 +67,73 @@ while IFS= read -r -d '' values_file; do
   mirror_values "$values_file"
 done < <(find . -type f -name 'values*.yaml' -print0)
 
+# Relok8s does not support image paths addressed through list indexes such as
+# initContainers[0]. Keep the upstream initContainers list shape, but expose
+# named image aliases and make each list item reference its alias. This is the
+# same pattern used by the Velero repackaging flow.
+while IFS= read -r -d '' values_file; do
+  if yq -e '
+    .initContainers[0].image.repository != null and
+    .initContainers[1].image.repository != null and
+    .initContainers[2].image.repository != null
+  ' "$values_file" >/dev/null 2>&1; then
+    yq -i '
+      .image.initContainers = {
+        "dcgmDiag": .initContainers[0].image,
+        "ncclLoopback": .initContainers[1].image,
+        "ncclAllreduce": .initContainers[2].image
+      } |
+      .initContainers[0].image = "{{ .Values.image.initContainers.dcgmDiag.repository }}:{{ .Values.image.initContainers.dcgmDiag.tag }}" |
+      .initContainers[1].image = "{{ .Values.image.initContainers.ncclLoopback.repository }}:{{ .Values.image.initContainers.ncclLoopback.tag }}" |
+      .initContainers[2].image = "{{ .Values.image.initContainers.ncclAllreduce.repository }}:{{ .Values.image.initContainers.ncclAllreduce.tag }}"
+    ' "$values_file"
+  elif yq -e '
+    .preflight.initContainers[0].image.repository != null and
+    .preflight.initContainers[1].image.repository != null and
+    .preflight.initContainers[2].image.repository != null
+  ' "$values_file" >/dev/null 2>&1; then
+    yq -i '
+      .preflight.image.initContainers = {
+        "dcgmDiag": .preflight.initContainers[0].image,
+        "ncclLoopback": .preflight.initContainers[1].image,
+        "ncclAllreduce": .preflight.initContainers[2].image
+      } |
+      .preflight.initContainers[0].image = "{{ .Values.image.initContainers.dcgmDiag.repository }}:{{ .Values.image.initContainers.dcgmDiag.tag }}" |
+      .preflight.initContainers[1].image = "{{ .Values.image.initContainers.ncclLoopback.repository }}:{{ .Values.image.initContainers.ncclLoopback.tag }}" |
+      .preflight.initContainers[2].image = "{{ .Values.image.initContainers.ncclAllreduce.repository }}:{{ .Values.image.initContainers.ncclAllreduce.tag }}"
+    ' "$values_file"
+  fi
+done < <(find . -type f -name 'values*.yaml' -print0)
+
+# The preflight chart resolves image maps itself. Evaluate the new template
+# strings before formatting the generated init container objects.
+while IFS= read -r -d '' helper_file; do
+  perl -pi -e 's/\{\{- \$image -\}\}/{{- tpl \$image \$root -}}/' "$helper_file"
+done < <(find . -path '*/charts/preflight/templates/_helpers.tpl' -type f -print0)
+
+# PSMDB also accepts sidecars as a list. Keep that upstream list shape, but
+# expose the sidecar image through a named map in the mongodb-store values and
+# let the PSMDB template evaluate the templated list before writing the custom
+# resource. This mirrors the preflight/Velero workaround without changing the
+# chart's public layout.
+PSMDB_VALUES=$(find . -path '*/charts/mongodb-store/values.yaml' -print -quit)
+if [ -n "$PSMDB_VALUES" ] && yq -e '
+  ."psmdb-db".replsets.rs0.sidecars[0].image != null
+' "$PSMDB_VALUES" >/dev/null 2>&1; then
+  yq -i '
+    ."psmdb-db".image.sidecars.mongodbExporter =
+      ."psmdb-db".replsets.rs0.sidecars[0].image |
+    ."psmdb-db".replsets.rs0.sidecars[0].image =
+      "{{ .Values.image.sidecars.mongodbExporter }}"
+  ' "$PSMDB_VALUES"
+fi
+
+while IFS= read -r -d '' psmdb_template; do
+  perl -pi -e \
+    's/\{\{ \$replset\.sidecars \| toYaml \| indent 6 \}\}/{{ tpl (\$replset.sidecars | toYaml) \$ | indent 6 }}/' \
+    "$psmdb_template"
+done < <(find . -path '*/charts/psmdb-db/templates/cluster.yaml' -type f -print0)
+
 # The external MongoDB setup job has a source-registry fallback directly in a
 # template. Rewrite template literals as well as values-driven image settings.
 while IFS= read -r -d '' template_file; do

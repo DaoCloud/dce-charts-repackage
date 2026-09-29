@@ -92,7 +92,7 @@ Resolve a configured preflight init container image, honoring global.image.tag.
 {{- $container := .container -}}
 {{- $image := $container.image -}}
 {{- if kindIs "string" $image -}}
-{{- $image -}}
+{{- tpl $image $root -}}
 {{- else -}}
 {{- $global := $root.Values.global | default dict -}}
 {{- $globalImage := $global.image | default dict -}}
