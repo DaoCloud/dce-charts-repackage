@@ -73,8 +73,25 @@ job:
 # Bitnami MongoDB Configuration (used when usePerconaOperator=false)
 # =============================================================================
 mongodb:
+  # Helper images for MongoDB operations
+  helperImages:
+    # kubectl image for Kubernetes operations in init containers
+    kubectl:
+      repository: docker.m.daocloud.io/bitnamilegacy/kubectl
+      tag: "1.30.6"
+      pullPolicy: IfNotPresent
+    # mongosh image for MongoDB shell operations
+    mongosh:
+      repository: ghcr.m.daocloud.io/rtsp/docker-mongosh
+      tag: "2.5.2"
+      pullPolicy: IfNotPresent
   global:
     imagePullSecrets: []
+  image:
+    registry: docker.m.daocloud.io
+    repository: bitnamilegacy/mongodb
+    tag: 8.0.3-debian-12-r0
+    pullPolicy: IfNotPresent
   commonAnnotations:
     dgxc.nvidia.com/resource-category: management
   architecture: replicaset
@@ -175,6 +192,11 @@ mongodb:
         - "mongo-server-cert-0"
         - "mongo-server-cert-1"
         - "mongo-server-cert-2"
+    image:
+      registry: docker.m.daocloud.io
+      repository: bitnamilegacy/nginx
+      tag: 1.27.2-debian-12-r2
+      pullPolicy: IfNotPresent
   replicaSetHostnames: true
   extraFlags:
     - "--setParameter"
@@ -191,6 +213,11 @@ mongodb:
     enabled: false
   metrics:
     enabled: true
+    image:
+      registry: docker.m.daocloud.io
+      repository: bitnamilegacy/mongodb-exporter
+      tag: 0.41.2-debian-12-r1
+      pullSecrets: []
     resources:
       requests:
         cpu: 200m
