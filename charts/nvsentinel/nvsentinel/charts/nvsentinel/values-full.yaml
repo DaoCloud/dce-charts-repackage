@@ -1410,12 +1410,6 @@ mongodb-store:
     tolerations: []
     # Tolerations for MongoDB job pods (init jobs, backup jobs)
     jobTolerations: []
-    # Container image configuration
-    image:
-      registry: "docker.m.daocloud.io"
-      repository: "bitnamilegacy/mongodb"
-      tag: "8.0.3-debian-12-r1"
-      pullPolicy: "IfNotPresent"
     # TLS configuration for MongoDB
     # Required for secure communication
     tls:
@@ -1425,20 +1419,10 @@ mongodb-store:
         # See: distros/kubernetes/mongodb-certs/README.md
         existingSecrets:
           - "mongo-server-cert-0"
-      # NGINX image for TLS sidecar
-      image:
-        registry: "docker.m.daocloud.io"
-        repository: "bitnamilegacy/nginx"
-        tag: "1.27.2-debian-12-r2"
-        pullPolicy: "IfNotPresent"
     # MongoDB metrics exporter
     # Exposes MongoDB metrics for Prometheus
     metrics:
       enabled: true
-      image:
-        registry: docker.m.daocloud.io
-        repository: bitnamilegacy/mongodb-exporter
-        tag: 0.41.2-debian-12-r1
 ################################################################################
 # EVENT-EXPORTER CONFIGURATION
 #
