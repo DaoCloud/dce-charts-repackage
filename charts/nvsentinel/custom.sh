@@ -75,14 +75,7 @@ done < <(find . -type f -name 'values*.yaml' -print0)
 while IFS= read -r -d '' values_file; do
   if yq -e 'has("mongodb-store")' "$values_file" >/dev/null 2>&1; then
     yq -i '
-      del(
-        ."mongodb-store".useBitnami,
-        ."mongodb-store".usePerconaOperator,
-        ."mongodb-store".mongodb.helperImages,
-        ."mongodb-store".mongodb.image,
-        ."mongodb-store".mongodb.tls.image,
-        ."mongodb-store".mongodb.metrics.image
-      )
+      del(."mongodb-store".useBitnami, ."mongodb-store".usePerconaOperator)
     ' "$values_file"
   fi
 done < <(find . -type f -name 'values*.yaml' -print0)
@@ -142,23 +135,8 @@ if [ -n "$PSMDB_VALUES" ]; then
   # dependency. The Percona images published for this chart are multi-arch.
   yq -i '
     .useBitnami = false |
-    .usePerconaOperator = true |
-    del(.mongodb.helperImages, .mongodb.image, .mongodb.tls.image, .mongodb.metrics.image)
+    .usePerconaOperator = true
   ' "$PSMDB_VALUES"
-
-  PSMDB_CHART_DIR=$(dirname "$PSMDB_VALUES")
-  if [ -f "$PSMDB_CHART_DIR/Chart.yaml" ]; then
-    yq -i 'del(.dependencies[] | select(.name == "mongodb"))' "$PSMDB_CHART_DIR/Chart.yaml"
-  fi
-  # The lock file would otherwise retain the removed Bitnami dependency and
-  # become inconsistent with the generated Chart.yaml.
-  if [ -f "$PSMDB_CHART_DIR/Chart.lock" ]; then
-    rm -f "$PSMDB_CHART_DIR/Chart.lock"
-  fi
-  BITNAMI_MONGODB_CHART=$(find "$PSMDB_CHART_DIR/charts" -maxdepth 1 -type d -name mongodb -print -quit)
-  if [ -n "$BITNAMI_MONGODB_CHART" ]; then
-    rm -rf "$BITNAMI_MONGODB_CHART"
-  fi
 fi
 
 if [ -n "$PSMDB_VALUES" ] && yq -e '
