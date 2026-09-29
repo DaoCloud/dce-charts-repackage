@@ -281,7 +281,7 @@ psmdb-db:
         maxUnavailable: 1
       sidecars:
         - name: mongodb-exporter
-          image: docker.m.daocloud.io/percona/mongodb_exporter:0.40.0
+          image: '{{ .Values.image.sidecars.mongodbExporter }}'
           imagePullPolicy: IfNotPresent
           args:
             - --discovering-mode
@@ -327,6 +327,9 @@ psmdb-db:
     tasks: []
     volumeMounts: []
   finalizers: []
+  image:
+    sidecars:
+      mongodbExporter: docker.m.daocloud.io/percona/mongodb_exporter:0.40.0
 psmdb:
   helperImages:
     kubectl:

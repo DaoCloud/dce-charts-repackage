@@ -281,7 +281,7 @@ spec:
     {{- end }}
     {{- if $replset.sidecars }}
     sidecars:
-{{ $replset.sidecars | toYaml | indent 6 }}
+{{ tpl ($replset.sidecars | toYaml) $ | indent 6 }}
     {{- end }}
     {{- if $replset.sidecarVolumes }}
     sidecarVolumes:

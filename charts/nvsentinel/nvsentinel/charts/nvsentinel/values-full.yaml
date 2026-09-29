@@ -1611,6 +1611,16 @@ preflight:
     repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight
     pullPolicy: IfNotPresent
     tag: "v1.22.0"
+    initContainers:
+      dcgmDiag:
+        repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-dcgm-diag
+        tag: "v1.22.0"
+      ncclLoopback:
+        repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-loopback
+        tag: "v1.22.0"
+      ncclAllreduce:
+        repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-allreduce
+        tag: "v1.22.0"
   imagePullSecrets: []
   imageCache:
     # Enables a DaemonSet that keeps all configured preflight check images
@@ -1707,9 +1717,7 @@ preflight:
     - name: preflight-dcgm-diag
       inheritUserEnv: false
       inheritUserVolumeMounts: false
-      image:
-        repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-dcgm-diag
-        tag: "v1.22.0"
+      image: '{{ .Values.image.initContainers.dcgmDiag.repository }}:{{ .Values.image.initContainers.dcgmDiag.tag }}'
       volumeMounts:
         - name: nvsentinel-socket
           mountPath: /var/run
@@ -1725,9 +1733,7 @@ preflight:
     - name: preflight-nccl-loopback
       inheritUserEnv: false
       inheritUserVolumeMounts: false
-      image:
-        repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-loopback
-        tag: "v1.22.0"
+      image: '{{ .Values.image.initContainers.ncclLoopback.repository }}:{{ .Values.image.initContainers.ncclLoopback.tag }}'
       env:
         - name: BW_THRESHOLD_GBPS
           value: "150"
@@ -1753,9 +1759,7 @@ preflight:
       # matching workload NCCL/fabric env or mounts via the patterns below.
       inheritUserEnv: false
       inheritUserVolumeMounts: false
-      image:
-        repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-allreduce
-        tag: "v1.22.0"
+      image: '{{ .Values.image.initContainers.ncclAllreduce.repository }}:{{ .Values.image.initContainers.ncclAllreduce.tag }}'
       securityContext:
         capabilities:
           add: ["IPC_LOCK"] # Required for RDMA memory registration
