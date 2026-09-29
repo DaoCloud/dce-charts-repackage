@@ -28,8 +28,8 @@
 # IMPORTANT: These flags control which chart dependencies are loaded.
 # Both must be set correctly to avoid loading unnecessary charts.
 
-useBitnami: true
-usePerconaOperator: false
+useBitnami: false
+usePerconaOperator: true
 # TTL expireAfterSeconds. Default 2592000 (30d); production often 604800 (7d).
 # Also used for external Mongo. Unset/null → 2592000 (int(nil) is 0, immediate expiry).
 # Job name is create-mongodb-database-<seconds>-<scriptHash> (-l app.kubernetes.io/name=create-mongodb-database).
