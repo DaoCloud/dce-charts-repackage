@@ -48,6 +48,4 @@ global:
 postgresql:
   enabled: false
 # Use Percona operator instead of Bitnami
-mongodb-store:
-  useBitnami: false
-  usePerconaOperator: true
+mongodb-store: {}
