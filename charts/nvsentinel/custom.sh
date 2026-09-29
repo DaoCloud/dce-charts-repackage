@@ -21,7 +21,9 @@ export VERSION
 
 # Rewrite both registry-qualified repositories and separate registry/repository
 # image settings. Upstream leaves several component tags empty so they fall back
-# to the chart appVersion; make those tags explicit for relok8s.
+# to the chart appVersion; make those tags explicit for relok8s. NVSentinel's
+# MongoDB store is switched to the vendored Percona Server for MongoDB Operator
+# below because the legacy Bitnami MongoDB image is amd64-only.
 # Keep slurm-drain-monitor's tag unchanged for now. The upstream v1.22.0 release
 # did not publish that image consistently; only its registry is mirrored below.
 mirror_values() {
@@ -65,6 +67,18 @@ mirror_values() {
 # and the Tilt profiles used to exercise optional modules.
 while IFS= read -r -d '' values_file; do
   mirror_values "$values_file"
+done < <(find . -type f -name 'values*.yaml' -print0)
+
+# Keep every shipped values profile on the same Percona implementation. Some
+# Tilt profiles explicitly selected Bitnami upstream; leaving those overrides
+# in place would make the packaged chart use an inactive amd64-only branch.
+while IFS= read -r -d '' values_file; do
+  if yq -e 'has("mongodb-store")' "$values_file" >/dev/null 2>&1; then
+    yq -i '
+      ."mongodb-store".useBitnami = false |
+      ."mongodb-store".usePerconaOperator = true
+    ' "$values_file"
+  fi
 done < <(find . -type f -name 'values*.yaml' -print0)
 
 # Relok8s does not support image paths addressed through list indexes such as
@@ -117,6 +131,15 @@ done < <(find . -path '*/charts/preflight/templates/_helpers.tpl' -type f -print
 # resource. This mirrors the preflight/Velero workaround without changing the
 # chart's public layout.
 PSMDB_VALUES=$(find . -path '*/charts/mongodb-store/values.yaml' -print -quit)
+if [ -n "$PSMDB_VALUES" ]; then
+  # Use the existing Percona implementation instead of the Bitnami MongoDB
+  # dependency. The Percona images published for this chart are multi-arch.
+  yq -i '
+    .useBitnami = false |
+    .usePerconaOperator = true
+  ' "$PSMDB_VALUES"
+fi
+
 if [ -n "$PSMDB_VALUES" ] && yq -e '
   ."psmdb-db".replsets.rs0.sidecars[0].image != null
 ' "$PSMDB_VALUES" >/dev/null 2>&1; then
@@ -144,6 +167,19 @@ while IFS= read -r -d '' template_file; do
     s/(?<![A-Za-z0-9_.-])(?<!m\.daocloud\.io\/)public\.ecr\.aws\//m.daocloud.io\/public.ecr.aws\//g;
   ' "$template_file"
 done < <(find . -path '*/templates/*' -type f \( -name '*.yaml' -o -name '*.yml' -o -name '*.tpl' \) -print0)
+
+# The chart now uses the Percona branch, so remove inactive Bitnami MongoDB
+# entries from the relocation hints and add the Percona helper images used by
+# the database setup job. Keep the hints value-driven so future version bumps
+# continue to follow the chart values.
+if [ -f .relok8s-images.yaml ]; then
+  yq -i '
+    map(select(test("\\.nvsentinel\\.mongodb-store\\.mongodb\\.") | not)) + [
+      "{{ .nvsentinel.mongodb-store.psmdb.helperImages.kubectl.repository }}:{{ .nvsentinel.mongodb-store.psmdb.helperImages.kubectl.tag }}",
+      "{{ .nvsentinel.mongodb-store.psmdb.helperImages.mongosh.repository }}:{{ .nvsentinel.mongodb-store.psmdb.helperImages.mongosh.tag }}"
+    ] | unique | map(. style = "double")
+  ' .relok8s-images.yaml
+fi
 
 # The upstream chart currently does not ship a README.md; add a minimal
 # description for the repackaged chart.

@@ -62,6 +62,8 @@ mongodb-store:
       # The cert-manager init container and metrics exporter URI are
       # automatically adjusted when tls.enabled is false (via tpl conditionals
       # in the mongodb-store subchart values.yaml).
+  useBitnami: false
+  usePerconaOperator: true
 # Disable cert mounts on all NVSentinel components so the Go binaries
 # connect without TLS (clientCertMountPath="" skips cert volume mounts
 # and passes --tls-enabled=false where supported).
