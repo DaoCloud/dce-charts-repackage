@@ -153,9 +153,9 @@ yq -i '
 # rm daemonsethygon.yaml file
 #rm -rf charts/hami/templates/device-plugin/daemonsethygon.yaml
 
-yq -i '.scheduler.serviceMonitor.enable=false' charts/hami/values.yaml
+yq -i 'del(.scheduler.serviceMonitor)' charts/hami/values.yaml
 
-yq -i '.hami.scheduler.serviceMonitor.enable=false' values.yaml
+yq -i 'del(.hami.scheduler.serviceMonitor)' values.yaml
 
 # Prevent users from overriding scheduler-injected GPU envs such as
 # NVIDIA_VISIBLE_DEVICES.
