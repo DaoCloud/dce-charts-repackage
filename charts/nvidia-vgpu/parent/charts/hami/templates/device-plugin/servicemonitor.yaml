@@ -1,0 +1,37 @@
+{{- $legacyServiceMonitorEnabled := dig "serviceMonitor" "enable" false .Values.scheduler }}
+{{- $serviceMonitorEnabled := or .Values.prometheus.enabled $legacyServiceMonitorEnabled }}
+{{- if and .Values.devicePlugin.enabled (not .Values.dra.enabled) (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1/ServiceMonitor") $serviceMonitorEnabled }}
+# Prometheus Service Monitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "hami-vgpu.device-plugin" . }}-metrics-monitor
+  namespace: {{ include "hami-vgpu.namespace" . }}
+  labels:
+    app.kubernetes.io/component: hami-device-plugin
+    operator.insight.io/managed-by: insight
+    {{- include "hami-vgpu.labels" . | nindent 4 }}
+    {{- with .Values.global.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: hami-device-plugin
+      {{- include "hami-vgpu.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - honorLabels: false
+      interval: 15s
+      metricRelabelings:
+        - action: replace
+          sourceLabels:
+            - device_uuid
+          targetLabel: deviceuuid
+      path: /metrics
+      port: monitorport
+      relabelings:
+        - action: replace
+          sourceLabels:
+            - __meta_kubernetes_endpoint_node_name
+          targetLabel: node
+{{- end }}
