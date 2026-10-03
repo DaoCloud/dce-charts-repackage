@@ -57,6 +57,8 @@ Create redis name and version as used by the chart label.
 {{- if $redisHa.enabled -}}
     {{- if $redisHa.haproxy.enabled -}}
         {{- printf "%s-haproxy" (include "redis-ha.fullname" $redisHaContext) | trunc 63 | trimSuffix "-" -}}
+    {{- else -}}
+        {{- include "redis-ha.fullname" $redisHaContext | trunc 63 | trimSuffix "-" -}}
     {{- end -}}
 {{- else -}}
 {{- printf "%s-%s" (include "argo-cd.fullname" .) .Values.redis.name | trunc 63 | trimSuffix "-" -}}
@@ -214,10 +216,19 @@ Argo Configuration Preset Values (Influenced by Values configuration)
 Merge Argo Configuration with Preset Configuration
 */}}
 {{- define "argo-cd.config.cm" -}}
-{{- $config := omit .Values.configs.cm "create" "annotations" -}}
+{{- $config := omit .Values.configs.cm "create" "annotations" "resourceExclusionsAdditional" -}}
 {{- $preset := include "argo-cd.config.cm.presets" . | fromYaml | default dict -}}
-{{- range $key, $value := mergeOverwrite $preset $config }}
+{{- $merged := mergeOverwrite $preset $config -}}
+{{- if .Values.configs.cm.resourceExclusionsAdditional }}
+{{- $existing := get $merged "resource.exclusions" | default "" | trimSuffix "\n" }}
+{{- $additional := .Values.configs.cm.resourceExclusionsAdditional | toYaml }}
+{{- $_ := set $merged "resource.exclusions" (list $existing $additional | compact | join "\n") -}}
+{{- end }}
+{{- range $key, $value := $merged }}
 {{- $fmted := $value | toString }}
+{{- if or (eq $key "url") (eq $key "statusbadge.url") }}
+{{- $fmted = tpl $fmted $ }}
+{{- end }}
 {{- if not (eq $fmted "") }}
 {{ $key }}: {{ $fmted | toYaml }}
 {{- end }}
@@ -257,6 +268,26 @@ Merge Argo Params Configuration with Preset Configuration
 {{- range $key, $value := mergeOverwrite $preset $config }}
 {{ $key }}: {{ toString $value | toYaml }}
 {{- end }}
+{{- end -}}
+
+{{/*
+Return a sha256sum of only the `data` and `stringData` sections of a rendered
+ConfigMap/Secret template, for use in `checksum/*` pod annotations.
+
+Only the config payload is hashed - not the full manifest. The manifest's
+`metadata.labels` includes `helm.sh/chart`, which changes on every chart
+version bump, so hashing the whole manifest would roll all pods on every
+release even when the configuration is unchanged. Hashing only the data keeps
+a pure version bump a no-op for the pods, while any real config change still
+rolls them. Ref: https://github.com/argoproj/argo-helm/issues/3958
+
+Usage:
+  checksum/cm: {{ include "argo-cd.config.checksum" (dict "context" $ "path" "/argocd-configs/argocd-cm.yaml") }}
+*/}}
+{{- define "argo-cd.config.checksum" -}}
+{{- $rendered := include (print .context.Template.BasePath .path) .context | fromYaml -}}
+{{- $data := merge (dict) (dig "data" dict $rendered) (dig "stringData" dict $rendered) -}}
+{{- $data | toYaml | sha256sum -}}
 {{- end -}}
 
 {{/*
@@ -312,11 +343,20 @@ name: "argocd-redis" # hard-coded in Job command and embedded Redis deployments 
 key: auth
 optional: false # Secret is not optional in this case !
 
+    {{- else if (index .Values "redis-ha").enabled -}}
+    {{- /* Embedded redis-ha with disabled pre-install Job: resolve the Secret name and key the same way the redis-ha subchart does */ -}}
+    {{- $redisHa := (index .Values "redis-ha") -}}
+    {{- $redisHaContext := dict "Chart" (dict "Name" "redis-ha") "Release" .Release "Template" .Template "Values" $redisHa -}}
+name: {{ default (include "redis-ha.fullname" $redisHaContext) (tpl ($redisHa.existingSecret | default "") $redisHaContext) }}
+key: {{ $redisHa.authKey }}
+optional: true
+
     {{- else -}}
     {{- /* All other use cases (e.g. disabled pre-install Job) */ -}}
-name: "argocd-redis"
+    {{- /* Secret is required when specifying redis.existingSecret, otherwise it is optional */ -}}
+name: {{ default "argocd-redis" .Values.redis.existingSecret }}
 key: auth
-optional: true
+optional: {{ if .Values.redis.existingSecret }}false{{ else }}true{{ end }}
     {{- end -}}
 {{- end -}}
 
