@@ -9,8 +9,8 @@ data:
     kind: DeschedulerConfiguration
     enableContentionProfiling: true
     enableProfiling: true
-    healthzBindAddress: 0.0.0.0:10251
-    metricsBindAddress: 0.0.0.0:10251
+    healthzBindAddress: 0.0.0.0:{{ .Values.descheduler.port }}
+    metricsBindAddress: 0.0.0.0:{{ .Values.descheduler.port }}
     leaderElection:
       resourceLock: leases
       resourceName: koord-descheduler
@@ -38,6 +38,15 @@ data:
           apiVersion: descheduler/v1alpha2
           kind: MigrationControllerArgs
           evictionPolicy: Eviction
+          # skipEvictionGates provides a unified bypass mechanism for gates/filters/throttlers
+          # evaluated before eviction/migration.
+          # skipEvictionGates:
+          #   - MaxMigratingGlobally
+          #   - MaxMigratingPerNode
+          #   - MaxMigratingPerNamespace
+          #   - MaxMigratingPerWorkload
+          #   - MaxUnavailablePerWorkload
+          #   - ExpectedReplicas
           namespaces:
             exclude:
               - kube-system
