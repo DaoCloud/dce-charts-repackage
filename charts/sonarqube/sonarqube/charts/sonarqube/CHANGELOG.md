@@ -1,6 +1,254 @@
 # SonarQube Chart Changelog
 All changes to this chart will be documented in this file.
 
+## [2026.5.1001]
+* Upgrade Chart's version to 2026.5.1001
+* Upgrade SonarQube Server to 2026.5.1
+
+## [2026.5.1000]
+* Upgrade Chart's version to 2026.5.1000
+* Decouple the chart's `version` from `appVersion`: it now follows `<SonarQube major>.<minor>.<patch counter>`, with the counter starting at `1000` per minor line
+* Upgrade SonarQube Server to 2026.5.0
+* Upgrade SonarQube Community build to 26.9.0.129388
+* **Breaking**: The chart now manages liveness/readiness probe handlers; legacy `exec`/`httpGet`/`tcpSocket`/`grpc` values are ignored, use `overrideCommand` instead
+* Set a default MCP pod `securityContext` (`fsGroup: 0`), `HOME=/data` and an optional `mcp.initContainers` hook so the non-root MCP server can write to `/data`
+* **Breaking**: Remove the deprecated `ingress-nginx.enabled`/`nginx.enabled` bundled ingress-nginx controller subchart dependency. `ingress.enabled` remains supported for use with a self-managed ingress controller; `httproute.enabled` (Gateway API) is also available
+* Add `gateway-api-migration-scripts/nginx-to-istio-migration.sh` to help migrate from the bundled ingress-nginx controller to Gateway API
+* Update MCP image to `sonarsource/sonarqube-mcp:2026.5.0`
+* Add the Agent Orchestrator image `sonarsource/sonarqube-agent-orchestrator:2026.5.0`
+* Add the Hunter Agent image `sonarsource/sonarqube-hunter-agent:2026.5.0`
+* Add the Remediation Agent image `sonarsource/sonarqube-remediation-agent:2026.5.0`
+* Add the Vortex image `sonarsource/sonar-vortex:2026.5.0`
+* Add optional gVisor (runsc) sandboxing for the agent runtimes
+* Add the SonarQube Agent Orchestrator, Hunter Agent and Remediation Agent via `agentOrchestrator.enabled`, `hunterAgent.enabled` and `remediationAgent.enabled`; the agent runtimes get their own ServiceAccount by default (`<hunterAgent|remediationAgent>.serviceAccount.create`), not the top-level one
+* Set the Hunter Agent's `SCRIPT_PATH` (detection mode) from `hunterAgent.scriptPath`
+* Default the Hunter Agent's `PLAYBOOK_KEY`/`PLAYBOOK_VERSION` to `appsec`/`stable` via `hunterAgent.playbookKey`/`playbookVersion`
+* Add `agentOrchestrator.env`/`extraVolumes`/`extraVolumeMounts` and a FILESYSTEM/NFS backend for the shared agentic job storage (`agentOrchestrator.storage.type`)
+* Add autoscaling for the Agent Orchestrator (CPU/memory HPA) and the Hunter/Remediation Agent runtimes (KEDA `ScaledObject`) via `<component>.autoscaling`
+* Add an optional KEDA operator subchart dependency (`keda.enabled`) to install KEDA together with the release
+* Ship default resource requests and limits for the Hunter Agent and Vortex so neither runs in the BestEffort QoS class
+* Point the Agent Orchestrator and agent runtime probes at `/readyz`/`/livez` instead of `/health`, and add `agentOrchestrator.terminationGracePeriodSeconds`
+* Add `<hunterAgent|remediationAgent>.storage` to scope each agent runtime to its own subtree of a shared FILESYSTEM/NFS job storage
+* Upgrade the bundled JMX Prometheus Exporter to 1.6.0; versions 1.1.0 and later download from GitHub Releases, earlier ones from Maven Central
+* Add `prometheusExporter.metricsPath` (default `/metrics`) and optional `prometheusExporter.sha256` download verification
+* Default exporter downloads from GitHub require access to `github.com` and `release-assets.githubusercontent.com`
+* **Breaking**: Built-in JVM metrics use OpenMetrics names (e.g. `jvm_memory_bytes_used` is now `jvm_memory_used_bytes`); `config.rules` metrics are unaffected
+* **Breaking**: The default exporter scrape path is now `/metrics` instead of `/`; set `prometheusExporter.metricsPath: /` to keep the old path
+* Sandbox the agent runtimes with Kata Containers instead of gVisor on OpenShift via `OpenShift.agentRuntimeClassName` (default `kata`); the RuntimeClass must exist
+* Target `openshift-dns` on port 5353 (UDP/TCP) in the NetworkPolicy DNS egress rules when `OpenShift.enabled` is `true`; the `kube-dns` rule never matched there
+* Add KEDA-based autoscaling for Vortex (`vortexAnalysis.autoscaling`) on its concurrent-request metric; requires KEDA `>= 2.20.0`
+* Allow a fractional `vortexAnalysis.autoscaling.targetConcurrentRequests` (e.g. `1.5`), as KEDA parses it as a float
+* Stop emitting the Vortex `ScaledObject`'s `spec.fallback` with `aggregateAcrossReplicas: false`, where KEDA < 2.17 scaled the fleet down on scrape failure
+* Fix `caCerts.configMap` mounting a single certificate; omitting `configMap.key`/`path` now imports every key, and `path` without `key` fails fast
+* Add `istio.enabled` to run every chart-owned workload under STRICT mTLS, and `istio.meshSidecar.enabled` to give sandboxed agent runtimes a mesh identity
+* Add `mcp.nodeSelector`/`affinity`/`tolerations` (falling back to the chart-wide values) and `mcp.topologySpreadConstraints`; `priorityClassName` now also applies to MCP
+* Add `topologySpreadConstraints` for Vortex, the Agent Orchestrator and the agent runtimes, and apply the chart-wide `priorityClassName` to them
+* Fix `jvmOpts`/`jvmCeOpts` being dropped instead of merged when `sonar.web.javaOpts`/`sonar.ce.javaOpts` is also set in `sonarProperties`
+* Raise the default probe `timeoutSeconds` to `5` so the `sh`/`curl` exec probe is not killed under CPU contention
+* Agent runtimes reach the Agent Egress Proxy by ClusterIP instead of DNS, dropping their kube-dns egress; recreating the proxy Service requires restarting them
+* Add `istio.istiodClusterIP` (default `auto`) to pin istiod's address in agent runtime pods and drop their kube-dns egress; `helm template` needs it set
+* Add `istio.revision` to target a revisioned (canary) Istio control plane's `istiod-<revision>` Service
+* `vortexAnalysis.enabled` now defaults to `true` when `remediationAgent.enabled` is `true`
+* Raise the Remediation Agent's default `runAsUser`/`runAsGroup` from `1000` to `10001`, fixing incomplete generated PR content
+* Support Oracle and Microsoft SQL Server for the Agent Orchestrator: it now gets the full JDBC URL (`CORE_DB_JDBC_URL`, overridable with `agentOrchestrator.coreDb.jdbcUrl`), and the Oracle driver from `jdbcOverwrite.oracleJdbcDriver.url` is installed in its pod
+* Fix the `install-oracle-jdbc-driver` init container keeping `runAsUser`/`runAsGroup` on OpenShift, which kept the restricted-v2 SCC from admitting the SonarQube pod
+* Raise the default `resources.requests.memory` to `4096M` and `resources.limits.memory` to `10240M` to fit the higher SonarQube Server 2026.5 Web/CE heap defaults
+* Supported Kubernetes versions are now 1.34 to 1.37 and OpenShift 4.19 to 4.22
+
+## [2026.4.0]
+* Upgrade Chart's version to 2026.4.0
+* Upgrade SonarQube Server to 2026.4.0
+* Upgrade SonarQube Community build to 26.7.0.124771
+* Add CA certificate support with multi-cert bundling to `install-plugins` init container for plugin downloads from servers using self-signed or private CA certificates
+* Fix multi-cert CA bundle handling in `install-oracle-jdbc-driver` init container
+* Fix `ca-certs` init container failing with "keytool: Permission denied" on base images whose JVM keystore is read-only, by making the keystore working copy writable
+* Fix NetworkPolicy blocking IPv6 egress by allowing `::/0`
+
+## [2026.3.1]
+* Upgrade Chart's version to 2026.3.1
+* Upgrade SonarQube Server to 2026.3.1
+
+## [2026.3.0]
+* Upgrade Chart's version to 2026.3.0
+* Upgrade SonarQube Server to 2026.3.0
+* Upgrade SonarQube Community build to 26.5.0.122743
+* Add MCP (Model Context Protocol) server support via `mcp.enabled`
+* Fix MCP init container and SONARQUBE_URL to respect `sonarWebContext` when non-root
+* Update MCP image to `sonarsource/sonarqube-mcp:1.22.0.3040`
+
+## [2026.2.0]
+* Upgrade Chart's version to 2026.2.0
+* Upgrade SonarQube Server to 2026.2.0
+* Update ingress-nginx subchart to 4.14.3
+* Upgrade SonarQube Community build to 26.3.0.120487
+* Replace wget with curl in health probes
+* Use -fS flag in curl to show errors in liveness probes
+
+## [2026.1.0]
+* Upgrade SonarQube Server to 2026.1.0
+* Upgrade Chart's version to 2026.1.0
+* Upgrade SonarQube Community build to 26.1.0.118079
+* Remove PostgreSQL embedded chart dependency and related settings
+* Support Kubernetes v1.35
+* Support Openshift v4.20
+* Update ingress-nginx subchart to 4.14.1
+* Deprecate the ingress-nginx dependency
+
+## [2025.6.0]
+* Upgrade SonarQube Server to to 2025.6.0
+* Update Chart's version to 2025.6.0
+* Upgrade SonarQube Community Build to 25.12.0.117093
+* Disable Postgresql when the JDBC overwrite is used
+* Make SonarQube Server available as an Container App on the Azure Marketplace
+
+## [2025.5.0]
+* Upgrade SonarQube Server to to 2025.5.0
+* Update Chart's version to 2025.5.0
+* Upgrade SonarQube Community Build to 25.9.0.112764
+* Update the image and readinessProbe used by postgresql after they migrated to a legacy repository
+* Support Kubernetes v1.34.0
+* Make SonarQube Server available as an Container App on the Azure Marketplace
+* Disable Postgresql when the JDBC overwrite is used
+
+## [2025.4.0]
+* Update Chart's version to 2025.4.0
+* Upgrade SonarQube Server to to 2025.4.0
+* Upgrade SonarQube Community Build to 25.7.0.110598
+* Upgrade nginx subchart to 4.12.3
+* Support Kubernetes v1.32
+* Add the possibility of to save the data with hostpath
+
+## [2025.3.1]
+* Update Chart's version to 2025.3.1
+* Upgrade SonarQube Server to 2025.3.1
+
+## [2025.3.0]
+* Update Chart's version to 2025.3.0
+* Upgrade SonarQube Community Build to 25.5.0.107428
+* Normalizes the extension for all templates
+* Remove example about non-system sonar.properties
+* Fix change-admin-password hook when using special characters
+* Upgrade SonarQube Server to 2025.3.0
+
+## [2025.2.0]
+* Update Chart's version to 2025.2.0
+* Update ingress-nginx subchart to 4.12.1
+* Upgrade SonarQube Server to 2025.2.0
+
+## [2025.1.0]
+* Update Chart's version to 2025.1.0
+* Upgrade SonarQube Server to 2025.1.0
+* Upgrade SonarQube Community Build to 25.1.0.102122
+* Update ingress-nginx subchart to 4.11.3
+* Support Kubernetes v1.32
+* Remove the default passcode provided with `monitoringPasscode`
+* Support Openshift v4.17
+* Improves editions and versions setting for sonarqube chart
+
+## [10.8.1]
+* Update Chart's version to 10.8.1
+* Remove immutable labels selector `app.kubernetes.io/name` and `app.kubernetes.io/version` as it breaks upgrades
+* set `image.tag` empty in default value file, `image.tag` is dynamically set according to the `edition` and `community` fields. user-defined have precedence
+
+## [10.8.0]
+* Update Chart's version to 10.8.0
+* Upgrade SonarQube Server to 10.8.0
+* Release SonarQube Community Build 24.12
+* Support the installation of the Oracle JDBC Driver
+* Support Kubernetes v1.31
+* Deprecate the `community` value for the `edition` parameter
+* Introduce the `community.enabled` and `community.buildNumber` parameters for SonarQube Community Build
+* Deprecate the default value of `image.tag` in favor of an empty string
+* Update the Chart's icon with the SonarQube Server logo
+* Set `app.kubernetes.io/name` and `app.kubernetes.io/version` as selector labels
+* Support Gateway on different namespace in HTTPRoute
+* Change `ingress.ingressClassName` default, set it to `nginx` if `nginx.enabled` or `ingress-nginx.enabled`
+* Ensure that ConfigMap resources are not created for `initFS` and `initSysctl` if not needed
+* Ensure the Pod will stop at `init` stage if init_sysctl.sh failed to modify kernel parameters
+* Replace the example images in initContainers, initSysctl and initFs from `busybox:1.36` to `ubuntu:24.04`, which are commented out by default
+* Make the `automountServiceAccountToken` configurable with `serviceAccount.automountToken` in PodSpec
+* Deprecate `sonarqubeFolder`, `jdbcOverwrite.jdbcPassword` and `terminationGracePeriodSeconds`
+* Deprecate `deploymentStrategy.type`, which will be set to `Recreate`
+* Deprecate `account`, `curlContainerImage`, `adminJobAnnotations`
+* Deprecate the StatefulSet deployment type
+
+## [10.7.0]
+* Update Chart's version to 10.7.0
+* Upgrade SonarQube to 10.7.0
+* Support Kubernetes v1.30
+* Upgrade ingress-nginx dependency to 4.10.1
+* Deprecate `jdbcOverwrite.enable` in favor of `jdbcOverwrite.enabled`
+* Fix regression on env valuesFrom in the new STS template
+* Fix a typo in the new common STS template
+* Enable the setup of ReadOnlyRootFilesystem in the security contexts
+* Support basic chart installation on Openshift
+* Include remaining Route settings
+* Fix networkPolicy.additionalPolicys typo
+* Support install-plugin and prometheusExporter proxy variables in secret
+* Support GatewayAPI HttpRoute
+* Support additional labels in the PodMonitor
+* Support Openshift SCCv2 by default when Openshift.enabled=true
+* Deprecate Openshift.createSCC
+* Support additional CA Certificate as ConfigMap instead of Secret only
+* Changed default value for caCerts.image
+* Fix openshift change-admin-password-hook Job SecurityContext failure
+* Support SONAR_OPENSHIFT telemetry env_var
+* Update helm chart repo path in sources
+* Changed SONAR_OPENSHIFT to IS_HELM_OPENSHIFT_ENABLED
+* Remove socketTimeout from jdbcOverwrite.jdbcUrl's default value
+* Refactor Route to be subparameter of OpenShift
+* Make OpenShift.createSCC false by default
+* Deprecate peristence.volumes and persistence.mounts in favor or extraVolumes and extraVolumeMounts
+* Ensure kubernetes.io/version label is smaller than 63 chars
+
+## [10.6.0]
+* Update SonarQube to 10.6.0
+* Update Chart's version to 10.6.0
+* Fix the env-var templating when sourcing from secrets
+* Fix the postgresql chart's repository link
+* Add support for overriding liveness/readiness probe logic
+* Use a common template for Deployment and StatefulSet
+
+## [10.5.0]
+* Upgrade SonarQube to 10.5.0
+* Update Chart's version to 10.5.0
+* Update nginx-ingress-controller dependency to version 4.9.1
+* Set `automountServiceAccountToken` to false in pod's specifications
+* Update default `resources` values matching better default Xmx and Xms of the SonarQube processes.
+* Make `ephemeral-storage` resource's limits and requests configurable for the SonarQube container
+* Set memory and cpu limits for the test container
+* Deprecate nginx.enabled in favor of ingress-nginx.enabled, to match with subchart config block
+* Deprecate `prometheusMonitoring.podMonitor.namespace`
+* Instantiate `monitoring-web` and `monitoring-ce` endpoints when the `prometheusExporter` is enabled
+* Take `sonarWebContext` into account for the `PodMonitor` path
+* Fix duplicated env_var in Pods causing deployment issue (`SONAR_WEB_CONTEXT`,`SONAR_WEB_JAVAOPTS`,`SONAR_CE_JAVAOPTS`)
+
+## [10.4.0]
+* Upgrade SonarQube to 10.4.0
+* Update Chart's version to 10.4.0
+* Improve the description of deprecated `jvmOpts` and `jvmCeOpts` values
+* Run the initSysctl init-container as root to prevent 'permission denied' issues
+* Add revisionHistoryLimit configuration for SonarQube application Deployment ReplicaSets & StatefulSets
+* Update the security contexts to use root as group ID
+* Fix empty ingress annotations in values
+* Add support for dual stack and IPv6 single stack clusters in readiness/liveness probes
+
+## [10.3.0]
+* Upgrade SonarQube to 10.3.0
+* Update Chart's version to 10.3.0
+* Update default images to the latest versions
+* Remove the nginx-proxy-body annotation when nginx is disabled
+* Enable post-upgrade in the change-admin-password hook
+* Update default ContainerSecurityContext, InitContainerSecurityContext and postgresql.securityContext to match restricted podSecurityStandard
+* Update initFs defaut securityContext to match baseline podSecurityStandard
+* Update Elasticsearch.configureNode to false by default after 3 year deprecation
+* Fix wrong condition on initSysctl feature
+* Update default image of initContainers to sonarqube image, allowing for faster loading time and less external images needed
+* Support Kubernetes v1.28
+* Avoid duplicate SONAR_WEB_SYSTEMPASSCODE secrets
+* Deprecate embedded PostgreSQL
+* Update nginx-ingress-controller dependency to version 4.8.3, please carefully read the changelog of this new major version.
+
 ## [10.2.0]
 * Update SonarQube to 10.2.0
 * Update Chart's version to 10.2.0
