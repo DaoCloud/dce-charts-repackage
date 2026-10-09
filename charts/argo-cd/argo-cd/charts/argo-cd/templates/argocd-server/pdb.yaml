@@ -1,4 +1,4 @@
-{{- if .Values.server.pdb.enabled }}
+{{- if and (include "argo-cd.server.enabled" .) .Values.server.pdb.enabled }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
@@ -20,6 +20,9 @@ spec:
   maxUnavailable: {{ . }}
   {{- else }}
   minAvailable: {{ .Values.server.pdb.minAvailable | default 0 }}
+  {{- end }}
+  {{- with .Values.server.pdb.unhealthyPodEvictionPolicy }}
+  unhealthyPodEvictionPolicy: {{ . }}
   {{- end }}
   selector:
     matchLabels:
