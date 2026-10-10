@@ -11,6 +11,9 @@
                         "clustercolocationprofiles": {
                             "type": "boolean"
                         },
+                        "clusternetworktopologies": {
+                            "type": "boolean"
+                        },
                         "devices": {
                             "type": "boolean"
                         },
@@ -43,6 +46,9 @@
                         },
                         "reservations": {
                             "type": "boolean"
+                        },
+                        "scheduleexplanations": {
+                            "type": "boolean"
                         }
                     }
                 },
@@ -73,6 +79,9 @@
                                     "type": "string"
                                 }
                             }
+                        },
+                        "monitorEnabled": {
+                            "type": "boolean"
                         },
                         "nodeAffinity": {
                             "type": "object"
@@ -115,6 +124,60 @@
                         },
                         "tolerations": {
                             "type": "array"
+                        }
+                    }
+                },
+                "deviceDaemon": {
+                    "type": "object",
+                    "properties": {
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "log": {
+                            "type": "object",
+                            "properties": {
+                                "level": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "nodeAffinity": {
+                            "type": "object"
+                        },
+                        "resources": {
+                            "type": "object",
+                            "properties": {
+                                "limits": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "requests": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -166,6 +229,9 @@
                                     "type": "string"
                                 },
                                 "kubeletLibDir": {
+                                    "type": "string"
+                                },
+                                "podResourcesProxyPath": {
                                     "type": "string"
                                 },
                                 "predictionCheckpointDir": {
@@ -340,6 +406,28 @@
                         "compatibleBelow122FeatureGates": {
                             "type": "string"
                         },
+                        "deviceShare": {
+                            "type": "object",
+                            "properties": {
+                                "gpuShareUnsupportedModels": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "model": {
+                                                "type": "string"
+                                            },
+                                            "vendor": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "enableJobPreemption": {
+                            "type": "boolean"
+                        },
                         "featureGates": {
                             "type": "string"
                         },
@@ -364,6 +452,9 @@
                                     "type": "string"
                                 }
                             }
+                        },
+                        "monitorEnabled": {
+                            "type": "boolean"
                         },
                         "nodeAffinity": {
                             "type": "object"
@@ -433,6 +524,9 @@
                                     "type": "string"
                                 },
                                 "pods": {
+                                    "type": "string"
+                                },
+                                "reservations": {
                                     "type": "string"
                                 }
                             }
