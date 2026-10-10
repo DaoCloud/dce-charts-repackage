@@ -22,6 +22,14 @@ vela-core:
   ## @param workflow.enableSuspendOnFailure Enable suspend on workflow failure
   ## @param workflow.enableExternalPackageForDefaultCompiler Enable external package for default cuex compiler
   ## @param workflow.enableExternalPackageWatchForDefaultCompiler Enable external package watch for default cuex compiler
+  ## @param workflow.enableCUEVersionCompatibility Automatically rewrite legacy CUE syntax in stored definitions at render time
+  ## @param workflow.cueCompatibilityCacheSize Maximum number of CUE templates to cache after version compatibility rewriting (0 disables caching)
+  ## @param workflow.cueUpgradeListConcatEnabled Enable list concat/list arithmetic compatibility rewrite pass
+  ## @param workflow.cueUpgradeErrorFieldLabelEnabled Enable error field-label compatibility rewrite pass
+  ## @param workflow.cueUpgradeBoolDefaultGuardEnabled Enable bool default-guard hazard compatibility rewrite pass
+  ## @param workflow.cueUpgradeGenericDefaultGuardEnabled Enable generic default-guard hazard compatibility rewrite pass
+  ## @param workflow.cueUpgradeKeepValidatorsSingletonEnabled Enable keepvalidators singleton concretization compatibility pass
+  ## @param workflow.cueUpgradeEvalv3SelfRefGuardEnabled Enable evalv3 self-reference default-guard compatibility rewrite pass
   ## @param workflow.backoff.maxTime.waitState The max backoff time of workflow in a wait condition
   ## @param workflow.backoff.maxTime.failedState The max backoff time of workflow in a failed condition
   ## @param workflow.step.errorRetryTimes The max retry times of a failed workflow step
@@ -29,6 +37,14 @@ vela-core:
     enableSuspendOnFailure: false
     enableExternalPackageForDefaultCompiler: true
     enableExternalPackageWatchForDefaultCompiler: false
+    enableCUEVersionCompatibility: true
+    cueCompatibilityCacheSize: 512
+    cueUpgradeListConcatEnabled: true
+    cueUpgradeErrorFieldLabelEnabled: true
+    cueUpgradeBoolDefaultGuardEnabled: false
+    cueUpgradeGenericDefaultGuardEnabled: false
+    cueUpgradeKeepValidatorsSingletonEnabled: false
+    cueUpgradeEvalv3SelfRefGuardEnabled: false
     backoff:
       maxTime:
         waitState: 60
@@ -46,7 +62,7 @@ vela-core:
   ## @param image.pullPolicy Image pull policy
   image:
     repository: oamdev/vela-core
-    tag: v1.10.8
+    tag: v1.11.0
     pullPolicy: Always
     registry: docker.m.daocloud.io
   ## @param resources.limits.cpu KubeVela controller's cpu limit
@@ -60,6 +76,8 @@ vela-core:
     requests:
       cpu: 50m
       memory: 20Mi
+  ## @param extraEnvs Extra environment variables to inject into the KubeVela controller container
+  extraEnvs: []
   ## @param webhookService.type KubeVela webhook service type
   ## @param webhookService.port KubeVela webhook service port
   webhookService:
@@ -114,6 +132,9 @@ vela-core:
   ##@param featureGates.enableCueValidation enable the strict cue validation for cue required parameter fields
   ##@param featureGates.enableApplicationStatusMetrics enable application status metrics and structured logging
   ##@param featureGates.validateResourcesExist enable webhook validation to check if resource types referenced in definition templates exist in the cluster
+  ##@param featureGates.enableApplicationScopedPolicies enable Application-scoped PolicyDefinitions that transform Application CR before rendering (Alpha)
+  ##@param featureGates.enableGlobalPolicies enable automatic discovery and application of global PolicyDefinitions to all Applications (Alpha)
+  ##@param featureGates.enableCueExpVariable inject the CUE_EXPERIMENT env var (evalv3=0,keepvalidators=0) into the controller to disable experimental CUE features during the v0.14.x migration window
   ##@param
   featureGates:
     gzipResourceTracker: false
@@ -132,6 +153,9 @@ vela-core:
     enableCueValidation: false
     enableApplicationStatusMetrics: false
     validateResourcesExist: false
+    enableApplicationScopedPolicies: false
+    enableGlobalPolicies: false
+    enableCueExpVariable: true
   ## @section MultiCluster parameters
 
   ## @param multicluster.enabled Whether to enable multi-cluster
@@ -243,6 +267,8 @@ vela-core:
   logFilePath: ""
   ## @param logFileMaxSize Defines the maximum size a log file can grow to. Unit is megabytes. If the value is 0, the maximum file size is unlimited.
   logFileMaxSize: 1024
+  ## @param admissionWebhookTimeout Timeout seconds for admission webhooks
+  admissionWebhookTimeout: 10
   ## @skip admissionWebhooks
   admissionWebhooks:
     enabled: true
@@ -306,4 +332,4 @@ vela-core:
   global:
     imageRegistry: docker.m.daocloud.io
     repository: oamdev/vela-core
-    tag: v1.10.8
+    tag: v1.11.0

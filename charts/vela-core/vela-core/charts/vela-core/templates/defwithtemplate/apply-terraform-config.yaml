@@ -17,7 +17,6 @@ spec:
         	"vela/kube"
         	"vela/builtin"
         )
-
         apply: kube.#Apply & {
         	$params: value: {
         		apiVersion: "terraform.core.oam.dev/v1beta2"
