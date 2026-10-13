@@ -55,7 +55,7 @@ argo-cd:
       # -- If defined, a repository applied to all Argo CD deployments
       repository: argoproj/argocd
       # -- Overrides the global Argo CD image tag whose default is the chart appVersion
-      tag: "v3.3.4"
+      tag: "v3.3.5"
       # -- If defined, a imagePullPolicy applied to all Argo CD deployments
       imagePullPolicy: IfNotPresent
       registry: quay.m.daocloud.io
@@ -395,6 +395,7 @@ argo-cd:
           - ClusterBackgroundScanReport
           - UpdateRequest
       accounts.amamba: apiKey
+      accounts.infery: apiKey
     # Argo CD configuration parameters
     ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cmd-params-cm.yaml
     params:
@@ -420,7 +421,9 @@ argo-cd:
       policy.default: ''
       # -- File containing user-defined policies and role definitions.
       # @default -- `''` (See [values.yaml])
-      policy.csv: 'g, amamba, role:admin'
+      policy.csv: |-
+        g, amamba, role:admin
+        g, infery, role:admin
       # Policy rules are in the form:
       #  p, subject, resource, action, object, effect
       # Role definitions and bindings are in the form:
@@ -1744,7 +1747,7 @@ argo-cd:
       repository: "argoproj/argocd" # defaults to global.image.repository
       # -- Tag to use for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.tag)
-      tag: "v3.3.4" # defaults to global.image.tag
+      tag: "v3.3.5" # defaults to global.image.tag
       # -- Image pull policy for the Redis secret-init Job
       # @default -- `""` (defaults to global.image.imagePullPolicy)
       imagePullPolicy: "" # IfNotPresent

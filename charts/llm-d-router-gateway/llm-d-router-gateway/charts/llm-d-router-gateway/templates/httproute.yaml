@@ -17,6 +17,7 @@ spec:
     - group: inference.networking.k8s.io
       kind: InferencePool
       name: {{ .Release.Name }}
+      weight: 1
     matches:
     - path:
         type: PathPrefix

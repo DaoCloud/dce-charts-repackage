@@ -8,7 +8,7 @@ router:
     image:
       registry: ghcr.m.daocloud.io
       repository: llm-d/llm-d-router-endpoint-picker
-      tag: v0.10.0
+      tag: v0.11.0
       pullPolicy: IfNotPresent
     resources:
       requests:
@@ -24,13 +24,13 @@ router:
       image:
         registry: ghcr.m.daocloud.io/llm-d
         repository: llm-d-latency-predictor-training-server
-        tag: v0.10.0
+        tag: v0.8.0
         pullPolicy: IfNotPresent
     predictionServers:
       image:
         registry: ghcr.m.daocloud.io/llm-d
         repository: llm-d-latency-predictor-prediction-server
-        tag: v0.10.0
+        tag: v0.8.0
         pullPolicy: IfNotPresent
 # Gateway provider selection.
 # This section configures the gateway implementation only; it is not a generic infrastructure provider setting.

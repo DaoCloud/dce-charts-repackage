@@ -171,10 +171,12 @@ yq -i '
   .argo-cd.redisSecretInit.resources.limits.memory = "1024Mi"
 ' values.yaml
 
-# replace amamba rbac
+# replace amamba and infery rbac
 yq -i '
   .argo-cd.configs.cm["accounts.amamba"]="apiKey" |
-  .argo-cd.configs.rbac["policy.csv"]="g, amamba, role:admin" |
+  .argo-cd.configs.cm["accounts.infery"]="apiKey" |
+  .argo-cd.configs.rbac["policy.csv"]="g, amamba, role:admin\ng, infery, role:admin" |
+  .argo-cd.configs.rbac["policy.csv"] style="literal" |
   .argo-cd.redis-ha.exporter.enabled=false
 ' values.yaml
 
