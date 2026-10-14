@@ -1,0 +1,14 @@
+apiVersion: v2
+appVersion: v0.8.0
+description: A Helm chart for Kubernetes
+name: lws
+type: application
+version: 0.8.0
+dependencies:
+  - name: lws
+    version: "0.8.0"
+    repository: "oci://registry.k8s.io/lws/charts"
+keywords:
+  - ai
+  - workload
+  - lws

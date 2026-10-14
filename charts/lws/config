@@ -1,0 +1,16 @@
+export USE_OPENSOURCE_CHART=false
+
+export REPO_URL=oci://registry.k8s.io/lws/charts
+export REPO_NAME=lws
+export CHART_NAME=lws
+export VERSION=0.8.0
+
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=learner0810
+export TEST_ASSIGNER=learner0810
+export DAOCLOUD_REPO_PROJECT=addon
+
+# Adapt images and set controller resource requests/limits.
+export CUSTOM_SHELL=custom.sh
+
+export NO_TRIVY=true
