@@ -1,6 +1,6 @@
 {{- $legacyServiceMonitorEnabled := dig "serviceMonitor" "enable" false .Values.scheduler }}
 {{- $serviceMonitorEnabled := or .Values.prometheus.enabled $legacyServiceMonitorEnabled }}
-{{- if and .Values.devicePlugin.enabled (not .Values.dra.enabled) (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1/ServiceMonitor") $serviceMonitorEnabled }}
+{{- if and .Values.devicePlugin.enabled (not (and .Values.dra .Values.dra.enabled)) (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1/ServiceMonitor") $serviceMonitorEnabled }}
 # Prometheus Service Monitor
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
