@@ -25,6 +25,10 @@ tar -xzf ${CURRENT_DIR_PATH}/file/metax-operator-${VERSION}.tgz -C ${CURRENT_DIR
 echo "copy parent files to metax-operator"
 cp -rf ${CURRENT_DIR_PATH}/parent/. ${CURRENT_DIR_PATH}/metax-operator/
 
+CHART_VERSION="${CUSTOM_VERSION:-${VERSION}}"
+echo "set chart version to ${CHART_VERSION}"
+yq -i ".version = \"${CHART_VERSION}\"" ${CURRENT_DIR_PATH}/metax-operator/Chart.yaml
+
 VALUES_FILE="${CURRENT_DIR_PATH}/metax-operator/charts/metax-operator/values.yaml"
 
 echo "patch ${VALUES_FILE}"
