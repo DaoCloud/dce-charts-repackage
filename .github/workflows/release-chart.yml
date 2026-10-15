@@ -50,28 +50,28 @@ jobs:
         run: |
           if ${{ inputs.project != '' }} ; then
               echo "trigger by workflow_call"
-              echo ::set-output name=project::${{ inputs.project }}
-              echo ::set-output name=release::true
-              echo ::set-output name=ref::${{ inputs.ref }}
-              echo ::set-output name=publishversion::true
+              echo "project=${{ inputs.project }}" >> "$GITHUB_OUTPUT"
+              echo "release=true" >> "$GITHUB_OUTPUT"
+              echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
+              echo "publishversion=true" >> "$GITHUB_OUTPUT"
           elif ${{ github.event_name == 'workflow_dispatch' }} ; then
               echo "call by self workflow_dispatch"
               if ${{ github.event.inputs.project == '' }} ; then
-                  echo ::set-output name=project::all
+                  echo "project=all" >> "$GITHUB_OUTPUT"
               else
-                  echo ::set-output name=project::${{ github.event.inputs.project }}
+                  echo "project=${{ github.event.inputs.project }}" >> "$GITHUB_OUTPUT"
               fi
               # release to github pages
-              echo ::set-output name=release::${{ github.event.inputs.daocloud }}
-              echo ::set-output name=ref::${{ github.event.inputs.ref }}
-              echo ::set-output name=publishversion::false
+              echo "release=${{ github.event.inputs.daocloud }}" >> "$GITHUB_OUTPUT"
+              echo "ref=${{ github.event.inputs.ref }}" >> "$GITHUB_OUTPUT"
+              echo "publishversion=false" >> "$GITHUB_OUTPUT"
           elif ${{ github.event_name == 'push' }} ; then
               echo "call by tag push"
-              echo ::set-output name=project::all
-              echo ::set-output name=release::true
+              echo "project=all" >> "$GITHUB_OUTPUT"
+              echo "release=true" >> "$GITHUB_OUTPUT"
               # release to github pages
-              echo ::set-output name=ref::${GITHUB_REF##*/}
-              echo ::set-output name=publishversion::true
+              echo "ref=${GITHUB_REF##*/}" >> "$GITHUB_OUTPUT"
+              echo "publishversion=true" >> "$GITHUB_OUTPUT"
           else
             echo "unexpected event: ${{ github.event_name }}"
             exit 1
@@ -88,7 +88,7 @@ jobs:
         id: result
         run: |
           ref=$( git show -s --format='format:%H')
-          echo ::set-output name=ref::${ref}
+          echo "ref=${ref}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Helm
         uses: azure/setup-helm@v4.3.0
@@ -118,7 +118,7 @@ jobs:
           done
           echo "---------finish--------"
           ls
-          echo ::set-output name=project_list::${project_list}
+          echo "project_list=${project_list}" >> "$GITHUB_OUTPUT"
 
       - name: Upload chart artifact
         uses: actions/upload-artifact@v4.6.0
@@ -204,7 +204,7 @@ jobs:
           name=${{ github.repository }}
           proj=${name#*/}
           url=https://${{ github.repository_owner }}.github.io/${proj}
-          echo "::set-output name=url::${url}"
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout Code
         uses: actions/checkout@v3
