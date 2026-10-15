@@ -14,3 +14,5 @@ export DAOCLOUD_REPO_PROJECT=addon
 export NO_DAOCLOUD_IMAGE=true
 export SKIP_SCHEMA=true
 export NO_TRIVY=true
+# metax-operator chart version, bump suffix when we change images/values without upstream release
+export CUSTOM_VERSION=${VERSION}-1
