@@ -23,17 +23,12 @@
                         }
                     }
                 },
-                "scheduler": {
+                "prometheus": {
                     "type": "object",
                     "properties": {
-                        "serviceMonitor": {
-                            "type": "object",
-                            "properties": {
-                                "enable": {
-                                    "type": "boolean",
-                                    "description": "Ensure the insight-agent is installed and running to enable this feature; otherwise, the nvidia-vgpu installation may fail."
-                                }
-                            }
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Create ServiceMonitors for HAMi metrics. Ensure insight-agent is installed and running before enabling this feature."
                         }
                     }
                 }
