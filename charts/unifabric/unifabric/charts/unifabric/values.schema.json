@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["topoDiscovery"],
+  "properties": {
+    "topoDiscovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scaleUp", "scaleOut", "storage"],
+      "properties": {
+        "scaleUp": {
+          "$ref": "#/definitions/scaleUpDiscovery"
+        },
+        "scaleOut": {
+          "$ref": "#/definitions/scaleOutDiscovery"
+        },
+        "storage": {
+          "$ref": "#/definitions/storageDiscovery"
+        }
+      }
+    },
+    "switchSubscription": {
+      "type": "object",
+      "required": ["defaultGrpcPort", "ignorePortPatterns", "mtls"],
+      "properties": {
+        "defaultGrpcPort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "ignorePortPatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mtls": {
+          "type": "object",
+          "required": ["mode", "controllerSecretName", "switchAgentSecretName"],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": ["auto", "existing", "disabled"]
+            },
+            "controllerSecretName": {
+              "type": "string"
+            },
+            "switchAgentSecretName": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "grafanaInstance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "image", "serviceType", "labels"],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["registry", "repository", "tag"],
+          "properties": {
+            "registry": {
+              "type": "string",
+              "minLength": 1
+            },
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string"
+            }
+          }
+        },
+        "serviceType": {
+          "type": "string",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"]
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "nodeLabel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["keyTemplate"],
+      "properties": {
+        "keyTemplate": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "scaleUpDiscovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "nodeLabel"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["nv-topograph", "manual"]
+        },
+        "nodeLabel": {
+          "$ref": "#/definitions/nodeLabel"
+        }
+      }
+    },
+    "scaleOutDiscovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "nodeLabel"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["nv-topograph", "unifabric-roce"]
+        },
+        "nodeLabel": {
+          "$ref": "#/definitions/nodeLabel"
+        }
+      }
+    },
+    "storageDiscovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "nodeLabel"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["unifabric-roce", "unifabric-ib"]
+        },
+        "nodeLabel": {
+          "$ref": "#/definitions/nodeLabel"
+        }
+      }
+    }
+  }
+}

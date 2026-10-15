@@ -1,0 +1,31 @@
+{{- if and .Values.agent.enabled .Values.nodeMetrics.enabled .Values.nodeMetrics.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "unifabric.agentName" . }}-metrics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-agent
+    {{- with .Values.nodeMetrics.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "unifabric.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: unifabric-agent
+  endpoints:
+    - interval: {{ .Values.nodeMetrics.serviceMonitor.interval }}
+      scrapeTimeout: {{ .Values.nodeMetrics.serviceMonitor.scrapeTimeout }}
+      path: {{ .Values.nodeMetrics.serviceMonitor.path }}
+      port: metrics
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: node
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace | quote }}
+{{- end }}

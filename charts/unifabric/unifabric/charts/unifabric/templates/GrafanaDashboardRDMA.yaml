@@ -1,0 +1,3 @@
+{{- if and .Values.grafanaDashboard.enabled .Values.nodeMetrics.enabled -}}
+{{- include "unifabric.dashboards" (dict "root" . "pattern" "rdma-*.json") }}
+{{- end }}

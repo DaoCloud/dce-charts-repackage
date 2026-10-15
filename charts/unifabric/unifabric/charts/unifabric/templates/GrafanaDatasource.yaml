@@ -1,0 +1,28 @@
+{{- if and .Values.topologyAPI.enabled .Values.grafanaDashboard.enabled (eq .Values.grafanaDashboard.kind "GrafanaDashboard") }}
+{{- if not (.Capabilities.APIVersions.Has "grafana.integreatly.org/v1beta1/GrafanaDatasource") }}
+{{- fail "topology visualization requires the Grafana Operator GrafanaDatasource CRD (grafana.integreatly.org/v1beta1)" }}
+{{- end }}
+{{- if or (not .Values.controller.enabled) (not .Values.controller.service.enabled) }}
+{{- fail "the Topology GrafanaDatasource requires controller.enabled and controller.service.enabled" }}
+{{- end }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: {{ include "unifabric.topologyDatasourceName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric
+spec:
+  allowCrossNamespaceImport: {{ .Values.grafanaDashboard.allowCrossNamespaceImport }}
+  instanceSelector:
+    {{- include "unifabric.grafanaInstanceSelector" . | nindent 4 }}
+  uid: unifabric-topology-ds
+  datasource:
+    name: Unifabric Topology
+    type: unifabric-unifabrictopology-datasource
+    access: proxy
+    url: {{ printf "http://%s-metrics.%s.svc:%v" (include "unifabric.controllerName" .) .Release.Namespace .Values.controller.ports.topologyAPI | quote }}
+    isDefault: false
+    editable: true
+{{- end }}

@@ -1,0 +1,3942 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 18,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 47,
+      "panels": [],
+      "title": "概览",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
+      "id": 40,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "9.3.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (device,ifname) (\n    rate(unifabric_port_rcv_data{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])\n) * 8",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{device}} - {{ifname}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "读取吞吐",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 38,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "9.3.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (device,ifname) (\n    rate(unifabric_port_xmit_data{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])\n) * 8",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{device}} - {{ifname}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "写入吞吐",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "net3 - mlx5_19"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "net2 - mlx5_16"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
+      "id": 62,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.3.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (device, ifname, pod_namespace, pod_name) (\n  irate(unifabric_port_rcv_data{pod_namespace=~\"$namespace\", pod_name=~\"$pod\", cluster=~\"${cluster:raw}\"}[$__rate_interval])\n)\n/\nsum by (device, ifname, pod_namespace, pod_name) (\n  unifabric_port_speed_mbps{pod_namespace=~\"$namespace\", pod_name=~\"$pod\", cluster=~\"${cluster:raw}\"} * 1000000 / 8\n) * 100",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{device}} - {{ifname}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "读取吞吐利用率",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "net2 - mlx5_16"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "net3 - mlx5_19"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "id": 63,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.3.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (device, ifname, pod_namespace, pod_name) (\n  irate(unifabric_port_xmit_data{pod_namespace=~\"$namespace\", pod_name=~\"$pod\", cluster=~\"${cluster:raw}\"}[$__rate_interval])\n)\n/\nsum by (device, ifname, pod_namespace, pod_name) (\n  unifabric_port_speed_mbps{pod_namespace=~\"$namespace\", pod_name=~\"$pod\", cluster=~\"${cluster:raw}\"} * 1000000 / 8\n) * 100",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{device}} - {{ifname}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "写入吞吐利用率",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 17
+      },
+      "id": 42,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.3.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "rate(unifabric_unicast_rcv_packets{pod_name!=\"\", pod_namespace!=\"\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{device}} - {{ifname}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "读取单播报文",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 17
+      },
+      "id": 45,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.3.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "rate(unifabric_unicast_xmit_packets{pod_name!=\"\", pod_namespace!=\"\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{device}} - {{ifname}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "写入单播报文",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 17
+      },
+      "id": 37,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.3.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "rate(unifabric_multicast_rcv_packets{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{device}} - {{ifname}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "读取多播报文",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 17
+      },
+      "id": 44,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.3.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "irate(unifabric_multicast_xmit_packets{pod_namespace!=\"\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{device}} - {{ifname}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "写入多播报文",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 67,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "关联 QP 收到的 WRITE 请求数",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 0,
+            "y": 2
+          },
+          "id": 6,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_rx_write_requests{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "接收的 Write 请求",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 6,
+            "y": 2
+          },
+          "id": 8,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_rx_read_requests{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "接收的 Read 请求",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 12,
+            "y": 2
+          },
+          "id": 10,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_rx_atomic_requests{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "接收的 Atomic 请求",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 18,
+            "y": 2
+          },
+          "id": 9,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_rx_dct_connect{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "接收的 DCT 连接",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 0,
+            "y": 10
+          },
+          "id": 32,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_out_of_buffer{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "缓冲区不足",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 6,
+            "y": 10
+          },
+          "id": 28,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_out_of_sequence{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "乱序报文",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 12,
+            "y": 10
+          },
+          "id": 43,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "irate(unifabric_duplicate_request{pod_namespace!=\"\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "重复请求",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 18,
+            "y": 10
+          },
+          "id": 21,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_rnr_nak_retry_err{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "RNR NAK 重试错误",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 0,
+            "y": 18
+          },
+          "id": 27,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_packet_seq_err{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "报文序号错误",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 6,
+            "y": 18
+          },
+          "id": 36,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_implied_nak_seq_err{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "隐含 NAK 序号错误",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "rdma_local_ack_timeout_err",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 12,
+            "y": 18
+          },
+          "id": 35,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_local_ack_timeout_err{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "本地 ACK 超时错误",
+          "type": "timeseries"
+        }
+      ],
+      "title": "RDMA 基础统计",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 65,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 0,
+            "y": 3
+          },
+          "id": 19,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_resp_local_length_error{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "响应端本地长度错误",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 6,
+            "y": 3
+          },
+          "id": 29,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_resp_cqe_error{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "响应端 CQE 错误",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 12,
+            "y": 3
+          },
+          "id": 26,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_req_cqe_error{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "请求端 CQE 错误",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 18,
+            "y": 3
+          },
+          "id": 23,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_req_remote_invalid_request{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "请求端远端无效请求",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 0,
+            "y": 11
+          },
+          "id": 25,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_req_remote_access_errors{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "请求端检测到的远端访问错误",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 6,
+            "y": 11
+          },
+          "id": 20,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_resp_remote_access_errors{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "响应端检测到的远端访问错误",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 12,
+            "y": 11
+          },
+          "id": 24,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_resp_cqe_flush_error{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "响应端 CQE Flush 错误",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 18,
+            "y": 11
+          },
+          "id": 22,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "rate(unifabric_req_cqe_flush_error{pod_name!=\"\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\",cluster=~\"${cluster:raw}\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{device}} - {{ifname}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "请求端 CQE Flush 错误",
+          "type": "timeseries"
+        }
+      ],
+      "title": "RDMA 错误统计",
+      "type": "row"
+    },
+    {
+      "id": 200,
+      "type": "row",
+      "title": "RDMA 发送明细（CPU 侧发起）",
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "panels": [
+        {
+          "id": 202,
+          "type": "stat",
+          "title": "累计发送次数",
+          "description": "时间范围内的提交总数，聚合模式下为 count 之和。",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 0,
+            "y": 28
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(rdma_flow_sends_total{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"}[$__range]))",
+              "format": "time_series",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "none",
+            "graphMode": "none",
+            "textMode": "value",
+            "justifyMode": "center"
+          }
+        },
+        {
+          "id": 203,
+          "type": "stat",
+          "title": "累计发送字节",
+          "description": "时间范围内 payload 字节总和，bytes 乘 count。",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 6,
+            "y": 28
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(increase(rdma_flow_bytes_total{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"}[$__range]))",
+              "format": "time_series",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "none",
+            "graphMode": "none",
+            "textMode": "value",
+            "justifyMode": "center"
+          }
+        },
+        {
+          "id": 204,
+          "type": "stat",
+          "title": "当前活跃 QP",
+          "description": "当前归属于所选源 Pod 的活跃 QP 数。",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 12,
+            "y": 28
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(rdma_flow_qps{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"})",
+              "format": "time_series",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "none",
+            "graphMode": "none",
+            "textMode": "value",
+            "justifyMode": "center"
+          }
+        },
+        {
+          "id": 205,
+          "type": "stat",
+          "title": "时间范围内对端 Pod 数",
+          "description": "所选时间范围内收到该 Pod 发送数据的对端 Pod 去重数。",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 18,
+            "y": 28
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count(sum by (dst_pod_namespace, dst_pod_name) (increase(rdma_flow_sends_total{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"}[$__range])) > 0)",
+              "format": "time_series",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "none",
+            "graphMode": "none",
+            "textMode": "value",
+            "justifyMode": "center"
+          }
+        },
+        {
+          "id": 218,
+          "type": "timeseries",
+          "title": "源 Pod 到目的 Pod 累计通讯字节",
+          "description": "所选源 Pod 到各目的 Pod 的累计发送字节曲线。图例显示目的 Workload 类型、Workload 命名空间、Pod 命名空间和 Pod 名称。",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 32
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (src_pod_namespace, src_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_namespace, dst_pod_name) (rdma_flow_bytes_total{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"})",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "{{dst_pod_top_owner_kind}} · {{dst_pod_top_owner_namespace}} · {{dst_pod_namespace}}/{{dst_pod_name}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "min": 0,
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": true,
+                "stacking": {
+                  "mode": "none"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 219,
+          "type": "table",
+          "title": "网卡累计发送",
+          "description": "所选时间范围内，该 Pod 各 RDMA 网卡计数器的累计发送字节，用于和 eBPF payload 累计字节对比。",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 40
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "refId": "A",
+              "expr": "sum by (device, ifname) (increase(unifabric_port_xmit_data{cluster=~\"${cluster:raw}\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\"}[$__range]))",
+              "legendFormat": "",
+              "format": "table",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "device": "网卡设备",
+                  "ifname": "接口",
+                  "Value": "累计发送字节"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "累计发送字节"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "sortBy": [
+              {
+                "displayName": "累计发送字节",
+                "desc": true
+              }
+            ],
+            "footer": {
+              "show": false
+            }
+          }
+        },
+        {
+          "id": 220,
+          "type": "table",
+          "title": "网卡累计读取",
+          "description": "所选时间范围内，该 Pod 各 RDMA 网卡计数器的累计接收字节，用于和 eBPF 发送侧数据对照。",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 40
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "refId": "A",
+              "expr": "sum by (device, ifname) (increase(unifabric_port_rcv_data{cluster=~\"${cluster:raw}\", pod_namespace=~\"$namespace\", pod_name=~\"$pod\"}[$__range]))",
+              "legendFormat": "",
+              "format": "table",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "device": "网卡设备",
+                  "ifname": "接口",
+                  "Value": "累计读取字节"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "累计读取字节"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "sortBy": [
+              {
+                "displayName": "累计读取字节",
+                "desc": true
+              }
+            ],
+            "footer": {
+              "show": false
+            }
+          }
+        },
+        {
+          "id": 211,
+          "type": "table",
+          "title": "最常见的消息大小 Top 20",
+          "description": "bytes 精确值按发送次数排序。大模型通信的消息大小高度重复，这里直接看出用了哪几种大小与各自占比。",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 48
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "elasticsearch",
+                "uid": "unifabric-elasticsearch"
+              },
+              "query": "src_pod_namespace:/${namespace:regex}/ AND src_pod_name:/${pod:regex}/",
+              "timeField": "@timestamp",
+              "metrics": [
+                {
+                  "id": "1",
+                  "type": "sum",
+                  "field": "count"
+                }
+              ],
+              "bucketAggs": [
+                {
+                  "id": "3",
+                  "type": "terms",
+                  "field": "bytes",
+                  "settings": {
+                    "order": "desc",
+                    "orderBy": "1",
+                    "size": "20",
+                    "min_doc_count": "1"
+                  }
+                }
+              ]
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": false
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "bytes"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Sum"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "发送次数"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "gauge",
+                      "mode": "basic"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            },
+            "sortBy": [
+              {
+                "displayName": "发送次数",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": 212,
+          "type": "table",
+          "title": "按源与目的 Pod 的累计发送和大小分位",
+          "description": "基于 Prometheus，展示所选时间范围内每对源/目的 Pod 的累计发送次数、累计字节及消息大小 P50/P90/P99。",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 56
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (src_pod_namespace, src_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_namespace, dst_pod_name) (increase(rdma_flow_sends_total{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"}[$__range]))",
+              "format": "table",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "range": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (src_pod_namespace, src_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_namespace, dst_pod_name) (increase(rdma_flow_bytes_total{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"}[$__range]))",
+              "format": "table",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "range": false,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "histogram_quantile(0.50, sum by (le, src_pod_namespace, src_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_namespace, dst_pod_name) (increase(rdma_flow_send_bytes_bucket{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"}[$__range])))",
+              "format": "table",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "range": false,
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "histogram_quantile(0.90, sum by (le, src_pod_namespace, src_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_namespace, dst_pod_name) (increase(rdma_flow_send_bytes_bucket{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"}[$__range])))",
+              "format": "table",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "range": false,
+              "refId": "D"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "histogram_quantile(0.99, sum by (le, src_pod_namespace, src_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_namespace, dst_pod_name) (increase(rdma_flow_send_bytes_bucket{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"}[$__range])))",
+              "format": "table",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "range": false,
+              "refId": "E"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": false
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "累计发送次数"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "short"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "^(累计发送字节|P50 消息大小|P90 消息大小|P99 消息大小)$"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            },
+            "sortBy": [
+              {
+                "displayName": "累计发送字节",
+                "desc": true
+              }
+            ]
+          },
+          "transformations": [
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "indexByName": {
+                  "src_pod_namespace": 0,
+                  "src_pod_name": 1,
+                  "dst_pod_top_owner_kind": 2,
+                  "dst_pod_top_owner_namespace": 3,
+                  "dst_pod_namespace": 4,
+                  "dst_pod_name": 5,
+                  "Value #A": 6,
+                  "Value #B": 7,
+                  "Value #C": 8,
+                  "Value #D": 9,
+                  "Value #E": 10
+                },
+                "renameByName": {
+                  "src_pod_namespace": "源 PodNS",
+                  "src_pod_name": "源 Pod",
+                  "dst_pod_top_owner_kind": "目的 WorkloadKind",
+                  "dst_pod_top_owner_namespace": "目的 WorkloadNS",
+                  "dst_pod_namespace": "目的 PodNS",
+                  "dst_pod_name": "目的 PodName",
+                  "Value #A": "累计发送次数",
+                  "Value #B": "累计发送字节",
+                  "Value #C": "P50 消息大小",
+                  "Value #D": "P90 消息大小",
+                  "Value #E": "P99 消息大小"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": 215,
+          "type": "table",
+          "title": "源 Pod 内的进程与 QP",
+          "description": "每个源 Pod 下各 tgid 的发送次数、字节与 QP 数，看多进程或多 rank 的分布。",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 64
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "elasticsearch",
+                "uid": "unifabric-elasticsearch"
+              },
+              "query": "src_pod_namespace:/${namespace:regex}/ AND src_pod_name:/${pod:regex}/",
+              "timeField": "@timestamp",
+              "metrics": [
+                {
+                  "id": "1",
+                  "type": "sum",
+                  "field": "count"
+                },
+                {
+                  "id": "4",
+                  "type": "sum",
+                  "field": "bytes",
+                  "settings": {
+                    "script": "_value * doc['count'].value"
+                  }
+                },
+                {
+                  "id": "5",
+                  "type": "cardinality",
+                  "field": "qpn"
+                }
+              ],
+              "bucketAggs": [
+                {
+                  "id": "2",
+                  "type": "terms",
+                  "field": "src_pod_name",
+                  "settings": {
+                    "order": "desc",
+                    "orderBy": "1",
+                    "size": "50",
+                    "min_doc_count": "1"
+                  }
+                },
+                {
+                  "id": "3",
+                  "type": "terms",
+                  "field": "tgid",
+                  "settings": {
+                    "order": "desc",
+                    "orderBy": "1",
+                    "size": "50",
+                    "min_doc_count": "1"
+                  }
+                }
+              ]
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": false
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Sum bytes"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Unique Count"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "QP 数"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "tgid"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "none"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            },
+            "sortBy": [
+              {
+                "displayName": "Sum count",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": 216,
+          "type": "table",
+          "title": "网卡对累计通讯",
+          "description": "基于 Prometheus，展示所选时间范围内各源/目的 RDMA 网卡对的累计发送次数与字节。",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 64
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (src_device, dst_device) (increase(rdma_flow_sends_total{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"}[$__range]))",
+              "format": "table",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "range": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (src_device, dst_device) (increase(rdma_flow_bytes_total{cluster=~\"${cluster:raw}\", src_pod_namespace=~\"$namespace\", src_pod_name=~\"$pod\"}[$__range]))",
+              "format": "table",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "range": false,
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": false
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "累计发送次数"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "short"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "累计发送字节"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            },
+            "sortBy": [
+              {
+                "displayName": "累计发送字节",
+                "desc": true
+              }
+            ]
+          },
+          "transformations": [
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "indexByName": {
+                  "src_device": 0,
+                  "dst_device": 1,
+                  "Value #A": 2,
+                  "Value #B": 3
+                },
+                "renameByName": {
+                  "src_device": "源网卡",
+                  "dst_device": "目的网卡",
+                  "Value #A": "累计发送次数",
+                  "Value #B": "累计发送字节"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": 217,
+          "type": "table",
+          "title": "最近发送记录",
+          "description": "最新 500 条原始文档，按时间倒序，ES 查询直接返回。",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 24,
+            "x": 0,
+            "y": 72
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "elasticsearch",
+                "uid": "unifabric-elasticsearch"
+              },
+              "query": "src_pod_namespace:/${namespace:regex}/ AND src_pod_name:/${pod:regex}/",
+              "timeField": "@timestamp",
+              "metrics": [
+                {
+                  "id": "1",
+                  "type": "raw_data",
+                  "settings": {
+                    "size": "500"
+                  }
+                }
+              ],
+              "bucketAggs": []
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": false
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "bytes"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "qpn"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "none"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "tgid"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "none"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            }
+          },
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "_id": true,
+                  "_index": true,
+                  "_type": true,
+                  "sort": true,
+                  "highlight": true,
+                  "message": true,
+                  "event.action": true,
+                  "log.level": true,
+                  "agent.name": true,
+                  "service.name": true,
+                  "kubernetes.node.name": true,
+                  "src_pod_top_owner_kind": true,
+                  "src_pod_top_owner_namespace": true,
+                  "src_pod_top_owner_name": true,
+                  "dst_pod_top_owner_kind": true,
+                  "dst_pod_top_owner_namespace": true,
+                  "dst_pod_top_owner_name": true
+                },
+                "indexByName": {
+                  "@timestamp": 0,
+                  "node": 1,
+                  "src_pod_namespace": 2,
+                  "src_pod_name": 3,
+                  "dst_pod_namespace": 4,
+                  "dst_pod_name": 5,
+                  "qpn": 6,
+                  "tgid": 7,
+                  "kind": 8,
+                  "bytes": 9,
+                  "wrs": 10,
+                  "count": 11,
+                  "src_device": 12,
+                  "dst_device": 13
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [
+    "unifabric",
+    "rdma",
+    "pod",
+    "flow",
+    "metrics"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "Prometheus",
+          "value": "Prometheus"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": "数据源",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "query_result(count by (cluster_name) (global_cluster_info) or label_replace(vector(1) unless on() global_cluster_info, \"cluster_name\", \"本地集群\", \"\", \"\"))",
+        "hide": 0,
+        "includeAll": false,
+        "label": "集群",
+        "multi": false,
+        "name": "cluster_name",
+        "options": [],
+        "query": {
+          "query": "query_result(count by (cluster_name) (global_cluster_info) or label_replace(vector(1) unless on() global_cluster_info, \"cluster_name\", \"本地集群\", \"\", \"\"))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/cluster_name=\"([^\"]+)\"/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "query_result(count by (cluster) (global_cluster_info{cluster_name=\"$cluster_name\"}) or label_replace(vector(1) unless on() global_cluster_info, \"cluster\", \"^$\", \"\", \"\"))",
+        "hide": 2,
+        "includeAll": false,
+        "multi": false,
+        "name": "cluster",
+        "options": [],
+        "query": {
+          "query": "query_result(count by (cluster) (global_cluster_info{cluster_name=\"$cluster_name\"}) or label_replace(vector(1) unless on() global_cluster_info, \"cluster\", \"^$\", \"\", \"\"))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/cluster=\"([^\"]+)\"/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".+",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(unifabric_port_xmit_data{scope=\"pod\", cluster=~\"${cluster:raw}\", pod_namespace!=\"\"}, pod_namespace)",
+        "hide": 0,
+        "includeAll": true,
+        "multi": false,
+        "name": "namespace",
+        "options": [],
+        "query": {
+          "query": "label_values(unifabric_port_xmit_data{scope=\"pod\", cluster=~\"${cluster:raw}\", pod_namespace!=\"\"}, pod_namespace)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "isNone": true,
+          "selected": false,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(unifabric_port_xmit_data{scope=\"pod\", cluster=~\"${cluster:raw}\", pod_namespace=~\"$namespace\", pod_name!=\"\"}, pod_name)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "pod",
+        "multi": false,
+        "name": "pod",
+        "options": [],
+        "query": {
+          "query": "label_values(unifabric_port_xmit_data{scope=\"pod\", cluster=~\"${cluster:raw}\", pod_namespace=~\"$namespace\", pod_name!=\"\"}, pod_name)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Unifabric RDMA Pod",
+  "uid": "unifabric-rdma-pod-zh",
+  "version": 3,
+  "weekStart": ""
+}

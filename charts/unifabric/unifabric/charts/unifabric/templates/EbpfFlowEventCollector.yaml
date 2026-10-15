@@ -1,0 +1,497 @@
+{{- if .Values.agent.ebpfFlow.flowEvents.enabled }}
+{{- $ch := .Values.ebpfFlowEventCollector.clickhouse }}
+{{- $es := .Values.ebpfFlowEventCollector.elasticsearch }}
+{{- if not .Values.agent.ebpfFlow.enabled }}
+{{- fail "agent.ebpfFlow.flowEvents.enabled requires agent.ebpfFlow.enabled" }}
+{{- end }}
+{{- if not (or $ch.enabled $es.enabled) }}
+{{- fail "agent.ebpfFlow.flowEvents.enabled requires ebpfFlowEventCollector.clickhouse.enabled or ebpfFlowEventCollector.elasticsearch.enabled" }}
+{{- end }}
+{{- $name := include "unifabric.ebpfFlowEventCollectorName" . }}
+{{- $memoryLimitMib := include "unifabric.ebpfFlowEventCollector.memoryLimitMib" . | int }}
+{{- $chEndpoint := include "unifabric.ebpfFlow.clickhouseEndpoint" . }}
+{{- $esEndpoints := include "unifabric.ebpfFlow.elasticsearchEndpoints" . }}
+{{- $chSecret := include "unifabric.ebpfFlow.clickhouseSecretName" . }}
+{{- $chKey := include "unifabric.ebpfFlow.clickhouseSecretKey" . }}
+{{- $esSecret := include "unifabric.ebpfFlow.elasticsearchSecretName" . }}
+{{- $esKey := include "unifabric.ebpfFlow.elasticsearchSecretKey" . }}
+{{- $esBundled := include "unifabric.ebpfFlow.elasticsearchBundled" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-event-collector
+data:
+  {{- if and $ch.enabled $ch.schema.create }}
+  # Executed by the schema init container before the Collector starts. The
+  # first block holds the fixed columns the clickhouse exporter inserts, the
+  # second block materializes typed columns from LogAttributes so queries
+  # use bytes or src_pod_name directly. Schema changes go here as
+  # ALTER TABLE ... ADD COLUMN IF NOT EXISTS statements.
+  schema.sql: |
+    CREATE DATABASE IF NOT EXISTS {{ $ch.database }};
+    CREATE TABLE IF NOT EXISTS {{ $ch.database }}.{{ $ch.table }} (
+      Timestamp DateTime64(9) CODEC(Delta, ZSTD(1)),
+      TimestampTime DateTime DEFAULT toDateTime(Timestamp),
+      TraceId String CODEC(ZSTD(1)),
+      SpanId String CODEC(ZSTD(1)),
+      TraceFlags UInt8,
+      SeverityText LowCardinality(String) CODEC(ZSTD(1)),
+      SeverityNumber UInt8,
+      ServiceName LowCardinality(String) CODEC(ZSTD(1)),
+      Body String CODEC(ZSTD(1)),
+      ResourceSchemaUrl LowCardinality(String) CODEC(ZSTD(1)),
+      ResourceAttributes Map(LowCardinality(String), String) CODEC(ZSTD(1)),
+      ScopeSchemaUrl LowCardinality(String) CODEC(ZSTD(1)),
+      ScopeName String CODEC(ZSTD(1)),
+      ScopeVersion LowCardinality(String) CODEC(ZSTD(1)),
+      ScopeAttributes Map(LowCardinality(String), String) CODEC(ZSTD(1)),
+      LogAttributes Map(LowCardinality(String), String) CODEC(ZSTD(1)),
+
+      node LowCardinality(String) MATERIALIZED ResourceAttributes['k8s.node.name'],
+      tgid UInt32 MATERIALIZED toUInt32OrZero(LogAttributes['tgid']),
+      qpn UInt32 MATERIALIZED toUInt32OrZero(LogAttributes['qpn']),
+      bytes UInt64 MATERIALIZED toUInt64OrZero(LogAttributes['bytes']),
+      wrs UInt32 MATERIALIZED toUInt32OrZero(LogAttributes['wrs']),
+      count UInt32 MATERIALIZED toUInt32OrZero(LogAttributes['count']),
+      kind LowCardinality(String) MATERIALIZED LogAttributes['kind'],
+      src_device LowCardinality(String) MATERIALIZED LogAttributes['src_device'],
+      dst_device LowCardinality(String) MATERIALIZED LogAttributes['dst_device'],
+      src_pod_namespace LowCardinality(String) MATERIALIZED LogAttributes['src_pod_namespace'],
+      src_pod_name String MATERIALIZED LogAttributes['src_pod_name'],
+      src_pod_top_owner_kind LowCardinality(String) MATERIALIZED LogAttributes['src_pod_top_owner_kind'],
+      src_pod_top_owner_namespace LowCardinality(String) MATERIALIZED LogAttributes['src_pod_top_owner_namespace'],
+      src_pod_top_owner_name String MATERIALIZED LogAttributes['src_pod_top_owner_name'],
+      dst_pod_namespace LowCardinality(String) MATERIALIZED LogAttributes['dst_pod_namespace'],
+      dst_pod_name String MATERIALIZED LogAttributes['dst_pod_name'],
+      dst_pod_top_owner_kind LowCardinality(String) MATERIALIZED LogAttributes['dst_pod_top_owner_kind'],
+      dst_pod_top_owner_namespace LowCardinality(String) MATERIALIZED LogAttributes['dst_pod_top_owner_namespace'],
+      dst_pod_top_owner_name String MATERIALIZED LogAttributes['dst_pod_top_owner_name']
+    ) ENGINE = MergeTree
+    PARTITION BY toDate(Timestamp)
+    ORDER BY (src_pod_namespace, src_pod_name, dst_pod_namespace, dst_pod_name, Timestamp)
+    TTL TimestampTime + INTERVAL {{ $ch.ttlDays }} DAY;
+  {{- end }}
+  {{- if and $es.enabled $es.schema.create }}
+  # Applied against Elasticsearch before the Collector starts, and by the
+  # bundled instance from its own Pod because a template is cluster state
+  # that vanishes with an emptyDir. Both PUTs are idempotent overwrites.
+  # Expects ES_URL, ES_USER and ES_PASSWORD in the environment.
+  es-setup.sh: |
+    #!/bin/sh
+    set -eu
+    until curl -fsS -u "$ES_USER:$ES_PASSWORD" \
+        "$ES_URL/_cluster/health?wait_for_status=yellow&timeout=5s" >/dev/null 2>&1
+    do
+      echo "waiting for elasticsearch at $ES_URL"
+      sleep 5
+    done
+    curl -fsS -u "$ES_USER:$ES_PASSWORD" -X PUT "$ES_URL/_ilm/policy/{{ $es.index }}" \
+      -H 'Content-Type: application/json' --data-binary @/etc/otelcol/es-ilm.json
+    echo
+    curl -fsS -u "$ES_USER:$ES_PASSWORD" -X PUT "$ES_URL/_index_template/{{ $es.index }}" \
+      -H 'Content-Type: application/json' --data-binary @/etc/otelcol/es-template.json
+    echo
+    echo "elasticsearch schema applied"
+  es-ilm.json: |
+    {
+      "policy": {
+        "phases": {
+          "hot": {
+            "actions": {
+              "rollover": {
+                "max_age": {{ $es.schema.ilm.rolloverMaxAge | quote }},
+                "max_primary_shard_size": {{ $es.schema.ilm.rolloverMaxPrimaryShardSize | quote }}
+              }
+            }
+          },
+          "delete": {
+            "min_age": {{ $es.schema.ilm.deleteMinAge | quote }},
+            "actions": {
+              "delete": {}
+            }
+          }
+        }
+      }
+    }
+  # Fields match the attributes written by pkg/agent/ebpfflow/otel.go and the
+  # typed ClickHouse columns. The ecs mapping mode flattens attributes to the
+  # document root and adds @timestamp, message, event.action, log.level,
+  # agent.name, service.name and kubernetes.node.name. dynamic is off, so a
+  # new attribute needs a field here followed by a _rollover.
+  es-template.json: |
+    {
+      "index_patterns": [{{ $es.index | quote }}],
+      "data_stream": {},
+      "priority": 500,
+      "template": {
+        "settings": {
+          "index.number_of_shards": 1,
+          "index.number_of_replicas": 0,
+          "index.refresh_interval": {{ $es.schema.refreshInterval | quote }},
+          "index.codec": "best_compression",
+          "index.lifecycle.name": {{ $es.index | quote }}
+        },
+        "mappings": {
+          "dynamic": false,
+          "properties": {
+            "@timestamp": {"type": "date_nanos"},
+            "message": {"type": "keyword"},
+            "event": {"properties": {"action": {"type": "keyword"}}},
+            "log": {"properties": {"level": {"type": "keyword"}}},
+            "agent": {"properties": {"name": {"type": "keyword"}}},
+            "service": {"properties": {"name": {"type": "keyword"}}},
+            "kubernetes": {
+              "properties": {
+                "node": {"properties": {"name": {"type": "keyword"}}}
+              }
+            },
+            "node": {"type": "keyword"},
+            "tgid": {"type": "integer"},
+            "qpn": {"type": "integer"},
+            "bytes": {"type": "long"},
+            "wrs": {"type": "integer"},
+            "count": {"type": "integer"},
+            "kind": {"type": "keyword"},
+            "src_device": {"type": "keyword"},
+            "dst_device": {"type": "keyword"},
+            "src_pod_namespace": {"type": "keyword"},
+            "src_pod_name": {"type": "keyword"},
+            "src_pod_top_owner_kind": {"type": "keyword"},
+            "src_pod_top_owner_namespace": {"type": "keyword"},
+            "src_pod_top_owner_name": {"type": "keyword"},
+            "dst_pod_namespace": {"type": "keyword"},
+            "dst_pod_name": {"type": "keyword"},
+            "dst_pod_top_owner_kind": {"type": "keyword"},
+            "dst_pod_top_owner_namespace": {"type": "keyword"},
+            "dst_pod_top_owner_name": {"type": "keyword"}
+          }
+        }
+      }
+    }
+  {{- end }}
+  config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+            max_recv_msg_size_mib: 64
+
+    processors:
+      batch:
+        send_batch_size: {{ .Values.ebpfFlowEventCollector.batch.sendBatchSize }}
+        send_batch_max_size: {{ .Values.ebpfFlowEventCollector.batch.sendBatchMaxSize }}
+        timeout: {{ .Values.ebpfFlowEventCollector.batch.timeout }}
+      memory_limiter:
+        check_interval: 1s
+        limit_mib: {{ $memoryLimitMib }}
+        spike_limit_mib: {{ div $memoryLimitMib 5 }}
+
+    exporters:
+      {{- if $ch.enabled }}
+      clickhouse:
+        endpoint: {{ $chEndpoint | quote }}
+        database: {{ $ch.database }}
+        username: {{ $ch.username }}
+        password: ${env:CLICKHOUSE_PASSWORD}
+        logs_table_name: {{ $ch.table }}
+        create_schema: false
+        ttl: {{ mul $ch.ttlDays 24 }}h
+        timeout: 10s
+        sending_queue:
+          enabled: true
+          num_consumers: 2
+          queue_size: 50
+        retry_on_failure:
+          enabled: true
+          initial_interval: 5s
+          max_interval: 30s
+          max_elapsed_time: 300s
+      {{- end }}
+      {{- if $es.enabled }}
+      elasticsearch:
+        endpoints: {{ $esEndpoints }}
+        user: {{ $es.user }}
+        password: ${env:ELASTICSEARCH_PASSWORD}
+        logs_index: {{ $es.index }}
+        mapping:
+          mode: ecs
+        flush:
+          bytes: 5000000
+          interval: 5s
+        sending_queue:
+          enabled: true
+          num_consumers: 2
+          queue_size: 50
+        retry:
+          enabled: true
+          max_retries: 3
+          initial_interval: 1s
+          max_interval: 30s
+      {{- end }}
+
+    service:
+      telemetry:
+        metrics:
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: 0.0.0.0
+                    port: 8888
+      pipelines:
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [{{ include "unifabric.ebpfFlowEventCollector.exporters" . }}]
+---
+{{- if or (and $ch.enabled (not $ch.existingSecret)) (and $es.enabled (not $es.existingSecret)) }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-event-collector
+type: Opaque
+stringData:
+  {{- if and $ch.enabled (not $ch.existingSecret) }}
+  clickhouse-password: {{ include "unifabric.ebpfFlow.clickhousePassword" . | quote }}
+  {{- end }}
+  {{- if and $es.enabled (not $es.existingSecret) }}
+  elasticsearch-password: {{ include "unifabric.ebpfFlow.elasticsearchPassword" . | quote }}
+  {{- end }}
+---
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-event-collector
+spec:
+  replicas: {{ .Values.ebpfFlowEventCollector.replicas }}
+  selector:
+    matchLabels:
+      {{- include "unifabric.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: unifabric-ebpf-flow-event-collector
+  template:
+    metadata:
+      labels:
+        {{- include "unifabric.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: unifabric-ebpf-flow-event-collector
+      annotations:
+        # Restart the Collector when its rendered settings change.
+        checksum/values: {{ toJson .Values.ebpfFlowEventCollector | sha256sum | trunc 32 }}
+    spec:
+      {{- with .Values.ebpfFlowEventCollector.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ebpfFlowEventCollector.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if or (and $ch.enabled $ch.schema.create) (and $es.enabled $es.schema.create (not $esBundled)) }}
+      initContainers:
+      {{- end }}
+      {{- if and $ch.enabled $ch.schema.create }}
+        - name: clickhouse-schema
+          image: {{ include "unifabric.image" (dict "root" . "image" $ch.schema.image) }}
+          imagePullPolicy: {{ .Values.ebpfFlowEventCollector.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              HOST=$(echo "$CLICKHOUSE_ENDPOINT" | sed -E 's#^[a-z]+://##' | sed -E 's#[:/].*$##')
+              PORT=$(echo "$CLICKHOUSE_ENDPOINT" | sed -nE 's#^[a-z]+://[^:/]+:([0-9]+).*$#\1#p')
+              set -- --host "$HOST" --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD"
+              if [ -n "$PORT" ]
+              then
+                set -- "$@" --port "$PORT"
+              fi
+              until clickhouse-client "$@" --query "SELECT 1" >/dev/null 2>&1
+              do
+                echo "waiting for clickhouse at $HOST"
+                sleep 3
+              done
+              clickhouse-client "$@" --multiquery < /etc/otelcol/schema.sql
+          env:
+            - name: CLICKHOUSE_ENDPOINT
+              value: {{ $chEndpoint | quote }}
+            - name: CLICKHOUSE_USER
+              value: {{ $ch.username | quote }}
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $chSecret }}
+                  key: {{ $chKey }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/otelcol
+              readOnly: true
+      {{- end }}
+      {{- if and $es.enabled $es.schema.create (not $esBundled) }}
+        # The bundled Elasticsearch applies the same files from its own Pod.
+        - name: elasticsearch-schema
+          image: {{ include "unifabric.image" (dict "root" . "image" $es.schema.image) }}
+          imagePullPolicy: {{ .Values.ebpfFlowEventCollector.image.pullPolicy }}
+          command:
+            - sh
+            - /etc/otelcol/es-setup.sh
+          env:
+            - name: ES_URL
+              value: {{ index ($esEndpoints | fromJsonArray) 0 | quote }}
+            - name: ES_USER
+              value: {{ $es.user | quote }}
+            - name: ES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $esSecret }}
+                  key: {{ $esKey }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/otelcol
+              readOnly: true
+      {{- end }}
+      containers:
+        - name: collector
+          image: {{ include "unifabric.image" (dict "root" . "image" .Values.ebpfFlowEventCollector.image) }}
+          imagePullPolicy: {{ .Values.ebpfFlowEventCollector.image.pullPolicy }}
+          args:
+            - --config=/etc/otelcol/config.yaml
+          env:
+            {{- if $ch.enabled }}
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $chSecret }}
+                  key: {{ $chKey }}
+            {{- end }}
+            {{- if $es.enabled }}
+            - name: ELASTICSEARCH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $esSecret }}
+                  key: {{ $esKey }}
+            {{- end }}
+          ports:
+            - name: otlp-grpc
+              containerPort: 4317
+              protocol: TCP
+            - name: metrics
+              containerPort: 8888
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: otlp-grpc
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          {{- with .Values.ebpfFlowEventCollector.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/otelcol
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: {{ $name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-event-collector
+spec:
+  selector:
+    {{- include "unifabric.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-event-collector
+  ports:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: otlp-grpc
+      protocol: TCP
+    - name: metrics
+      port: 8888
+      targetPort: metrics
+      protocol: TCP
+{{- if .Values.ebpfFlowEventCollector.serviceMonitor.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-event-collector
+    {{- with .Values.ebpfFlowEventCollector.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "unifabric.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: unifabric-ebpf-flow-event-collector
+  endpoints:
+    - interval: {{ .Values.ebpfFlowEventCollector.serviceMonitor.interval }}
+      path: /metrics
+      port: metrics
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace | quote }}
+{{- end }}
+{{- if and $es.enabled $es.grafanaDatasource.enabled .Values.grafanaDashboard.enabled (eq .Values.grafanaDashboard.kind "GrafanaDashboard") }}
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: {{ $name }}-elasticsearch
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-event-collector
+spec:
+  allowCrossNamespaceImport: {{ .Values.grafanaDashboard.allowCrossNamespaceImport }}
+  instanceSelector:
+    {{- include "unifabric.grafanaInstanceSelector" . | nindent 4 }}
+  valuesFrom:
+    - targetPath: secureJsonData.basicAuthPassword
+      valueFrom:
+        secretKeyRef:
+          name: {{ $esSecret }}
+          key: {{ $esKey }}
+  datasource:
+    name: Unifabric RDMA Flow Sends
+    uid: unifabric-elasticsearch
+    type: elasticsearch
+    access: proxy
+    url: {{ index ($esEndpoints | fromJsonArray) 0 | quote }}
+    basicAuth: true
+    basicAuthUser: {{ $es.user | quote }}
+    isDefault: false
+    editable: false
+    jsonData:
+      index: {{ $es.index | quote }}
+      timeField: "@timestamp"
+      maxConcurrentShardRequests: 5
+    secureJsonData:
+      basicAuthPassword: {{ printf "${%s}" $esKey }}
+{{- end }}
+{{- end }}

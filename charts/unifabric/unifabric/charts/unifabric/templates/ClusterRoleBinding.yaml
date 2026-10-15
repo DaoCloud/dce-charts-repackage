@@ -1,0 +1,35 @@
+{{- if .Values.controller.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "unifabric.controllerName" . }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "unifabric.controllerName" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "unifabric.controllerServiceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
+---
+{{- if .Values.agent.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "unifabric.agentName" . }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "unifabric.agentName" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "unifabric.agentServiceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

@@ -1,0 +1,211 @@
+{{- if include "unifabric.ebpfFlow.clickhouseBundled" . }}
+{{/*
+Bundled single replica ClickHouse. FOR TESTING ONLY, deployed while
+ebpfFlowEventCollector.clickhouse.endpoint is empty. It carries no replication or
+backups and uses fixed credentials, point endpoint at a managed cluster for
+anything beyond evaluating the flow pipeline.
+*/}}
+{{- $ch := .Values.ebpfFlowEventCollector.clickhouse }}
+{{- $b := $ch.bundled }}
+{{- $name := include "unifabric.ebpfFlowClickHouseName" . }}
+{{- $memoryLimit := dig "limits" "memory" "4Gi" $b.resources }}
+{{- $memoryBytes := 4000000000 }}
+{{- if hasSuffix "Gi" ($memoryLimit | toString) }}
+{{- $memoryBytes = mul ($memoryLimit | toString | trimSuffix "Gi" | int) 1073741824 }}
+{{- else if hasSuffix "Mi" ($memoryLimit | toString) }}
+{{- $memoryBytes = mul ($memoryLimit | toString | trimSuffix "Mi" | int) 1048576 }}
+{{- end }}
+{{- if and $b.persistence.enabled (not $b.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $name }}-data
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-clickhouse
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $b.persistence.size }}
+  {{- with $b.persistence.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+---
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-clickhouse
+data:
+  # The entrypoint creates the user from CLICKHOUSE_USER and
+  # CLICKHOUSE_PASSWORD, defining the same user under users.d merges both
+  # and breaks password checks. Only server level settings belong here,
+  # background pool sizes are no longer root level in 24.x and abort startup.
+  server.xml: |
+    <clickhouse>
+      <prometheus>
+        <endpoint>/metrics</endpoint>
+        <port>9363</port>
+        <metrics>true</metrics>
+        <events>true</events>
+        <asynchronous_metrics>true</asynchronous_metrics>
+        <errors>true</errors>
+      </prometheus>
+      <!-- 85 percent of the container memory limit instead of host memory. -->
+      <max_server_memory_usage>{{ div (mul $memoryBytes 85) 100 }}</max_server_memory_usage>
+      <max_concurrent_queries>50</max_concurrent_queries>
+    </clickhouse>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-clickhouse
+spec:
+  replicas: 1
+  # ReadWriteOnce claims cannot be mounted by two Pods during a rollout.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "unifabric.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: unifabric-ebpf-flow-clickhouse
+  template:
+    metadata:
+      labels:
+        {{- include "unifabric.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: unifabric-ebpf-flow-clickhouse
+    spec:
+      {{- with $b.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $b.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: clickhouse
+          image: {{ include "unifabric.image" (dict "root" . "image" $b.image) }}
+          imagePullPolicy: {{ $b.image.pullPolicy }}
+          ports:
+            - name: native
+              containerPort: 9000
+              protocol: TCP
+            - name: http
+              containerPort: 8123
+              protocol: TCP
+            - name: metrics
+              containerPort: 9363
+              protocol: TCP
+          env:
+            # The official entrypoint creates the database and the user on
+            # first start, the Collector init container creates the table.
+            - name: CLICKHOUSE_DB
+              value: {{ $ch.database | quote }}
+            - name: CLICKHOUSE_USER
+              value: {{ $ch.username | quote }}
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "unifabric.ebpfFlow.clickhouseSecretName" . }}
+                  key: {{ include "unifabric.ebpfFlow.clickhouseSecretKey" . }}
+            - name: CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT
+              value: "1"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/clickhouse
+            - name: config
+              mountPath: /etc/clickhouse-server/config.d/unifabric.xml
+              subPath: server.xml
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          {{- with $b.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: data
+          {{- if $b.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ $b.persistence.existingClaim | default (printf "%s-data" $name) }}
+          {{- else }}
+          emptyDir:
+            sizeLimit: {{ $b.persistence.size }}
+          {{- end }}
+        - name: config
+          configMap:
+            name: {{ $name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-clickhouse
+spec:
+  selector:
+    {{- include "unifabric.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-clickhouse
+  ports:
+    - name: native
+      port: 9000
+      targetPort: native
+      protocol: TCP
+    - name: http
+      port: 8123
+      targetPort: http
+      protocol: TCP
+    - name: metrics
+      port: 9363
+      targetPort: metrics
+      protocol: TCP
+{{- if .Values.ebpfFlowEventCollector.serviceMonitor.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-ebpf-flow-clickhouse
+    {{- with .Values.ebpfFlowEventCollector.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "unifabric.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: unifabric-ebpf-flow-clickhouse
+  endpoints:
+    - interval: {{ .Values.ebpfFlowEventCollector.serviceMonitor.interval }}
+      path: /metrics
+      port: metrics
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: node
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace | quote }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,3 @@
+{{- if and .Values.grafanaDashboard.enabled .Values.topologyAPI.enabled -}}
+{{- include "unifabric.dashboards" (dict "root" . "pattern" "topology.json") }}
+{{- end }}

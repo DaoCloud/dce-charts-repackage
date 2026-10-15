@@ -1,0 +1,27 @@
+{{- if .Values.grafanaInstance.enabled }}
+{{- if not (.Capabilities.APIVersions.Has "grafana.integreatly.org/v1beta1/Grafana") }}
+{{- fail "grafanaInstance.enabled requires the Grafana Operator Grafana CRD (grafana.integreatly.org/v1beta1)" }}
+{{- end }}
+{{- if and .Values.topologyAPI.enabled (or (not .Values.controller.enabled) (not .Values.controller.service.enabled)) }}
+{{- fail "grafanaInstance with topologyAPI.enabled requires controller.enabled and controller.service.enabled" }}
+{{- end }}
+{{- if and .Values.grafanaDashboard.enabled (ne .Values.grafanaDashboard.kind "GrafanaDashboard") }}
+{{- fail "grafanaInstance with grafanaDashboard.enabled requires grafanaDashboard.kind=GrafanaDashboard" }}
+{{- end }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  name: {{ include "unifabric.grafanaName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-grafana
+    {{- with .Values.grafanaInstance.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  version: {{ include "unifabric.image" (dict "root" . "image" .Values.grafanaInstance.image) | quote }}
+  service:
+    spec:
+      type: {{ .Values.grafanaInstance.serviceType }}
+{{- end }}

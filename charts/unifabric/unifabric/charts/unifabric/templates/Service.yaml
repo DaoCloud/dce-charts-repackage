@@ -1,0 +1,47 @@
+{{- if and .Values.controller.enabled .Values.controller.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "unifabric.controllerName" . }}-metrics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-controller
+spec:
+  type: {{ .Values.controller.service.type }}
+  selector:
+    {{- include "unifabric.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-controller
+  ports:
+    - name: metrics
+      port: {{ .Values.controller.service.port }}
+      targetPort: metrics
+      protocol: TCP
+    {{- if .Values.topologyAPI.enabled }}
+    - name: topology-api
+      port: {{ .Values.controller.ports.topologyAPI }}
+      targetPort: topology-api
+      protocol: TCP
+    {{- end }}
+{{- end }}
+---
+{{- if and .Values.agent.enabled .Values.nodeMetrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "unifabric.agentName" . }}-metrics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-agent
+spec:
+  type: {{ .Values.nodeMetrics.service.type }}
+  selector:
+    {{- include "unifabric.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-agent
+  ports:
+    - name: metrics
+      port: {{ .Values.nodeMetrics.service.port }}
+      targetPort: metrics
+      protocol: TCP
+{{- end }}

@@ -1,0 +1,579 @@
+# child values
+unifabric:
+  global:
+    # -- Registry prepended to chart-managed images when an image-specific registry is not set.
+    registry: ""
+    # -- Image pull secrets applied to Unifabric controller and agent pods.
+    imagePullSecrets: []
+  # -- Independently selects one discovery implementation and label contract for each topology. Mode is the only enablement switch for its topology writer.
+  topoDiscovery:
+    scaleUp:
+      # -- Scale-up discovery mode. Options: nv-topograph (NVIDIA Topograph) or manual (labels are managed externally).
+      mode: manual
+      nodeLabel:
+        # -- Go text/template for scale-up topology label keys. It must contain exactly one {{ .Tier }} action.
+        keyTemplate: "scale-up.unifabric.io/tier-{{ .Tier }}"
+    scaleOut:
+      # -- Scale-out discovery mode. Options: nv-topograph (NVIDIA Topograph) or unifabric-roce (built-in LLDP discovery).
+      mode: unifabric-roce
+      nodeLabel:
+        # -- Go text/template for scale-out topology label keys. It must contain exactly one {{ .Tier }} action.
+        keyTemplate: "scale-out.unifabric.io/tier-{{ .Tier }}"
+    storage:
+      # -- Storage discovery mode. Currently supported: unifabric-roce (RoCE storage).
+      mode: unifabric-roce
+      nodeLabel:
+        # -- Go text/template for storage topology label keys. It must contain exactly one {{ .Tier }} action.
+        keyTemplate: "storage.unifabric.io/tier-{{ .Tier }}"
+  # -- Controls Controller subscriptions to switch-agent endpoints described by Switch resources.
+  switchSubscription:
+    # -- Default gRPC port used when a Switch resource does not set spec.grpcPort.
+    defaultGrpcPort: 8090
+    # -- Glob patterns for switch local ports ignored before topology graph construction.
+    ignorePortPatterns:
+      - mgmt*
+      - Management*
+      - oob*
+    mtls:
+      # -- Certificate mode: auto generates Helm-managed Secrets, existing uses pre-created Secrets, and disabled uses plaintext gRPC.
+      mode: auto
+      # -- Secret mounted into the controller containing tls.crt, tls.key, and peer.crt.
+      controllerSecretName: switch-controller-mtls-controller
+      # -- Secret exported for switch agents containing tls.crt, tls.key, and peer.crt.
+      switchAgentSecretName: switch-controller-mtls-agent
+  # -- Controls how the agent discovers local RDMA and LLDP state and reports it through the FabricNode resource.
+  fabricNode:
+    # -- Interval between agent refreshes of local RDMA interfaces and LLDP neighbors.
+    refreshInterval: "1m"
+    # -- Delay before the first agent scan, allowing lldpd to learn neighbors.
+    initialScanDelay: "1m"
+    # -- RDMA interfaces included in scale-out topology and metrics. Supports selectors such as cidr=172.17.0.0/16 or interface=eth*,!eth9.
+    scaleOutInterfaceSelector: ""
+    # -- RDMA interfaces classified as storage and excluded from scale-out topology. Leave empty when no dedicated storage RDMA network exists.
+    storageInterfaceSelector: ""
+    # -- RDMA interfaces classified as scale-up and excluded from scale-out topology. Leave empty when no dedicated scale-up RDMA network exists.
+    scaleUpInterfaceSelector: ""
+  # -- Controls the agent RDMA metrics endpoint and scrape resources.
+  nodeMetrics:
+    # -- Enable RDMA metrics collection and expose the agent metrics Service.
+    enabled: true
+    # -- Container port used by the agent metrics endpoint.
+    port: 8082
+    # -- HTTP path served by the agent metrics endpoint.
+    path: /metrics
+    # -- ServiceMonitor settings used by Prometheus Operator to scrape node metrics.
+    serviceMonitor:
+      # -- Create a Prometheus Operator ServiceMonitor for agent RDMA metrics.
+      enabled: true
+      # -- Prometheus scrape interval for agent RDMA metrics.
+      interval: 15s
+      # -- Prometheus scrape timeout for agent RDMA metrics.
+      scrapeTimeout: 10s
+      # -- HTTP path scraped by the ServiceMonitor.
+      path: /metrics
+      # -- Extra labels added to the ServiceMonitor for Prometheus selection.
+      labels: {}
+    # -- Service settings for exposing agent RDMA metrics inside the cluster.
+    service:
+      # -- Kubernetes Service type for agent RDMA metrics.
+      type: ClusterIP
+      # -- Service port used by Prometheus to scrape agent RDMA metrics.
+      port: 8086
+  # -- Controls the read-only Topology HTTP API used by the Unifabric Grafana datasource plugin.
+  topologyAPI:
+    # -- Enable the Topology HTTP API. Disabled by default since it has no authentication of its own.
+    enabled: false
+  # -- Controls rendering of bundled Grafana dashboard resources (RDMA cluster/node/pod/workload,
+  # plus the Unifabric Topology dashboard when topologyAPI.enabled is true).
+  grafanaDashboard:
+    # -- Render the bundled Grafana dashboards.
+    enabled: true
+    # -- Dashboard language to install. en installs the English dashboards, zh the Chinese ones with a -zh suffix on their uid and resource name, all installs both.
+    language: en
+    # -- Dashboard resource kind. Use ConfigMap for Grafana sidecar import, or GrafanaDashboard for Grafana Operator.
+    kind: GrafanaDashboard
+    # -- Extra labels added to rendered dashboard resources.
+    labels: {}
+    # -- Allow Grafana Operator to import GrafanaDashboard resources across namespaces.
+    allowCrossNamespaceImport: true
+    # -- Grafana Operator instance selector for importing dashboards and the Topology datasource into an external Grafana instance. Ignored when grafanaInstance.enabled is true.
+    instanceSelector: {}
+  # -- Controls the optional Grafana instance managed by Grafana Operator. The Grafana Operator CRDs must already be installed.
+  grafanaInstance:
+    # -- Create a Grafana CR for this release and, when topologyAPI.enabled is true, its Topology GrafanaDatasource.
+    enabled: false
+    image:
+      # -- Container image registry for the bundled Grafana instance.
+      registry: ghcr.m.daocloud.io
+      # -- Container image repository containing the Unifabric Grafana plugins.
+      repository: unifabric-io/unifabric-grafana
+      # -- Container image tag. Defaults to the chart appVersion when empty.
+      tag: "v0.4.0"
+    # -- Kubernetes Service type for the bundled Grafana instance.
+    serviceType: NodePort
+    # -- Extra labels added to the Grafana instance.
+    labels: {}
+  controller:
+    # -- Deploy the Unifabric controller.
+    enabled: true
+    # -- Number of controller replicas.
+    replicaCount: 1
+    image:
+      # -- Container image registry for the controller.
+      registry: ghcr.m.daocloud.io
+      # -- Container image repository for the controller.
+      repository: unifabric-io/unifabric-controller
+      # -- Container image tag for the controller. Defaults to the chart appVersion when empty.
+      tag: "v0.4.0"
+      # -- Image pull policy for the controller container.
+      pullPolicy: IfNotPresent
+    serviceAccount:
+      # -- Create a ServiceAccount for the controller.
+      create: true
+      # -- Controller ServiceAccount name. Defaults to the generated controller name when empty.
+      name: ""
+      # -- Annotations added to the controller ServiceAccount.
+      annotations: {}
+    # -- Annotations added to controller pods.
+    podAnnotations: {}
+    # -- Extra labels added to controller pods.
+    podLabels: {}
+    # -- Node selector for scheduling controller pods.
+    nodeSelector: {}
+    # -- Tolerations for scheduling controller pods.
+    tolerations: []
+    # -- Affinity rules for scheduling controller pods.
+    affinity: {}
+    podSecurityContext:
+      # -- Run the controller pod as a non-root user.
+      runAsNonRoot: true
+      # -- User ID used by controller containers.
+      runAsUser: 65532
+      # -- Group ID used by controller containers.
+      runAsGroup: 65532
+      # -- Filesystem group ID used by mounted controller volumes.
+      fsGroup: 65532
+      seccompProfile:
+        # -- Seccomp profile applied to controller pods.
+        type: RuntimeDefault
+    containerSecurityContext:
+      # -- Prevent privilege escalation in the controller container.
+      allowPrivilegeEscalation: false
+      # -- Mount the controller container root filesystem as read-only.
+      readOnlyRootFilesystem: true
+      capabilities:
+        # -- Linux capabilities dropped from the controller container.
+        drop:
+          - ALL
+    resources:
+      requests:
+        # -- Controller CPU request.
+        cpu: 100m
+        # -- Controller memory request.
+        memory: 128Mi
+      limits:
+        # -- Controller CPU limit.
+        cpu: 500m
+        # -- Controller memory limit.
+        memory: 512Mi
+    ports:
+      # -- Controller metrics container port.
+      metrics: 8080
+      # -- Controller health probe container port.
+      health: 8081
+      # -- Controller Topology API container, Service, and datasource port. Only listened on when topologyAPI.enabled is true.
+      topologyAPI: 8082
+    service:
+      # -- Create a Service for the controller metrics endpoint.
+      enabled: true
+      # -- Kubernetes Service type for the controller metrics endpoint.
+      type: ClusterIP
+      # -- Service port for controller metrics.
+      port: 8080
+    config:
+      # -- Controller log level. Valid values are debug, info, warn, and error.
+      logLevel: info
+      metrics:
+        # -- Controller metrics bind address inside the container.
+        bindAddress: ":8080"
+      healthProbe:
+        # -- Controller health and readiness bind address inside the container.
+        bindAddress: ":8081"
+      pprof:
+        # -- Controller pprof bind address. Leave empty to disable pprof.
+        bindAddress: ""
+      leaderElection:
+        # -- Enable Kubernetes leader election for the controller.
+        enabled: true
+        # -- Namespace used for leader election leases. Empty uses the release namespace.
+        namespace: ""
+        # -- Leader election lease identifier.
+        id: unifabric-controller
+  agent:
+    # -- Deploy the Unifabric node agent DaemonSet.
+    enabled: true
+    image:
+      # -- Container image registry shared by the agent and lldpd sidecar.
+      registry: ghcr.m.daocloud.io
+      # -- Container image repository shared by the agent and lldpd sidecar.
+      repository: unifabric-io/unifabric-agent
+      # -- Container image tag shared by the agent and lldpd sidecar. Defaults to the chart appVersion when empty.
+      tag: "v0.4.0"
+      # -- Image pull policy shared by the agent and lldpd sidecar.
+      pullPolicy: IfNotPresent
+    serviceAccount:
+      # -- Create a ServiceAccount for the agent.
+      create: true
+      # -- Agent ServiceAccount name. Defaults to the generated agent name when empty.
+      name: ""
+      # -- Annotations added to the agent ServiceAccount.
+      annotations: {}
+    # -- Annotations added to agent pods.
+    podAnnotations: {}
+    # -- Extra labels added to agent pods.
+    podLabels: {}
+    # -- Node selector for scheduling agent pods.
+    nodeSelector: {}
+    # -- Tolerations for scheduling agent pods.
+    tolerations: []
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: In
+                  values:
+                    - linux
+    # -- Run agent pods in the host network namespace.
+    hostNetwork: true
+    # -- Run agent pods in the host PID namespace.
+    hostPID: true
+    podSecurityContext:
+      seccompProfile:
+        # -- Seccomp profile applied to agent pods.
+        type: RuntimeDefault
+    containerSecurityContext:
+      # -- Run the agent container as privileged so it can inspect host RDMA and network state.
+      privileged: true
+    resources:
+      requests:
+        # -- Agent CPU request.
+        cpu: 100m
+        # -- Agent memory request.
+        memory: 256Mi
+      limits:
+        # -- Agent CPU limit. Keep it generous: the agent issues one ethtool ioctl per RDMA interface (PFs and every SR-IOV VF) while holding the kernel rtnl lock, and CFS throttling mid-ioctl stalls other network operations on the node.
+        cpu: "2"
+        # -- Agent memory limit.
+        memory: 1Gi
+    ports:
+      # -- Agent metrics container port.
+      metrics: 8082
+      # -- Agent health probe container port.
+      health: 8083
+    config:
+      # -- Agent log level. Valid values are debug, info, warn, and error.
+      logLevel: info
+      metrics:
+        # -- Agent metrics bind address inside the container.
+        bindAddress: ":8082"
+      healthProbe:
+        # -- Agent health and readiness bind address inside the container.
+        bindAddress: ":8083"
+      node:
+        # -- Kubernetes node name override. Leave empty to use the pod NODE_NAME environment value.
+        name: ""
+        # -- Agent node role. Valid values are gpu and storage.
+        role: gpu
+        # -- host:port used to infer the default route when classifying local interfaces.
+        defaultRouteProbe: "8.8.8.8:53"
+    # -- Third-party workload kinds the agent may read while walking a Pod's ownerReferences to its top-level owner, rendered into the agent-workload-owners ClusterRole with the get verb. Keys are API groups, values their plural resources, user values merge with these defaults so a new controller is one extra key. Kubernetes built-in kinds and unifabric.io resources are covered by the generated agent role.
+    workloadOwnerRules:
+      kubeflow.org: [mpijobs, pytorchjobs, tfjobs, xgboostjobs, paddlejobs, jaxjobs]
+      trainer.kubeflow.org: [trainjobs]
+      jobset.x-k8s.io: [jobsets]
+      leaderworkerset.x-k8s.io: [leaderworkersets]
+      ray.io: [rayclusters, rayjobs, rayservices]
+      sparkoperator.k8s.io: [sparkapplications]
+      batch.volcano.sh: [jobs]
+    ebpfFlow:
+      # -- Enable the eBPF flow component that attributes RDMA sends to Pod-to-Pod flows, publishes RDMAEndpoint objects and exports rdma_flow_* metrics. Requires a kernel with BPF ring buffer and uprobe support.
+      enabled: false
+      flowEvents:
+        # -- Emit per-send ring buffer events, send-size metrics, and OTLP rows. Enable only when per-send details are required; cumulative bytes, WR, and QP flow metrics remain available when disabled.
+        enabled: false
+        # -- Send event rows buffered per sink before new rows are dropped.
+        queue: 200000
+        # -- Send event rows per export batch.
+        batch: 10000
+        # -- Maximum time a partial batch waits before export.
+        flush: 1s
+        # -- Store one send event in every N, metrics still count every event.
+        sample: 1
+        # -- Merge identical submissions of a QP inside this window into one row with a count. 0s stores every submission.
+        aggregate: 0s
+      # -- Host directory persisting learned provider callback offsets across agent restarts.
+      hostStateDir: /var/lib/unifabric
+      # -- Host bpffs mount holding the pinned qp_infos and qp_stats maps.
+      bpffsPath: /sys/fs/bpf
+      # -- bpffs directory for pinned maps so a restarted agent keeps learned QP state. Empty disables pinning.
+      pinDir: /sys/fs/bpf/unifabric
+      # -- File persisting learned provider callback offsets, under hostStateDir.
+      offsetCache: /var/lib/unifabric/ebpf-flow/callback-offsets.json
+      # -- Fallback interval for scanning new processes and libibverbs libraries.
+      discoveryInterval: 5s
+      # -- Interval for joining the BPF maps into flow metrics.
+      reportInterval: 5s
+      endpoint:
+        # -- Publish one RDMAEndpoint per Pod that holds an RDMA device.
+        enabled: true
+        # -- Fallback publish interval covering lost events.
+        interval: 30s
+        # -- Minimum spacing between event driven RDMAEndpoint updates.
+        minInterval: 3s
+        # -- Also publish Pods with their own network namespace. Required on InfiniBand fabrics where peers are addressed by LID.
+        allPods: false
+      otlp:
+        # -- Use plaintext gRPC for the OTLP endpoint.
+        insecure: true
+        # -- Per export timeout for the OTLP exporter.
+        timeout: 10s
+    lldp:
+      # -- Run the lldpd sidecar used by the agent to collect LLDP neighbors.
+      enabled: true
+      # -- lldpd management IP pattern written to lldpd.conf. Leave empty to let lldpd choose.
+      managementIPPattern: ""
+      # -- Interface pattern passed to lldpd for LLDP discovery. Leave empty to let lldpd use its defaults.
+      interfaces: ""
+      # -- LLDP transmit interval, in seconds, configured for lldpd.
+      txInterval: 30
+      # -- Additional raw lldpd configuration appended to lldpd.conf.
+      extraConfig: ""
+      containerSecurityContext:
+        # -- Run the lldpd sidecar as privileged so it can access host network interfaces.
+        privileged: true
+      resources:
+        requests:
+          # -- lldpd sidecar CPU request.
+          cpu: 50m
+          # -- lldpd sidecar memory request.
+          memory: 64Mi
+        limits:
+          # -- lldpd sidecar CPU limit.
+          cpu: 100m
+          # -- lldpd sidecar memory limit.
+          memory: 128Mi
+  # -- OpenTelemetry Collector receives eBPF flow events over OTLP and writes them to ClickHouse and/or Elasticsearch. Agents use this Collector when flowEvents is enabled.
+  ebpfFlowEventCollector:
+    # -- Collector replicas. Agents hold one gRPC connection each, so more replicas than agents stay idle.
+    replicas: 1
+    image:
+      # -- OpenTelemetry Collector contrib image registry. Only the contrib distribution ships the clickhouse and elasticsearch exporters.
+      registry: docker.m.daocloud.io
+      # -- OpenTelemetry Collector contrib image repository.
+      repository: otel/opentelemetry-collector-contrib
+      # -- OpenTelemetry Collector contrib image tag.
+      tag: 0.137.0
+      # -- Image pull policy.
+      pullPolicy: IfNotPresent
+    resources:
+      requests:
+        # -- Collector CPU request.
+        cpu: 500m
+        # -- Collector memory request.
+        memory: 512Mi
+      limits:
+        # -- Collector CPU limit.
+        cpu: "2"
+        # -- Collector memory limit. memory_limiter is derived from it.
+        memory: 2Gi
+    # -- Node selector for the Collector Pod.
+    nodeSelector: {}
+    # -- Tolerations for the Collector Pod.
+    tolerations: []
+    batch:
+      # -- Records per batch sent to the backends.
+      sendBatchSize: 10000
+      # -- Upper bound of a batch.
+      sendBatchMaxSize: 20000
+      # -- Maximum time a partial batch waits.
+      timeout: 1s
+    serviceMonitor:
+      # -- Create a ServiceMonitor for the Collector's own metrics on port 8888.
+      enabled: true
+      # -- Scrape interval for the Collector metrics.
+      interval: 15s
+      # -- Extra labels added to the ServiceMonitor.
+      labels: {}
+    clickhouse:
+      # -- Write send events to ClickHouse.
+      enabled: false
+      # -- Native protocol endpoint of an external ClickHouse, for example tcp://clickhouse.data.svc:9000. Leave empty to deploy the bundled test instance described under bundled instead.
+      endpoint: ""
+      # -- ClickHouse database holding the send events table.
+      database: rdma
+      # -- ClickHouse table name.
+      table: rdma_sends
+      # -- ClickHouse user.
+      username: rdma
+      # -- ClickHouse password. Defaults to rdma-flow for the bundled test instance. Prefer existingSecret for an external server.
+      password: ""
+      # -- Existing Secret with a password key used instead of password.
+      existingSecret: ""
+      # -- Row retention applied by the table TTL.
+      ttlDays: 3
+      schema:
+        # -- Create the database and the strongly typed table with an init container before the Collector starts. The exporter never creates the schema itself.
+        create: true
+        image:
+          # -- ClickHouse client image used by the schema init container.
+          registry: docker.m.daocloud.io
+          # -- ClickHouse client image repository.
+          repository: clickhouse/clickhouse-server
+          # -- ClickHouse client image tag.
+          tag: "24.8"
+      # -- Bundled single replica ClickHouse deployed only when endpoint is empty. FOR TESTING ONLY: no replication, no backups, fixed credentials, sized for a few nodes of traffic.
+      bundled:
+        image:
+          # -- Bundled ClickHouse image registry.
+          registry: docker.m.daocloud.io
+          # -- Bundled ClickHouse image repository.
+          repository: clickhouse/clickhouse-server
+          # -- Bundled ClickHouse image tag.
+          tag: "24.8"
+          # -- Bundled ClickHouse image pull policy.
+          pullPolicy: IfNotPresent
+        persistence:
+          # -- Keep the data directory on a PersistentVolumeClaim so tables survive Pod recreation. false uses an emptyDir.
+          enabled: true
+          # -- Size of the claim, or of the emptyDir limit when persistence is disabled.
+          size: 20Gi
+          # -- StorageClass of the claim. Empty uses the cluster default class.
+          storageClassName: ""
+          # -- Existing PersistentVolumeClaim to mount instead of creating one.
+          existingClaim: ""
+        # -- Bundled ClickHouse container resources. max_server_memory_usage follows the memory limit.
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: "2"
+            memory: 4Gi
+        # -- Node selector for the bundled ClickHouse Pod.
+        nodeSelector: {}
+        # -- Tolerations for the bundled ClickHouse Pod.
+        tolerations: []
+    elasticsearch:
+      # -- Write send events to Elasticsearch as a data stream.
+      enabled: false
+      # -- HTTP endpoints of an external Elasticsearch, for example http://elasticsearch.data.svc:9200. Leave empty to deploy the bundled test instance described under bundled instead.
+      endpoints: []
+      # -- Elasticsearch user.
+      user: elastic
+      # -- Elasticsearch password. Defaults to rdma-flow for the bundled test instance. Prefer existingSecret for an external cluster.
+      password: ""
+      # -- Existing Secret with a password key used instead of password.
+      existingSecret: ""
+      # -- Data stream receiving the documents.
+      index: rdma-sends
+      schema:
+        # -- Write the index template and ILM policy of the data stream before the Collector starts. The template maps every attribute as keyword or number, disables dynamic mapping and uses date_nanos timestamps.
+        create: true
+        image:
+          # -- curl image used by the schema init container against an external Elasticsearch. The bundled instance applies the schema from its own Pod.
+          registry: docker.m.daocloud.io
+          # -- curl image repository.
+          repository: curlimages/curl
+          # -- curl image tag.
+          tag: 8.10.1
+        # -- Refresh interval of the backing indices.
+        refreshInterval: 30s
+        ilm:
+          # -- Roll the write index over after this age.
+          rolloverMaxAge: 1d
+          # -- Roll the write index over when a primary shard reaches this size.
+          rolloverMaxPrimaryShardSize: 10gb
+          # -- Delete backing indices this long after rollover.
+          deleteMinAge: 3d
+      grafanaDatasource:
+        # -- Create a GrafanaDatasource for the data stream so the flow-sends-es dashboard works. Requires grafanaDashboard.kind GrafanaDashboard.
+        enabled: true
+      # -- Bundled single node Elasticsearch deployed only when endpoints is empty. FOR TESTING ONLY: single node, security without TLS, fixed credentials, disk watermarks disabled.
+      bundled:
+        image:
+          # -- Bundled Elasticsearch image registry.
+          registry: elastic.m.daocloud.io
+          # -- Bundled Elasticsearch image repository.
+          repository: elasticsearch/elasticsearch
+          # -- Bundled Elasticsearch image tag.
+          tag: 8.15.3
+          # -- Bundled Elasticsearch image pull policy.
+          pullPolicy: IfNotPresent
+        sysctlImage:
+          # -- busybox image used by the privileged init container raising vm.max_map_count.
+          registry: docker.m.daocloud.io
+          # -- busybox image repository.
+          repository: library/busybox
+          # -- busybox image tag.
+          tag: "1.36"
+        exporter:
+          # -- Run the elasticsearch-exporter sidecar exposing elasticsearch_* metrics on port 9114 for the dashboards.
+          enabled: true
+          image:
+            # -- elasticsearch-exporter image registry.
+            registry: quay.m.daocloud.io
+            # -- elasticsearch-exporter image repository.
+            repository: prometheuscommunity/elasticsearch-exporter
+            # -- elasticsearch-exporter image tag.
+            tag: v1.7.0
+        # -- JVM heap passed as -Xms and -Xmx. Keep it at half of the memory limit or less.
+        javaHeap: 2g
+        persistence:
+          # -- Keep the data directory on a PersistentVolumeClaim. false uses an emptyDir and loses data on Pod recreation.
+          enabled: false
+          # -- Size of the claim, or of the emptyDir limit when persistence is disabled.
+          size: 20Gi
+          # -- StorageClass of the claim. Empty uses the cluster default class.
+          storageClassName: ""
+          # -- Existing PersistentVolumeClaim to mount instead of creating one.
+          existingClaim: ""
+        # -- Bundled Elasticsearch container resources.
+        resources:
+          requests:
+            cpu: "1"
+            memory: 3Gi
+          limits:
+            cpu: "2"
+            memory: 4Gi
+        # -- Node selector for the bundled Elasticsearch Pod.
+        nodeSelector: {}
+        # -- Tolerations for the bundled Elasticsearch Pod.
+        tolerations: []
+  nvidiaTopograph:
+    # -- Topology provider settings passed to NVIDIA Topograph.
+    provider:
+      # -- Provider name. Use infiniband-k8s for InfiniBand or netq for Spectrum-X.
+      name: infiniband-k8s
+      # -- Provider-specific parameters, such as apiUrl for netq.
+      params: {}
+    # -- Existing Secret containing a credentials.yaml key. Required by the netq provider; credentials are mounted only into the topograph Pod.
+    credentialsSecretName: ""
+    # -- Use the GPU Operator clique label as the accelerator topology source for infiniband-k8s.
+    useGpuCliqueLabel: true
+    # -- Shared image used by topograph, node-observer, and node-data-broker.
+    image:
+      # -- NVIDIA Topograph image registry.
+      registry: ghcr.m.daocloud.io
+      # -- NVIDIA Topograph image repository.
+      repository: nvidia/topograph
+      # -- NVIDIA Topograph image tag.
+      tag: v0.5.0
+      # -- NVIDIA Topograph image pull policy.
+      pullPolicy: IfNotPresent
+    # -- Selects GPU Nodes observed by node-observer and running node-data-broker.
+    gpuNodeSelector:
+      nvidia.com/gpu.present: "true"
+    # -- Tolerations applied to node-data-broker on selected GPU Nodes.
+    gpuNodeTolerations: []

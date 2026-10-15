@@ -1,0 +1,89 @@
+{{- include "unifabric.topoDiscovery.validate" . }}
+{{- if .Values.controller.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "unifabric.controllerName" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-controller
+data:
+  controller.yaml: |-
+    {{- $controllerConfig := deepCopy .Values.controller.config }}
+    {{- $topologyLabels := dict
+      "scaleUp" .Values.topoDiscovery.scaleUp.nodeLabel.keyTemplate
+      "scaleOut" .Values.topoDiscovery.scaleOut.nodeLabel.keyTemplate
+      "storage" .Values.topoDiscovery.storage.nodeLabel.keyTemplate -}}
+    {{- $_ := set $controllerConfig "topologyLabels" $topologyLabels }}
+    {{- if hasKey .Values "fabricNode" }}
+    {{- $_ := set $controllerConfig "nodeTopologyDiscovery" .Values.fabricNode }}
+    {{- end }}
+    {{- if hasKey .Values "topologyAPI" }}
+    {{- $_ := set $controllerConfig "topologyAPI" (dict
+      "enabled" .Values.topologyAPI.enabled
+      "bindAddress" (printf ":%v" .Values.controller.ports.topologyAPI)
+    ) }}
+    {{- end }}
+    {{- if hasKey .Values "switchSubscription" }}
+    {{- $switchMTLSConfig := dict
+      "enabled" (eq (include "unifabric.switchMTLS.enabled" .) "true")
+      "controllerSecretName" (include "unifabric.switchMTLS.controllerSecretName" .)
+      "switchAgentSecretName" (include "unifabric.switchMTLS.switchAgentSecretName" .) -}}
+    {{- $switchSubscriptionConfig := dict
+      "enabled" (eq (include "unifabric.switchSubscription.enabled" .) "true")
+      "manageScaleOut" (eq (include "unifabric.topoDiscovery.scaleOutMode" .) "unifabric-roce")
+      "manageStorage" (has (include "unifabric.topoDiscovery.storageMode" .) (list "unifabric-roce" "unifabric-ib"))
+      "defaultGrpcPort" .Values.switchSubscription.defaultGrpcPort
+      "ignoreSwitchPorts" .Values.switchSubscription.ignorePortPatterns
+      "mtls" $switchMTLSConfig -}}
+    {{- $_ := set $controllerConfig "scaleOutDiscovery" (dict "switches" $switchSubscriptionConfig) }}
+    {{- end }}
+    {{- toYaml $controllerConfig | nindent 4 }}
+{{- end }}
+---
+{{- if .Values.agent.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "unifabric.agentName" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-agent
+data:
+  agent.yaml: |-
+    {{- $agentConfig := deepCopy .Values.agent.config }}
+    {{- if hasKey .Values "fabricNode" }}
+    {{- $_ := set $agentConfig "nodeTopologyDiscovery" .Values.fabricNode }}
+    {{- end }}
+    {{- $ebpfFlowConfig := omit (deepCopy .Values.agent.ebpfFlow) "hostStateDir" "bpffsPath" }}
+    {{- $_ := set $ebpfFlowConfig.otlp "endpoint" (include "unifabric.ebpfFlow.otlpEndpoint" .) }}
+    {{- $_ := set $agentConfig "ebpfFlow" $ebpfFlowConfig }}
+    {{- include "unifabric.render" (dict "value" $agentConfig "context" $) | nindent 4 }}
+{{- end }}
+---
+{{- if and .Values.agent.enabled .Values.agent.lldp.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "unifabric.agentName" . }}-lldpd
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-agent
+data:
+  lldpd.conf: |
+    {{- if .Values.agent.lldp.managementIPPattern }}
+    configure system ip management pattern {{ .Values.agent.lldp.managementIPPattern }}
+    {{- end }}
+    {{- if .Values.agent.lldp.interfaces }}
+    configure system interface pattern {{ .Values.agent.lldp.interfaces }}
+    {{- end }}
+    {{- if .Values.agent.lldp.txInterval }}
+    configure lldp tx-interval {{ .Values.agent.lldp.txInterval }}
+    {{- end }}
+    {{- if .Values.agent.lldp.extraConfig }}
+    {{ .Values.agent.lldp.extraConfig }}
+    {{- end }}
+{{- end }}

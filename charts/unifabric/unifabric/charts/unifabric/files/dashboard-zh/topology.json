@@ -1,0 +1,363 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "unifabric-unifabrictopology-datasource",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 20,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "showLabels": true
+      },
+      "targets": [
+        {
+          "cluster": "$cluster",
+          "datasource": {
+            "type": "unifabric-unifabrictopology-datasource",
+            "uid": "${datasource}"
+          },
+          "refId": "A"
+        }
+      ],
+      "title": "Unifabric 拓扑",
+      "type": "unifabric-unifabrictopology-panel"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus_datasource}"
+      },
+      "description": "每个节点的 RDMA 设备健康与流量，来自 Agent 的 unifabric_* 指标。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "健康设备"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "读取"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bps"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "写入"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bps"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 2,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus_datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "count by (node_name) (unifabric_port_oper_state{scope=\"host\", cluster_name=~\"$cluster|^$\"})",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus_datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "count by (node_name) (unifabric_port_oper_state{scope=\"host\", cluster_name=~\"$cluster|^$\"} == 1)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus_datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "count by (node_name) (\n  count by (node_name, pod_namespace, pod_name) (unifabric_port_rcv_data{pod_name!=\"\", cluster_name=~\"$cluster|^$\"})\n)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus_datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (node_name) (\n  irate(unifabric_port_rcv_data{pod_name=\"\", cluster_name=~\"$cluster|^$\"}[$__rate_interval])\n) * 8",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus_datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (node_name) (\n  irate(unifabric_port_xmit_data{pod_name=\"\", cluster_name=~\"$cluster|^$\"}[$__rate_interval])\n) * 8",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "E"
+        }
+      ],
+      "title": "RDMA 节点概览",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "node_name",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "byVariable": false,
+            "include": {
+              "names": [
+                "node_name",
+                "Value #A",
+                "Value #B",
+                "Value #C",
+                "Value #D",
+                "Value #E"
+              ]
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {
+              "Value #A": 2,
+              "Value #B": 1,
+              "Value #C": 3,
+              "Value #D": 4,
+              "Value #E": 5,
+              "node_name": 0
+            },
+            "orderBy": [],
+            "orderByMode": "manual",
+            "renameByName": {
+              "Value #A": "Total Devices",
+              "Value #B": "健康设备",
+              "Value #C": "RDMA Pods",
+              "Value #D": "读取",
+              "Value #E": "写入",
+              "node_name": "Node"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": [
+    "unifabric",
+    "topology",
+    "network"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "default",
+          "value": "default"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": "数据源",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "unifabric-unifabrictopology-datasource",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "unifabric-unifabrictopology-datasource",
+          "uid": "${datasource}"
+        },
+        "definition": "",
+        "hide": 0,
+        "includeAll": false,
+        "label": "集群",
+        "multi": false,
+        "name": "cluster",
+        "options": [],
+        "query": "clusters",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "hide": 2,
+        "includeAll": false,
+        "label": "Prometheus",
+        "multi": false,
+        "name": "prometheus_datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Unifabric 拓扑",
+  "uid": "unifabric-topology-zh",
+  "version": 1,
+  "weekStart": ""
+}
