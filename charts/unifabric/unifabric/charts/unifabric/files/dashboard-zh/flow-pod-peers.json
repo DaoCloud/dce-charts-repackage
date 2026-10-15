@@ -1,0 +1,1339 @@
+{
+  "uid": "unifabric-flow-pod-peers-zh",
+  "title": "Unifabric / RDMA 流量归属",
+  "description": "选择 workload 和其中的 Pod，查看该 Pod 发往各对端 Pod 的 RDMA payload 流量。",
+  "tags": [
+    "unifabric",
+    "rdma",
+    "ebpf",
+    "flow",
+    "pod"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "schemaVersion": 39,
+  "version": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "label": "数据源",
+        "type": "datasource",
+        "query": "prometheus",
+        "refresh": 1,
+        "hide": 0,
+        "current": {},
+        "options": []
+      },
+      {
+        "name": "namespace",
+        "label": "Workload 命名空间",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(rdma_flow_bytes_total, src_pod_top_owner_namespace)",
+        "query": {
+          "query": "label_values(rdma_flow_bytes_total, src_pod_top_owner_namespace)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": false,
+        "multi": false,
+        "hide": 0,
+        "options": [],
+        "current": {}
+      },
+      {
+        "name": "kind",
+        "label": "Workload 类型",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\"}, src_pod_top_owner_kind)",
+        "query": {
+          "query": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\"}, src_pod_top_owner_kind)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": false,
+        "multi": false,
+        "hide": 0,
+        "options": [],
+        "current": {}
+      },
+      {
+        "name": "workload",
+        "label": "Workload",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\"}, src_pod_top_owner_name)",
+        "query": {
+          "query": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\"}, src_pod_top_owner_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": false,
+        "multi": false,
+        "hide": 0,
+        "options": [],
+        "current": {}
+      },
+      {
+        "name": "pod",
+        "label": "Pod",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\"}, src_pod_name)",
+        "query": {
+          "query": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\"}, src_pod_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": true,
+        "multi": true,
+        "hide": 0,
+        "options": [],
+        "current": {},
+        "allValue": ".*"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 47,
+      "type": "row",
+      "title": "Pod 对端流量",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "发送速率",
+      "description": "所选 Pod 当前向所有对端发送的 payload 速率。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 0,
+        "y": 1
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum(rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval]))",
+          "legendFormat": "",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "orientation": "auto",
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "id": 1
+    },
+    {
+      "type": "stat",
+      "title": "WR 速率",
+      "description": "所选 Pod 当前每秒提交的 Work Request 数。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 1
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum(rate(rdma_flow_wrs_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval]))",
+          "legendFormat": "",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "orientation": "auto",
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "id": 2
+    },
+    {
+      "type": "stat",
+      "title": "活跃 QP 数",
+      "description": "最近一轮报告中归属所选 Pod 的 QP 统计项数量。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 10,
+        "y": 1
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum(rdma_flow_qps{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"})",
+          "legendFormat": "",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "orientation": "auto",
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "id": 3
+    },
+    {
+      "type": "stat",
+      "title": "活跃对端 Pod 数",
+      "description": "当前有流量发往的对端 Pod 数量。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 14,
+        "y": 1
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "count(\n  sum by (dst_pod_namespace, dst_pod_name) (\n    rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n  ) > 0\n)",
+          "legendFormat": "",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "orientation": "auto",
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "id": 4
+    },
+    {
+      "type": "stat",
+      "title": "时间范围内累计发送",
+      "description": "所选时间范围内向所有对端发送的 payload 字节数。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 19,
+        "y": 1
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum(increase(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__range]))",
+          "legendFormat": "",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "yellow"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "orientation": "auto",
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "id": 5
+    },
+    {
+      "type": "timeseries",
+      "title": "按对端 Pod 的发送速率",
+      "description": "所选 Pod 发往每个对端 Pod 的 payload 速率，图例为对端的 namespace/name。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name) (\n  rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{dst_pod_namespace}}/{{dst_pod_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 6
+    },
+    {
+      "type": "timeseries",
+      "title": "按对端 Workload 的发送速率",
+      "description": "同一对端 workload 下多个 Pod 的流量合并显示。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_top_owner_name) (\n  rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{dst_pod_top_owner_kind}} {{dst_pod_top_owner_namespace}}/{{dst_pod_top_owner_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 7
+    },
+    {
+      "type": "bargauge",
+      "title": "时间范围内累计发送字节（按对端 Pod）",
+      "description": "所选时间范围内发往每个对端 Pod 的 payload 字节数，降序排列。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sort_desc(sum by (dst_pod_namespace, dst_pod_name) (\n  increase(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__range])\n))",
+          "legendFormat": "{{dst_pod_namespace}}/{{dst_pod_name}}",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": {
+            "mode": "continuous-BlPu"
+          },
+          "min": 0,
+          "displayName": "${__series.name}"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true,
+        "valueMode": "color",
+        "namePlacement": "top",
+        "sizing": "manual",
+        "minVizHeight": 18,
+        "maxVizHeight": 28,
+        "minVizWidth": 8,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 14
+        },
+        "legend": {
+          "showLegend": false,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        }
+      },
+      "id": 8
+    },
+    {
+      "type": "table",
+      "title": "对端明细",
+      "description": "每个对端 Pod 与网卡组合一行，包含对端 workload、本端和对端网卡、当前速率、累计字节和 QP 数。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_top_owner_name, src_device, dst_device) (\n  rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "",
+          "format": "table",
+          "instant": true,
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "B",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_top_owner_name, src_device, dst_device) (\n  rate(rdma_flow_wrs_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "",
+          "format": "table",
+          "instant": true,
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "C",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_top_owner_name, src_device, dst_device) (\n  increase(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__range])\n)",
+          "legendFormat": "",
+          "format": "table",
+          "instant": true,
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "D",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_top_owner_name, src_device, dst_device) (\n  rdma_flow_qps{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}\n)",
+          "legendFormat": "",
+          "format": "table",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "dst_pod_namespace": 0,
+              "dst_pod_name": 1,
+              "dst_pod_top_owner_kind": 2,
+              "dst_pod_top_owner_namespace": 3,
+              "dst_pod_top_owner_name": 4,
+              "src_device": 5,
+              "dst_device": 6,
+              "Value #A": 7,
+              "Value #B": 8,
+              "Value #C": 9,
+              "Value #D": 10
+            },
+            "renameByName": {
+              "dst_pod_namespace": "对端命名空间",
+              "dst_pod_name": "对端 Pod",
+              "dst_pod_top_owner_kind": "对端 Workload 类型",
+              "dst_pod_top_owner_namespace": "对端 Workload 命名空间",
+              "dst_pod_top_owner_name": "对端 Workload",
+              "Value #A": "发送速率",
+              "Value #B": "WR 速率",
+              "Value #C": "累计字节",
+              "Value #D": "QP 数",
+              "src_device": "本端网卡",
+              "dst_device": "对端网卡"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "发送速率"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "Bps"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "WR 速率"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ops"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "累计字节"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "QP 数"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "发送速率"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "Bps"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-BlPu"
+                }
+              },
+              {
+                "id": "min",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "发送速率",
+            "desc": true
+          }
+        ],
+        "footer": {
+          "show": false
+        }
+      },
+      "id": 9
+    },
+    {
+      "type": "timeseries",
+      "title": "Workload 内各 Pod 发送速率",
+      "description": "所选 workload 下每个 Pod 的总发送速率，用于对比 Pod 之间的负载。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (src_pod_namespace, src_pod_name) (\n  rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{src_pod_namespace}}/{{src_pod_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 10
+    },
+    {
+      "type": "timeseries",
+      "title": "该 Pod 收到的流量（按源 Pod）",
+      "description": "反向视角，其他 Pod 发往所选 Pod 的 payload 速率，由源 Pod 所在节点的 agent 采集。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (src_pod_namespace, src_pod_name) (\n  rate(rdma_flow_bytes_total{dst_pod_top_owner_namespace=\"$namespace\", dst_pod_top_owner_kind=\"$kind\", dst_pod_top_owner_name=\"$workload\", dst_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{src_pod_namespace}}/{{src_pod_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 11
+    },
+    {
+      "type": "timeseries",
+      "title": "按网卡的发送速率",
+      "description": "所选 Pod 每块本端网卡发往每个对端 Pod 及其网卡的 payload 速率，对端网卡未知时为空。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (src_device, dst_pod_namespace, dst_pod_name, dst_device) (\n  rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{src_device}} -> {{dst_pod_namespace}}/{{dst_pod_name}} {{dst_device}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 12
+    },
+    {
+      "type": "timeseries",
+      "title": "每秒发送次数（按对端 Pod）",
+      "description": "所选 Pod 每秒提交的 RDMA 发送次数，一次 post_send 调用或一次 Extended Verbs setter 计一次。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 49
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name) (\n  rate(rdma_flow_sends_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{dst_pod_namespace}}/{{dst_pod_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 13
+    },
+    {
+      "type": "timeseries",
+      "title": "平均单次发送大小（按对端 Pod）",
+      "description": "rate(sum)/rate(count)，反映每次提交的平均 payload。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 49
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name) (rate(rdma_flow_send_bytes_sum{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval]))\n/\nsum by (dst_pod_namespace, dst_pod_name) (rate(rdma_flow_send_bytes_count{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval]))",
+          "legendFormat": "{{dst_pod_namespace}}/{{dst_pod_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 14
+    },
+    {
+      "id": 15,
+      "type": "heatmap",
+      "title": "发送大小分布",
+      "description": "rdma_flow_send_bytes 直方图，桶为 64B 到 1GiB 的 2 的幂，颜色越深该大小区间的发送次数越多。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 57
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (le) (rate(rdma_flow_send_bytes_bucket{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval]))",
+          "legendFormat": "{{le}}",
+          "format": "heatmap",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "options": {
+        "calculate": false,
+        "yAxis": {
+          "unit": "bytes",
+          "decimals": 0,
+          "axisWidth": 80,
+          "axisPlacement": "left"
+        },
+        "color": {
+          "mode": "scheme",
+          "scheme": "Spectral",
+          "steps": 64,
+          "reverse": false,
+          "fill": "dark-purple"
+        },
+        "cellGap": 1,
+        "tooltip": {
+          "mode": "single",
+          "yHistogram": true
+        },
+        "legend": {
+          "show": true
+        },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 1E-9
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 16,
+      "type": "barchart",
+      "title": "时间范围内各大小区间的发送次数",
+      "description": "所选时间范围内每个 payload 大小区间的发送次数。查询以 heatmap 格式返回，Grafana 自动把累积桶换算成各区间的独立次数，X 轴为区间上界，为 0 的区间不显示。",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 67
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (le) (increase(rdma_flow_send_bytes_bucket{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__range]))",
+          "legendFormat": "{{le}}",
+          "format": "heatmap",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "lastNotNull"
+            ],
+            "mode": "seriesToRows",
+            "includeTimeField": false
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "filters": [
+              {
+                "fieldName": "Last *",
+                "config": {
+                  "id": "greater",
+                  "options": {
+                    "value": 0
+                  }
+                }
+              }
+            ],
+            "type": "include",
+            "match": "all"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Field": "区间上界",
+              "Last *": "发送次数"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "custom": {
+            "fillOpacity": 85,
+            "lineWidth": 1,
+            "gradientMode": "scheme",
+            "axisLabel": "",
+            "axisWidth": 70
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "区间上界"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "发送次数"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "vertical",
+        "xField": "区间上界",
+        "showValue": "always",
+        "stacking": "none",
+        "groupWidth": 0.7,
+        "barWidth": 0.6,
+        "legend": {
+          "showLegend": false,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100,
+        "xTickLabelMaxLength": 12,
+        "text": {
+          "valueSize": 12
+        }
+      }
+    }
+  ],
+  "annotations": {
+    "list": []
+  },
+  "links": []
+}

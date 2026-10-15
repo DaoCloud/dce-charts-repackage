@@ -1,0 +1,175 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: rdmaendpoints.unifabric.io
+spec:
+  group: unifabric.io
+  names:
+    kind: RDMAEndpoint
+    listKind: RDMAEndpointList
+    plural: rdmaendpoints
+    shortNames:
+    - rep
+    singular: rdmaendpoint
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.nodeName
+      name: Node
+      type: string
+    - jsonPath: .status.hostNetwork
+      name: HostNetwork
+      type: boolean
+    - jsonPath: .status.lastUpdateTime
+      name: Updated
+      type: date
+    name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          RDMAEndpoint records the RDMA devices, addresses and queue pairs of one
+          Pod. It is named after the Pod and owned by it so it is garbage collected
+          with the Pod. It has no spec because every field is observed.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          status:
+            description: RDMAEndpointStatus is what the node agent observed for the
+              Pod.
+            properties:
+              hostNetwork:
+                description: |-
+                  HostNetwork reports whether the Pod shares the node network namespace.
+                  Its RDMA addresses then belong to the node NIC and can only be
+                  attributed through this object.
+                type: boolean
+              interfaces:
+                description: Interfaces lists the RDMA devices the Pod holds open.
+                items:
+                  description: RDMAInterface is one RDMA device held open by the Pod.
+                  properties:
+                    name:
+                      description: |-
+                        Name is the netdev bound to the device, e.g. ib0 or eth1, empty when
+                        the device has no netdev visible from the Pod.
+                      type: string
+                    ports:
+                      description: Ports lists the ports of the device.
+                      items:
+                        description: RDMAPort is one port of an RDMA device.
+                        properties:
+                          gids:
+                            description: Gids lists the non zero GIDs of the port.
+                            items:
+                              description: |-
+                                RDMAGid is one entry of a port GID table. Zero GIDs and prefix only
+                                entries such as fe80:: are not listed.
+                              properties:
+                                gid:
+                                  description: |-
+                                    Gid is the GID in the colon separated sysfs form,
+                                    e.g. 0000:0000:0000:0000:0000:ffff:ac11:0367.
+                                  type: string
+                                index:
+                                  description: Index is the position in the sysfs
+                                    GID table.
+                                  type: integer
+                              required:
+                              - gid
+                              - index
+                              type: object
+                            type: array
+                          lid:
+                            description: |-
+                              Lid is the LID assigned by the subnet manager, 0 on Ethernet ports and
+                              on InfiniBand ports without an active SM.
+                            type: integer
+                          linkLayer:
+                            description: LinkLayer is InfiniBand or Ethernet.
+                            enum:
+                            - InfiniBand
+                            - Ethernet
+                            type: string
+                          port:
+                            description: Port is the 1-based port number.
+                            type: integer
+                          queuePairs:
+                            description: QueuePairs lists the QPs of this Pod that
+                              reached RTR on the port.
+                            items:
+                              description: |-
+                                RDMAQueuePair is a QP that reached RTR on a port. QPNs are unique per HCA
+                                port, so a sender matches its dest_qp_num here to pick the receiving Pod
+                                when several Pods share a GID or LID.
+                              properties:
+                                pid:
+                                  description: Pid is the host tgid of the process
+                                    that created the QP.
+                                  format: int32
+                                  type: integer
+                                qpn:
+                                  description: Qpn is the queue pair number.
+                                  format: int32
+                                  type: integer
+                              required:
+                              - pid
+                              - qpn
+                              type: object
+                            type: array
+                          subnetPrefix:
+                            description: |-
+                              SubnetPrefix is the upper 64 bits of GID index 0 as 16 hex digits.
+                              LIDs are only unique inside a subnet, so a LID must always be read
+                              together with this field.
+                            type: string
+                        required:
+                        - lid
+                        - linkLayer
+                        - port
+                        type: object
+                      type: array
+                    rdmaDevice:
+                      description: RdmaDevice is the ibdev name, e.g. mlx5_0.
+                      type: string
+                  required:
+                  - rdmaDevice
+                  type: object
+                type: array
+              lastUpdateTime:
+                description: |-
+                  LastUpdateTime is when the agent last observed the Pod. Readers treat
+                  objects not refreshed for 15 minutes as stale.
+                format: date-time
+                type: string
+              nodeName:
+                description: NodeName is the node running the Pod and publishing this
+                  object.
+                type: string
+            required:
+            - hostNetwork
+            - lastUpdateTime
+            - nodeName
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

@@ -1,0 +1,1339 @@
+{
+  "uid": "unifabric-flow-pod-peers",
+  "title": "Unifabric / RDMA Flow",
+  "description": "Pick a workload and one of its Pods to see the RDMA payload traffic that Pod sends to each peer Pod.",
+  "tags": [
+    "unifabric",
+    "rdma",
+    "ebpf",
+    "flow",
+    "pod"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "schemaVersion": 39,
+  "version": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "label": "Data source",
+        "type": "datasource",
+        "query": "prometheus",
+        "refresh": 1,
+        "hide": 0,
+        "current": {},
+        "options": []
+      },
+      {
+        "name": "namespace",
+        "label": "Workload namespace",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(rdma_flow_bytes_total, src_pod_top_owner_namespace)",
+        "query": {
+          "query": "label_values(rdma_flow_bytes_total, src_pod_top_owner_namespace)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": false,
+        "multi": false,
+        "hide": 0,
+        "options": [],
+        "current": {}
+      },
+      {
+        "name": "kind",
+        "label": "Workload kind",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\"}, src_pod_top_owner_kind)",
+        "query": {
+          "query": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\"}, src_pod_top_owner_kind)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": false,
+        "multi": false,
+        "hide": 0,
+        "options": [],
+        "current": {}
+      },
+      {
+        "name": "workload",
+        "label": "Workload",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\"}, src_pod_top_owner_name)",
+        "query": {
+          "query": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\"}, src_pod_top_owner_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": false,
+        "multi": false,
+        "hide": 0,
+        "options": [],
+        "current": {}
+      },
+      {
+        "name": "pod",
+        "label": "Pod",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\"}, src_pod_name)",
+        "query": {
+          "query": "label_values(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\"}, src_pod_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": true,
+        "multi": true,
+        "hide": 0,
+        "options": [],
+        "current": {},
+        "allValue": ".*"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 47,
+      "type": "row",
+      "title": "Pod peer traffic",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "Send rate",
+      "description": "Payload rate the selected Pod currently sends to all peers.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 0,
+        "y": 1
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum(rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval]))",
+          "legendFormat": "",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "orientation": "auto",
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "id": 1
+    },
+    {
+      "type": "stat",
+      "title": "WR rate",
+      "description": "Work requests the selected Pod currently posts per second.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 1
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum(rate(rdma_flow_wrs_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval]))",
+          "legendFormat": "",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "orientation": "auto",
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "id": 2
+    },
+    {
+      "type": "stat",
+      "title": "Active QPs",
+      "description": "Queue pair entries attributed to the selected Pod in the last report.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 10,
+        "y": 1
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum(rdma_flow_qps{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"})",
+          "legendFormat": "",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "orientation": "auto",
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "id": 3
+    },
+    {
+      "type": "stat",
+      "title": "Active peer Pods",
+      "description": "Peer Pods currently receiving traffic.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 14,
+        "y": 1
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "count(\n  sum by (dst_pod_namespace, dst_pod_name) (\n    rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n  ) > 0\n)",
+          "legendFormat": "",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "orientation": "auto",
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "id": 4
+    },
+    {
+      "type": "stat",
+      "title": "Sent in time range",
+      "description": "Payload bytes sent to all peers within the selected time range.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 19,
+        "y": 1
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum(increase(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__range]))",
+          "legendFormat": "",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "yellow"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "orientation": "auto",
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "id": 5
+    },
+    {
+      "type": "timeseries",
+      "title": "Send rate by peer Pod",
+      "description": "Payload rate from the selected Pod to each peer Pod, legend is the peer namespace/name.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name) (\n  rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{dst_pod_namespace}}/{{dst_pod_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 6
+    },
+    {
+      "type": "timeseries",
+      "title": "Send rate by peer workload",
+      "description": "Traffic to Pods of the same peer workload merged into one series.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_top_owner_name) (\n  rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{dst_pod_top_owner_kind}} {{dst_pod_top_owner_namespace}}/{{dst_pod_top_owner_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 7
+    },
+    {
+      "type": "bargauge",
+      "title": "Bytes sent in time range by peer Pod",
+      "description": "Payload bytes sent to each peer Pod within the selected time range, descending.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sort_desc(sum by (dst_pod_namespace, dst_pod_name) (\n  increase(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__range])\n))",
+          "legendFormat": "{{dst_pod_namespace}}/{{dst_pod_name}}",
+          "format": "time_series",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": {
+            "mode": "continuous-BlPu"
+          },
+          "min": 0,
+          "displayName": "${__series.name}"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true,
+        "valueMode": "color",
+        "namePlacement": "top",
+        "sizing": "manual",
+        "minVizHeight": 18,
+        "maxVizHeight": 28,
+        "minVizWidth": 8,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 14
+        },
+        "legend": {
+          "showLegend": false,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        }
+      },
+      "id": 8
+    },
+    {
+      "type": "table",
+      "title": "Peer details",
+      "description": "One row per peer Pod and device pair with the peer workload, local and peer devices, current rate, total bytes and QP count.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_top_owner_name, src_device, dst_device) (\n  rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "",
+          "format": "table",
+          "instant": true,
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "B",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_top_owner_name, src_device, dst_device) (\n  rate(rdma_flow_wrs_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "",
+          "format": "table",
+          "instant": true,
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "C",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_top_owner_name, src_device, dst_device) (\n  increase(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__range])\n)",
+          "legendFormat": "",
+          "format": "table",
+          "instant": true,
+          "range": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "D",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name, dst_pod_top_owner_kind, dst_pod_top_owner_namespace, dst_pod_top_owner_name, src_device, dst_device) (\n  rdma_flow_qps{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}\n)",
+          "legendFormat": "",
+          "format": "table",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "dst_pod_namespace": 0,
+              "dst_pod_name": 1,
+              "dst_pod_top_owner_kind": 2,
+              "dst_pod_top_owner_namespace": 3,
+              "dst_pod_top_owner_name": 4,
+              "src_device": 5,
+              "dst_device": 6,
+              "Value #A": 7,
+              "Value #B": 8,
+              "Value #C": 9,
+              "Value #D": 10
+            },
+            "renameByName": {
+              "dst_pod_namespace": "Peer namespace",
+              "dst_pod_name": "Peer Pod",
+              "dst_pod_top_owner_kind": "Peer workload kind",
+              "dst_pod_top_owner_namespace": "Peer workload namespace",
+              "dst_pod_top_owner_name": "Peer workload",
+              "Value #A": "Send rate",
+              "Value #B": "WR rate",
+              "Value #C": "Total bytes",
+              "Value #D": "QPs",
+              "src_device": "Local device",
+              "dst_device": "Peer device"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Send rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "Bps"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "WR rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ops"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "QPs"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Send rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "Bps"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-BlPu"
+                }
+              },
+              {
+                "id": "min",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Send rate",
+            "desc": true
+          }
+        ],
+        "footer": {
+          "show": false
+        }
+      },
+      "id": 9
+    },
+    {
+      "type": "timeseries",
+      "title": "Send rate per Pod of the workload",
+      "description": "Total send rate of every Pod in the selected workload, to compare load between Pods.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (src_pod_namespace, src_pod_name) (\n  rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{src_pod_namespace}}/{{src_pod_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 10
+    },
+    {
+      "type": "timeseries",
+      "title": "Traffic received by this Pod by source Pod",
+      "description": "Reverse view, payload rate other Pods send to the selected Pod, collected by the agent on the source node.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (src_pod_namespace, src_pod_name) (\n  rate(rdma_flow_bytes_total{dst_pod_top_owner_namespace=\"$namespace\", dst_pod_top_owner_kind=\"$kind\", dst_pod_top_owner_name=\"$workload\", dst_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{src_pod_namespace}}/{{src_pod_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 11
+    },
+    {
+      "type": "timeseries",
+      "title": "Send rate by device",
+      "description": "Payload rate from each local device of the selected Pod to each peer Pod and device, empty when the peer device is unknown.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (src_device, dst_pod_namespace, dst_pod_name, dst_device) (\n  rate(rdma_flow_bytes_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{src_device}} -> {{dst_pod_namespace}}/{{dst_pod_name}} {{dst_device}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 12
+    },
+    {
+      "type": "timeseries",
+      "title": "Sends per second by peer Pod",
+      "description": "RDMA sends the selected Pod posts per second, one per post_send call or extended verbs setter.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 49
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name) (\n  rate(rdma_flow_sends_total{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval])\n)",
+          "legendFormat": "{{dst_pod_namespace}}/{{dst_pod_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 13
+    },
+    {
+      "type": "timeseries",
+      "title": "Average send size by peer Pod",
+      "description": "rate(sum)/rate(count), the average payload per submission.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 49
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (dst_pod_namespace, dst_pod_name) (rate(rdma_flow_send_bytes_sum{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval]))\n/\nsum by (dst_pod_namespace, dst_pod_name) (rate(rdma_flow_send_bytes_count{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval]))",
+          "legendFormat": "{{dst_pod_namespace}}/{{dst_pod_name}}",
+          "format": "time_series",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 14
+    },
+    {
+      "id": 15,
+      "type": "heatmap",
+      "title": "Send size distribution",
+      "description": "rdma_flow_send_bytes histogram with power of two buckets from 64B to 1GiB, darker cells mean more sends in that size range.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 57
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (le) (rate(rdma_flow_send_bytes_bucket{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__rate_interval]))",
+          "legendFormat": "{{le}}",
+          "format": "heatmap",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "options": {
+        "calculate": false,
+        "yAxis": {
+          "unit": "bytes",
+          "decimals": 0,
+          "axisWidth": 80,
+          "axisPlacement": "left"
+        },
+        "color": {
+          "mode": "scheme",
+          "scheme": "Spectral",
+          "steps": 64,
+          "reverse": false,
+          "fill": "dark-purple"
+        },
+        "cellGap": 1,
+        "tooltip": {
+          "mode": "single",
+          "yHistogram": true
+        },
+        "legend": {
+          "show": true
+        },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 1E-9
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 16,
+      "type": "barchart",
+      "title": "Sends per size range in time range",
+      "description": "Sends per payload size range within the selected time range. The query returns heatmap format so Grafana converts cumulative buckets into per range counts, the X axis is the range upper bound and empty ranges are hidden.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 67
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "expr": "sum by (le) (increase(rdma_flow_send_bytes_bucket{src_pod_top_owner_namespace=\"$namespace\", src_pod_top_owner_kind=\"$kind\", src_pod_top_owner_name=\"$workload\", src_pod_name=~\"$pod\"}[$__range]))",
+          "legendFormat": "{{le}}",
+          "format": "heatmap",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "lastNotNull"
+            ],
+            "mode": "seriesToRows",
+            "includeTimeField": false
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "filters": [
+              {
+                "fieldName": "Last *",
+                "config": {
+                  "id": "greater",
+                  "options": {
+                    "value": 0
+                  }
+                }
+              }
+            ],
+            "type": "include",
+            "match": "all"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Field": "Range upper bound",
+              "Last *": "Sends"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "custom": {
+            "fillOpacity": 85,
+            "lineWidth": 1,
+            "gradientMode": "scheme",
+            "axisLabel": "",
+            "axisWidth": 70
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Range upper bound"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sends"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "vertical",
+        "xField": "Range upper bound",
+        "showValue": "always",
+        "stacking": "none",
+        "groupWidth": 0.7,
+        "barWidth": 0.6,
+        "legend": {
+          "showLegend": false,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100,
+        "xTickLabelMaxLength": 12,
+        "text": {
+          "valueSize": 12
+        }
+      }
+    }
+  ],
+  "annotations": {
+    "list": []
+  },
+  "links": []
+}

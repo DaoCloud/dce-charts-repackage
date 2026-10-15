@@ -1,0 +1,44 @@
+{{- if and .Values.agent.enabled .Values.agent.workloadOwnerRules }}
+{{/*
+Hand maintained, not generated. The agent walks a Pod's ownerReferences up
+to its top-level owner for FabricNode.rdmaPods and RDMA flow labels and
+only follows a reference when it may read the owner object. Third-party
+workload kinds are a map in values keyed by API group, so user values merge
+with the defaults and a new controller is one extra key. Kubernetes built-in kinds and the unifabric.io API stay in the
+generated AgentRole.yaml.
+*/}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "unifabric.agentName" . }}-workload-owners
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-agent
+rules:
+  {{- range $group, $resources := .Values.agent.workloadOwnerRules }}
+  - apiGroups:
+      - {{ $group | quote }}
+    resources:
+      {{- range $resources }}
+      - {{ . }}
+      {{- end }}
+    verbs:
+      - get
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "unifabric.agentName" . }}-workload-owners
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "unifabric.agentName" . }}-workload-owners
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "unifabric.agentServiceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

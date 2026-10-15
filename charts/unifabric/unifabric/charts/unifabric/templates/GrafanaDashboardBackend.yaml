@@ -1,0 +1,6 @@
+{{- if and .Values.grafanaDashboard.enabled (include "unifabric.ebpfFlow.clickhouseBundled" .) -}}
+{{- include "unifabric.dashboards" (dict "root" . "pattern" "backend-clickhouse.json") }}
+{{- end }}
+{{- if and .Values.grafanaDashboard.enabled (include "unifabric.ebpfFlow.elasticsearchBundled" .) -}}
+{{- include "unifabric.dashboards" (dict "root" . "pattern" "backend-elasticsearch.json") }}
+{{- end }}

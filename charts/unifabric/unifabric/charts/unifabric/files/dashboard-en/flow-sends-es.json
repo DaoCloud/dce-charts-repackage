@@ -1,0 +1,1438 @@
+{
+  "uid": "unifabric-flow-sends-es",
+  "title": "Unifabric / RDMA Flow Sends",
+  "description": "Reads the individual RDMA send records in the Elasticsearch data stream rdma-sends to show message size distribution, exact percentiles, process and QP distribution and raw records.",
+  "tags": [
+    "unifabric",
+    "rdma",
+    "ebpf",
+    "flow",
+    "elasticsearch",
+    "events"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "schemaVersion": 39,
+  "version": 1,
+  "annotations": {
+    "list": []
+  },
+  "links": [],
+  "templating": {
+    "list": [
+      {
+        "name": "src_pod",
+        "label": "Source Pod",
+        "type": "query",
+        "datasource": {
+          "type": "elasticsearch",
+          "uid": "unifabric-elasticsearch"
+        },
+        "query": "{\"find\": \"terms\", \"field\": \"src_pod_name\", \"size\": 200}",
+        "refresh": 2,
+        "hide": 0,
+        "multi": true,
+        "includeAll": true,
+        "allValue": "*",
+        "sort": 1,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "options": []
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Overview",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Cumulative sends",
+      "description": "Total submissions in the time range, the sum of count in aggregation mode.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "message",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "1",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^(Sum|Unique Count)$/",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Cumulative bytes sent",
+      "description": "Total payload bytes in the time range, bytes times count.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "bytes",
+              "settings": {
+                "script": "_value * doc['count'].value"
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "message",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "1",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^(Sum|Unique Count)$/",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "QPs in time range",
+      "description": "Distinct QPNs that sent, a HyperLogLog approximation.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "cardinality",
+              "field": "qpn"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "message",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "1",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^(Sum|Unique Count)$/",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Sending Pods",
+      "description": "Distinct source Pods that sent.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "cardinality",
+              "field": "src_pod_name"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "message",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "1",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^(Sum|Unique Count)$/",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Sends per second by kind",
+      "description": "ES rate aggregation, count summed and divided by the bucket width.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "rate",
+              "field": "count",
+              "settings": {
+                "unit": "second",
+                "mode": "sum"
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "kind",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 12,
+            "showPoints": "auto",
+            "stacking": {
+              "mode": "normal"
+            },
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Bytes per second by src→dst",
+      "description": "ES rate aggregation, bytes summed and divided by the bucket width, groups are the top 10 pairs by sends. Not multiplied by count when aggregation is enabled, rely on Prometheus in that mode.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "rate",
+              "field": "bytes",
+              "settings": {
+                "unit": "second",
+                "mode": "sum"
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "src_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "4",
+              "type": "terms",
+              "field": "dst_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 12,
+            "showPoints": "auto",
+            "stacking": {
+              "mode": "none"
+            },
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Active QPs by source Pod",
+      "description": "Distinct QPNs that sent within each time bucket. The series named Value is sends whose source Pod is unresolved (empty name).",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "cardinality",
+              "field": "qpn"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "src_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "10",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 12,
+            "showPoints": "auto",
+            "stacking": {
+              "mode": "none"
+            },
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "row",
+      "title": "Message size",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "panels": []
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Send size percentiles",
+      "description": "Exact p50, p90 and p99 of bytes, not weighted by count.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "percentiles",
+              "field": "bytes",
+              "settings": {
+                "percents": [
+                  "50",
+                  "90",
+                  "99"
+                ]
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 12,
+            "showPoints": "auto",
+            "stacking": {
+              "mode": "none"
+            },
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Top 20 most common message sizes",
+      "description": "Exact bytes values ordered by sends. LLM communication repeats a few message sizes, this shows which sizes are used and their share.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "bytes",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "20",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sum"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Sends"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Sends",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "Size percentiles and sends by src→dst",
+      "description": "Sends, bytes and bytes percentiles per Pod pair, to spot links with a different message pattern.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "count"
+            },
+            {
+              "id": "4",
+              "type": "sum",
+              "field": "bytes",
+              "settings": {
+                "script": "_value * doc['count'].value"
+              }
+            },
+            {
+              "id": "5",
+              "type": "percentiles",
+              "field": "bytes",
+              "settings": {
+                "percents": [
+                  "50",
+                  "90",
+                  "99"
+                ]
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "src_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "50",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "dst_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "50",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(Sum bytes|p[0-9.]+ bytes)$"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sum count"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Sum count",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 13,
+      "type": "row",
+      "title": "Attribution and records",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "panels": []
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "Resolved and unresolved sends",
+      "description": "Resolved means both ends map to a Pod. Unresolved usually means the peer RDMAEndpoint is not published or a non hostNetwork Pod lacks annotations.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 31
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "*",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "rate",
+              "field": "count",
+              "settings": {
+                "unit": "second",
+                "mode": "sum"
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "filters",
+              "settings": {
+                "filters": [
+                  {
+                    "query": "src_pod_name:/.+/ AND dst_pod_name:/.+/",
+                    "label": "resolved"
+                  },
+                  {
+                    "query": "NOT (src_pod_name:/.+/ AND dst_pod_name:/.+/)",
+                    "label": "unresolved"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 12,
+            "showPoints": "auto",
+            "stacking": {
+              "mode": "normal"
+            },
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "table",
+      "title": "Processes and QPs per source Pod",
+      "description": "Sends, bytes and QP count per tgid of each source Pod, showing the spread across processes or ranks.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 31
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "count"
+            },
+            {
+              "id": "4",
+              "type": "sum",
+              "field": "bytes",
+              "settings": {
+                "script": "_value * doc['count'].value"
+              }
+            },
+            {
+              "id": "5",
+              "type": "cardinality",
+              "field": "qpn"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "src_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "50",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "tgid",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "50",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sum bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Unique Count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "QPs"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "tgid"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Sum count",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 16,
+      "type": "table",
+      "title": "Device pairs",
+      "description": "Sends and bytes from src_device to dst_device, confirming the physical ports the traffic uses.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 31
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "count"
+            },
+            {
+              "id": "4",
+              "type": "sum",
+              "field": "bytes",
+              "settings": {
+                "script": "_value * doc['count'].value"
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "src_device",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "20",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "dst_device",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "20",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sum bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Sum bytes",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 17,
+      "type": "table",
+      "title": "Latest send records",
+      "description": "Latest 500 raw documents in reverse time order, returned directly by the ES query.",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "raw_data",
+              "settings": {
+                "size": "500"
+              }
+            }
+          ],
+          "bucketAggs": []
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "qpn"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "tgid"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "_id": true,
+              "_index": true,
+              "_type": true,
+              "sort": true,
+              "highlight": true,
+              "message": true,
+              "event.action": true,
+              "log.level": true,
+              "agent.name": true,
+              "service.name": true,
+              "kubernetes.node.name": true,
+              "src_pod_top_owner_kind": true,
+              "src_pod_top_owner_namespace": true,
+              "src_pod_top_owner_name": true,
+              "dst_pod_top_owner_kind": true,
+              "dst_pod_top_owner_namespace": true,
+              "dst_pod_top_owner_name": true
+            },
+            "indexByName": {
+              "@timestamp": 0,
+              "node": 1,
+              "src_pod_namespace": 2,
+              "src_pod_name": 3,
+              "dst_pod_namespace": 4,
+              "dst_pod_name": 5,
+              "qpn": 6,
+              "tgid": 7,
+              "kind": 8,
+              "bytes": 9,
+              "wrs": 10,
+              "count": 11,
+              "src_device": 12,
+              "dst_device": 13
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

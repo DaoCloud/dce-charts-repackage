@@ -1,0 +1,1438 @@
+{
+  "uid": "unifabric-flow-sends-es-zh",
+  "title": "Unifabric / RDMA 发送明细",
+  "description": "读取 Elasticsearch 数据流 rdma-sends 中逐条 RDMA 发送记录，查看消息大小分布、精确分位、进程与 QP 分布和原始明细。",
+  "tags": [
+    "unifabric",
+    "rdma",
+    "ebpf",
+    "flow",
+    "elasticsearch",
+    "events"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "schemaVersion": 39,
+  "version": 1,
+  "annotations": {
+    "list": []
+  },
+  "links": [],
+  "templating": {
+    "list": [
+      {
+        "name": "src_pod",
+        "label": "源 Pod",
+        "type": "query",
+        "datasource": {
+          "type": "elasticsearch",
+          "uid": "unifabric-elasticsearch"
+        },
+        "query": "{\"find\": \"terms\", \"field\": \"src_pod_name\", \"size\": 200}",
+        "refresh": 2,
+        "hide": 0,
+        "multi": true,
+        "includeAll": true,
+        "allValue": "*",
+        "sort": 1,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "options": []
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "概览",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "累计发送次数",
+      "description": "时间范围内的提交总数，聚合模式下为 count 之和。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "message",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "1",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^(Sum|Unique Count)$/",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "累计发送字节",
+      "description": "时间范围内 payload 字节总和，bytes 乘 count。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "bytes",
+              "settings": {
+                "script": "_value * doc['count'].value"
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "message",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "1",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^(Sum|Unique Count)$/",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "时间范围内 QP 数",
+      "description": "出现过发送的 QPN 去重数，HyperLogLog 近似值。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "cardinality",
+              "field": "qpn"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "message",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "1",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^(Sum|Unique Count)$/",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "发送 Pod 数",
+      "description": "出现过发送的源 Pod 去重数。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "cardinality",
+              "field": "src_pod_name"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "message",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "1",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^(Sum|Unique Count)$/",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center"
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "每秒发送次数（按 kind）",
+      "description": "ES rate 聚合，对 count 求和后除以桶宽。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "rate",
+              "field": "count",
+              "settings": {
+                "unit": "second",
+                "mode": "sum"
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "kind",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 12,
+            "showPoints": "auto",
+            "stacking": {
+              "mode": "normal"
+            },
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "每秒字节（按 src→dst）",
+      "description": "ES rate 聚合对 bytes 求和后除以桶宽，分组按发送次数取前 10 对。开启 -send-aggregate 后未乘 count，聚合模式下以 Prometheus 为准。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "rate",
+              "field": "bytes",
+              "settings": {
+                "unit": "second",
+                "mode": "sum"
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "src_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "4",
+              "type": "terms",
+              "field": "dst_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 12,
+            "showPoints": "auto",
+            "stacking": {
+              "mode": "none"
+            },
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "活跃 QP 数（按源 Pod）",
+      "description": "每个时间桶内出现过发送的 QPN 去重数。名为 Value 的序列是源 Pod 未归属（名字为空）的发送。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "cardinality",
+              "field": "qpn"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "src_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "10",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 12,
+            "showPoints": "auto",
+            "stacking": {
+              "mode": "none"
+            },
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "row",
+      "title": "消息大小",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "panels": []
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "单次发送大小分位",
+      "description": "bytes 的 p50、p90、p99 精确分位，不按 count 加权。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "percentiles",
+              "field": "bytes",
+              "settings": {
+                "percents": [
+                  "50",
+                  "90",
+                  "99"
+                ]
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 12,
+            "showPoints": "auto",
+            "stacking": {
+              "mode": "none"
+            },
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "最常见的消息大小 Top 20",
+      "description": "bytes 精确值按发送次数排序。大模型通信的消息大小高度重复，这里直接看出用了哪几种大小与各自占比。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "bytes",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "20",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sum"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "发送次数"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "发送次数",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "按 src→dst 的大小分位与次数",
+      "description": "每对 Pod 的发送次数、字节与 bytes 分位，找出消息模式不同的链路。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "count"
+            },
+            {
+              "id": "4",
+              "type": "sum",
+              "field": "bytes",
+              "settings": {
+                "script": "_value * doc['count'].value"
+              }
+            },
+            {
+              "id": "5",
+              "type": "percentiles",
+              "field": "bytes",
+              "settings": {
+                "percents": [
+                  "50",
+                  "90",
+                  "99"
+                ]
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "src_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "50",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "dst_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "50",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^(Sum bytes|p[0-9.]+ bytes)$"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sum count"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Sum count",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 13,
+      "type": "row",
+      "title": "归属与明细",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "panels": []
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "已归属与未归属发送",
+      "description": "两端都解析到 Pod 的为已归属。未归属通常是对端 Pod 网络对象未发布或非 hostNetwork Pod 缺注解。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 31
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "*",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "rate",
+              "field": "count",
+              "settings": {
+                "unit": "second",
+                "mode": "sum"
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "3",
+              "type": "filters",
+              "settings": {
+                "filters": [
+                  {
+                    "query": "src_pod_name:/.+/ AND dst_pod_name:/.+/",
+                    "label": "resolved"
+                  },
+                  {
+                    "query": "NOT (src_pod_name:/.+/ AND dst_pod_name:/.+/)",
+                    "label": "unresolved"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "2",
+              "type": "date_histogram",
+              "field": "@timestamp",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 12,
+            "showPoints": "auto",
+            "stacking": {
+              "mode": "normal"
+            },
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "table",
+      "title": "源 Pod 内的进程与 QP",
+      "description": "每个源 Pod 下各 tgid 的发送次数、字节与 QP 数，看多进程或多 rank 的分布。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 31
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "count"
+            },
+            {
+              "id": "4",
+              "type": "sum",
+              "field": "bytes",
+              "settings": {
+                "script": "_value * doc['count'].value"
+              }
+            },
+            {
+              "id": "5",
+              "type": "cardinality",
+              "field": "qpn"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "src_pod_name",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "50",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "tgid",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "50",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sum bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Unique Count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "QP 数"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "tgid"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Sum count",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 16,
+      "type": "table",
+      "title": "网卡对",
+      "description": "src_device 到 dst_device 的发送次数与字节，确认流量走的物理口。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 31
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "sum",
+              "field": "count"
+            },
+            {
+              "id": "4",
+              "type": "sum",
+              "field": "bytes",
+              "settings": {
+                "script": "_value * doc['count'].value"
+              }
+            }
+          ],
+          "bucketAggs": [
+            {
+              "id": "2",
+              "type": "terms",
+              "field": "src_device",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "20",
+                "min_doc_count": "1"
+              }
+            },
+            {
+              "id": "3",
+              "type": "terms",
+              "field": "dst_device",
+              "settings": {
+                "order": "desc",
+                "orderBy": "1",
+                "size": "20",
+                "min_doc_count": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sum bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Sum bytes",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 17,
+      "type": "table",
+      "title": "最近发送记录",
+      "description": "最新 500 条原始文档，按时间倒序，ES 查询直接返回。",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "unifabric-elasticsearch"
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "unifabric-elasticsearch"
+          },
+          "query": "src_pod_name:${src_pod:lucene}",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "raw_data",
+              "settings": {
+                "size": "500"
+              }
+            }
+          ],
+          "bucketAggs": []
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "qpn"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "tgid"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "_id": true,
+              "_index": true,
+              "_type": true,
+              "sort": true,
+              "highlight": true,
+              "message": true,
+              "event.action": true,
+              "log.level": true,
+              "agent.name": true,
+              "service.name": true,
+              "kubernetes.node.name": true,
+              "src_pod_top_owner_kind": true,
+              "src_pod_top_owner_namespace": true,
+              "src_pod_top_owner_name": true,
+              "dst_pod_top_owner_kind": true,
+              "dst_pod_top_owner_namespace": true,
+              "dst_pod_top_owner_name": true
+            },
+            "indexByName": {
+              "@timestamp": 0,
+              "node": 1,
+              "src_pod_namespace": 2,
+              "src_pod_name": 3,
+              "dst_pod_namespace": 4,
+              "dst_pod_name": 5,
+              "qpn": 6,
+              "tgid": 7,
+              "kind": 8,
+              "bytes": 9,
+              "wrs": 10,
+              "count": 11,
+              "src_device": 12,
+              "dst_device": 13
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

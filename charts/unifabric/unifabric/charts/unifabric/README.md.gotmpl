@@ -1,0 +1,88 @@
+{{- define "unifabric.valuesTableHeader" -}}| Key | Type | Default | Description |
+|-----|------|---------|-------------|{{- end -}}
+
+{{- define "unifabric.valuesRowsForPrefix" -}}
+{{- $prefix := .prefix -}}
+{{- if eq $prefix "agent" }}
+| agent.affinity.nodeAffinity | object | See chart/values.yaml for the full default node affinity. | Default Linux node affinity for agent pods. |
+{{- end }}
+{{- range .values }}
+  {{- $row := . -}}
+  {{- if or (eq $row.Key $prefix) (hasPrefix (printf "%s." $prefix) $row.Key) }}
+    {{- $hasChildren := false -}}
+    {{- range $.values }}
+      {{- if hasPrefix (printf "%s." $row.Key) .Key }}
+        {{- $hasChildren = true -}}
+      {{- end }}
+    {{- end }}
+    {{- $isDocumentedList := and $hasChildren (eq $row.Type "list") -}}
+    {{- if and (or (not $hasChildren) $isDocumentedList) (not (contains "[" $row.Key)) (not (hasPrefix "agent.affinity.nodeAffinity." $row.Key)) }}
+      {{- $default := $row.AutoDefault -}}
+      {{- if $row.Default }}{{- $default = $row.Default -}}{{- end -}}
+      {{- $description := $row.AutoDescription -}}
+      {{- if $row.Description }}{{- $description = $row.Description -}}{{- end -}}
+      {{- printf "\n| %s | %s | %s | %s |" $row.Key $row.Type $default $description -}}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end -}}
+
+{{- define "unifabric.valuesTableForPrefixes" -}}
+{{- template "unifabric.valuesTableHeader" . -}}
+{{- $values := .values -}}
+{{- range .prefixes -}}
+{{- template "unifabric.valuesRowsForPrefix" (dict "values" $values "prefix" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "unifabric.valuesSection" -}}
+# Helm Values
+
+## Global Settings
+
+{{ template "unifabric.valuesTableForPrefixes" (dict "values" .Values "prefixes" (list "global")) }}
+
+## Topology Discovery
+
+{{ template "unifabric.valuesTableForPrefixes" (dict "values" .Values "prefixes" (list "topoDiscovery")) }}
+
+`topoDiscovery.*.mode` is the only topology-writer switch. The former
+`topologyLabels`, `internalTopologyLabelWriter.enabled`,
+`switchTopologyDiscovery`, `switchDiscovery`, `switchAgent`,
+`nodeTopologyDiscovery`, `nodeDiscovery`, and `nvidiaTopograph.enable` values
+are rejected with migration errors instead of being silently ignored. The
+former component-level NVIDIA blocks are replaced by the shared
+`nvidiaTopograph.image` and GPU-node values.
+
+## Switch Subscription
+
+{{ template "unifabric.valuesTableForPrefixes" (dict "values" .Values "prefixes" (list "switchSubscription")) }}
+
+Per-switch addresses and port overrides belong to `Switch.spec`. gRPC transport
+tuning uses Controller defaults, while `switchSubscription.mtls.mode` selects
+auto-generated, existing, or disabled mTLS.
+
+## FabricNode Reporting and Observability
+
+{{ template "unifabric.valuesTableForPrefixes" (dict "values" .Values "prefixes" (list "fabricNode" "nodeMetrics" "topologyAPI" "grafanaDashboard" "grafanaInstance")) }}
+
+## Controller and Agent
+
+{{ template "unifabric.valuesTableForPrefixes" (dict "values" .Values "prefixes" (list "controller" "agent")) }}
+
+## eBPF RDMA Flow Collector
+
+Optional OpenTelemetry Collector that stores the per-send events produced by
+`agent.ebpfFlow` in ClickHouse and/or Elasticsearch. Point `clickhouse.endpoint`
+or `elasticsearch.endpoints` at your own servers. When they are left empty the
+chart deploys the single replica instances described under `bundled`, which are
+meant for testing only. See [docs/usage/rdma-flow.md](../docs/usage/rdma-flow.md).
+
+{{ template "unifabric.valuesTableForPrefixes" (dict "values" .Values "prefixes" (list "ebpfFlowEventCollector")) }}
+
+## NVIDIA Topograph
+
+{{ template "unifabric.valuesTableForPrefixes" (dict "values" .Values "prefixes" (list "nvidiaTopograph")) }}
+{{- end -}}
+
+{{ template "unifabric.valuesSection" . }}

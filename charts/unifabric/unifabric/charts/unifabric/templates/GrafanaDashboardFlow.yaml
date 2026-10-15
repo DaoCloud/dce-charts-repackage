@@ -1,0 +1,3 @@
+{{- if and .Values.grafanaDashboard.enabled .Values.agent.enabled .Values.agent.ebpfFlow.enabled -}}
+{{- include "unifabric.dashboards" (dict "root" . "pattern" "system-components.json") }}
+{{- end }}

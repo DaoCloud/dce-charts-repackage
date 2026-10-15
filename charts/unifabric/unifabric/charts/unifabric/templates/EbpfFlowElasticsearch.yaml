@@ -1,0 +1,263 @@
+{{- if include "unifabric.ebpfFlow.elasticsearchBundled" . }}
+{{/*
+Bundled single node Elasticsearch. FOR TESTING ONLY, deployed while
+ebpfFlowEventCollector.elasticsearch.endpoints is empty. Security is on without
+TLS, credentials are fixed, disk watermarks are off and by default the data
+lives on an emptyDir. Point endpoints at a managed cluster for anything
+beyond evaluating the flow pipeline.
+*/}}
+{{- $es := .Values.ebpfFlowEventCollector.elasticsearch }}
+{{- $b := $es.bundled }}
+{{- $name := include "unifabric.elasticsearchName" . }}
+{{- $collector := include "unifabric.ebpfFlowEventCollectorName" . }}
+{{- $secret := include "unifabric.ebpfFlow.elasticsearchSecretName" . }}
+{{- $key := include "unifabric.ebpfFlow.elasticsearchSecretKey" . }}
+{{- if and $b.persistence.enabled (not $b.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $name }}-data
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-elasticsearch
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $b.persistence.size }}
+  {{- with $b.persistence.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+---
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-elasticsearch
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "unifabric.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: unifabric-elasticsearch
+  template:
+    metadata:
+      labels:
+        {{- include "unifabric.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: unifabric-elasticsearch
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      {{- with $b.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $b.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      # Elasticsearch needs vm.max_map_count of at least 262144, raised on
+      # the node by a privileged init container.
+      initContainers:
+        - name: sysctl
+          image: {{ include "unifabric.image" (dict "root" . "image" $b.sysctlImage) }}
+          imagePullPolicy: {{ $b.image.pullPolicy }}
+          command: ["sh", "-c", "sysctl -w vm.max_map_count=262144"]
+          securityContext:
+            privileged: true
+      containers:
+        - name: elasticsearch
+          image: {{ include "unifabric.image" (dict "root" . "image" $b.image) }}
+          imagePullPolicy: {{ $b.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 9200
+              protocol: TCP
+          env:
+            - name: discovery.type
+              value: single-node
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret }}
+                  key: {{ $key }}
+            - name: xpack.security.enabled
+              value: "true"
+            - name: xpack.security.http.ssl.enabled
+              value: "false"
+            - name: xpack.security.transport.ssl.enabled
+              value: "false"
+            - name: ES_JAVA_OPTS
+              value: {{ printf "-Xms%s -Xmx%s" $b.javaHeap $b.javaHeap | quote }}
+            # A full test disk must not flip the index read-only.
+            - name: cluster.routing.allocation.disk.threshold_enabled
+              value: "false"
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - curl -fsS -u "elastic:$ELASTIC_PASSWORD" http://localhost:9200/_cluster/health >/dev/null
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          {{- with $b.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- if $es.schema.create }}
+        # Writes the data stream template and ILM policy after every start,
+        # they are cluster state and vanish with an emptyDir. Reuses curl from
+        # the Elasticsearch image and stays resident afterwards.
+        - name: schema
+          image: {{ include "unifabric.image" (dict "root" . "image" $b.image) }}
+          imagePullPolicy: {{ $b.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - sh /etc/otelcol/es-setup.sh && exec sleep infinity
+          env:
+            - name: ES_URL
+              value: http://localhost:9200
+            - name: ES_USER
+              value: {{ $es.user | quote }}
+            - name: ES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret }}
+                  key: {{ $key }}
+          volumeMounts:
+            - name: schema
+              mountPath: /etc/otelcol
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+        {{- end }}
+        {{- if $b.exporter.enabled }}
+        - name: exporter
+          image: {{ include "unifabric.image" (dict "root" . "image" $b.exporter.image) }}
+          imagePullPolicy: {{ $b.image.pullPolicy }}
+          args:
+            - --es.uri=http://localhost:9200
+            - --es.indices
+            - --es.timeout=10s
+            - --web.listen-address=:9114
+          env:
+            - name: ES_USERNAME
+              value: {{ $es.user | quote }}
+            - name: ES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret }}
+                  key: {{ $key }}
+          ports:
+            - name: metrics
+              containerPort: 9114
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+        {{- end }}
+      volumes:
+        - name: data
+          {{- if $b.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ $b.persistence.existingClaim | default (printf "%s-data" $name) }}
+          {{- else }}
+          emptyDir:
+            sizeLimit: {{ $b.persistence.size }}
+          {{- end }}
+        {{- if $es.schema.create }}
+        - name: schema
+          configMap:
+            name: {{ $collector }}
+            items:
+              - key: es-setup.sh
+                path: es-setup.sh
+              - key: es-ilm.json
+                path: es-ilm.json
+              - key: es-template.json
+                path: es-template.json
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-elasticsearch
+spec:
+  selector:
+    {{- include "unifabric.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-elasticsearch
+  ports:
+    - name: http
+      port: 9200
+      targetPort: http
+      protocol: TCP
+    {{- if $b.exporter.enabled }}
+    - name: metrics
+      port: 9114
+      targetPort: metrics
+      protocol: TCP
+    {{- end }}
+{{- if and $b.exporter.enabled .Values.ebpfFlowEventCollector.serviceMonitor.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "unifabric.labels" . | nindent 4 }}
+    app.kubernetes.io/component: unifabric-elasticsearch
+    {{- with .Values.ebpfFlowEventCollector.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "unifabric.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: unifabric-elasticsearch
+  endpoints:
+    - interval: {{ .Values.ebpfFlowEventCollector.serviceMonitor.interval }}
+      path: /metrics
+      port: metrics
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: node
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace | quote }}
+{{- end }}
+{{- end }}
