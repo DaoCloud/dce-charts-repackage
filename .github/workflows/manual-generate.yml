@@ -33,7 +33,7 @@ jobs:
         id: result
         run: |
           ref=$( git show -s --format='format:%H')
-          echo ::set-output name=ref::${ref}
+          echo "ref=${ref}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Helm
         uses: azure/setup-helm@v4.3.0
@@ -57,7 +57,7 @@ jobs:
           cd _upload
           helm package ${ROOT_DIR}/charts/${{ github.event.inputs.project }}/${{ github.event.inputs.project }}
           FILENAME=`ls *.tgz`
-          echo ::set-output name=filepath::${ROOT_DIR}/_upload/${FILENAME}
+          echo "filepath=${ROOT_DIR}/_upload/${FILENAME}" >> "$GITHUB_OUTPUT"
 
       - name: Upload chart artifact
         uses: actions/upload-artifact@v4.6.0
