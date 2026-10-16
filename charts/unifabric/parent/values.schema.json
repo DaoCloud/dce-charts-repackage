@@ -1,0 +1,1492 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "required": [
+    "unifabric"
+  ],
+  "type": "object",
+  "properties": {
+    "unifabric": {
+      "type": "object",
+      "required": [
+        "topoDiscovery"
+      ],
+      "properties": {
+        "topoDiscovery": {
+          "description": "Independently selects one discovery implementation and label contract for each topology. Mode is the only enablement switch for its topology writer.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "scaleUp",
+            "scaleOut",
+            "storage"
+          ],
+          "properties": {
+            "scaleUp": {
+              "$ref": "#/properties/unifabric/definitions/scaleUpDiscovery"
+            },
+            "scaleOut": {
+              "$ref": "#/properties/unifabric/definitions/scaleOutDiscovery"
+            },
+            "storage": {
+              "$ref": "#/properties/unifabric/definitions/storageDiscovery"
+            }
+          }
+        },
+        "fabricNode": {
+          "description": "Controls how the agent discovers local RDMA and LLDP state and reports it through the FabricNode resource.",
+          "type": "object",
+          "properties": {
+            "refreshInterval": {
+              "description": "Interval between agent refreshes of local RDMA interfaces and LLDP neighbors.",
+              "type": "string"
+            },
+            "initialScanDelay": {
+              "description": "Delay before the first agent scan, allowing lldpd to learn neighbors.",
+              "type": "string"
+            },
+            "scaleOutInterfaceSelector": {
+              "description": "RDMA interfaces included in scale-out topology and metrics. Supports selectors such as cidr=172.17.0.0/16 or interface=eth*,!eth9.",
+              "type": "string"
+            },
+            "storageInterfaceSelector": {
+              "description": "RDMA interfaces classified as storage and excluded from scale-out topology. Leave empty when no dedicated storage RDMA network exists.",
+              "type": "string"
+            },
+            "scaleUpInterfaceSelector": {
+              "description": "RDMA interfaces classified as scale-up and excluded from scale-out topology. Leave empty when no dedicated scale-up RDMA network exists.",
+              "type": "string"
+            }
+          }
+        },
+        "nodeMetrics": {
+          "description": "Controls the agent RDMA metrics endpoint and scrape resources.",
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "description": "Enable RDMA metrics collection and expose the agent metrics Service.",
+              "type": "boolean"
+            },
+            "port": {
+              "description": "Container port used by the agent metrics endpoint.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "path": {
+              "description": "HTTP path served by the agent metrics endpoint.",
+              "type": "string"
+            },
+            "serviceMonitor": {
+              "description": "ServiceMonitor settings used by Prometheus Operator to scrape node metrics.",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "Create a Prometheus Operator ServiceMonitor for agent RDMA metrics.",
+                  "type": "boolean"
+                },
+                "interval": {
+                  "description": "Prometheus scrape interval for agent RDMA metrics.",
+                  "type": "string"
+                },
+                "scrapeTimeout": {
+                  "description": "Prometheus scrape timeout for agent RDMA metrics.",
+                  "type": "string"
+                },
+                "path": {
+                  "description": "HTTP path scraped by the ServiceMonitor.",
+                  "type": "string"
+                },
+                "labels": {
+                  "description": "Extra labels added to the ServiceMonitor for Prometheus selection.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "service": {
+              "description": "Service settings for exposing agent RDMA metrics inside the cluster.",
+              "type": "object",
+              "properties": {
+                "type": {
+                  "description": "Kubernetes Service type for agent RDMA metrics.",
+                  "type": "string",
+                  "enum": [
+                    "ClusterIP",
+                    "NodePort",
+                    "LoadBalancer"
+                  ]
+                },
+                "port": {
+                  "description": "Service port used by Prometheus to scrape agent RDMA metrics.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              }
+            }
+          }
+        },
+        "topologyAPI": {
+          "description": "Controls the read-only Topology HTTP API used by the Unifabric Grafana datasource plugin.",
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "description": "Enable the Topology HTTP API. Disabled by default since it has no authentication of its own.",
+              "type": "boolean"
+            }
+          }
+        },
+        "grafanaDashboard": {
+          "description": "Apply GrafanaDashboard resources when enabled.",
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "description": "Render the bundled Grafana dashboards.",
+              "type": "boolean"
+            },
+            "language": {
+              "description": "Dashboard language to install. en installs the English dashboards, zh the Chinese ones with a -zh suffix on their uid and resource name, all installs both.",
+              "type": "string",
+              "enum": [
+                "en",
+                "zh",
+                "all"
+              ]
+            },
+            "kind": {
+              "description": "Dashboard resource kind. Use ConfigMap for Grafana sidecar import, or GrafanaDashboard for Grafana Operator.",
+              "type": "string",
+              "enum": [
+                "ConfigMap",
+                "GrafanaDashboard"
+              ]
+            },
+            "labels": {
+              "description": "Extra labels added to rendered dashboard resources.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "instanceSelector": {
+              "description": "Grafana Operator instance selector for importing dashboards and the Topology datasource into an external Grafana instance. Ignored when grafanaInstance.enabled is true.",
+              "type": "object"
+            }
+          }
+        },
+        "grafanaInstance": {
+          "description": "Controls the optional Grafana instance managed by Grafana Operator. The Grafana Operator CRDs must already be installed.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "image",
+            "serviceType",
+            "labels"
+          ],
+          "properties": {
+            "enabled": {
+              "description": "Apply built-in Grafana instances when enabled.",
+              "type": "boolean"
+            },
+            "image": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "registry",
+                "repository",
+                "tag"
+              ],
+              "properties": {
+                "registry": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "repository": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tag": {
+                  "type": "string"
+                }
+              }
+            },
+            "serviceType": {
+              "type": "string",
+              "enum": [
+                "ClusterIP",
+                "NodePort",
+                "LoadBalancer"
+              ]
+            },
+            "labels": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "controller": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "description": "Deploy the Unifabric controller.",
+              "type": "boolean"
+            },
+            "replicaCount": {
+              "description": "Number of controller replicas.",
+              "type": "integer",
+              "minimum": 0
+            },
+            "image": {
+              "type": "object",
+              "properties": {
+                "registry": {
+                  "description": "Container image registry for the controller.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "repository": {
+                  "description": "Container image repository for the controller.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tag": {
+                  "description": "Container image tag for the controller. Defaults to the chart appVersion when empty.",
+                  "type": "string"
+                },
+                "pullPolicy": {
+                  "description": "Image pull policy for the controller container.",
+                  "type": "string",
+                  "enum": [
+                    "Always",
+                    "IfNotPresent",
+                    "Never"
+                  ]
+                }
+              }
+            },
+            "podAnnotations": {
+              "description": "Annotations added to controller pods.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "podLabels": {
+              "description": "Extra labels added to controller pods.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "nodeSelector": {
+              "description": "Node selector for scheduling controller pods.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "tolerations": {
+              "description": "Tolerations for scheduling controller pods.",
+              "type": "array"
+            },
+            "affinity": {
+              "description": "Affinity rules for scheduling controller pods.",
+              "type": "object"
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "requests": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "description": "Controller CPU request.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    },
+                    "memory": {
+                      "description": "Controller memory request.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    }
+                  }
+                },
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "description": "Controller CPU limit.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    },
+                    "memory": {
+                      "description": "Controller memory limit.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "ports": {
+              "type": "object",
+              "properties": {
+                "metrics": {
+                  "description": "Controller metrics container port.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                },
+                "health": {
+                  "description": "Controller health probe container port.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                },
+                "topologyAPI": {
+                  "description": "Controller Topology API container, Service, and datasource port. Only listened on when topologyAPI.enabled is true.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              }
+            },
+            "service": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "Create a Service for the controller metrics endpoint.",
+                  "type": "boolean"
+                },
+                "type": {
+                  "description": "Kubernetes Service type for the controller metrics endpoint.",
+                  "type": "string",
+                  "enum": [
+                    "ClusterIP",
+                    "NodePort",
+                    "LoadBalancer"
+                  ]
+                },
+                "port": {
+                  "description": "Service port for controller metrics.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              }
+            },
+            "config": {
+              "type": "object",
+              "properties": {
+                "logLevel": {
+                  "description": "Controller log level. Valid values are debug, info, warn, and error.",
+                  "type": "string",
+                  "enum": [
+                    "debug",
+                    "info",
+                    "warn",
+                    "error"
+                  ]
+                },
+                "metrics": {
+                  "type": "object",
+                  "properties": {
+                    "bindAddress": {
+                      "description": "Controller metrics bind address inside the container.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "pprof": {
+                  "type": "object",
+                  "properties": {
+                    "bindAddress": {
+                      "description": "Controller pprof bind address. Leave empty to disable pprof.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "agent": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "description": "Deploy the Unifabric node agent DaemonSet.",
+              "type": "boolean"
+            },
+            "image": {
+              "type": "object",
+              "properties": {
+                "registry": {
+                  "description": "Container image registry shared by the agent and lldpd sidecar.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "repository": {
+                  "description": "Container image repository shared by the agent and lldpd sidecar.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tag": {
+                  "description": "Container image tag shared by the agent and lldpd sidecar. Defaults to the chart appVersion when empty.",
+                  "type": "string"
+                },
+                "pullPolicy": {
+                  "description": "Image pull policy shared by the agent and lldpd sidecar.",
+                  "type": "string",
+                  "enum": [
+                    "Always",
+                    "IfNotPresent",
+                    "Never"
+                  ]
+                }
+              }
+            },
+            "podAnnotations": {
+              "description": "Annotations added to agent pods.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "podLabels": {
+              "description": "Extra labels added to agent pods.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "nodeSelector": {
+              "description": "Node selector for scheduling agent pods.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "tolerations": {
+              "description": "Tolerations for scheduling agent pods.",
+              "type": "array"
+            },
+            "affinity": {
+              "type": "object",
+              "properties": {
+                "nodeAffinity": {
+                  "type": "object",
+                  "properties": {
+                    "requiredDuringSchedulingIgnoredDuringExecution": {
+                      "type": "object",
+                      "properties": {
+                        "nodeSelectorTerms": {
+                          "type": "array"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "hostNetwork": {
+              "description": "Run agent pods in the host network namespace.",
+              "type": "boolean"
+            },
+            "hostPID": {
+              "description": "Run agent pods in the host PID namespace.",
+              "type": "boolean"
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "requests": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "description": "Agent CPU request.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    },
+                    "memory": {
+                      "description": "Agent memory request.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    }
+                  }
+                },
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "description": "Agent CPU limit. Keep it generous: the agent issues one ethtool ioctl per RDMA interface (PFs and every SR-IOV VF) while holding the kernel rtnl lock, and CFS throttling mid-ioctl stalls other network operations on the node.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    },
+                    "memory": {
+                      "description": "Agent memory limit.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "ports": {
+              "type": "object",
+              "properties": {
+                "metrics": {
+                  "description": "Agent metrics container port.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                },
+                "health": {
+                  "description": "Agent health probe container port.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              }
+            },
+            "config": {
+              "type": "object",
+              "properties": {
+                "logLevel": {
+                  "description": "Agent log level. Valid values are debug, info, warn, and error.",
+                  "type": "string",
+                  "enum": [
+                    "debug",
+                    "info",
+                    "warn",
+                    "error"
+                  ]
+                },
+                "metrics": {
+                  "type": "object",
+                  "properties": {
+                    "bindAddress": {
+                      "description": "Agent metrics bind address inside the container.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "node": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Kubernetes node name override. Leave empty to use the pod NODE_NAME environment value.",
+                      "type": "string"
+                    },
+                    "role": {
+                      "description": "Agent node role. Valid values are gpu and storage.",
+                      "type": "string",
+                      "enum": [
+                        "gpu",
+                        "storage"
+                      ]
+                    },
+                    "defaultRouteProbe": {
+                      "description": "host:port used to infer the default route when classifying local interfaces.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "workloadOwnerRules": {
+              "description": "Third-party workload kinds the agent may read while walking a Pod's ownerReferences to its top-level owner, rendered into the agent-workload-owners ClusterRole with the get verb. Keys are API groups, values their plural resources, user values merge with these defaults so a new controller is one extra key. Kubernetes built-in kinds and unifabric.io resources are covered by the generated agent role.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "ebpfFlow": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "Enable the eBPF flow component that attributes RDMA sends to Pod-to-Pod flows, publishes RDMAEndpoint objects and exports rdma_flow_* metrics. Requires a kernel with BPF ring buffer and uprobe support.",
+                  "type": "boolean"
+                },
+                "flowEvents": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "description": "Emit per-send ring buffer events, send-size metrics, and OTLP rows. Enable only when per-send details are required; cumulative bytes, WR, and QP flow metrics remain available when disabled.",
+                      "type": "boolean"
+                    },
+                    "queue": {
+                      "description": "Send event rows buffered per sink before new rows are dropped.",
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "batch": {
+                      "description": "Send event rows per export batch.",
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "flush": {
+                      "description": "Maximum time a partial batch waits before export.",
+                      "type": "string"
+                    },
+                    "sample": {
+                      "description": "Store one send event in every N, metrics still count every event.",
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "aggregate": {
+                      "description": "Merge identical submissions of a QP inside this window into one row with a count. 0s stores every submission.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "hostStateDir": {
+                  "description": "Host directory persisting learned provider callback offsets across agent restarts.",
+                  "type": "string"
+                },
+                "bpffsPath": {
+                  "description": "Host bpffs mount holding the pinned qp_infos and qp_stats maps.",
+                  "type": "string"
+                },
+                "pinDir": {
+                  "description": "bpffs directory for pinned maps so a restarted agent keeps learned QP state. Empty disables pinning.",
+                  "type": "string"
+                },
+                "offsetCache": {
+                  "description": "File persisting learned provider callback offsets, under hostStateDir.",
+                  "type": "string"
+                },
+                "discoveryInterval": {
+                  "description": "Fallback interval for scanning new processes and libibverbs libraries.",
+                  "type": "string"
+                },
+                "reportInterval": {
+                  "description": "Interval for joining the BPF maps into flow metrics.",
+                  "type": "string"
+                },
+                "endpoint": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "description": "Publish one RDMAEndpoint per Pod that holds an RDMA device.",
+                      "type": "boolean"
+                    },
+                    "interval": {
+                      "description": "Fallback publish interval covering lost events.",
+                      "type": "string"
+                    },
+                    "minInterval": {
+                      "description": "Minimum spacing between event driven RDMAEndpoint updates.",
+                      "type": "string"
+                    },
+                    "allPods": {
+                      "description": "Also publish Pods with their own network namespace. Required on InfiniBand fabrics where peers are addressed by LID.",
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "otlp": {
+                  "type": "object",
+                  "properties": {
+                    "insecure": {
+                      "description": "Use plaintext gRPC for the OTLP endpoint.",
+                      "type": "boolean"
+                    },
+                    "timeout": {
+                      "description": "Per export timeout for the OTLP exporter.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "lldp": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "Run the lldpd sidecar used by the agent to collect LLDP neighbors.",
+                  "type": "boolean"
+                },
+                "managementIPPattern": {
+                  "description": "lldpd management IP pattern written to lldpd.conf. Leave empty to let lldpd choose.",
+                  "type": "string"
+                },
+                "interfaces": {
+                  "description": "Interface pattern passed to lldpd for LLDP discovery. Leave empty to let lldpd use its defaults.",
+                  "type": "string"
+                },
+                "txInterval": {
+                  "description": "LLDP transmit interval, in seconds, configured for lldpd.",
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "extraConfig": {
+                  "description": "Additional raw lldpd configuration appended to lldpd.conf.",
+                  "type": "string"
+                },
+                "resources": {
+                  "type": "object",
+                  "properties": {
+                    "requests": {
+                      "type": "object",
+                      "properties": {
+                        "cpu": {
+                          "description": "lldpd sidecar CPU request.",
+                          "type": [
+                            "string",
+                            "number"
+                          ]
+                        },
+                        "memory": {
+                          "description": "lldpd sidecar memory request.",
+                          "type": [
+                            "string",
+                            "number"
+                          ]
+                        }
+                      }
+                    },
+                    "limits": {
+                      "type": "object",
+                      "properties": {
+                        "cpu": {
+                          "description": "lldpd sidecar CPU limit.",
+                          "type": [
+                            "string",
+                            "number"
+                          ]
+                        },
+                        "memory": {
+                          "description": "lldpd sidecar memory limit.",
+                          "type": [
+                            "string",
+                            "number"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ebpfFlowEventCollector": {
+          "description": "OpenTelemetry Collector receives eBPF flow events over OTLP and writes them to ClickHouse and/or Elasticsearch. Agents use this Collector when flowEvents is enabled.",
+          "type": "object",
+          "properties": {
+            "replicas": {
+              "description": "Collector replicas. Agents hold one gRPC connection each, so more replicas than agents stay idle.",
+              "type": "integer",
+              "minimum": 0
+            },
+            "image": {
+              "type": "object",
+              "properties": {
+                "registry": {
+                  "description": "OpenTelemetry Collector contrib image registry. Only the contrib distribution ships the clickhouse and elasticsearch exporters.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "repository": {
+                  "description": "OpenTelemetry Collector contrib image repository.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tag": {
+                  "description": "OpenTelemetry Collector contrib image tag.",
+                  "type": "string"
+                },
+                "pullPolicy": {
+                  "description": "Image pull policy.",
+                  "type": "string",
+                  "enum": [
+                    "Always",
+                    "IfNotPresent",
+                    "Never"
+                  ]
+                }
+              }
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "requests": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "description": "Collector CPU request.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    },
+                    "memory": {
+                      "description": "Collector memory request.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    }
+                  }
+                },
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "cpu": {
+                      "description": "Collector CPU limit.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    },
+                    "memory": {
+                      "description": "Collector memory limit. memory_limiter is derived from it.",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "nodeSelector": {
+              "description": "Node selector for the Collector Pod.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "tolerations": {
+              "description": "Tolerations for the Collector Pod.",
+              "type": "array"
+            },
+            "batch": {
+              "type": "object",
+              "properties": {
+                "sendBatchSize": {
+                  "description": "Records per batch sent to the backends.",
+                  "type": "integer"
+                },
+                "sendBatchMaxSize": {
+                  "description": "Upper bound of a batch.",
+                  "type": "integer"
+                },
+                "timeout": {
+                  "description": "Maximum time a partial batch waits.",
+                  "type": "string"
+                }
+              }
+            },
+            "serviceMonitor": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "Create a ServiceMonitor for the Collector's own metrics on port 8888.",
+                  "type": "boolean"
+                },
+                "interval": {
+                  "description": "Scrape interval for the Collector metrics.",
+                  "type": "string"
+                },
+                "labels": {
+                  "description": "Extra labels added to the ServiceMonitor.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "clickhouse": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "Write send events to ClickHouse.",
+                  "type": "boolean"
+                },
+                "endpoint": {
+                  "description": "Native protocol endpoint of an external ClickHouse, for example tcp://clickhouse.data.svc:9000. Leave empty to deploy the bundled test instance described under bundled instead.",
+                  "type": "string"
+                },
+                "database": {
+                  "description": "ClickHouse database holding the send events table.",
+                  "type": "string"
+                },
+                "table": {
+                  "description": "ClickHouse table name.",
+                  "type": "string"
+                },
+                "username": {
+                  "description": "ClickHouse user.",
+                  "type": "string"
+                },
+                "password": {
+                  "description": "ClickHouse password. Defaults to rdma-flow for the bundled test instance. Prefer existingSecret for an external server.",
+                  "type": "string"
+                },
+                "existingSecret": {
+                  "description": "Existing Secret with a password key used instead of password.",
+                  "type": "string"
+                },
+                "ttlDays": {
+                  "description": "Row retention applied by the table TTL.",
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "create": {
+                      "description": "Create the database and the strongly typed table with an init container before the Collector starts. The exporter never creates the schema itself.",
+                      "type": "boolean"
+                    },
+                    "image": {
+                      "type": "object",
+                      "properties": {
+                        "registry": {
+                          "description": "ClickHouse client image used by the schema init container.",
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "repository": {
+                          "description": "ClickHouse client image repository.",
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "tag": {
+                          "description": "ClickHouse client image tag.",
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "bundled": {
+                  "description": "Bundled single replica ClickHouse deployed only when endpoint is empty. FOR TESTING ONLY: no replication, no backups, fixed credentials, sized for a few nodes of traffic.",
+                  "type": "object",
+                  "properties": {
+                    "image": {
+                      "type": "object",
+                      "properties": {
+                        "registry": {
+                          "description": "Bundled ClickHouse image registry.",
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "repository": {
+                          "description": "Bundled ClickHouse image repository.",
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "tag": {
+                          "description": "Bundled ClickHouse image tag.",
+                          "type": "string"
+                        },
+                        "pullPolicy": {
+                          "description": "Bundled ClickHouse image pull policy.",
+                          "type": "string",
+                          "enum": [
+                            "Always",
+                            "IfNotPresent",
+                            "Never"
+                          ]
+                        }
+                      }
+                    },
+                    "persistence": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "description": "Keep the data directory on a PersistentVolumeClaim so tables survive Pod recreation. false uses an emptyDir.",
+                          "type": "boolean"
+                        },
+                        "size": {
+                          "description": "Size of the claim, or of the emptyDir limit when persistence is disabled.",
+                          "type": "string"
+                        },
+                        "storageClassName": {
+                          "description": "StorageClass of the claim. Empty uses the cluster default class.",
+                          "type": "string"
+                        },
+                        "existingClaim": {
+                          "description": "Existing PersistentVolumeClaim to mount instead of creating one.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "resources": {
+                      "description": "Bundled ClickHouse container resources. max_server_memory_usage follows the memory limit.",
+                      "type": "object",
+                      "properties": {
+                        "requests": {
+                          "type": "object",
+                          "properties": {
+                            "cpu": {
+                              "type": [
+                                "string",
+                                "number"
+                              ]
+                            },
+                            "memory": {
+                              "type": [
+                                "string",
+                                "number"
+                              ]
+                            }
+                          }
+                        },
+                        "limits": {
+                          "type": "object",
+                          "properties": {
+                            "cpu": {
+                              "type": [
+                                "string",
+                                "number"
+                              ]
+                            },
+                            "memory": {
+                              "type": [
+                                "string",
+                                "number"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "nodeSelector": {
+                      "description": "Node selector for the bundled ClickHouse Pod.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "tolerations": {
+                      "description": "Tolerations for the bundled ClickHouse Pod.",
+                      "type": "array"
+                    }
+                  }
+                }
+              }
+            },
+            "elasticsearch": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "Write send events to Elasticsearch as a data stream.",
+                  "type": "boolean"
+                },
+                "endpoints": {
+                  "description": "HTTP endpoints of an external Elasticsearch, for example http://elasticsearch.data.svc:9200. Leave empty to deploy the bundled test instance described under bundled instead.",
+                  "type": "array"
+                },
+                "user": {
+                  "description": "Elasticsearch user.",
+                  "type": "string"
+                },
+                "password": {
+                  "description": "Elasticsearch password. Defaults to rdma-flow for the bundled test instance. Prefer existingSecret for an external cluster.",
+                  "type": "string"
+                },
+                "existingSecret": {
+                  "description": "Existing Secret with a password key used instead of password.",
+                  "type": "string"
+                },
+                "index": {
+                  "description": "Data stream receiving the documents.",
+                  "type": "string"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "create": {
+                      "description": "Write the index template and ILM policy of the data stream before the Collector starts. The template maps every attribute as keyword or number, disables dynamic mapping and uses date_nanos timestamps.",
+                      "type": "boolean"
+                    },
+                    "image": {
+                      "type": "object",
+                      "properties": {
+                        "registry": {
+                          "description": "curl image used by the schema init container against an external Elasticsearch. The bundled instance applies the schema from its own Pod.",
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "repository": {
+                          "description": "curl image repository.",
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "tag": {
+                          "description": "curl image tag.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "refreshInterval": {
+                      "description": "Refresh interval of the backing indices.",
+                      "type": "string"
+                    },
+                    "ilm": {
+                      "type": "object",
+                      "properties": {
+                        "rolloverMaxAge": {
+                          "description": "Roll the write index over after this age.",
+                          "type": "string"
+                        },
+                        "rolloverMaxPrimaryShardSize": {
+                          "description": "Roll the write index over when a primary shard reaches this size.",
+                          "type": "string"
+                        },
+                        "deleteMinAge": {
+                          "description": "Delete backing indices this long after rollover.",
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "grafanaDatasource": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "description": "Create a GrafanaDatasource for the data stream so the flow-sends-es dashboard works. Requires grafanaDashboard.kind GrafanaDashboard.",
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "bundled": {
+                  "description": "Bundled single node Elasticsearch deployed only when endpoints is empty. FOR TESTING ONLY: single node, security without TLS, fixed credentials, disk watermarks disabled.",
+                  "type": "object",
+                  "properties": {
+                    "image": {
+                      "type": "object",
+                      "properties": {
+                        "registry": {
+                          "description": "Bundled Elasticsearch image registry.",
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "repository": {
+                          "description": "Bundled Elasticsearch image repository.",
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "tag": {
+                          "description": "Bundled Elasticsearch image tag.",
+                          "type": "string"
+                        },
+                        "pullPolicy": {
+                          "description": "Bundled Elasticsearch image pull policy.",
+                          "type": "string",
+                          "enum": [
+                            "Always",
+                            "IfNotPresent",
+                            "Never"
+                          ]
+                        }
+                      }
+                    },
+                    "sysctlImage": {
+                      "type": "object",
+                      "properties": {
+                        "registry": {
+                          "description": "busybox image used by the privileged init container raising vm.max_map_count.",
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "repository": {
+                          "description": "busybox image repository.",
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "tag": {
+                          "description": "busybox image tag.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "exporter": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "description": "Run the elasticsearch-exporter sidecar exposing elasticsearch_* metrics on port 9114 for the dashboards.",
+                          "type": "boolean"
+                        },
+                        "image": {
+                          "type": "object",
+                          "properties": {
+                            "registry": {
+                              "description": "elasticsearch-exporter image registry.",
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "repository": {
+                              "description": "elasticsearch-exporter image repository.",
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "tag": {
+                              "description": "elasticsearch-exporter image tag.",
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "javaHeap": {
+                      "description": "JVM heap passed as -Xms and -Xmx. Keep it at half of the memory limit or less.",
+                      "type": "string"
+                    },
+                    "persistence": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "description": "Keep the data directory on a PersistentVolumeClaim. false uses an emptyDir and loses data on Pod recreation.",
+                          "type": "boolean"
+                        },
+                        "size": {
+                          "description": "Size of the claim, or of the emptyDir limit when persistence is disabled.",
+                          "type": "string"
+                        },
+                        "storageClassName": {
+                          "description": "StorageClass of the claim. Empty uses the cluster default class.",
+                          "type": "string"
+                        },
+                        "existingClaim": {
+                          "description": "Existing PersistentVolumeClaim to mount instead of creating one.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "resources": {
+                      "description": "Bundled Elasticsearch container resources.",
+                      "type": "object",
+                      "properties": {
+                        "requests": {
+                          "type": "object",
+                          "properties": {
+                            "cpu": {
+                              "type": [
+                                "string",
+                                "number"
+                              ]
+                            },
+                            "memory": {
+                              "type": [
+                                "string",
+                                "number"
+                              ]
+                            }
+                          }
+                        },
+                        "limits": {
+                          "type": "object",
+                          "properties": {
+                            "cpu": {
+                              "type": [
+                                "string",
+                                "number"
+                              ]
+                            },
+                            "memory": {
+                              "type": [
+                                "string",
+                                "number"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "nodeSelector": {
+                      "description": "Node selector for the bundled Elasticsearch Pod.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "tolerations": {
+                      "description": "Tolerations for the bundled Elasticsearch Pod.",
+                      "type": "array"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "nvidiaTopograph": {
+          "type": "object",
+          "properties": {
+            "provider": {
+              "description": "Topology provider settings passed to NVIDIA Topograph.",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Provider name. Use infiniband-k8s for InfiniBand or netq for Spectrum-X.",
+                  "type": "string",
+                  "enum": [
+                    "infiniband-k8s",
+                    "netq"
+                  ]
+                },
+                "params": {
+                  "description": "Provider-specific parameters, such as apiUrl for netq.",
+                  "type": "object"
+                }
+              }
+            },
+            "credentialsSecretName": {
+              "description": "Existing Secret containing a credentials.yaml key. Required by the netq provider; credentials are mounted only into the topograph Pod.",
+              "type": "string"
+            },
+            "useGpuCliqueLabel": {
+              "description": "Use the GPU Operator clique label as the accelerator topology source for infiniband-k8s.",
+              "type": "boolean"
+            },
+            "image": {
+              "description": "Shared image used by topograph, node-observer, and node-data-broker.",
+              "type": "object",
+              "properties": {
+                "registry": {
+                  "description": "NVIDIA Topograph image registry.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "repository": {
+                  "description": "NVIDIA Topograph image repository.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tag": {
+                  "description": "NVIDIA Topograph image tag.",
+                  "type": "string"
+                },
+                "pullPolicy": {
+                  "description": "NVIDIA Topograph image pull policy.",
+                  "type": "string",
+                  "enum": [
+                    "Always",
+                    "IfNotPresent",
+                    "Never"
+                  ]
+                }
+              }
+            },
+            "gpuNodeSelector": {
+              "description": "Selects GPU Nodes observed by node-observer and running node-data-broker.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "gpuNodeTolerations": {
+              "description": "Tolerations applied to node-data-broker on selected GPU Nodes.",
+              "type": "array"
+            }
+          }
+        }
+      },
+      "definitions": {
+        "nodeLabel": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "keyTemplate"
+          ],
+          "properties": {
+            "keyTemplate": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "scaleUpDiscovery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "nodeLabel"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "nv-topograph",
+                "manual"
+              ]
+            },
+            "nodeLabel": {
+              "$ref": "#/properties/unifabric/definitions/nodeLabel"
+            }
+          }
+        },
+        "scaleOutDiscovery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "nodeLabel"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "nv-topograph",
+                "unifabric-roce"
+              ]
+            },
+            "nodeLabel": {
+              "$ref": "#/properties/unifabric/definitions/nodeLabel"
+            }
+          }
+        },
+        "storageDiscovery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "nodeLabel"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "unifabric-roce",
+                "unifabric-ib"
+              ]
+            },
+            "nodeLabel": {
+              "$ref": "#/properties/unifabric/definitions/nodeLabel"
+            }
+          }
+        }
+      }
+    }
+  }
+}

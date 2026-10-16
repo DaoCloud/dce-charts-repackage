@@ -22,9 +22,6 @@ yq e -i '
   .keywords = (["unifabric", "rdma", "lldp", "topology"] + (.keywords // []) | unique)
 ' Chart.yaml
 
-# the upstream schema is nested under "unifabric", so local $ref pointers must follow
-sed -i 's|"#/definitions/|"#/properties/unifabric/definitions/|g' values.schema.json
-
 # switch image registries to the daocloud mirrors
 yq e -i '
   (.. | select(tag == "!!map" and .registry == "ghcr.io") | .registry) = "ghcr.m.daocloud.io" |
@@ -33,5 +30,8 @@ yq e -i '
   (.. | select(tag == "!!map" and .registry == "docker.elastic.co") | .registry) = "elastic.m.daocloud.io" |
   .unifabric.controller.image.tag = strenv(APP_VERSION) |
   .unifabric.agent.image.tag = strenv(APP_VERSION) |
-  .unifabric.grafanaInstance.image.tag = strenv(APP_VERSION)
+  .unifabric.grafanaInstance.image.tag = strenv(APP_VERSION) |
+  .unifabric.grafanaDashboard.enabled = false |
+  .unifabric.nodeMetrics.serviceMonitor.labels."operator.insight.io/managed-by" = "insight" |
+  .unifabric.ebpfFlowEventCollector.serviceMonitor.labels."operator.insight.io/managed-by" = "insight"
 ' values.yaml

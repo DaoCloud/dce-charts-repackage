@@ -72,7 +72,8 @@ unifabric:
       # -- HTTP path scraped by the ServiceMonitor.
       path: /metrics
       # -- Extra labels added to the ServiceMonitor for Prometheus selection.
-      labels: {}
+      labels:
+        operator.insight.io/managed-by: insight
     # -- Service settings for exposing agent RDMA metrics inside the cluster.
     service:
       # -- Kubernetes Service type for agent RDMA metrics.
@@ -87,7 +88,7 @@ unifabric:
   # plus the Unifabric Topology dashboard when topologyAPI.enabled is true).
   grafanaDashboard:
     # -- Render the bundled Grafana dashboards.
-    enabled: true
+    enabled: false
     # -- Dashboard language to install. en installs the English dashboards, zh the Chinese ones with a -zh suffix on their uid and resource name, all installs both.
     language: en
     # -- Dashboard resource kind. Use ConfigMap for Grafana sidecar import, or GrafanaDashboard for Grafana Operator.
@@ -405,7 +406,8 @@ unifabric:
       # -- Scrape interval for the Collector metrics.
       interval: 15s
       # -- Extra labels added to the ServiceMonitor.
-      labels: {}
+      labels:
+        operator.insight.io/managed-by: insight
     clickhouse:
       # -- Write send events to ClickHouse.
       enabled: false
