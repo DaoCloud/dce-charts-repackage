@@ -7,7 +7,7 @@ annotations:
   charts.openshift.io/name: llm-d Infra
   charts.openshift.io/provider: llm-d-infra
 apiVersion: v2
-appVersion: v0.3.0
+appVersion: v0.4.0
 dependencies:
 - name: common
   repository: https://charts.bitnami.com/bitnami
@@ -27,4 +27,4 @@ name: llm-d-infra
 sources:
 - https://github.com/llm-d-incubation/llm-d-infra
 type: application
-version: v1.3.6
+version: v1.4.0
