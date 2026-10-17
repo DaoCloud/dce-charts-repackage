@@ -1,3 +1,5 @@
+{{- if (include "argo-cd.server.enabled" .) }}
+{{- $insecure := index .Values.configs.params "server.insecure" | toString -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -44,6 +46,18 @@ spec:
     {{- if and (eq .Values.server.service.type "NodePort") .Values.server.service.nodePortHttp }}
     nodePort: {{ .Values.server.service.nodePortHttp }}
     {{- end }}
+  {{- if and (eq $insecure "true") .Values.server.service.servicePortHttp2 }}
+  - name: {{ .Values.server.service.servicePortHttp2Name }}
+    protocol: TCP
+    port: {{ .Values.server.service.servicePortHttp2 }}
+    targetPort: {{ .Values.server.containerPorts.server }}
+    {{- if and (eq .Values.server.service.type "NodePort") .Values.server.service.nodePortHttp2 }}
+    nodePort: {{ .Values.server.service.nodePortHttp2 }}
+    {{- end }}
+    {{- with .Values.server.service.servicePortHttp2AppProtocol }}
+    appProtocol: {{ . }}
+    {{- end }}
+  {{- end }}
   - name: {{ .Values.server.service.servicePortHttpsName }}
     protocol: TCP
     port: {{ .Values.server.service.servicePortHttps }}
@@ -57,3 +71,4 @@ spec:
   selector:
     {{- include "argo-cd.selectorLabels" (dict "context" . "name" .Values.server.name) | nindent 4 }}
 
+{{ end -}}
