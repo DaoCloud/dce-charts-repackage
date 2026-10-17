@@ -43,10 +43,39 @@ metadata:
   name: koord-manager-role
 rules:
 - apiGroups:
-  - admissionregistration.k8s.io
+  - ""
   resources:
-  - mutatingwebhookconfigurations
+  - configmaps
+  - namespaces
+  - pods
   verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
   - get
   - list
   - patch
@@ -55,6 +84,7 @@ rules:
 - apiGroups:
   - admissionregistration.k8s.io
   resources:
+  - mutatingwebhookconfigurations
   - validatingwebhookconfigurations
   verbs:
   - get
@@ -69,61 +99,6 @@ rules:
   verbs:
   - get
   - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - namespaces
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - nodes
-  verbs:
-  - get
-  - list
-  - watch
-  - patch
-- apiGroups:
-  - ""
-  resources:
-  - nodes/status
-  verbs:
-  - get
-  - list
-  - watch
-  - patch
-  - update
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - quota.koordinator.sh
@@ -162,6 +137,27 @@ rules:
   - list
   - watch
 - apiGroups:
+  - scheduling.koordinator.sh
+  resources:
+  - podmigrationjobs
+  - reservations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - scheduling.koordinator.sh
+  resources:
+  - podmigrationjobs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - scheduling.sigs.k8s.io
   resources:
   - elasticquotas
@@ -177,25 +173,6 @@ rules:
   - slo.koordinator.sh
   resources:
   - nodemetrics
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - slo.koordinator.sh
-  resources:
-  - nodemetrics/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - slo.koordinator.sh
-  resources:
   - nodeslos
   verbs:
   - create
@@ -208,6 +185,7 @@ rules:
 - apiGroups:
   - slo.koordinator.sh
   resources:
+  - nodemetrics/status
   - nodeslos/status
   verbs:
   - get
