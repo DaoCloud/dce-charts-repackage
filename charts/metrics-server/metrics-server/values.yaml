@@ -6,7 +6,7 @@ metrics-server:
   image:
     repository: metrics-server/metrics-server
     # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
-    tag: "v0.8.1"
+    tag: "v0.9.0"
     pullPolicy: IfNotPresent
     registry: k8s.m.daocloud.io
   imagePullSecrets: []
@@ -14,6 +14,7 @@ metrics-server:
 
   nameOverride: ""
   fullnameOverride: ""
+  namespaceOverride: ""
   serviceAccount:
     # Specifies whether a service account should be created
     create: true
@@ -47,6 +48,7 @@ metrics-server:
   podLabels: {}
   podAnnotations: {}
   podSecurityContext: {}
+  hostUsers:
   securityContext:
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
