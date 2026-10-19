@@ -590,27 +590,6 @@
                       "type": "string"
                     }
                   }
-                },
-                "node": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "description": "Kubernetes node name override. Leave empty to use the pod NODE_NAME environment value.",
-                      "type": "string"
-                    },
-                    "role": {
-                      "description": "Agent node role. Valid values are gpu and storage.",
-                      "type": "string",
-                      "enum": [
-                        "gpu",
-                        "storage"
-                      ]
-                    },
-                    "defaultRouteProbe": {
-                      "description": "host:port used to infer the default route when classifying local interfaces.",
-                      "type": "string"
-                    }
-                  }
                 }
               }
             },
@@ -628,7 +607,7 @@
               "type": "object",
               "properties": {
                 "enabled": {
-                  "description": "Enable the eBPF flow component that attributes RDMA sends to Pod-to-Pod flows, publishes RDMAEndpoint objects and exports rdma_flow_* metrics. Requires a kernel with BPF ring buffer and uprobe support.",
+                  "description": "Enable eBPF-based RDMA flow tracking and export RDMA flow metrics. Requires Linux kernel 5.8 or later with BPF ring buffer and uprobe support.",
                   "type": "boolean"
                 },
                 "flowEvents": {
