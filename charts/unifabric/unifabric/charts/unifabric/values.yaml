@@ -122,7 +122,7 @@ controller:
     # -- Container image repository for the controller.
     repository: unifabric-io/unifabric-controller
     # -- Container image tag for the controller. Defaults to the chart appVersion when empty.
-    tag: "v0.4.0"
+    tag: "v0.4.1"
     # -- Image pull policy for the controller container.
     pullPolicy: IfNotPresent
   serviceAccount:
@@ -216,7 +216,7 @@ agent:
     # -- Container image repository shared by the agent and lldpd sidecar.
     repository: unifabric-io/unifabric-agent
     # -- Container image tag shared by the agent and lldpd sidecar. Defaults to the chart appVersion when empty.
-    tag: "v0.4.0"
+    tag: "v0.4.1"
     # -- Image pull policy shared by the agent and lldpd sidecar.
     pullPolicy: IfNotPresent
   serviceAccount:

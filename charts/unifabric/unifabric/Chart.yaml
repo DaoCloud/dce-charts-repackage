@@ -1,12 +1,12 @@
 apiVersion: v2
-appVersion: v0.4.0
+appVersion: v0.4.1
 description: Agent/controller deployment for Unifabric LLDP and RDMA topology discovery
 name: unifabric
 type: application
-version: 0.4.0
+version: 0.4.1
 dependencies:
   - name: unifabric
-    version: "0.4.0"
+    version: "0.4.1"
     repository: "oci://ghcr.io/unifabric-io/charts"
 annotations:
   addon.kpanda.io/release-name: unifabric
