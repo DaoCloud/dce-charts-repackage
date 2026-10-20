@@ -80,10 +80,6 @@
               "description": "ServiceMonitor settings used by Prometheus Operator to scrape node metrics.",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "description": "Create a Prometheus Operator ServiceMonitor for agent RDMA metrics.",
-                  "type": "boolean"
-                },
                 "interval": {
                   "description": "Prometheus scrape interval for agent RDMA metrics.",
                   "type": "string"
@@ -226,6 +222,15 @@
               "additionalProperties": {
                 "type": "string"
               }
+            }
+          }
+        },
+        "serviceMonitor": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "description": "Apply ServiceMonitor CRs when enabled.",
+              "type": "boolean"
             }
           }
         },
@@ -385,6 +390,30 @@
                   "type": "integer",
                   "minimum": 1,
                   "maximum": 65535
+                }
+              }
+            },
+            "serviceMonitor": {
+              "type": "object",
+              "properties": {
+                "interval": {
+                  "description": "Prometheus scrape interval for the controller metrics.",
+                  "type": "string"
+                },
+                "scrapeTimeout": {
+                  "description": "Prometheus scrape timeout for the controller metrics.",
+                  "type": "string"
+                },
+                "path": {
+                  "description": "HTTP path scraped by the ServiceMonitor.",
+                  "type": "string"
+                },
+                "labels": {
+                  "description": "Extra labels added to the ServiceMonitor for Prometheus selection.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
                 }
               }
             },
@@ -884,10 +913,6 @@
             "serviceMonitor": {
               "type": "object",
               "properties": {
-                "enabled": {
-                  "description": "Create a ServiceMonitor for the Collector's own metrics on port 8888.",
-                  "type": "boolean"
-                },
                 "interval": {
                   "description": "Scrape interval for the Collector metrics.",
                   "type": "string"
@@ -901,178 +926,6 @@
                 }
               }
             },
-            "clickhouse": {
-              "type": "object",
-              "properties": {
-                "enabled": {
-                  "description": "Write send events to ClickHouse.",
-                  "type": "boolean"
-                },
-                "endpoint": {
-                  "description": "Native protocol endpoint of an external ClickHouse, for example tcp://clickhouse.data.svc:9000. Leave empty to deploy the bundled test instance described under bundled instead.",
-                  "type": "string"
-                },
-                "database": {
-                  "description": "ClickHouse database holding the send events table.",
-                  "type": "string"
-                },
-                "table": {
-                  "description": "ClickHouse table name.",
-                  "type": "string"
-                },
-                "username": {
-                  "description": "ClickHouse user.",
-                  "type": "string"
-                },
-                "password": {
-                  "description": "ClickHouse password. Defaults to rdma-flow for the bundled test instance. Prefer existingSecret for an external server.",
-                  "type": "string"
-                },
-                "existingSecret": {
-                  "description": "Existing Secret with a password key used instead of password.",
-                  "type": "string"
-                },
-                "ttlDays": {
-                  "description": "Row retention applied by the table TTL.",
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "create": {
-                      "description": "Create the database and the strongly typed table with an init container before the Collector starts. The exporter never creates the schema itself.",
-                      "type": "boolean"
-                    },
-                    "image": {
-                      "type": "object",
-                      "properties": {
-                        "registry": {
-                          "description": "ClickHouse client image used by the schema init container.",
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        "repository": {
-                          "description": "ClickHouse client image repository.",
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        "tag": {
-                          "description": "ClickHouse client image tag.",
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                },
-                "bundled": {
-                  "description": "Bundled single replica ClickHouse deployed only when endpoint is empty. FOR TESTING ONLY: no replication, no backups, fixed credentials, sized for a few nodes of traffic.",
-                  "type": "object",
-                  "properties": {
-                    "image": {
-                      "type": "object",
-                      "properties": {
-                        "registry": {
-                          "description": "Bundled ClickHouse image registry.",
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        "repository": {
-                          "description": "Bundled ClickHouse image repository.",
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        "tag": {
-                          "description": "Bundled ClickHouse image tag.",
-                          "type": "string"
-                        },
-                        "pullPolicy": {
-                          "description": "Bundled ClickHouse image pull policy.",
-                          "type": "string",
-                          "enum": [
-                            "Always",
-                            "IfNotPresent",
-                            "Never"
-                          ]
-                        }
-                      }
-                    },
-                    "persistence": {
-                      "type": "object",
-                      "properties": {
-                        "enabled": {
-                          "description": "Keep the data directory on a PersistentVolumeClaim so tables survive Pod recreation. false uses an emptyDir.",
-                          "type": "boolean"
-                        },
-                        "size": {
-                          "description": "Size of the claim, or of the emptyDir limit when persistence is disabled.",
-                          "type": "string"
-                        },
-                        "storageClassName": {
-                          "description": "StorageClass of the claim. Empty uses the cluster default class.",
-                          "type": "string"
-                        },
-                        "existingClaim": {
-                          "description": "Existing PersistentVolumeClaim to mount instead of creating one.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "resources": {
-                      "description": "Bundled ClickHouse container resources. max_server_memory_usage follows the memory limit.",
-                      "type": "object",
-                      "properties": {
-                        "requests": {
-                          "type": "object",
-                          "properties": {
-                            "cpu": {
-                              "type": [
-                                "string",
-                                "number"
-                              ]
-                            },
-                            "memory": {
-                              "type": [
-                                "string",
-                                "number"
-                              ]
-                            }
-                          }
-                        },
-                        "limits": {
-                          "type": "object",
-                          "properties": {
-                            "cpu": {
-                              "type": [
-                                "string",
-                                "number"
-                              ]
-                            },
-                            "memory": {
-                              "type": [
-                                "string",
-                                "number"
-                              ]
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "nodeSelector": {
-                      "description": "Node selector for the bundled ClickHouse Pod.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "tolerations": {
-                      "description": "Tolerations for the bundled ClickHouse Pod.",
-                      "type": "array"
-                    }
-                  }
-                }
-              }
-            },
             "elasticsearch": {
               "type": "object",
               "properties": {
@@ -1082,7 +935,10 @@
                 },
                 "endpoints": {
                   "description": "HTTP endpoints of an external Elasticsearch, for example http://elasticsearch.data.svc:9200. Leave empty to deploy the bundled test instance described under bundled instead.",
-                  "type": "array"
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
                 "user": {
                   "description": "Elasticsearch user.",

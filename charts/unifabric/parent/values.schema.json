@@ -80,10 +80,6 @@
               "description": "ServiceMonitor settings used by Prometheus Operator to scrape node metrics.",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "description": "Create a Prometheus Operator ServiceMonitor for agent RDMA metrics.",
-                  "type": "boolean"
-                },
                 "interval": {
                   "description": "Prometheus scrape interval for agent RDMA metrics.",
                   "type": "string"
@@ -226,6 +222,15 @@
               "additionalProperties": {
                 "type": "string"
               }
+            }
+          }
+        },
+        "serviceMonitor": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "description": "Apply ServiceMonitor CRs when enabled.",
+              "type": "boolean"
             }
           }
         },
@@ -385,6 +390,30 @@
                   "type": "integer",
                   "minimum": 1,
                   "maximum": 65535
+                }
+              }
+            },
+            "serviceMonitor": {
+              "type": "object",
+              "properties": {
+                "interval": {
+                  "description": "Prometheus scrape interval for the controller metrics.",
+                  "type": "string"
+                },
+                "scrapeTimeout": {
+                  "description": "Prometheus scrape timeout for the controller metrics.",
+                  "type": "string"
+                },
+                "path": {
+                  "description": "HTTP path scraped by the ServiceMonitor.",
+                  "type": "string"
+                },
+                "labels": {
+                  "description": "Extra labels added to the ServiceMonitor for Prometheus selection.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
                 }
               }
             },
@@ -884,10 +913,6 @@
             "serviceMonitor": {
               "type": "object",
               "properties": {
-                "enabled": {
-                  "description": "Create a ServiceMonitor for the Collector's own metrics on port 8888.",
-                  "type": "boolean"
-                },
                 "interval": {
                   "description": "Scrape interval for the Collector metrics.",
                   "type": "string"

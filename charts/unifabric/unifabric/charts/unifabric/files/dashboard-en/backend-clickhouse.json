@@ -28,6 +28,51 @@
         "refresh": 1,
         "current": {},
         "options": []
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "query_result(count by (cluster_name) (global_cluster_info) or label_replace(vector(1) unless on() global_cluster_info, \"cluster_name\", \"Local\", \"\", \"\"))",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Cluster",
+        "multi": false,
+        "name": "cluster_name",
+        "options": [],
+        "query": {
+          "query": "query_result(count by (cluster_name) (global_cluster_info) or label_replace(vector(1) unless on() global_cluster_info, \"cluster_name\", \"Local\", \"\", \"\"))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/cluster_name=\"([^\"]+)\"/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "query_result(count by (cluster) (global_cluster_info{cluster_name=\"$cluster_name\"}) or label_replace(vector(1) unless on() global_cluster_info, \"cluster\", \"^$\", \"\", \"\"))",
+        "hide": 2,
+        "includeAll": false,
+        "multi": false,
+        "name": "cluster",
+        "options": [],
+        "query": {
+          "query": "query_result(count by (cluster) (global_cluster_info{cluster_name=\"$cluster_name\"}) or label_replace(vector(1) unless on() global_cluster_info, \"cluster\", \"^$\", \"\", \"\"))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/cluster=\"([^\"]+)\"/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
       }
     ]
   },
@@ -49,7 +94,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(ClickHouseMetrics_Query)",
+          "expr": "sum(ClickHouseMetrics_Query{cluster=~\"${cluster:raw}\"})",
           "instant": true
         }
       ],
@@ -83,7 +128,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(ClickHouseMetrics_PendingAsyncInsert)",
+          "expr": "sum(ClickHouseMetrics_PendingAsyncInsert{cluster=~\"${cluster:raw}\"})",
           "instant": true
         }
       ],
@@ -134,7 +179,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(ClickHouseMetrics_Merge)",
+          "expr": "sum(ClickHouseMetrics_Merge{cluster=~\"${cluster:raw}\"})",
           "instant": true
         }
       ],
@@ -168,7 +213,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables)",
+          "expr": "sum(ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{cluster=~\"${cluster:raw}\"})",
           "instant": true
         }
       ],
@@ -202,12 +247,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(ClickHouseProfileEvents_InsertedRows[5m]))",
+          "expr": "sum(rate(ClickHouseProfileEvents_InsertedRows{cluster=~\"${cluster:raw}\"}[5m]))",
           "legendFormat": "rows/s"
         },
         {
           "refId": "B",
-          "expr": "sum(rate(ClickHouseProfileEvents_InsertedBytes[5m]))",
+          "expr": "sum(rate(ClickHouseProfileEvents_InsertedBytes{cluster=~\"${cluster:raw}\"}[5m]))",
           "legendFormat": "bytes/s"
         }
       ],
@@ -274,12 +319,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(ClickHouseProfileEvents_InsertQuery[5m]))",
+          "expr": "sum(rate(ClickHouseProfileEvents_InsertQuery{cluster=~\"${cluster:raw}\"}[5m]))",
           "legendFormat": "INSERT/s"
         },
         {
           "refId": "B",
-          "expr": "sum(rate(ClickHouseProfileEvents_SelectQuery[5m]))",
+          "expr": "sum(rate(ClickHouseProfileEvents_SelectQuery{cluster=~\"${cluster:raw}\"}[5m]))",
           "legendFormat": "SELECT/s"
         }
       ],
@@ -329,12 +374,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(ClickHouseProfileEvents_MergedRows[5m]))",
+          "expr": "sum(rate(ClickHouseProfileEvents_MergedRows{cluster=~\"${cluster:raw}\"}[5m]))",
           "legendFormat": "rows/s"
         },
         {
           "refId": "B",
-          "expr": "sum(rate(ClickHouseProfileEvents_MergedUncompressedBytes[5m]))",
+          "expr": "sum(rate(ClickHouseProfileEvents_MergedUncompressedBytes{cluster=~\"${cluster:raw}\"}[5m]))",
           "legendFormat": "bytes/s"
         }
       ],
@@ -401,17 +446,17 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(ClickHouseMetrics_MemoryTracking)",
+          "expr": "sum(ClickHouseMetrics_MemoryTracking{cluster=~\"${cluster:raw}\"})",
           "legendFormat": "tracked memory"
         },
         {
           "refId": "B",
-          "expr": "sum(ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables)",
+          "expr": "sum(ClickHouseAsyncMetrics_TotalPartsOfMergeTreeTables{cluster=~\"${cluster:raw}\"})",
           "legendFormat": "parts"
         },
         {
           "refId": "C",
-          "expr": "max(ClickHouseAsyncMetrics_MaxPartCountForPartition)",
+          "expr": "max(ClickHouseAsyncMetrics_MaxPartCountForPartition{cluster=~\"${cluster:raw}\"})",
           "legendFormat": "max parts/partition"
         }
       ],

@@ -1844,230 +1844,6 @@
       }
     },
     {
-      "id": 34,
-      "type": "timeseries",
-      "title": "ClickHouse CPU 与 limit",
-      "description": " cAdvisor 抓取间隔 15s，速率窗口固定 1m 以保证每个点都有值。",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 0,
-        "y": 66
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "refId": "A",
-          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{container=\"clickhouse\", pod=~\".*clickhouse.*\", cluster=~\"${cluster:raw}\"}[1m]))",
-          "legendFormat": "{{pod}}",
-          "format": "time_series",
-          "instant": false,
-          "range": true
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "refId": "B",
-          "expr": "sum by (pod) (kube_pod_container_resource_limits{container=\"clickhouse\", pod=~\".*clickhouse.*\", resource=\"cpu\", cluster=~\"${cluster:raw}\"})",
-          "legendFormat": "{{pod}} limit",
-          "format": "time_series",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 1,
-            "fillOpacity": 12,
-            "showPoints": "never",
-            "stacking": {
-              "mode": "none"
-            },
-            "spanNulls": true
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "mean",
-            "max",
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
-    },
-    {
-      "id": 35,
-      "type": "timeseries",
-      "title": "ClickHouse 内存 working set 与 limit",
-      "description": "",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 8,
-        "y": 66
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "refId": "A",
-          "expr": "sum by (pod) (container_memory_working_set_bytes{container=\"clickhouse\", pod=~\".*clickhouse.*\", cluster=~\"${cluster:raw}\"})",
-          "legendFormat": "{{pod}}",
-          "format": "time_series",
-          "instant": false,
-          "range": true
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "refId": "B",
-          "expr": "sum by (pod) (kube_pod_container_resource_limits{container=\"clickhouse\", pod=~\".*clickhouse.*\", resource=\"memory\", cluster=~\"${cluster:raw}\"})",
-          "legendFormat": "{{pod}} limit",
-          "format": "time_series",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 1,
-            "fillOpacity": 12,
-            "showPoints": "never",
-            "stacking": {
-              "mode": "none"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "mean",
-            "max",
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
-    },
-    {
-      "id": 36,
-      "type": "timeseries",
-      "title": "ClickHouse CPU 限流比例",
-      "description": " cAdvisor 抓取间隔 15s，速率窗口固定 1m 以保证每个点都有值。",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 16,
-        "y": 66
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "refId": "A",
-          "expr": "sum by (pod) (rate(container_cpu_cfs_throttled_periods_total{container=\"clickhouse\", pod=~\".*clickhouse.*\", cluster=~\"${cluster:raw}\"}[1m]))\n/ sum by (pod) (rate(container_cpu_cfs_periods_total{container=\"clickhouse\", pod=~\".*clickhouse.*\", cluster=~\"${cluster:raw}\"}[1m]))",
-          "legendFormat": "{{pod}}",
-          "format": "time_series",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 1,
-            "fillOpacity": 12,
-            "showPoints": "never",
-            "stacking": {
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "line"
-            },
-            "spanNulls": true
-          },
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 0.2
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "mean",
-            "max",
-            "lastNotNull"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
-    },
-    {
       "id": 60,
       "type": "row",
       "title": "OTel Collector",
@@ -2076,7 +1852,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 73
+        "y": 66
       },
       "panels": []
     },
@@ -2093,7 +1869,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 74
+        "y": 67
       },
       "targets": [
         {
@@ -2178,7 +1954,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 74
+        "y": 67
       },
       "targets": [
         {
@@ -2263,7 +2039,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 74
+        "y": 67
       },
       "targets": [
         {

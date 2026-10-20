@@ -63,8 +63,6 @@ unifabric:
     path: /metrics
     # -- ServiceMonitor settings used by Prometheus Operator to scrape node metrics.
     serviceMonitor:
-      # -- Create a Prometheus Operator ServiceMonitor for agent RDMA metrics.
-      enabled: true
       # -- Prometheus scrape interval for agent RDMA metrics.
       interval: 15s
       # -- Prometheus scrape timeout for agent RDMA metrics.
@@ -109,11 +107,14 @@ unifabric:
       # -- Container image repository containing the Unifabric Grafana plugins.
       repository: unifabric-io/unifabric-grafana
       # -- Container image tag. Defaults to the chart appVersion when empty.
-      tag: "v0.4.1"
+      tag: "v0.4.2"
     # -- Kubernetes Service type for the bundled Grafana instance.
     serviceType: NodePort
     # -- Extra labels added to the Grafana instance.
     labels: {}
+  serviceMonitor:
+    # -- Apply ServiceMonitor CRs when enabled.
+    enabled: true
   controller:
     # -- Deploy the Unifabric controller.
     enabled: true
@@ -125,7 +126,7 @@ unifabric:
       # -- Container image repository for the controller.
       repository: unifabric-io/unifabric-controller
       # -- Container image tag for the controller. Defaults to the chart appVersion when empty.
-      tag: "v0.4.1"
+      tag: "v0.4.2"
       # -- Image pull policy for the controller container.
       pullPolicy: IfNotPresent
     serviceAccount:
@@ -191,6 +192,16 @@ unifabric:
       type: ClusterIP
       # -- Service port for controller metrics.
       port: 8080
+    serviceMonitor:
+      # -- Prometheus scrape interval for the controller metrics.
+      interval: 15s
+      # -- Prometheus scrape timeout for the controller metrics.
+      scrapeTimeout: 10s
+      # -- HTTP path scraped by the ServiceMonitor.
+      path: /metrics
+      # -- Extra labels added to the ServiceMonitor for Prometheus selection.
+      labels:
+        operator.insight.io/managed-by: insight
     config:
       # -- Controller log level. Valid values are debug, info, warn, and error.
       logLevel: info
@@ -219,7 +230,7 @@ unifabric:
       # -- Container image repository shared by the agent and lldpd sidecar.
       repository: unifabric-io/unifabric-agent
       # -- Container image tag shared by the agent and lldpd sidecar. Defaults to the chart appVersion when empty.
-      tag: "v0.4.1"
+      tag: "v0.4.2"
       # -- Image pull policy shared by the agent and lldpd sidecar.
       pullPolicy: IfNotPresent
     serviceAccount:
@@ -401,8 +412,6 @@ unifabric:
       # -- Maximum time a partial batch waits.
       timeout: 1s
     serviceMonitor:
-      # -- Create a ServiceMonitor for the Collector's own metrics on port 8888.
-      enabled: true
       # -- Scrape interval for the Collector metrics.
       interval: 15s
       # -- Extra labels added to the ServiceMonitor.
@@ -500,7 +509,7 @@ unifabric:
           # -- Delete backing indices this long after rollover.
           deleteMinAge: 3d
       grafanaDatasource:
-        # -- Create a GrafanaDatasource for the data stream so the flow-sends-es dashboard works. Requires grafanaDashboard.kind GrafanaDashboard.
+        # -- Create a GrafanaDatasource for the data stream so the RDMA Pod and Workload send-detail panels work. Requires grafanaDashboard.kind GrafanaDashboard.
         enabled: true
       # -- Bundled single node Elasticsearch deployed only when endpoints is empty. FOR TESTING ONLY: single node, security without TLS, fixed credentials, disk watermarks disabled.
       bundled:
