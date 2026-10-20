@@ -1,4 +1,4 @@
-{{- if and .Values.agent.enabled .Values.nodeMetrics.enabled .Values.nodeMetrics.serviceMonitor.enabled }}
+{{- if and .Values.serviceMonitor.enabled .Values.agent.enabled .Values.nodeMetrics.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:

@@ -177,7 +177,7 @@ spec:
       port: 9363
       targetPort: metrics
       protocol: TCP
-{{- if .Values.ebpfFlowEventCollector.serviceMonitor.enabled }}
+{{- if .Values.serviceMonitor.enabled }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor

@@ -33,5 +33,14 @@ yq e -i '
   .unifabric.grafanaInstance.image.tag = strenv(APP_VERSION) |
   .unifabric.grafanaDashboard.enabled = false |
   .unifabric.nodeMetrics.serviceMonitor.labels."operator.insight.io/managed-by" = "insight" |
+  .unifabric.controller.serviceMonitor.labels."operator.insight.io/managed-by" = "insight" |
   .unifabric.ebpfFlowEventCollector.serviceMonitor.labels."operator.insight.io/managed-by" = "insight"
 ' values.yaml
+
+# expose the external Elasticsearch endpoints as a fillable list in the UI form
+yq e -o=json -i '
+  .properties.unifabric.properties.ebpfFlowEventCollector.properties.elasticsearch.properties.endpoints.items = {"type": "string"}
+' values.schema.json
+
+# ClickHouse is not used, drop it from the UI form
+yq e -o=json -i 'del(.properties.unifabric.properties.ebpfFlowEventCollector.properties.clickhouse)' values.schema.json

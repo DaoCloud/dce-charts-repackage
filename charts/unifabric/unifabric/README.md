@@ -54,7 +54,6 @@ auto-generated, existing, or disabled mTLS.
 | nodeMetrics.port | int | `8082` | Container port used by the agent metrics endpoint. |
 | nodeMetrics.service.port | int | `8086` | Service port used by Prometheus to scrape agent RDMA metrics. |
 | nodeMetrics.service.type | string | `"ClusterIP"` | Kubernetes Service type for agent RDMA metrics. |
-| nodeMetrics.serviceMonitor.enabled | bool | `true` | Create a Prometheus Operator ServiceMonitor for agent RDMA metrics. |
 | nodeMetrics.serviceMonitor.interval | string | `"15s"` | Prometheus scrape interval for agent RDMA metrics. |
 | nodeMetrics.serviceMonitor.labels | object | `{}` | Extra labels added to the ServiceMonitor for Prometheus selection. |
 | nodeMetrics.serviceMonitor.path | string | `"/metrics"` | HTTP path scraped by the ServiceMonitor. |
@@ -72,6 +71,7 @@ auto-generated, existing, or disabled mTLS.
 | grafanaInstance.image.tag | string | `""` | Container image tag. Defaults to the chart appVersion when empty. |
 | grafanaInstance.labels | object | `{}` | Extra labels added to the Grafana instance. |
 | grafanaInstance.serviceType | string | `"NodePort"` | Kubernetes Service type for the bundled Grafana instance. |
+| serviceMonitor.enabled | bool | `true` | Apply ServiceMonitor CRs when enabled. |
 
 ## Controller and Agent
 
@@ -115,6 +115,10 @@ auto-generated, existing, or disabled mTLS.
 | controller.serviceAccount.annotations | object | `{}` | Annotations added to the controller ServiceAccount. |
 | controller.serviceAccount.create | bool | `true` | Create a ServiceAccount for the controller. |
 | controller.serviceAccount.name | string | `""` | Controller ServiceAccount name. Defaults to the generated controller name when empty. |
+| controller.serviceMonitor.interval | string | `"15s"` | Prometheus scrape interval for the controller metrics. |
+| controller.serviceMonitor.labels | object | `{}` | Extra labels added to the ServiceMonitor for Prometheus selection. |
+| controller.serviceMonitor.path | string | `"/metrics"` | HTTP path scraped by the ServiceMonitor. |
+| controller.serviceMonitor.scrapeTimeout | string | `"10s"` | Prometheus scrape timeout for the controller metrics. |
 | controller.tolerations | list | `[]` | Tolerations for scheduling controller pods. |
 | agent.affinity.nodeAffinity | object | See chart/values.yaml for the full default node affinity. | Default Linux node affinity for agent pods. |
 | agent.config.healthProbe.bindAddress | string | `":8083"` | Agent health and readiness bind address inside the container. |
@@ -234,7 +238,7 @@ meant for testing only. See [docs/usage/rdma-flow.md](../docs/usage/rdma-flow.md
 | ebpfFlowEventCollector.elasticsearch.enabled | bool | `false` | Write send events to Elasticsearch as a data stream. |
 | ebpfFlowEventCollector.elasticsearch.endpoints | list | `[]` | HTTP endpoints of an external Elasticsearch, for example http://elasticsearch.data.svc:9200. Leave empty to deploy the bundled test instance described under bundled instead. |
 | ebpfFlowEventCollector.elasticsearch.existingSecret | string | `""` | Existing Secret with a password key used instead of password. |
-| ebpfFlowEventCollector.elasticsearch.grafanaDatasource.enabled | bool | `true` | Create a GrafanaDatasource for the data stream so the flow-sends-es dashboard works. Requires grafanaDashboard.kind GrafanaDashboard. |
+| ebpfFlowEventCollector.elasticsearch.grafanaDatasource.enabled | bool | `true` | Create a GrafanaDatasource for the data stream so the RDMA Pod and Workload send-detail panels work. Requires grafanaDashboard.kind GrafanaDashboard. |
 | ebpfFlowEventCollector.elasticsearch.index | string | `"rdma-sends"` | Data stream receiving the documents. |
 | ebpfFlowEventCollector.elasticsearch.password | string | `""` | Elasticsearch password. Defaults to rdma-flow for the bundled test instance. Prefer existingSecret for an external cluster. |
 | ebpfFlowEventCollector.elasticsearch.schema.create | bool | `true` | Write the index template and ILM policy of the data stream before the Collector starts. The template maps every attribute as keyword or number, disables dynamic mapping and uses date_nanos timestamps. |
@@ -256,7 +260,6 @@ meant for testing only. See [docs/usage/rdma-flow.md](../docs/usage/rdma-flow.md
 | ebpfFlowEventCollector.resources.limits.memory | string | `"2Gi"` | Collector memory limit. memory_limiter is derived from it. |
 | ebpfFlowEventCollector.resources.requests.cpu | string | `"500m"` | Collector CPU request. |
 | ebpfFlowEventCollector.resources.requests.memory | string | `"512Mi"` | Collector memory request. |
-| ebpfFlowEventCollector.serviceMonitor.enabled | bool | `true` | Create a ServiceMonitor for the Collector's own metrics on port 8888. |
 | ebpfFlowEventCollector.serviceMonitor.interval | string | `"15s"` | Scrape interval for the Collector metrics. |
 | ebpfFlowEventCollector.serviceMonitor.labels | object | `{}` | Extra labels added to the ServiceMonitor. |
 | ebpfFlowEventCollector.tolerations | list | `[]` | Tolerations for the Collector Pod. |

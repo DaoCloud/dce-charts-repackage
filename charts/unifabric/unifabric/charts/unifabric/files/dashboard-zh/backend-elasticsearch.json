@@ -28,6 +28,51 @@
         "refresh": 1,
         "current": {},
         "options": []
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "query_result(count by (cluster_name) (global_cluster_info) or label_replace(vector(1) unless on() global_cluster_info, \"cluster_name\", \"本地集群\", \"\", \"\"))",
+        "hide": 0,
+        "includeAll": false,
+        "label": "集群",
+        "multi": false,
+        "name": "cluster_name",
+        "options": [],
+        "query": {
+          "query": "query_result(count by (cluster_name) (global_cluster_info) or label_replace(vector(1) unless on() global_cluster_info, \"cluster_name\", \"本地集群\", \"\", \"\"))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/cluster_name=\"([^\"]+)\"/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "query_result(count by (cluster) (global_cluster_info{cluster_name=\"$cluster_name\"}) or label_replace(vector(1) unless on() global_cluster_info, \"cluster\", \"^$\", \"\", \"\"))",
+        "hide": 2,
+        "includeAll": false,
+        "multi": false,
+        "name": "cluster",
+        "options": [],
+        "query": {
+          "query": "query_result(count by (cluster) (global_cluster_info{cluster_name=\"$cluster_name\"}) or label_replace(vector(1) unless on() global_cluster_info, \"cluster\", \"^$\", \"\", \"\"))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/cluster=\"([^\"]+)\"/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
       }
     ]
   },
@@ -49,7 +94,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max(elasticsearch_node_stats_up)",
+          "expr": "max(elasticsearch_node_stats_up{cluster=~\"${cluster:raw}\"})",
           "instant": true
         }
       ],
@@ -110,7 +155,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max(elasticsearch_cluster_health_number_of_nodes)",
+          "expr": "max(elasticsearch_cluster_health_number_of_nodes{cluster=~\"${cluster:raw}\"})",
           "instant": true
         }
       ],
@@ -144,7 +189,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max(elasticsearch_cluster_health_unassigned_shards)",
+          "expr": "max(elasticsearch_cluster_health_unassigned_shards{cluster=~\"${cluster:raw}\"})",
           "instant": true
         }
       ],
@@ -190,13 +235,13 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(elasticsearch_indices_docs)",
+          "expr": "sum(elasticsearch_indices_docs{cluster=~\"${cluster:raw}\"})",
           "instant": true,
           "legendFormat": "文档"
         },
         {
           "refId": "B",
-          "expr": "sum(elasticsearch_indices_store_size_bytes)",
+          "expr": "sum(elasticsearch_indices_store_size_bytes{cluster=~\"${cluster:raw}\"})",
           "instant": true,
           "legendFormat": "存储字节"
         }
@@ -244,12 +289,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(elasticsearch_indices_indexing_index_total[5m]))",
+          "expr": "sum(rate(elasticsearch_indices_indexing_index_total{cluster=~\"${cluster:raw}\"}[5m]))",
           "legendFormat": "索引/s"
         },
         {
           "refId": "B",
-          "expr": "sum(rate(elasticsearch_indices_search_query_total[5m]))",
+          "expr": "sum(rate(elasticsearch_indices_search_query_total{cluster=~\"${cluster:raw}\"}[5m]))",
           "legendFormat": "查询/s"
         }
       ],
@@ -299,7 +344,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 * sum(elasticsearch_jvm_memory_used_bytes) / clamp_min(sum(elasticsearch_jvm_memory_max_bytes), 1)",
+          "expr": "100 * sum(elasticsearch_jvm_memory_used_bytes{cluster=~\"${cluster:raw}\"}) / clamp_min(sum(elasticsearch_jvm_memory_max_bytes{cluster=~\"${cluster:raw}\"}), 1)",
           "legendFormat": "堆使用率"
         }
       ],
@@ -368,12 +413,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "min(elasticsearch_filesystem_data_available_bytes)",
+          "expr": "min(elasticsearch_filesystem_data_available_bytes{cluster=~\"${cluster:raw}\"})",
           "legendFormat": "可用"
         },
         {
           "refId": "B",
-          "expr": "max(elasticsearch_filesystem_data_size_bytes)",
+          "expr": "max(elasticsearch_filesystem_data_size_bytes{cluster=~\"${cluster:raw}\"})",
           "legendFormat": "总容量"
         }
       ],
@@ -423,12 +468,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max(elasticsearch_process_cpu_percent)",
+          "expr": "max(elasticsearch_process_cpu_percent{cluster=~\"${cluster:raw}\"})",
           "legendFormat": "CPU %"
         },
         {
           "refId": "B",
-          "expr": "max(elasticsearch_process_open_files_count)",
+          "expr": "max(elasticsearch_process_open_files_count{cluster=~\"${cluster:raw}\"})",
           "legendFormat": "打开文件"
         }
       ],

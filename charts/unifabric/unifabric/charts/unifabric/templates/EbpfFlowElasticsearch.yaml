@@ -229,7 +229,7 @@ spec:
       targetPort: metrics
       protocol: TCP
     {{- end }}
-{{- if and $b.exporter.enabled .Values.ebpfFlowEventCollector.serviceMonitor.enabled }}
+{{- if and .Values.serviceMonitor.enabled $b.exporter.enabled }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
