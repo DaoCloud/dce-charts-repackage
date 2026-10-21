@@ -238,7 +238,7 @@ checkSyncTools:
 
 .PHONY: checkSyncDTTools
 checkSyncDTTools:
-	helm dt --help &>/dev/null || helm plugin install https://github.com/vmware-labs/distribution-tooling-for-helm
+	helm dt --help &>/dev/null || helm plugin install https://github.com/vmware-labs/distribution-tooling-for-helm --version v0.9.0
 	helm dt --help &>/dev/null || { echo "error, failed to install helm dt plugin (helm dt)" ; exit 1 ; }
 	which charts-syncer &>/dev/null || { make install-charts-syncer-dt; }
 	which charts-syncer &>/dev/null || { echo "error, failed to install charts-syncer" ; exit 1 ; }
