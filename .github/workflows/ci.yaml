@@ -118,9 +118,9 @@ jobs:
               RES+="${PRO} "
             fi
           done
-          echo ::set-output name=changed_project::${RES}
+          echo "changed_project=${RES}" >> "$GITHUB_OUTPUT"
           ALL_PRO=" ${RES} ${additionall_test_project} "
-          echo ::set-output name=test_project::${ALL_PRO}
+          echo "test_project=${ALL_PRO}" >> "$GITHUB_OUTPUT"
 
       - name: check chart override
         run: |
