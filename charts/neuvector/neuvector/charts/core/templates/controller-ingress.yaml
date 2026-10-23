@@ -6,14 +6,16 @@ kind: Ingress
 metadata:
   name: neuvector-restapi-ingress
   namespace: {{ .Release.Namespace }}
-{{- with .Values.controller.ingress.annotations }}
   annotations:
+{{- if and (not (hasKey .Values.controller.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol")) (eq .Values.ingressController "nginx") }}
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+{{- end }}
+{{- with .Values.controller.ingress.annotations }}
 {{ toYaml . | indent 4 }}
 {{- end }}
   labels:
     chart: {{ template "neuvector.chart" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
 spec:
 {{- if .Values.controller.ingress.ingressClassName }}
   ingressClassName: {{ .Values.controller.ingress.ingressClassName | quote }}
@@ -36,21 +38,23 @@ spec:
           service:
             name: neuvector-svc-controller-api
             port:
-              number: 10443
+              number: {{ .Values.controller.apisvc.ctrlServerPort}}
 {{- else }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: neuvector-restapi-ingress
   namespace: {{ .Release.Namespace }}
-{{- with .Values.controller.ingress.annotations }}
   annotations:
+{{- if and (not (hasKey .Values.controller.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol")) (eq .Values.ingressController "nginx") }}
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+{{- end }}
+{{- with .Values.controller.ingress.annotations }}
 {{ toYaml . | indent 4 }}
 {{- end }}
   labels:
     chart: {{ template "neuvector.chart" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
 spec:
 {{- if .Values.controller.ingress.tls }}
   tls:
@@ -67,7 +71,7 @@ spec:
       - path: {{ .Values.controller.ingress.path }}
         backend:
           serviceName: neuvector-svc-controller-api
-          servicePort: 10443
+          servicePort: {{ .Values.controller.apisvc.ctrlServerPort}}
 {{- end }}
 {{- end }}
 {{- if .Values.controller.federation.mastersvc.ingress.enabled }}
@@ -78,14 +82,16 @@ kind: Ingress
 metadata:
   name: neuvector-mastersvc-ingress
   namespace: {{ .Release.Namespace }}
-{{- with .Values.controller.federation.mastersvc.ingress.annotations }}
   annotations:
+{{- if and (not (hasKey .Values.controller.federation.mastersvc.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol")) (eq .Values.ingressController "nginx") }}
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+{{- end }}
+{{- with .Values.controller.federation.mastersvc.ingress.annotations }}
 {{ toYaml . | indent 4 }}
 {{- end }}
   labels:
     chart: {{ template "neuvector.chart" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
 spec:
 {{- if .Values.controller.federation.mastersvc.ingress.ingressClassName }}
   ingressClassName: {{ .Values.controller.federation.mastersvc.ingress.ingressClassName | quote }}
@@ -116,14 +122,16 @@ kind: Ingress
 metadata:
   name: neuvector-mastersvc-ingress
   namespace: {{ .Release.Namespace }}
-{{- with .Values.controller.federation.mastersvc.ingress.annotations }}
   annotations:
+{{- if and (not (hasKey .Values.controller.federation.mastersvc.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol")) (eq .Values.ingressController "nginx") }}
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+{{- end }}
+{{- with .Values.controller.federation.mastersvc.ingress.annotations }}
 {{ toYaml . | indent 4 }}
 {{- end }}
   labels:
     chart: {{ template "neuvector.chart" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
 spec:
 {{- if .Values.controller.federation.mastersvc.ingress.tls }}
   tls:
@@ -151,14 +159,16 @@ kind: Ingress
 metadata:
   name: neuvector-managedsvc-ingress
   namespace: {{ .Release.Namespace }}
-{{- with .Values.controller.federation.managedsvc.ingress.annotations }}
   annotations:
+{{- if and (not (hasKey .Values.controller.federation.managedsvc.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol")) (eq .Values.ingressController "nginx") }}
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+{{- end }}
+{{- with .Values.controller.federation.managedsvc.ingress.annotations }}
 {{ toYaml . | indent 4 }}
 {{- end }}
   labels:
     chart: {{ template "neuvector.chart" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
 spec:
 {{- if .Values.controller.federation.managedsvc.ingress.ingressClassName }}
   ingressClassName: {{ .Values.controller.federation.managedsvc.ingress.ingressClassName | quote }}
@@ -181,7 +191,7 @@ spec:
           service:
             name: neuvector-svc-controller-fed-managed
             port:
-              number: 10443
+              number: {{ .Values.controller.apisvc.ctrlServerPort}}
 {{- else }}
 ---
 apiVersion: extensions/v1beta1
@@ -189,14 +199,16 @@ kind: Ingress
 metadata:
   name: neuvector-managedsvc-ingress
   namespace: {{ .Release.Namespace }}
-{{- with .Values.controller.federation.managedsvc.ingress.annotations }}
   annotations:
+{{- if and (not (hasKey .Values.controller.federation.managedsvc.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol")) (eq .Values.ingressController "nginx") }}
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+{{- end }}
+{{- with .Values.controller.federation.managedsvc.ingress.annotations }}
 {{ toYaml . | indent 4 }}
 {{- end }}
   labels:
     chart: {{ template "neuvector.chart" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
 spec:
 {{- if .Values.controller.federation.managedsvc.ingress.tls }}
   tls:
@@ -213,7 +225,7 @@ spec:
       - path: {{ .Values.controller.federation.managedsvc.ingress.path }}
         backend:
           serviceName: neuvector-svc-controller-fed-managed
-          servicePort: 10443
+          servicePort: {{ .Values.controller.apisvc.ctrlServerPort}}
 {{- end }}
 {{- end }}
 {{- end -}}
