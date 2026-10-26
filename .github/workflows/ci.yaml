@@ -58,6 +58,11 @@ jobs:
       project: ${{ steps.check_change.outputs.test_project }}
       pro_version_changed: ${{ env.PRO_CHANGED_VERSION }}
     steps:
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.3.0
+        with:
+          version: 'v3.19.2'
+
       - name: "Setup go"
         uses: actions/setup-go@v5
         with:
