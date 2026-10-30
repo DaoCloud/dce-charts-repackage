@@ -27,6 +27,13 @@ higress:
       # 2. When the ingress class is set empty, the higress controller will watch all ingress
       # resources in the k8s cluster.
       ingressClass: ""
+      # -- Whether to create the IngressClass resource for global.ingressClass.
+      # Set this to false when reusing an existing IngressClass, for example during Nginx Ingress migration.
+      createIngressClass: true
+      # -- GatewayClassName used by Higress to select Gateway API resources.
+      # The default value higress uses controllerName higress.io/gateway-controller.
+      # A custom value, for example higress-internal, uses controllerName higress.io/gateway-controller-higress-internal.
+      gatewayClass: "higress"
       # -- If not empty, Higress Controller will only watch resources in the specified namespace.
       # When isolating different business systems using K8s namespace,
       # if each namespace requires a standalone gateway instance,
@@ -49,6 +56,11 @@ higress:
       enableIstioAPI: true
       # -- If true, Higress Controller will monitor Gateway API resources as well
       enableGatewayAPI: false
+      # -- If true, provision an isolated Deployment and Service for each managed Gateway API Gateway.
+      # This is opt-in to preserve the default shared Higress gateway deployment model.
+      enableGatewayAPIDeploymentController: false
+      # -- If true, Higress Controller will monitor Gateway API resources that have not reached v1 yet
+      enableAlphaGatewayAPI: false
       # -- If true, enable Gateway API Inference Extension support
       enableInferenceExtension: false
       # -- Used to locate istiod.
@@ -70,10 +82,14 @@ higress:
           # limits:
           #   cpu: 100m
           #   memory: 128Mi
-      # -- Default hub for Istio images.
-      # Releases are published to docker hub under 'istio' project.
-      # Dev builds from prow are on gcr.io
+      # -- Default hub (registry) for Higress images.
+      # For Higress deployments, images are pulled from: {hub}/higress/{image}
+      # For built-in plugins, images are pulled from: {hub}/{pluginNamespace}/{plugin-name}
+      # Change this to use a mirror registry closer to your deployment region for faster image pulls.
       hub: ""
+      # -- Namespace for built-in plugin images. Default is "plugins".
+      # Used by higress-console to configure plugin image path.
+      pluginNamespace: "plugins"
       # -- Specify image pull policy if default behavior isn't desired.
       # Default behavior: latest images will be Always else IfNotPresent.
       imagePullPolicy: ""
@@ -124,7 +140,7 @@ higress:
       # for more detail.
       priorityClassName: ""
       proxy:
-        image: proxyv2
+        image: gateway
         # -- This controls the 'policy' in the sidecar injector.
         autoInject: enabled
         # -- CAUTION: It is important to ensure that all Istio helm charts specify the same clusterDomain value
@@ -156,7 +172,7 @@ higress:
         privileged: false
         # -- The number of successive failed probes before indicating readiness failure.
         readinessFailureThreshold: 30
-        # -- The number of successive successed probes before indicating readiness success.
+        # -- The number of successive successful probes before indicating readiness success.
         readinessSuccessThreshold: 30
         # -- The initial delay for readiness probes in seconds.
         readinessInitialDelaySeconds: 1
@@ -185,7 +201,7 @@ higress:
             - ".*"
       proxy_init:
         # -- Base name for the proxy_init container, used to configure iptables.
-        image: proxyv2
+        image: gateway
         resources:
           limits:
             cpu: 2000m
@@ -370,11 +386,14 @@ higress:
       # -- Number of Higress Gateway pods
       replicas: 2
       image: higress/gateway
+      # -- Specify image pull policy if default behavior isn't desired.
+      # Default behavior: latest images will be Always else IfNotPresent.
+      imagePullPolicy: ""
       # -- Use a `DaemonSet` or `Deployment`
       kind: Deployment
       # -- The number of successive failed probes before indicating readiness failure.
       readinessFailureThreshold: 30
-      # -- The number of successive successed probes before indicating readiness success.
+      # -- The number of successive successful probes before indicating readiness success.
       readinessSuccessThreshold: 1
       # -- The initial delay for readiness probes in seconds.
       readinessInitialDelaySeconds: 1
@@ -383,7 +402,7 @@ higress:
       # -- The readiness timeout seconds
       readinessTimeoutSeconds: 3
       hub: "" # Will use global.hub if not set
-      tag: "2.2.0"
+      tag: "2.2.5"
       # -- revision declares which revision this gateway is a part of
       revision: ""
       rbac:
@@ -485,7 +504,7 @@ higress:
       replicas: 1
       image: higress/higress
       hub: "" # Will use global.hub if not set
-      tag: "2.2.0"
+      tag: "2.2.5"
       env: {}
       labels: {}
       probe:
@@ -495,6 +514,9 @@ higress:
         initialDelaySeconds: 1
         periodSeconds: 3
         timeoutSeconds: 5
+      # -- Specify image pull policy if default behavior isn't desired.
+      # Default behavior: latest images will be Always else IfNotPresent.
+      imagePullPolicy: ""
       imagePullSecrets: []
       rbac:
         create: true
@@ -556,14 +578,8 @@ higress:
         email: ""
     ## -- Discovery Settings
     pilot:
-      autoscaleEnabled: false
-      autoscaleMin: 1
-      autoscaleMax: 5
-      replicaCount: 1
-      rollingMaxSurge: 100%
-      rollingMaxUnavailable: 25%
       hub: "" # Will use global.hub if not set
-      tag: "2.2.0"
+      tag: "2.2.5"
       # -- Can be a full hub/image:tag
       image: higress/pilot
       traceSampling: 1.0
@@ -583,32 +599,15 @@ higress:
       enableProtocolSniffingForOutbound: true
       # -- if protocol sniffing is enabled for inbound
       enableProtocolSniffingForInbound: true
-      nodeSelector: {}
-      podAnnotations: {}
-      serviceAnnotations: {}
       # -- You can use jwksResolverExtraRootCA to provide a root certificate
       # in PEM format. This will then be trusted by pilot when resolving
       # JWKS URIs.
       jwksResolverExtraRootCA: ""
-      # -- This is used to set the source of configuration for
-      # the associated address in configSource, if nothing is specified
-      # the default MCP is assumed.
-      configSource:
-        subscribedResources: []
       plugins: []
       # -- The following is used to limit how long a sidecar can be connected
       # to a pilot. It balances out load across pilot instances at the cost of
       # increasing system churn.
       keepaliveMaxServerConnectionAge: 30m
-      # -- Additional labels to apply to the deployment.
-      deploymentLabels: {}
-      ## Mesh config settings
-
-      # -- Install the mesh config map, generated from values.yaml.
-      # If false, pilot wil use default values (by default) or user-supplied values.
-      configMap: true
-      # -- Additional labels to apply on the pod level for monitoring and logging configuration.
-      podLabels: {}
     # Tracing config settings
     tracing:
       enable: false
@@ -683,7 +682,9 @@ higress:
         # -- Affinity for Redis
         affinity: {}
         persistence:
-          # -- Enable persistence on Redis, default is false
+          # -- Enable persistence on Redis. When enabled, a PVC is mounted at /data.
+          # The `dir /data` directive is written only when aof.enabled or rdb.enabled is true;
+          # if both are disabled, persistence must be driven via extraConfig (add `dir /data` there yourself).
           enabled: false
           # -- If defined, storageClassName: <storageClass>
           # -- If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner
@@ -693,6 +694,41 @@ higress:
             - ReadWriteOnce
           # -- Persistent Volume size
           size: 1Gi
+        # -- AOF (Append-Only File) persistence settings. Only effective when persistence.enabled=true.
+        # AOF logs every write operation, providing best durability (up to 1s data loss with everysec).
+        # Redis prefers AOF for recovery when both AOF and RDB are enabled.
+        aof:
+          # -- Enable AOF persistence. Default is false (opt-in). Set to true to enable AOF persistence.
+          enabled: false
+          # -- AOF fsync policy: always, everysec, or no.
+          # "everysec" balances durability (≤1s data loss) and performance. See https://redis.io/docs/management/persistence/
+          fsync: everysec
+          # -- Rewrite AOF when size exceeds this percentage of base file. Default 100 = 2x size.
+          rewritePercentage: 100
+          # -- Minimum AOF file size to trigger rewrite. Default 64mb prevents frequent rewrites.
+          rewriteMinSize: 64mb
+        # -- RDB (Redis Database) snapshot persistence settings. Only effective when persistence.enabled=true.
+        # RDB provides compact point-in-time snapshots, useful for backups and faster restart.
+        # Can be enabled alongside AOF for dual persistence strategy.
+        rdb:
+          # -- Enable RDB snapshots. Default is false (opt-in). Set to true to enable RDB snapshots.
+          enabled: false
+          # -- RDB snapshot schedule as "seconds changes" pairs. Redis saves when ANY rule is matched.
+          # Only takes effect when rdb.enabled=true. Common defaults: "900 1" (15min/1 key),
+          # "300 10" (5min/10 keys), "60 10000" (1min/10000 keys).
+          # Set to empty list [] to disable RDB snapshots (renders `save ""`).
+          # See https://redis.io/docs/management/persistence/
+          save:
+            - "900 1"
+            - "300 10"
+            - "60 10000"
+        # -- Extra redis-stack.conf directives appended after the generated config
+        # (requirepass, and AOF defaults when persistence is enabled).
+        # Directives here take precedence over generated defaults (Redis applies the last value).
+        # Example:
+        #   maxmemory 512mb
+        #   maxmemory-policy allkeys-lru
+        extraConfig: ""
     pluginServer:
       name: "higress-plugin-server"
       # -- Number of Higress Plugin Server pods, 2 recommended for high availability
@@ -700,6 +736,9 @@ higress:
       image: higress/plugin-server
       hub: "" # Will use global.hub if not set
       tag: "1.0.0"
+      # -- Specify image pull policy if default behavior isn't desired.
+      # Default behavior: latest images will be Always else IfNotPresent.
+      imagePullPolicy: ""
       imagePullSecrets: []
       labels: {}
       # -- Labels to apply to the pod
@@ -724,6 +763,12 @@ higress:
         # -- CAUTION: It is important to ensure that all Istio helm charts specify the same clusterDomain value
         # cluster domain. Default value is "cluster.local".
         clusterDomain: "cluster.local"
+      # -- Default hub (registry) for Higress images, passed from parent chart.
+      # Used for plugin image registry when pluginServer.imageRegistry is not set.
+      hub: ""
+      # -- Plugin image namespace for built-in plugins, passed from parent chart.
+      # Used when pluginServer.imageNamespace is not set. Default is "plugins".
+      pluginNamespace: ""
       # Observability (o11y) configurations
       o11y:
         enabled: false
@@ -772,7 +817,7 @@ higress:
     image:
       repository: higress/console
       pullPolicy: IfNotPresent
-      tag: "2.2.0"
+      tag: "2.2.5"
     imagePullSecrets: []
     name: ""
     podEnvs: {}
@@ -829,5 +874,11 @@ higress:
       __placeholder__: true
     pluginServer:
       urlPattern: "http://higress-plugin-server.higress-system.svc/plugins/${name}/${version}/plugin.wasm"
+      # -- Plugin image registry for built-in plugins. If set, will override the default registry in plugins.properties.
+      # Example: "my-registry.example.com"
+      imageRegistry: ""
+      # -- Plugin image namespace for built-in plugins. If set, will override the default namespace in plugins.properties.
+      # Default namespace is "plugins". Example: "my-plugins"
+      imageNamespace: ""
 global:
   hub: higress-registry.cn-hangzhou.cr.aliyuncs.com
