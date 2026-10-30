@@ -89,6 +89,10 @@ spec:
             - mountPath: /var/lib/kubelet
               name: host-kubelet-rootdir
               readOnly: true
+              mountPropagation: HostToContainer
+            - mountPath: /var/run/koordlet/pod-resources/
+              mountPropagation: Bidirectional
+              name: pod-resources-proxy
 {{- if contains "TerwayQoS=true" .Values.koordlet.features }}
             - mountPath: /host-var-lib/terway/qos
               name: host-terway-qos
@@ -98,6 +102,11 @@ spec:
               mountPropagation: HostToContainer
             - mountPath: /metric-data/
               name: metric-db-path
+            - mountPath: /var/run/koordlet/xpu-device-infos/
+              mountPropagation: Bidirectional
+              name: xpu-device-infos
+            - mountPath: /usr/local/vgpu/containers
+              name: host-vgpu-containers
 {{- if .Values.koordlet.runtimeClassName }}
       runtimeClassName: {{ .Values.koordlet.runtimeClassName }}
 {{- end }}
@@ -160,6 +169,10 @@ spec:
             path: /dev
             type: ""
           name: host-dev
+        - hostPath:
+            path:  {{ .Values.koordlet.hostDirs.podResourcesProxyPath }}
+            type: DirectoryOrCreate
+          name: pod-resources-proxy
 {{- if contains "TerwayQoS=true" .Values.koordlet.features }}
         - hostPath:
             path: /var/lib/terway/qos
@@ -176,3 +189,11 @@ spec:
             sizeLimit: 150Mi
 {{- end }}
           name: metric-db-path
+        - hostPath:
+            path: /var/run/koordlet/xpu-device-infos/
+            type: DirectoryOrCreate
+          name: xpu-device-infos
+        - hostPath:
+            path: /usr/local/vgpu/containers
+            type: DirectoryOrCreate
+          name: host-vgpu-containers
