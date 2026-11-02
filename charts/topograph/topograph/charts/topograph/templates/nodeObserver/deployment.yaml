@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nodeObserver.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nodeObserver.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.nodeObserver.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "nodeObserver.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/nodeObserver/configmap.yml") . | sha256sum }}
+        {{- with .Values.nodeObserver.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "nodeObserver.labels" . | nindent 8 }}
+        {{- with .Values.nodeObserver.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "nodeObserver.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.nodeObserver.podSecurityContext | nindent 8 }}
+      {{- with .Values.nodeObserver.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: node-observer
+          securityContext:
+            {{- toYaml .Values.nodeObserver.securityContext | nindent 12 }}
+          image: {{ include "topograph.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /usr/local/bin/node-observer
+          args:
+            - -v={{ .Values.verbosity }}
+          {{- if or .Values.nodeDataBroker.enabled .Values.nodeObserver.env }}
+          env:
+            {{- if .Values.nodeDataBroker.enabled }}
+            - name: NODE_DATA_BROKER_NAME
+              value: {{ include "nodeDataBroker.fullname" . }}
+            - name: NODE_DATA_BROKER_NAMESPACE
+              value: {{ .Release.Namespace }}
+            {{- end }}
+            {{- range $key, $value := .Values.nodeObserver.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.nodeObserver.lifecycle }}
+          lifecycle:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.nodeObserver.resources | nindent 12 }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/topograph
+      volumes:
+        - name: config-volume
+          configMap:
+            defaultMode: 420
+            name: {{ include "nodeObserver.fullname" . }}
+      {{- with .Values.nodeObserver.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeObserver.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeObserver.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

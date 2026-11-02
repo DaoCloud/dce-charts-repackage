@@ -1,0 +1,171 @@
+{{ include "topograph.validation" . }}
+{{- $providerParams := default dict .Values.provider.params }}
+{{- $hasGcpCredentials := and (eq .Values.provider.name "gcp") (or $providerParams.serviceAccountKeysSecret $providerParams.workloadIdentityFederation) }}
+{{- $isNFDEngine := eq .Values.engine.name "nfd" }}
+{{- $kubeClient := default dict .Values.kubeClient }}
+{{- $hasKubeQPS := hasKey $kubeClient "qps" }}
+{{- $hasKubeBurst := hasKey $kubeClient "burst" }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "topograph.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "topograph.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "topograph.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "topograph.labels" . | nindent 8 }}
+        {{- with omit .Values.podLabels "app.kubernetes.io/component" }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        app.kubernetes.io/component: api-server
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "topograph.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "topograph.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /usr/local/bin/topograph
+          args:
+            - -v={{ .Values.verbosity }}
+          {{- if or .Values.nodeDataBroker.enabled $hasGcpCredentials $isNFDEngine $hasKubeQPS $hasKubeBurst .Values.env }}
+          env:
+            {{- if $hasKubeQPS }}
+            - name: KUBE_QPS
+              value: {{ get $kubeClient "qps" | quote }}
+            {{- end }}
+            {{- if $hasKubeBurst }}
+            - name: KUBE_BURST
+              value: {{ get $kubeClient "burst" | quote }}
+            {{- end }}
+            {{- if .Values.nodeDataBroker.enabled }}
+            - name: NODE_DATA_BROKER_NAME
+              value: {{ include "nodeDataBroker.fullname" . }}
+            - name: NODE_DATA_BROKER_NAMESPACE
+              value: {{ .Release.Namespace }}
+            {{- end }}
+            {{- if eq .Values.provider.name "gcp" }}
+            {{- if $providerParams.serviceAccountKeysSecret }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /etc/topograph/gcp/service-account-keys.json
+            {{- else if $providerParams.workloadIdentityFederation }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /etc/topograph/gcp/credentials-config.json
+            {{- end }}
+            {{- end }}
+            {{- if $isNFDEngine }}
+            - name: NFD_NAMESPACE
+              value: {{ .Values.nfdNamespace | quote }}
+            {{- end }}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.lifecycle }}
+          lifecycle:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/topograph
+          {{- if .Values.config.credentialsSecret }}
+            - name: credentials
+              mountPath: /etc/topograph/credentials
+              readOnly: true
+          {{- end }}
+          {{- if eq .Values.provider.name "gcp" }}
+          {{- if $providerParams.serviceAccountKeysSecret }}
+            - name: service-account-keys
+              mountPath: /etc/topograph/gcp/service-account-keys.json
+              readOnly: true
+          {{- else if $providerParams.workloadIdentityFederation }}
+            - name: credentials-config
+              mountPath: /etc/topograph/gcp
+              readOnly: true
+            - name: token
+              mountPath: "/var/run/service-account"
+              readOnly: true
+          {{- end }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config-volume
+          configMap:
+            defaultMode: 420
+            name: {{ include "topograph.fullname" . }}
+      {{- if .Values.config.credentialsSecret }}
+        - name: credentials
+          secret:
+            secretName: {{ .Values.config.credentialsSecret }}
+      {{- end }}
+      {{- if eq .Values.provider.name "gcp" }}
+      {{- if $providerParams.serviceAccountKeysSecret }}
+        - name: service-account-keys
+          secret:
+            secretName: {{ $providerParams.serviceAccountKeysSecret }}
+      {{- else if $providerParams.workloadIdentityFederation }}
+        - name: credentials-config
+          configMap:
+            name: {{ $providerParams.workloadIdentityFederation.credentialsConfigmap }}
+        - name: token
+          projected:
+            sources:
+            - serviceAccountToken:
+                audience: {{ $providerParams.workloadIdentityFederation.audience }}
+                expirationSeconds: 3600
+                path: token
+      {{- end }}
+      {{- end }}
+      {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

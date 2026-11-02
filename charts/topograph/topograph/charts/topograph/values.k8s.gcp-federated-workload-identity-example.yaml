@@ -1,0 +1,23 @@
+# Default values for topology-generator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+provider:
+  name: gcp
+  params:
+    workloadIdentityFederation:
+      credentialsConfigmap: gcp-credentials-config
+      audience: "//iam.googleapis.com/projects/123/locations/global/workloadIdentityPools/my-pool/providers/my-workload-provider"
+
+engine:
+  name: k8s
+
+nodeObserver:
+  topograph:
+    trigger:
+      nodeSelector:
+        brightcomputing.com/node-category: dgx
+
+nodeDataBroker:
+  nodeSelector:
+    brightcomputing.com/node-category: dgx

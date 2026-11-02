@@ -1,0 +1,44 @@
+provider:
+  name: infiniband-k8s
+  params:
+    accelerator:
+      source: kubernetes-label
+      kubernetesLabel:
+        key: nvidia.com/gpu.clique
+engine:
+  name: k8s
+
+nodeObserver:
+  topograph:
+    trigger:
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+
+# The InfiniBand broker reads node-local fabric state under /sys/class, so it
+# must opt out of the chart's hardened defaults and run privileged as root.
+nodeDataBroker:
+  podSecurityContext:
+    runAsNonRoot: false
+    runAsUser: 0
+    runAsGroup: 0
+    fsGroup: 0
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    privileged: true
+    runAsNonRoot: false
+    runAsUser: 0
+    readOnlyRootFilesystem: false
+    allowPrivilegeEscalation: true
+    capabilities:
+      drop: []
+  nodeSelector:
+    nvidia.com/gpu.present: "true"
+  volumeMounts:
+  - name: sys-class-volume
+    mountPath: /sys/class
+  volumes:
+  - name: sys-class-volume
+    hostPath:
+      path: /sys/class
+      type: Directory

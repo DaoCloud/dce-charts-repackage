@@ -1,0 +1,40 @@
+# Default values for topology-generator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+provider:
+  # See [supported providers](https://github.com/dsx-ai-factory/topograph/blob/main/docs/overview.md#supported-providers).
+  name: aws
+  params:
+    nodeSelector:
+      slurmCluster: my-cluster
+engine:
+  name: slinky
+  params:
+    namespace: slurm
+    nodeSelector:
+      slurmCluster: my-cluster
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/component: compute
+    plugin: topology/block
+    blockSizes: [4]
+    # acceleratorDomainSourceLabel: example.com/accelerator-domain
+    topologyConfigPath: topology.conf
+    topologyConfigmapName: slurm-config
+    useDynamicNodes: false
+
+nodeSelector:
+  dedicated: user-workload
+
+tolerations:
+  - operator: Exists
+
+nodeObserver:
+  nodeSelector:
+    dedicated: user-workload
+  topograph:
+    trigger:
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/component: compute
