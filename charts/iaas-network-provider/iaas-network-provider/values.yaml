@@ -1,56 +1,79 @@
 # child values
 iaas-network-provider:
-  replicaCount: 1
-  image:
-    registry: ghcr.m.daocloud.io
-    repository: daocloud/iaas-network-provider/controller
-    tag: "v0.1.0"
-    pullPolicy: IfNotPresent
-  serviceAccount:
-    create: true
-    name: iaas-network-provider
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 500m
-      memory: 256Mi
-  tls:
-    enabled: true
-    autoGenerate: true
-    # Valid for ~100 years
-    certValidityDays: 36500
-    # If provided, this secret is used directly and autoGenerate is ignored.
-    existingSecret: ""
-  service:
-    type: ClusterIP
-    port: 8080 # HTTP 端口（当 tls.enabled=false 时使用）
-    tlsPort: 443 # HTTPS 端口（当 tls.enabled=true 时使用）
-    nodePort:
-      http: "" # NodePort for HTTP (when type=NodePort and tls.enabled=false)
-      https: "" # NodePort for HTTPS (when type=NodePort and tls.enabled=true)
-  config:
+  # =============================================================================
+  # iaas-network-provider Helm values
+  # -----------------------------------------------------------------------------
+
+  # -----------------------------------------------------------------------------
+  # 1. Controller —— provider 工作负载与进程配置
+  # -----------------------------------------------------------------------------
+  controller:
+    # --- 工作负载(Deployment) ---
+    replicaCount: 1
+    image:
+      registry: ghcr.m.daocloud.io
+      repository: daocloud/iaas-network-provider/controller
+      # 为空时默认使用 Chart appVersion
+      tag: "v0.2.0"
+      pullPolicy: IfNotPresent
+    serviceAccount:
+      create: true
+      name: iaas-network-provider
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    # --- Pod 调度与运行 ---
+
+    # 示例:
+    # affinity:
+    #   nodeAffinity:
+    #     preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 100
+    #       preference:
+    #         matchExpressions:
+    #         - key: node-role.kubernetes.io/control-plane
+    #           operator: Exists
+    affinity: {}
+    nodeSelector: {}
+    tolerations: []
+    # hostAliases 注入 Pod /etc/hosts,绕过 DNS 解析。
+    # 适用于将云厂商 endpoint 域名映射到指定 IP(不依赖 CoreDNS)。
+    # 示例:
+    # hostAliases:
+    #   - ip: "10.20.1.100"
+    #     hostnames:
+    #       - "iam-apigateway-proxy.nbcbcloud.com"
+    #       - "ecs.lab-yz-1.nbcbcloud.com"
+    hostAliases: []
+    # --- 进程配置(渲染进 ConfigMap) ---
+
+    # 日志级别:debug / info / warn / error
     logLevel: info
-    bindAddress: ":8443" # 监听端口，tls.enabled=true -> 8443 HTTPS, tls.enabled=false-> 8080 HTTP
-    # pprof 性能分析，用于性能优化和调试
+    # HTTPS 监听地址(TLS 常开;同时决定 Deployment containerPort/探针端口)
+    bindAddress: ":8443"
+    # pprof 性能分析,用于性能优化和调试
     pprof:
       enabled: false
-      bindAddress: ":6060" # 同时决定 pprof 进程监听端口与 Deployment containerPort（named port: pprof）
-    # 证书挂载路径（容器内路径）
-    tls:
-      certFile: /etc/iaas-network-provider/tls/tls.crt
-      keyFile: /etc/iaas-network-provider/tls/tls.key
-    # Kubernetes Client Config，控制 informer / client-go 请求速率
+      # 同时决定 pprof 进程监听端口与 Deployment containerPort(named port: pprof)
+      bindAddress: ":6060"
+    # Kubernetes Client 配置,控制 informer / client-go 请求速率
     k8sClientConfig:
-      qps: 200 # API QPS 限流
-      burst: 400 # API 突发请求数限流
-    # IPAM Rate Limit，控制 AllocateIPs / ReleaseIP 入口请求速率
+      qps: 200
+      burst: 400
+    # IPAM 入口限流,控制 AllocateIPs / ReleaseIP 请求速率
     rateLimit:
-      qps: 2
+      qps: 6
+      # 突发请求上限(令牌桶容量)
+      burst: 16
+      # 请求在限流队列中的最大等待时间(秒)
       queueTimeoutSeconds: 30
-      maxTransactionTimeoutSeconds: 16 # 单次 IPAM（AllocateIPs/ReleaseIP）与云侧交互的最大事务超时时间
-    # Leader Election，控制 leader 选举
+      # 单次 IPAM(AllocateIPs/ReleaseIP)与云侧交互的最大事务超时时间(秒)
+      maxTransactionTimeoutSeconds: 16
+    # Leader 选举(多副本时仅 leader 执行缓存同步与池控制器)
     leaderElection:
       enabled: true
       leaseName: iaas-network-provider-leader
@@ -58,60 +81,157 @@ iaas-network-provider:
       leaseDurationSeconds: 60
       renewDeadlineSeconds: 40
       retryPeriodSeconds: 15
+    # IaaS 网络资源缓存
     cache:
+      # 启动时预加载缓存
       preloadOnStartup: true
-      iaasNetCacheTTLMinutes: 240 # 240 minutes = 4 hours
-    # IaaS Provider，控制云厂商 API 的配置
-    iaasProvider:
-      provider: huaweicloud
-      endpoint: ""
+      # 缓存全量重同步周期(分钟),240 = 4 小时
+      iaasNetCacheTTLMinutes: 240
+    # SpiderIPPool 池控制器(节点预热池 + 全局池),常开:
+    # 集群未安装 Spiderpool CRD 时等待并定期重试(告警),CRD 出现后自动启动;CRD 不兼容时启动失败。
+    ippoolManager:
+      # 单池内 IP 云操作并发上限:预热(创建/绑定)、回收(解绑/删除)、对账共用
+      ipWorkersPerPool: 10
+      # List+Watch 节点池的标签选择器(由 Spiderpool webhook 从注解镜像而来)
+      nodePoolLabelSelector: "ipam.spidernet.io/iaas-provider=huaweicloud"
+      ## 高级参数(代码默认值,按需通过 --set 覆盖):
+      # errorRetryIntervalSeconds: 30  # 单池 transient 错误重试间隔(秒)
+
+      # sub-ENI 回收策略(仅对全局池生效,节点预热池不参与回收):
+      # ttl(默认,空闲超时 detach)或 watermark(水位)
+      ipRecycleStrategy: "ttl"
+      # Spiderpool 释放 IP 后云端 sub-ENI 的保留时间(秒),用于滚动更新时复用
+      # (仅全局池 + ttl 策略生效)
+      ipIdleTTLSeconds: 120
+      ## 高级参数(代码默认值,按需通过 --set 覆盖):
+      # detachThreshold: 0.60            # watermark 策略:bound/total >= 该值时 LRU detach 空闲 IP
+      # deleteThreshold: 0.90            # watermark 策略:created/total >= 该值时删除 unbound sub-ENI
+      # flushDebounceMs: 500             # 元数据落盘 debounce 窗口(毫秒)
+      # recycleDebounceSeconds: 5        # 池事件触发回收评估的去抖延迟(秒)
+      # recycleResyncIntervalSeconds: 1800  # 回收兜底重评估周期(秒,默认 30 分钟)
+      # reconcileIntervalSeconds: 0      # 周期性云端/内存/CR 对账周期(秒),0 = 关闭
+  # -----------------------------------------------------------------------------
+  # 2. Cloud —— 云平台接入 / 认证 / 配额
+  # -----------------------------------------------------------------------------
+  cloud:
+    # 云厂商标识,目前仅支持 huaweicloud【必填】
+    provider: huaweicloud
+    # 云平台接入配置:区域 / 项目 / 各服务端点(常与 hostAliases 配合使用)
+    accessConfig:
+      # 区域,如 lab-yz-1【必填】
       region: ""
+      # 项目 ID【必填】
       projectID: ""
+      # 项目名称,如 nbyh【auth.mode=token 时必填】
       projectName: ""
+      # 云平台基础 endpoint,如 https://nbcbcloud.com【必填】
+      endpoint: ""
+      # VPC 服务 endpoint【可选,为空按 endpoint 推导】
       vpcEndpoint: ""
+      # ECS 服务 endpoint【可选,为空按 endpoint 推导】
       ecsEndpoint: ""
-      httpRequestTimeout: "30s" # Single cloud API HTTP round-trip timeout
+      # IAM 认证端点,如 https://iam-apigateway-proxy.nbcbcloud.com
+      # 【auth.mode=token 时必填,ak-sk 模式忽略】
+      iamEndpoint: ""
+      # SC 服务端点,用于查询代维租户信息,如 https://sc.nbcbcloud.com
+      # 【可选,仅 token 模式 + trustTenantName 非空时使用】
+      scEndpoint: ""
+      # 创建 sub-network-interface 时附加的安全组 ID 列表
       # securityGroups:
       #   - securityGroupID1
       securityGroups: []
-      auth:
-        mode: token # ak-sk or token, default is token
-        aksk: # ak-sk auth config
-          # Name of the existing Secret containing CLOUD_ACCESS_KEY and CLOUD_SECRET_KEY
-          credentialsSecret: huawei-credentials
-        token: # token auth config
-          username: "" # 用户名
-          password: "" # 密码
-          iamDomain: "" # IAMDomain， 如 audn_f82356b7-dd13-4c14-aa1e-1a3
-          agencyName: "" # agencyName（静态配置，若 trustTenantName 非空则自动从 SC 查询覆盖）
-          iamEndpoint: "" # IAMEndpoint， 如 https://iam-apigateway-proxy.nbcbcloud.com
-          scEndpoint: "" # SC 服务端点，用于查询代维租户信息， 如 https://sc.nbcbcloud.com
-          trustTenantName: "" # 代维租户名称，用于从 trust_vdc_list 匹配 agency_name， 如 nbyh
-          tokenRefreshInterval: "23h" # Token refresh interval, e.g. 23h
-          tokenRefreshBeforeExpiry: "1h" # Refresh before expiry, e.g. 1h
-          tokenRefreshRetryInterval: "30s" # Retry interval after refresh failure
-          tokenRefreshFailThreshold: 3 # Consecutive refresh failures threshold
-  # 示例:
-  # affinity:
-  #   nodeAffinity:
-  #     preferredDuringSchedulingIgnoredDuringExecution:
-  #     - weight: 100
-  #       preference:
-  #         matchExpressions:
-  #         - key: node-role.kubernetes.io/control-plane
-  #           operator: Exists
-  affinity: {}
-  nodeSelector: {}
-  tolerations: []
-  # hostAliases injects entries into Pod's /etc/hosts to bypass DNS resolution.
-  # Useful for mapping IaaS provider endpoints to specific IPs without relying on CoreDNS.
-  # Example:
-  # hostAliases:
-  #   - ip: "10.20.1.100"
-  #     hostnames:
-  #       - "iam-apigateway-proxy.nbcbcloud.com"
-  #       - "ecs.lab-yz-1.nbcbcloud.com"
-  #   - ip: "10.20.1.101"
-  #     hostnames:
-  #       - "vpc.lab-yz-1.nbcbcloud.com"
-  hostAliases: []
+    # 单次云 API HTTP 请求超时
+    httpRequestTimeout: "30s"
+    # 仅用于隔离测试 mock:允许明文 HTTP endpoint(生产必须为 false)
+    allowInsecureHTTP: false
+    # 单节点父网卡 sub-ENI 硬上限(云平台限制),驱动回收硬保护与容量指标
+    maxSubEniPerNode: 256
+    # 单台物理机 sub-ENI 总量硬上限(同宿主机的多个 ECS 节点共享该配额)。
+    # 预留配置:provider 运行时暂不强制,池级配额校验由 Spiderpool webhook
+    # 在建池/改池时完成;0 = 未设置
+    maxSubEniPerMachine: 0
+    # 云平台认证。凭证统一存放于已存在的 Secret(values 不暴露明文):
+    #   ak-sk 模式读 key: CLOUD_ACCESS_KEY / CLOUD_SECRET_KEY
+    #   token 模式读 key: CLOUD_PASSWORD
+    auth:
+      # 认证模式:ak-sk(默认)或 token【必填】
+      mode: ak-sk
+      # 凭证 Secret 名称【必填】
+      secret: huawei-credentials
+      # token 模式
+      token:
+        # 用户名【mode=token 时必填】
+        username: ""
+        # IAM Domain,如 audn_f82356b7-dd13-4c14-aa1e-1a3【mode=token 时必填】
+        iamDomain: ""
+        # agencyName【静态配置;与 trustTenantName 二选一,
+        # trustTenantName 非空时自动从 SC 查询覆盖】
+        agencyName: ""
+        # 代维租户名称,用于从 trust_vdc_list 匹配 agency_name,如 nbyh
+        trustTenantName: ""
+        # Token 刷新间隔
+        tokenRefreshInterval: "23h"
+        # Token 过期前提前刷新量
+        tokenRefreshBeforeExpiry: "1h"
+        # Token 刷新失败后的重试间隔
+        tokenRefreshRetryInterval: "30s"
+        # Token 连续刷新失败阈值(超过后置为不健康)
+        tokenRefreshFailThreshold: 3
+  # -----------------------------------------------------------------------------
+  # 3. Service & TLS
+  # -----------------------------------------------------------------------------
+  service:
+    type: ClusterIP
+    # HTTPS 端口(与容器端口一致,Spiderpool 默认访问 8443)
+    port: 8443
+    nodePort:
+      # type=NodePort 时的 HTTPS NodePort
+      https: ""
+  tls:
+    # TLS 常开:provider 仅提供 HTTPS 服务(无开关)。
+    # autoGenerate=true 时首次 install 生成自签 CA 与 serving cert,写入
+    # Secret <fullname>-tls(含 tls.crt/tls.key/ca.crt);后续 helm upgrade
+    # 通过 lookup 复用该 Secret,CA 保持不变(删除 Secret 后 upgrade 可强制轮换)。
+    # ca.crt 供客户端(如 spiderpool chart)lookup 提取用于校验 provider 证书。
+    autoGenerate: true
+    # 自签证书有效期(约 100 年)
+    certValidityDays: 36500
+    # 指定已存在的 TLS Secret;非空时直接使用,忽略 autoGenerate
+    existingSecret: ""
+    # 证书在容器内的挂载路径(一般无需修改;原 config.tls,与证书配置合并)
+    certFile: /etc/iaas-network-provider/tls/tls.crt
+    keyFile: /etc/iaas-network-provider/tls/tls.key
+  # -----------------------------------------------------------------------------
+  # 4. Observability
+  # -----------------------------------------------------------------------------
+
+  # Prometheus 指标采集。/metrics 与业务 API 同端口暴露(无需认证)。
+  metrics:
+    # 在 Pod 上添加 prometheus.io/scrape 注解(适用于基于注解发现的 Prometheus)
+    prometheusAnnotations: true
+    serviceMonitor:
+      # 创建 ServiceMonitor(需要集群已安装 Prometheus Operator CRD)
+      enabled: false
+      interval: 30s
+      scrapeTimeout: 10s
+      # 附加到 ServiceMonitor 的 labels(如 release: kube-prometheus-stack;
+      # DaoCloud Insight 需要 operator.insight.io/managed-by: insight)
+      labels: {}
+  # Grafana 面板(grafana-operator 的 GrafanaDashboard CRD,与 Spiderpool chart 同模式)
+  grafanaDashboard:
+    # 安装 GrafanaDashboard(需要集群已安装 grafana-operator CRD)
+    install: false
+    # GrafanaDashboard 所在 namespace,默认为 Release namespace
+    namespace: ""
+    # 附加 labels / annotations
+    labels: {}
+    annotations: {}
+    # 允许跨 namespace 导入
+    allowCrossNamespaceImport: true
+    # Grafana folder 标题;为空时 operator 默认用 CR 所在 namespace 作为 folder。
+    # 与 Spiderpool 官方面板同目录可设为 "insight-components"
+    folder: ""
+    instanceSelector:
+      # 匹配 Grafana 实例的 labels;为 null 时默认匹配 DaoCloud Insight:
+      # operator.insight.io/managed-by: insight
+      matchLabels: null

@@ -7,58 +7,71 @@ metadata:
     {{- include "iaas-network-provider.labels" . | nindent 4 }}
 data:
   config.yaml: |
-    logLevel: {{ .Values.config.logLevel }}
-    server:
-      bindAddress: "{{ .Values.config.bindAddress }}"
+    {{- $ctl := .Values.controller }}
+    {{- $cloud := .Values.cloud }}
+    controller:
+      logLevel: {{ $ctl.logLevel }}
+      bindAddress: "{{ $ctl.bindAddress }}"
       tls:
-        enabled: {{ .Values.tls.enabled }}
-        certFile: "{{ .Values.config.tls.certFile }}"
-        keyFile: "{{ .Values.config.tls.keyFile }}"
-    pprof:
-      enabled: {{ .Values.config.pprof.enabled }}
-      bindAddress: "{{ .Values.config.pprof.bindAddress }}"
-    k8sClientConfig:
-      qps: {{ .Values.config.k8sClientConfig.qps }}
-      burst: {{ .Values.config.k8sClientConfig.burst }}
-    rateLimit:
-      qps: {{ .Values.config.rateLimit.qps }}
-      burst: {{ default 10 .Values.config.rateLimit.burst }}
-      queueTimeoutSeconds: {{ .Values.config.rateLimit.queueTimeoutSeconds }}
-      maxTransactionTimeoutSeconds: {{ default 0 .Values.config.rateLimit.maxTransactionTimeoutSeconds }}
-    leaderElection:
-      enabled: {{ .Values.config.leaderElection.enabled }}
-      leaseName: {{ .Values.config.leaderElection.leaseName }}
-      leaseNamespace: {{ .Release.Namespace }}
-      leaseDurationSeconds: {{ .Values.config.leaderElection.leaseDurationSeconds }}
-      renewDeadlineSeconds: {{ .Values.config.leaderElection.renewDeadlineSeconds }}
-      retryPeriodSeconds: {{ .Values.config.leaderElection.retryPeriodSeconds }}
-    cache:
-      preloadOnStartup: {{ .Values.config.cache.preloadOnStartup }}
-      iaasNetCacheTTLMinutes: {{ .Values.config.cache.iaasNetCacheTTLMinutes }}
-    iaasProvider:
-      provider: "{{ .Values.config.iaasProvider.provider }}"
-      endpoint: "{{ .Values.config.iaasProvider.endpoint }}"
-      region: "{{ .Values.config.iaasProvider.region }}"
-      projectID: "{{ .Values.config.iaasProvider.projectID }}"
-      projectName: "{{ .Values.config.iaasProvider.projectName }}"
-      vpcEndpoint: "{{ .Values.config.iaasProvider.vpcEndpoint }}"
-      ecsEndpoint: "{{ .Values.config.iaasProvider.ecsEndpoint }}"
-      httpRequestTimeout: "{{ .Values.config.iaasProvider.httpRequestTimeout }}"
-      securityGroups:
-      {{- range .Values.config.iaasProvider.securityGroups }}
-        - {{ . }}
-      {{- end }}
+        certFile: "{{ .Values.tls.certFile }}"
+        keyFile: "{{ .Values.tls.keyFile }}"
+      pprof:
+        enabled: {{ $ctl.pprof.enabled }}
+        bindAddress: "{{ $ctl.pprof.bindAddress }}"
+      k8sClientConfig:
+        qps: {{ $ctl.k8sClientConfig.qps }}
+        burst: {{ $ctl.k8sClientConfig.burst }}
+      rateLimit:
+        qps: {{ $ctl.rateLimit.qps }}
+        burst: {{ $ctl.rateLimit.burst }}
+        queueTimeoutSeconds: {{ $ctl.rateLimit.queueTimeoutSeconds }}
+        maxTransactionTimeoutSeconds: {{ default 0 $ctl.rateLimit.maxTransactionTimeoutSeconds }}
+      leaderElection:
+        enabled: {{ $ctl.leaderElection.enabled }}
+        leaseName: {{ $ctl.leaderElection.leaseName }}
+        leaseNamespace: {{ .Release.Namespace }}
+        leaseDurationSeconds: {{ $ctl.leaderElection.leaseDurationSeconds }}
+        renewDeadlineSeconds: {{ $ctl.leaderElection.renewDeadlineSeconds }}
+        retryPeriodSeconds: {{ $ctl.leaderElection.retryPeriodSeconds }}
+      cache:
+        preloadOnStartup: {{ $ctl.cache.preloadOnStartup }}
+        iaasNetCacheTTLMinutes: {{ $ctl.cache.iaasNetCacheTTLMinutes }}
+      {{- $mgr := $ctl.ippoolManager }}
+      ippoolManager:
+        ipWorkersPerPool: {{ $mgr.ipWorkersPerPool }}
+        nodePoolLabelSelector: "{{ $mgr.nodePoolLabelSelector }}"
+        ipRecycleStrategy: "{{ $mgr.ipRecycleStrategy }}"
+        ipIdleTTLSeconds: {{ $mgr.ipIdleTTLSeconds }}
+        {{- /* Advanced tuning keys below default in code; render only when set via --set/values override. */}}
+        {{- range $key := list "errorRetryIntervalSeconds" "detachThreshold" "deleteThreshold" "flushDebounceMs" "recycleDebounceSeconds" "recycleResyncIntervalSeconds" "reconcileIntervalSeconds" }}
+        {{- if hasKey $mgr $key }}
+        {{ $key }}: {{ index $mgr $key }}
+        {{- end }}
+        {{- end }}
+    cloud:
+      provider: "{{ $cloud.provider }}"
+      accessConfig:
+        region: "{{ $cloud.accessConfig.region }}"
+        projectID: "{{ $cloud.accessConfig.projectID }}"
+        projectName: "{{ $cloud.accessConfig.projectName }}"
+        endpoint: "{{ $cloud.accessConfig.endpoint }}"
+        vpcEndpoint: "{{ $cloud.accessConfig.vpcEndpoint }}"
+        ecsEndpoint: "{{ $cloud.accessConfig.ecsEndpoint }}"
+        iamEndpoint: "{{ $cloud.accessConfig.iamEndpoint }}"
+        scEndpoint: "{{ $cloud.accessConfig.scEndpoint }}"
+        securityGroups: {{ toJson (default (list) $cloud.accessConfig.securityGroups) }}
+      httpRequestTimeout: "{{ $cloud.httpRequestTimeout }}"
+      allowInsecureHTTP: {{ $cloud.allowInsecureHTTP }}
+      maxSubEniPerNode: {{ $cloud.maxSubEniPerNode }}
+      maxSubEniPerMachine: {{ $cloud.maxSubEniPerMachine }}
       auth:
-        mode: "{{ .Values.config.iaasProvider.auth.mode }}"
+        mode: "{{ $cloud.auth.mode }}"
         token:
-          username: "{{ .Values.config.iaasProvider.auth.token.username }}"
-          password: "{{ .Values.config.iaasProvider.auth.token.password }}"
-          iamDomain: "{{ .Values.config.iaasProvider.auth.token.iamDomain }}"
-          agencyName: "{{ .Values.config.iaasProvider.auth.token.agencyName }}"
-          iamEndpoint: "{{ .Values.config.iaasProvider.auth.token.iamEndpoint }}"
-          scEndpoint: "{{ .Values.config.iaasProvider.auth.token.scEndpoint }}"
-          trustTenantName: "{{ .Values.config.iaasProvider.auth.token.trustTenantName }}"
-          tokenRefreshInterval: "{{ .Values.config.iaasProvider.auth.token.tokenRefreshInterval }}"
-          tokenRefreshBeforeExpiry: "{{ .Values.config.iaasProvider.auth.token.tokenRefreshBeforeExpiry }}"
-          tokenRefreshRetryInterval: "{{ .Values.config.iaasProvider.auth.token.tokenRefreshRetryInterval }}"
-          tokenRefreshFailThreshold: {{ .Values.config.iaasProvider.auth.token.tokenRefreshFailThreshold }}
+          username: "{{ $cloud.auth.token.username }}"
+          iamDomain: "{{ $cloud.auth.token.iamDomain }}"
+          agencyName: "{{ $cloud.auth.token.agencyName }}"
+          trustTenantName: "{{ $cloud.auth.token.trustTenantName }}"
+          tokenRefreshInterval: "{{ $cloud.auth.token.tokenRefreshInterval }}"
+          tokenRefreshBeforeExpiry: "{{ $cloud.auth.token.tokenRefreshBeforeExpiry }}"
+          tokenRefreshRetryInterval: "{{ $cloud.auth.token.tokenRefreshRetryInterval }}"
+          tokenRefreshFailThreshold: {{ $cloud.auth.token.tokenRefreshFailThreshold }}

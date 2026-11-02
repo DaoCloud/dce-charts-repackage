@@ -1,0 +1,35 @@
+{{- if .Values.grafanaDashboard.install -}}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: {{ include "iaas-network-provider.fullname" . }}
+  namespace: {{ default .Release.Namespace .Values.grafanaDashboard.namespace }}
+  labels:
+    {{- include "iaas-network-provider.labels" . | nindent 4 }}
+    {{- if not .Values.grafanaDashboard.instanceSelector.matchLabels }}
+    # Insight 的 grafana-operator 配置了 WATCH_LABEL_SELECTORS，CR 本身必须带此 label 才会被 reconcile
+    operator.insight.io/managed-by: insight
+    {{- end }}
+    {{- with .Values.grafanaDashboard.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.grafanaDashboard.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  allowCrossNamespaceImport: {{ default true .Values.grafanaDashboard.allowCrossNamespaceImport }}
+  {{- with .Values.grafanaDashboard.folder }}
+  folder: {{ . | quote }}
+  {{- end }}
+  {{- if .Values.grafanaDashboard.instanceSelector.matchLabels }}
+  instanceSelector:
+{{ toYaml .Values.grafanaDashboard.instanceSelector | indent 4 }}
+  {{- else }}
+  # 默认对接 DaoCloud Insight 管理的 Grafana（与 Spiderpool chart 保持一致）
+  instanceSelector:
+    matchLabels:
+      operator.insight.io/managed-by: insight
+  {{- end }}
+  json: {{ .Files.Get "files/grafana-provider.json" | toJson }}
+{{- end }}

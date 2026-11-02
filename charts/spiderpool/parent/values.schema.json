@@ -387,6 +387,15 @@
                             "examples": [
                                 false
                             ]
+                        },
+                        "installEniVlanCNI": {
+                            "type": "boolean",
+                            "title": "install eni-vlan CNI",
+                            "description": "install eni-vlan cni binary to each node. Only required for the IaaS network provider integration. Default to false",
+                            "default": false,
+                            "examples": [
+                                false
+                            ]
                         }
                     }
                 },
@@ -506,11 +515,14 @@
                     "title": "IaaS Network Provider Integration",
                     "type": "object",
                     "properties": {
-                        "serverUrl": {
-                            "title": "IaaS Provider Server URL",
-                            "description": "The URL of the IaaS provider service. Must include scheme (http or https) and port. If empty, IaaS integration is disabled. For example: https://iaas-network-provider.iaas-network-provider-system.svc:443",
-                            "type": "string",
-                            "default": ""
+                        "enabled": {
+                            "title": "enable IaaS Network Provider integration",
+                            "description": "enable IaaS Network Provider integration. The provider Service is expected at iaas-network-provider.iaas-network-provider-system:8443 and its TLS CA is read from the Secret iaas-network-provider-tls in that namespace. Default to false",
+                            "type": "boolean",
+                            "default": false,
+                            "examples": [
+                                false
+                            ]
                         }
                     }
                 }

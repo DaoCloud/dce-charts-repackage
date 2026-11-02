@@ -7,12 +7,12 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ ternary .Values.service.tlsPort .Values.service.port .Values.tls.enabled }}
-      targetPort: {{ ternary "https" "http" .Values.tls.enabled }}
+    - port: {{ .Values.service.port }}
+      targetPort: https
       protocol: TCP
-      name: {{ ternary "https" "http" .Values.tls.enabled }}
-      {{- if and (eq .Values.service.type "NodePort") (ternary .Values.service.nodePort.https .Values.service.nodePort.http .Values.tls.enabled) }}
-      nodePort: {{ ternary .Values.service.nodePort.https .Values.service.nodePort.http .Values.tls.enabled }}
+      name: https
+      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort.https }}
+      nodePort: {{ .Values.service.nodePort.https }}
       {{- end }}
   selector:
     {{- include "iaas-network-provider.selectorLabels" . | nindent 4 }}

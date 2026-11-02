@@ -17,8 +17,8 @@ fi
 
 export CHART_VERSION=$(yq -r '.version' Chart.yaml)
 yq -i '
-  ."iaas-network-provider".image.registry="ghcr.m.daocloud.io" |
-  ."iaas-network-provider".image.tag="'v${CHART_VERSION}'"
+  ."iaas-network-provider".controller.image.registry="ghcr.m.daocloud.io" |
+  ."iaas-network-provider".controller.image.tag="'v${CHART_VERSION}'"
 ' values.yaml
 
 yq -i '.keywords = ["kubernetes", "networking", "ipam", "iaas"]' Chart.yaml

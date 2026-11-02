@@ -9,43 +9,43 @@
       "title": "IaaS Network Provider",
       "description": "Values passed to the vendored iaas-network-provider subchart.",
       "properties": {
-        "replicaCount": {
-          "type": "integer",
-          "title": "Replicas",
-          "description": "Number of iaas-network-provider controller replicas.",
-          "default": 1,
-          "minimum": 0
-        },
-        "image": {
+        "controller": {
           "type": "object",
-          "title": "Image",
-          "description": "Container image settings for the iaas-network-provider controller.",
+          "title": "Controller",
+          "description": "Controller workload settings.",
           "properties": {
-            "registry": {
-              "type": "string",
-              "title": "Image registry",
-              "description": "Container image registry.",
-              "default": "ghcr.m.daocloud.io"
+            "replicaCount": {
+              "type": "integer",
+              "title": "Replicas",
+              "description": "Number of iaas-network-provider controller replicas.",
+              "default": 1,
+              "minimum": 0
             },
-            "repository": {
-              "type": "string",
-              "title": "Image repository",
-              "description": "Container image repository path.",
-              "default": "daocloud/iaas-network-provider/controller"
+            "image": {
+              "type": "object",
+              "title": "Image",
+              "description": "Container image settings for the iaas-network-provider controller.",
+              "properties": {
+                "registry": {
+                  "type": "string",
+                  "title": "Image registry",
+                  "description": "Container image registry.",
+                  "default": "ghcr.m.daocloud.io"
+                },
+                "repository": {
+                  "type": "string",
+                  "title": "Image repository",
+                  "description": "Container image repository path.",
+                  "default": "daocloud/iaas-network-provider/controller"
+                },
+                "tag": {
+                  "type": "string",
+                  "title": "Image tag",
+                  "description": "Container image tag. If empty in the child chart, the chart defaults to v + appVersion.",
+                  "default": "v0.2.0"
+                }
+              }
             },
-            "tag": {
-              "type": "string",
-              "title": "Image tag",
-              "description": "Container image tag. If empty in the child chart, the chart defaults to v + appVersion.",
-              "default": "v0.1.0"
-            }
-          }
-        },
-        "config": {
-          "type": "object",
-          "title": "Provider Config",
-          "description": "Runtime configuration rendered into the iaas-network-provider config file.",
-          "properties": {
             "logLevel": {
               "type": "string",
               "title": "Log level",
@@ -61,20 +61,51 @@
             "bindAddress": {
               "type": "string",
               "title": "Bind address",
-              "description": "Controller listen address. With tls.enabled=true the default HTTPS listen port is 8443; with tls.enabled=false the HTTP listen port is 8080.",
+              "description": "Controller HTTPS listen address. TLS is always on; this also determines the container port and probe port.",
               "default": ":8443"
             },
-            "iaasProvider": {
+            "hostAliases": {
+              "type": "array",
+              "title": "Host aliases",
+              "description": "Entries injected into the pod /etc/hosts file to bypass DNS resolution. Useful for mapping IaaS provider endpoints to specific IPs without relying on CoreDNS.",
+              "default": [],
+              "items": {
+                "type": "object",
+                "description": "Host alias entry added to the pod /etc/hosts file.",
+                "properties": {
+                  "ip": {
+                    "type": "string",
+                    "description": "IP address to add to /etc/hosts, for example 10.20.1.100."
+                  },
+                  "hostnames": {
+                    "type": "array",
+                    "description": "Hostnames mapped to the IP address, for example iam-apigateway-proxy.nbcbcloud.com.",
+                    "items": {
+                      "type": "string",
+                      "description": "Hostname mapped to the host alias IP address."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "cloud": {
+          "type": "object",
+          "title": "IaaS provider",
+          "description": "Cloud provider API configuration. The default provider is Huawei Cloud.",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "title": "Provider",
+              "description": "IaaS provider name.",
+              "default": "huaweicloud"
+            },
+            "accessConfig": {
               "type": "object",
-              "title": "IaaS provider",
-              "description": "Cloud provider API configuration. The default provider is Huawei Cloud.",
+              "title": "Access config",
+              "description": "Cloud provider region, project and service endpoints.",
               "properties": {
-                "provider": {
-                  "type": "string",
-                  "title": "Provider",
-                  "description": "IaaS provider name.",
-                  "default": "huaweicloud"
-                },
                 "endpoint": {
                   "type": "string",
                   "title": "Provider endpoint",
@@ -111,6 +142,18 @@
                   "description": "Optional ECS service endpoint. Leave empty to use the provider default endpoint.",
                   "default": ""
                 },
+                "iamEndpoint": {
+                  "type": "string",
+                  "title": "IAM endpoint",
+                  "description": "IAM endpoint, for example https://iam-apigateway-proxy.nbcbcloud.com. Required when auth.mode=token.",
+                  "default": ""
+                },
+                "scEndpoint": {
+                  "type": "string",
+                  "title": "SC endpoint",
+                  "description": "SC service endpoint used to query delegated tenant information, for example https://sc.nbcbcloud.com.",
+                  "default": ""
+                },
                 "securityGroups": {
                   "type": "array",
                   "title": "Security groups",
@@ -120,108 +163,60 @@
                     "type": "string",
                     "description": "Security group ID."
                   }
-                },
-                "auth": {
-                  "type": "object",
-                  "title": "Authentication",
-                  "description": "Authentication settings for the IaaS provider API.",
-                  "properties": {
-                    "mode": {
-                      "type": "string",
-                      "title": "Authentication mode",
-                      "description": "Authentication mode. Supported values are token and ak-sk; token is the default.",
-                      "default": "token",
-                      "enum": [
-                        "token"
-                      ]
-                    },
-                    "aksk": {
-                      "type": "object",
-                      "title": "AK/SK authentication",
-                      "description": "AK/SK authentication settings.",
-                      "properties": {
-                        "credentialsSecret": {
-                          "type": "string",
-                          "title": "Credentials secret",
-                          "description": "Existing Secret containing CLOUD_ACCESS_KEY and CLOUD_SECRET_KEY.",
-                          "default": "huawei-credentials"
-                        }
-                      }
-                    },
-                    "token": {
-                      "type": "object",
-                      "title": "Token authentication",
-                      "description": "Token authentication settings.",
-                      "properties": {
-                        "username": {
-                          "type": "string",
-                          "title": "Username",
-                          "description": "Token authentication username.",
-                          "default": ""
-                        },
-                        "password": {
-                          "type": "string",
-                          "title": "Password",
-                          "description": "Token authentication password.",
-                          "default": ""
-                        },
-                        "iamDomain": {
-                          "type": "string",
-                          "title": "IAM domain",
-                          "description": "IAM domain, for example audn_f82356b7-dd13-4c14-aa1e-1a3.",
-                          "default": ""
-                        },
-                        "agencyName": {
-                          "type": "string",
-                          "title": "Agency name",
-                          "description": "Agency name. If trustTenantName is set, the controller can query SC and override this value from the matched trust tenant.",
-                          "default": ""
-                        },
-                        "iamEndpoint": {
-                          "type": "string",
-                          "title": "IAM endpoint",
-                          "description": "IAM endpoint, for example https://iam-apigateway-proxy.nbcbcloud.com.",
-                          "default": ""
-                        },
-                        "scEndpoint": {
-                          "type": "string",
-                          "title": "SC endpoint",
-                          "description": "SC service endpoint used to query delegated tenant information, for example https://sc.nbcbcloud.com.",
-                          "default": ""
-                        },
-                        "trustTenantName": {
-                          "type": "string",
-                          "title": "Trust tenant name",
-                          "description": "Delegated tenant name used to match agency_name from trust_vdc_list, for example nbyh.",
-                          "default": ""
-                        }
-                      }
-                    }
-                  }
                 }
               }
-            }
-          }
-        },
-        "hostAliases": {
-          "type": "array",
-          "title": "Host aliases",
-          "description": "Entries injected into the pod /etc/hosts file to bypass DNS resolution. Useful for mapping IaaS provider endpoints to specific IPs without relying on CoreDNS.",
-          "default": [],
-          "items": {
-            "type": "object",
-            "description": "Host alias entry added to the pod /etc/hosts file.",
-            "properties": {
-              "ip": {
-                "type": "string",
-                "description": "IP address to add to /etc/hosts, for example 10.20.1.100."
-              },
-              "hostnames": {
-                "type": "array",
-                "description": "Hostnames mapped to the IP address, for example iam-apigateway-proxy.nbcbcloud.com.",
-                "items": {
+            },
+            "auth": {
+              "type": "object",
+              "title": "Authentication",
+              "description": "Authentication settings for the IaaS provider API. Credentials are read from an existing Secret: ak-sk mode uses CLOUD_ACCESS_KEY / CLOUD_SECRET_KEY, token mode uses CLOUD_PASSWORD.",
+              "properties": {
+                "mode": {
                   "type": "string",
-                  "description": "Hostname mapped to the host alias IP address."
+                  "title": "Authentication mode",
+                  "description": "Authentication mode. Supported values are ak-sk and token.",
+                  "default": "ak-sk",
+                  "enum": [
+                    "ak-sk",
+                    "token"
+                  ]
+                },
+                "secret": {
+                  "type": "string",
+                  "title": "Credentials secret",
+                  "description": "Existing Secret containing the cloud credentials.",
+                  "default": "huawei-credentials"
+                },
+                "token": {
+                  "type": "object",
+                  "title": "Token authentication",
+                  "description": "Token authentication settings.",
+                  "properties": {
+                    "username": {
+                      "type": "string",
+                      "title": "Username",
+                      "description": "Token authentication username.",
+                      "default": ""
+                    },
+                    "iamDomain": {
+                      "type": "string",
+                      "title": "IAM domain",
+                      "description": "IAM domain, for example audn_f82356b7-dd13-4c14-aa1e-1a3.",
+                      "default": ""
+                    },
+                    "agencyName": {
+                      "type": "string",
+                      "title": "Agency name",
+                      "description": "Agency name. If trustTenantName is set, the controller can query SC and override this value from the matched trust tenant.",
+                      "default": ""
+                    },
+                    "trustTenantName": {
+                      "type": "string",
+                      "title": "Trust tenant name",
+                      "description": "Delegated tenant name used to match agency_name from trust_vdc_list, for example nbyh.",
+                      "default": ""
+                    }
+                  }
                 }
               }
             }
