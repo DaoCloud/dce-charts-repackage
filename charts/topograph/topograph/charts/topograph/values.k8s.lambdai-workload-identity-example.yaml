@@ -1,0 +1,29 @@
+provider:
+  name: lambdai
+  params:
+    url: https://cloud.lambda.ai
+  creds:
+    # workspaceId is an identifier, not a secret. The Node Observer forwards it
+    # as a provider credential; workload identity supplies only the API token.
+    workspaceId: "<WORKSPACE_ID>"
+
+engine:
+  name: k8s
+
+# lambda-pod-identity-webhook injects the projected ServiceAccount token and the
+# LAMBDA_IDENTITY_LRN / LAMBDA_WORKLOAD_IDENTITY_TOKEN_FILE env vars into the
+# API-server pod because its ServiceAccount carries this annotation. No token
+# Secret, no audience, and no chart-managed volume are required.
+serviceAccount:
+  annotations:
+    lambda.ai/identity-lrn: "lrn:iam:identity:<id>"
+
+nodeObserver:
+  topograph:
+    trigger:
+      nodeSelector:
+        kubernetes.io/os: linux
+
+nodeDataBroker:
+  tolerations:
+    - operator: Exists

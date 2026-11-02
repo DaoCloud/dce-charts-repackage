@@ -1,0 +1,31 @@
+# Default values for topology-generator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+provider:
+  name: aws
+engine:
+  name: slinky
+  params:
+    namespace: slurm
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/component: compute
+    plugin: topology/tree
+    topologyConfigPath: topology.conf
+    topologyConfigmapName: slurm-config
+
+nodeSelector:
+  dedicated: user-workload
+
+tolerations:
+  - operator: Exists
+
+nodeObserver:
+  nodeSelector:
+    dedicated: user-workload
+  topograph:
+    trigger:
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/component: compute

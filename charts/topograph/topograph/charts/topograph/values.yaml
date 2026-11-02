@@ -1,0 +1,433 @@
+# Default values for topology-generator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+provider:
+  # See [supported providers](https://github.com/dsx-ai-factory/topograph/blob/main/docs/overview.md#supported-providers).
+  name: test
+  # params:
+  #   accelerator:
+  #     # Accelerator-domain discovery is independent of fabric discovery.
+  #     # Sources supported by infiniband-k8s: nvidia-smi, kubernetes-label,
+  #     # and none. The dra provider supports kubernetes-label and defaults to
+  #     # nvidia.com/gpu.clique when this section is omitted. For InfiniBand,
+  #     # omitting accelerator disables discovery; an empty section is
+  #     # equivalent to source: none. A non-empty section must set source.
+  #     source: kubernetes-label
+  #     kubernetesLabel:
+  #       # Required for the kubernetes-label source. DRA defaults this key to
+  #       # nvidia.com/gpu.clique only when the accelerator section is omitted.
+  #       key: nvidia.com/gpu.clique
+  #     nvidiaSmi:
+  #       # Optional; defaults used by the Helm-managed node-data-broker are
+  #       # shown below.
+  #       gpuOperatorNamespace: gpu-operator
+  #       devicePluginDaemonSet: nvidia-device-plugin-daemonset
+engine:
+  # name: "k8s", "nfd", "slinky", "slurm" or "graph"
+  name: k8s
+  # params:
+  #   # For the k8s, nfd, and slinky engines, optionally use an existing
+  #   # Kubernetes Node label as the authoritative accelerator-domain source.
+  #   # There is no default. The k8s engine does not allow acceleratorLabel
+  #   # to be customized when this parameter is set. Nodes missing the label
+  #   # retain provider domains with k8s and nfd; Slinky excludes them from
+  #   # label-backed block domains and fails if no usable domains remain.
+  #   acceleratorDomainSourceLabel: example.com/accelerator-domain
+# Kubernetes client rate limits for the DRA provider and the k8s, NFD, and
+# Slinky engines. The chart passes configured values to the Topograph deployment
+# as KUBE_QPS and KUBE_BURST. Leave unset to use client-go defaults (5 QPS and
+# burst 10).
+# kubeClient:
+#   qps: 50
+#   burst: 100
+kubeClient: {}
+# Namespace where NFD master runs. The nfd engine creates NodeFeature and
+# NodeFeatureGroup resources here, and its Role/RoleBinding are scoped here.
+nfdNamespace: node-feature-discovery
+service:
+  type: ClusterIP
+  port: 49021
+replicaCount: 1
+# Official NGC container image shared by all Topograph components.
+image:
+  repository: nvcr.m.daocloud.io/nvidia/topograph/topograph
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v1.1.0"
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template.
+  # Required when create is false; set to "default" to explicitly use the
+  # namespace's default service account.
+  name: ""
+rbac:
+  # Specifies whether RBAC resources should be created for the service account
+  create: true
+verbosity: 3
+env: {}
+initContainers: []
+lifecycle: {}
+config:
+  requestAggregationDelay: 15s
+  # Optional existing node metadata sources. Omit nodeMetadata or set it to null
+  # to use the annotations topograph.run/instance and topograph.run/region.
+  # When set, both instanceID and region are required, each with a non-empty
+  # type (label or annotation) and key; missing/empty values do not fall
+  # back to the default annotation. Disable nodeDataBroker.enabled only when
+  # all required metadata and discovery functions are supplied elsewhere.
+  # nodeMetadata:
+  #   instanceID:
+  #     type: annotation
+  #     key: example.com/instance-id
+  #   region:
+  #     type: label
+  #     key: topology.kubernetes.io/region
+  # Optional secret with API credentials
+  # credentialsSecret:
+podAnnotations: {}
+podLabels: {}
+# Hardened by default to satisfy the Kubernetes "restricted" Pod Security
+# Standard. The Topograph API server (Kubernetes, NFD, and Slinky engines)
+# writes Kubernetes resources through the API server and does not write to the
+# container filesystem, so a read-only root filesystem and non-root execution
+# are safe. Providers that need elevated privileges override these values -- see
+# `values.k8s.ib-example.yaml`, where the InfiniBand provider runs
+# `ibnetdiscover` and must set `privileged: true`.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  capabilities:
+    drop:
+      - ALL
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+# Gateway API (gateway.networking.k8s.io/v1) access to the Topograph API.
+# Mutually exclusive with `ingress.enabled` -- the chart refuses to render if
+# both are set to true (see templates/_validation.tpl). The default rendered
+# HTTPRoute uses only standard gateway.networking.k8s.io/v1 fields with no
+# implementation-specific annotations, so it is portable across any
+# conformant Gateway API implementation (kgateway, Cilium, Istio, Envoy
+# Gateway, Nginx Gateway Fabric, etc.).
+#
+# The chart does NOT author `Gateway` or `GatewayClass` resources -- those
+# are platform-owned. Reference an existing Gateway via `parentRefs`. An
+# operator who needs to pin implementation behavior does so by pointing
+# `parentRefs` at a Gateway that itself names a specific `GatewayClass`.
+#
+# Implementation-specific extensions (e.g., kgateway `TrafficPolicy` +
+# ExtAuth for authentication, Istio `RequestAuthentication`, Nginx Gateway
+# Fabric policies, Cilium L7 policies) typically attach to the `HTTPRoute`
+# via separate resources, not via chart-level annotations. See
+# `values.k8s.gateway-api-example.yaml` for a realistic kgateway example.
+gatewayAPI:
+  enabled: false
+  # References to existing Gateway resources this HTTPRoute attaches to.
+  # Cross-namespace references require a ReferenceGrant in the Gateway's
+  # namespace.
+  parentRefs: []
+  #  - name: example-gateway
+  #    namespace: gateway-system      # optional
+  #    sectionName: https              # optional listener name on the Gateway
+  # Hostnames this HTTPRoute matches. Leave empty to accept any hostname
+  # routed to the parent Gateway's listener.
+  hostnames: []
+  #  - topograph.example.com
+  # Optional override for the default routing rule. By default the chart
+  # emits a single catch-all rule routing all requests to the Topograph
+  # Service (which handles /v1/generate, /v1/topology, /healthz, and
+  # /metrics on a single port). Set this to provide multiple rules or
+  # path-based matching.
+  rules: []
+  #  - matches:
+  #      - path:
+  #          type: PathPrefix
+  #          value: /v1/
+  #    backendRefs:
+  #      - name: <release-fullname>
+  #        port: <service port>
+  # Annotations applied to the HTTPRoute resource. Most implementation
+  # extensions attach via separate resources rather than annotations;
+  # this is here primarily for standard annotations (e.g., monitoring).
+  annotations: {}
+  # URL scheme surfaced in NOTES.txt for the hostname-based access URL.
+  # Gateway TLS is configured on the Gateway's listener (platform-owned),
+  # so the chart cannot auto-detect whether the parent Gateway terminates
+  # TLS. Operators whose Gateway attaches this HTTPRoute to an HTTPS
+  # listener should set this to "https" so the install NOTES show the
+  # correct URL. No effect on the rendered HTTPRoute itself -- this is
+  # presentation-only.
+  scheme: http
+resources:
+  limits:
+    cpu: 400m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+nodeSelector: {}
+tolerations: []
+affinity: {}
+serviceMonitor:
+  enabled: false
+  namespace: monitoring
+  port: http
+  path: /metrics
+  interval: 15s
+  scheme: http
+# Opt-in NetworkPolicy covering all Topograph components (API server,
+# node-observer, node-data-broker), selected by the release instance label.
+# When enabled, ingress is denied except: intra-release traffic (so the
+# node-observer can reach the API server) and, when metricsScraperNamespace is
+# set, the namespace that Prometheus runs in (see below).
+#
+# If you are also using ingress.enabled or gatewayAPI.enabled, the ingress /
+# gateway controller pod (in its own namespace) will be blocked. Add an
+# extraIngress rule for that namespace. See docs/engines/k8s.md "NetworkPolicy".
+#
+# Egress is only constrained when `extraEgress` is set -- this keeps enabling
+# the policy from breaking egress on clusters that do not run a default-deny.
+# When `extraEgress` is set, an Egress policyType is added with DNS and
+# intra-release allows, then your rules. On a default-deny-egress cluster you
+# MUST include the Kubernetes API server (all three components call it) and the
+# provider's topology source (e.g. the BCM/NetQ endpoint); those addresses are
+# cluster-specific and cannot be templated portably. `extraIngress` appends
+# custom ingress rules. Note: an empty rule object (`{}`) in extraIngress /
+# extraEgress matches ALL traffic in that direction -- always give explicit
+# `to`/`from`/`ports`.
+#
+# NetworkPolicy egress cannot target hostnames, so provider endpoints must be
+# given as ipBlock CIDRs. See docs/engines/k8s.md "Per-provider egress" for a
+# per-provider table (netq, CSP/IMDS caveat, dra/infiniband need none).
+networkPolicy:
+  enabled: false
+  # Namespace that Prometheus (or another metrics scraper) runs in. When set,
+  # an ingress rule is added allowing TCP on the service port from this
+  # namespace. This is separate from serviceMonitor.namespace (which is where
+  # the ServiceMonitor CR lives); set this to where the Prometheus pod actually
+  # runs, e.g. `prometheus-system` or `monitoring`.
+  metricsScraperNamespace: ""
+  # Pod label selector for the cluster's DNS server, used to scope the DNS
+  # egress allow rule (only rendered when extraEgress is set). Leave empty to use
+  # the standard kube-dns/CoreDNS label `{ k8s-app: kube-dns }`. Set this to
+  # replace that default for clusters whose CoreDNS carries a different label,
+  # e.g. `{ app.kubernetes.io/name: coredns }`. (Kept empty by default so a Helm
+  # value override replaces it cleanly rather than deep-merging both labels,
+  # which would AND them and match no DNS pod.)
+  dnsPodSelector: {}
+  extraIngress: []
+  extraEgress: []
+  #  # Kubernetes API server (all providers under default-deny):
+  #  #   Service IP (kubectl get svc kubernetes -n default) uses port 443;
+  #  #   endpoint IP (kubectl get endpoints kubernetes -n default) uses port 6443.
+  #  #   Which is needed depends on whether the CNI evaluates the policy before or
+  #  #   after kube-proxy DNAT. The Service IP + 443 path is the most common:
+  #  - to:
+  #      - ipBlock:
+  #          cidr: 10.96.0.1/32
+  #    ports:
+  #      - protocol: TCP
+  #        port: 443
+  #  # Provider topology source, e.g. netq apiUrl host or the BCM endpoint
+  #  # (resolve the hostname to an ipBlock):
+  #  - to:
+  #      - ipBlock:
+  #          cidr: 10.0.0.0/24
+  #    ports:
+  #      - protocol: TCP
+  #        port: 8081
+tests:
+  # `helm test` hook pods (templates/tests/) probe the Topograph API's
+  # /healthz and /metrics endpoints via the in-cluster Service.
+  enabled: true
+  # By default, test pods reuse the main topograph image. Topograph's
+  # default image is Alpine-based and ships with busybox wget, which the
+  # test probes use -- no additional image pull is needed, including in
+  # air-gapped environments. If your mirrored image lacks busybox wget,
+  # override either field to point at an image that ships wget. Leave both empty
+  # to reuse the main image.
+  image:
+    repository: ""
+    tag: ""
+  # Resources for each test pod's container. The probes run a single busybox
+  # wget against the Service, so the small requests are enough and the limits
+  # leave ample headroom. Setting both lets `helm test` pods be admitted in
+  # namespaces whose ResourceQuota requires requests and limits. If a namespace
+  # LimitRange sets a minimum or a maxLimitRequestRatio, adjust these values to
+  # fit it. The test pods also set automountServiceAccountToken: false, as they
+  # never call the Kubernetes API.
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 16Mi
+# Node Observer watches configured node/pod changes and Topograph API readiness,
+# then triggers topology regeneration.
+nodeObserver:
+  replicaCount: 1
+  serviceAccount:
+    create: true
+    automount: true
+    annotations: {}
+    # Required when create is false; set to "default" to explicitly use the
+    # namespace's default service account.
+    name: ""
+  rbac:
+    create: true
+  # NODE_DATA_BROKER_NAME and NODE_DATA_BROKER_NAMESPACE are injected when
+  # nodeDataBroker.enabled=true.
+  env: {}
+  initContainers: []
+  lifecycle: {}
+  topograph:
+    # Watch the Topograph API pod and trigger topology generation when the API
+    # becomes Ready after startup or a container restart.
+    apiServer:
+      enabled: true
+      # Leave empty to use the release-scoped API pod labels.
+      podSelector: {}
+      containerName: topograph
+    trigger:
+    # nodeSelector: {}
+    # podSelector: {}
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    fsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    capabilities:
+      drop:
+        - ALL
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+# Node Data Broker collects per-node topology attributes as annotations.
+nodeDataBroker:
+  enabled: true
+  # Port serving the /healthz endpoint after node annotations are applied.
+  port: 8080
+  startupProbe:
+    failureThreshold: 30
+    periodSeconds: 10
+  serviceAccount:
+    create: true
+    automount: true
+    annotations: {}
+    # Required when create is false; set to "default" to explicitly use the
+    # namespace's default service account.
+    name: ""
+  rbac:
+    create: true
+  # Opt-in ValidatingAdmissionPolicy to scope node writes. Requires
+  # Kubernetes >= 1.30 (admissionregistration.k8s.io/v1) and ServiceAccountTokenPodNodeInfo enabled.
+  validatingAdmissionPolicy:
+    enabled: false
+  env: {}
+  initContainers: []
+  lifecycle: {}
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    fsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    capabilities:
+      drop:
+        - ALL
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 200m
+      memory: 128Mi
+  # ConfigMaps created by the chart and mounted into the broker container.
+  configMapMounts: []
+  # - name: ibdiag
+  #   mountPath: /etc/infiniband-diags/ibdiag.conf
+  #   subPath: ibdiag.conf
+  #   data:
+  #     ibdiag.conf: |-
+  #       CA=smi0
+  #       Port=1
+
+  volumes: []
+  volumeMounts: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

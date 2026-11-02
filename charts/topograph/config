@@ -1,0 +1,15 @@
+export USE_OPENSOURCE_CHART=false
+
+export REPO_URL=https://helm.ngc.nvidia.com/nvidia/topograph
+export REPO_NAME=topograph
+export CHART_NAME=topograph
+export VERSION=1.1.0
+
+export UPGRADE_METHOD=pr
+export UPGRADE_REVIWER=lou-lan
+export TEST_ASSIGNER=lou-lan
+export DAOCLOUD_REPO_PROJECT=community
+
+export NO_TRIVY=true
+export CUSTOM_SHELL=custom.sh
+export SKIP_SCHEMA=true

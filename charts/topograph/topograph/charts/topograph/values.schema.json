@@ -1,0 +1,296 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "topograph Helm chart values",
+  "description": "Schema for the topograph chart's values.yaml. Validates the most error-prone fields (provider and engine name types, replicaCount, image.pullPolicy, service settings, verbosity). Per-provider credential-field requirements are documented in docs/providers/<name>.md rather than enforced here, because the credential field sets vary with upstream provider changes and are better kept in prose.",
+  "type": "object",
+  "properties": {
+    "provider": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Topology-discovery provider. The application validates the name against its registered providers at runtime."
+        },
+        "params": {
+          "type": "object",
+          "description": "Provider-specific parameters. Requirements are documented in docs/providers/<name>.md."
+        }
+      },
+      "required": ["name"]
+    },
+    "engine": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Scheduler-output engine. The application validates the name against its registered engines at runtime."
+        },
+        "params": {
+          "type": "object",
+          "description": "Engine-specific parameters. The k8s engine accepts a closest-first fabricLabels array and a singular acceleratorLabel for the accelerator domain; accelerator sub-domains use the fixed accelerator.topograph.run/sub-domain key. Omitted values use the default label keys; when fabricLabels is provided, additional fabric tiers are omitted. The k8s, nfd, and slinky engines accept acceleratorDomainSourceLabel to select an existing Kubernetes Node label as the authoritative accelerator-domain source. There is no default. The k8s engine does not allow acceleratorLabel and acceleratorDomainSourceLabel to be set together.",
+          "properties": {
+            "acceleratorDomainSourceLabel": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Optional Kubernetes Node label key used as the authoritative accelerator-domain source by the k8s, nfd, and slinky engines. Nodes without a non-empty value retain provider domains with k8s and nfd. Slinky excludes them from label-backed block domains and fails if no usable domains remain."
+            }
+          }
+        }
+      },
+      "required": ["name"]
+    },
+    "kubeClient": {
+      "type": "object",
+      "description": "Kubernetes client rate limits exposed to the Topograph deployment as KUBE_QPS and KUBE_BURST.",
+      "properties": {
+        "qps": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Kubernetes API requests per second. Omit or set to zero to use the client-go default of 5."
+        },
+        "burst": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Kubernetes API burst capacity. Omit or set to zero to use the client-go default of 10."
+        }
+      }
+    },
+    "nfdNamespace": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Namespace where NFD master runs and where the nfd engine creates NodeFeature and NodeFeatureGroup resources."
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"]
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        }
+      }
+    },
+    "replicaCount": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "tag": { "type": "string" },
+        "pullPolicy": {
+          "type": "string",
+          "enum": ["IfNotPresent", "Always", "Never"]
+        }
+      }
+    },
+    "imagePullSecrets": { "type": "array" },
+    "nameOverride": { "type": "string" },
+    "fullnameOverride": { "type": "string" },
+    "serviceAccount": {
+      "type": "object",
+      "properties": {
+        "create": { "type": "boolean" },
+        "automount": { "type": "boolean" },
+        "annotations": { "type": "object" },
+        "name": { "type": "string" }
+      }
+    },
+    "rbac": {
+      "type": "object",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Create RBAC resources for the selected service account. Leave enabled when serviceAccount.create=false unless RBAC is managed outside the chart."
+        }
+      }
+    },
+    "verbosity": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "env": { "type": "object" },
+    "initContainers": { "type": "array" },
+    "lifecycle": { "type": "object" },
+    "config": { "type": "object" },
+    "podAnnotations": { "type": "object" },
+    "podLabels": { "type": "object" },
+    "podSecurityContext": { "type": "object" },
+    "securityContext": { "type": "object" },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "className": { "type": "string" },
+        "annotations": { "type": "object" },
+        "hosts": { "type": "array" },
+        "tls": { "type": "array" }
+      }
+    },
+    "gatewayAPI": {
+      "type": "object",
+      "description": "Gateway API (gateway.networking.k8s.io/v1) access. Mutually exclusive with ingress.enabled. The chart does not author Gateway or GatewayClass resources.",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "parentRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "namespace": { "type": "string" },
+              "sectionName": { "type": "string" },
+              "group": { "type": "string" },
+              "kind": { "type": "string" },
+              "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+            },
+            "required": ["name"]
+          }
+        },
+        "hostnames": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "rules": { "type": "array" },
+        "annotations": { "type": "object" },
+        "scheme": {
+          "type": "string",
+          "enum": ["http", "https"],
+          "description": "URL scheme surfaced in NOTES.txt for the hostname-based access URL. Presentation-only; does not affect the rendered HTTPRoute. Set to 'https' when the parent Gateway terminates TLS on the listener this HTTPRoute attaches to."
+        }
+      }
+    },
+    "resources": { "type": "object" },
+    "volumes": { "type": "array" },
+    "volumeMounts": { "type": "array" },
+    "livenessProbe": { "type": "object" },
+    "readinessProbe": { "type": "object" },
+    "nodeSelector": { "type": "object" },
+    "tolerations": { "type": "array" },
+    "affinity": { "type": "object" },
+    "serviceMonitor": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "namespace": { "type": "string" },
+        "port": { "type": "string" },
+        "path": { "type": "string" },
+        "interval": { "type": "string" },
+        "scheme": {
+          "type": "string",
+          "enum": ["http", "https"]
+        }
+      }
+    },
+    "networkPolicy": {
+      "type": "object",
+      "description": "Opt-in NetworkPolicy for the whole release. extraEgress, when non-empty, adds an Egress policyType plus a DNS allow rule. extraIngress/extraEgress items must be non-empty objects — an empty {} rule matches all traffic.",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "metricsScraperNamespace": {
+          "type": "string",
+          "description": "Namespace where the Prometheus (or other metrics scraper) pod runs. When set, an ingress rule is added allowing TCP on service.port from this namespace. Distinct from serviceMonitor.namespace (the ServiceMonitor CR namespace)."
+        },
+        "dnsPodSelector": {
+          "type": "object",
+          "description": "Pod label selector matching the cluster's DNS server, used to scope the DNS egress allow rule. Defaults to { k8s-app: kube-dns }; override for CoreDNS deployments carrying a different label."
+        },
+        "extraIngress": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "minProperties": 1,
+            "properties": {
+              "from":  { "type": "array", "minItems": 1 },
+              "ports": { "type": "array", "minItems": 1 }
+            }
+          }
+        },
+        "extraEgress": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "minProperties": 1,
+            "properties": {
+              "to":    { "type": "array", "minItems": 1 },
+              "ports": { "type": "array", "minItems": 1 }
+            }
+          }
+        }
+      }
+    },
+    "tests": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": { "type": "string" },
+            "tag": { "type": "string" }
+          }
+        },
+        "resources": { "type": "object" }
+      }
+    },
+    "nodeObserver": {
+      "type": "object",
+      "description": "Node Observer settings. The component is rendered directly by the main chart.",
+      "properties": {
+        "replicaCount": { "type": "integer", "minimum": 1 },
+        "serviceAccount": { "type": "object" },
+        "rbac": { "type": "object" },
+        "env": { "type": "object" },
+        "initContainers": { "type": "array" },
+        "lifecycle": { "type": "object" },
+        "topograph": { "type": "object" },
+        "podAnnotations": { "type": "object" },
+        "podLabels": { "type": "object" },
+        "podSecurityContext": { "type": "object" },
+        "securityContext": { "type": "object" },
+        "resources": { "type": "object" },
+        "nodeSelector": { "type": "object" },
+        "tolerations": { "type": "array" },
+        "affinity": { "type": "object" }
+      }
+    },
+    "nodeDataBroker": {
+      "type": "object",
+      "description": "Node Data Broker settings. The component is rendered directly by the main chart.",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "startupProbe": { "type": "object" },
+        "serviceAccount": { "type": "object" },
+        "rbac": { "type": "object" },
+        "validatingAdmissionPolicy": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" }
+          }
+        },
+        "env": { "type": "object" },
+        "initContainers": { "type": "array" },
+        "lifecycle": { "type": "object" },
+        "podAnnotations": { "type": "object" },
+        "podLabels": { "type": "object" },
+        "podSecurityContext": { "type": "object" },
+        "securityContext": { "type": "object" },
+        "resources": { "type": "object" },
+        "configMapMounts": { "type": "array" },
+        "volumes": { "type": "array" },
+        "volumeMounts": { "type": "array" },
+        "nodeSelector": { "type": "object" },
+        "tolerations": { "type": "array" },
+        "affinity": { "type": "object" }
+      }
+    }
+  },
+  "required": ["provider", "engine"]
+}

@@ -1,0 +1,99 @@
+1. Get the application URL by running these commands:
+{{- if .Values.gatewayAPI.enabled }}
+{{- if .Values.gatewayAPI.hostnames }}
+{{- $scheme := .Values.gatewayAPI.scheme | default "http" }}
+{{- range $host := .Values.gatewayAPI.hostnames }}
+  {{ $scheme }}://{{ $host }}/
+{{- end }}
+  NOTE: The above URL(s) resolve to the Gateway referenced by parentRefs.
+        The Gateway is platform-owned; confirm the operator has provisioned
+        it and (if needed) published its listener address in DNS.
+{{- else }}
+  NOTE: Gateway API HTTPRoute is rendered but no hostnames are set.
+        The route will accept any hostname routed to the parent Gateway's
+        listener. Resolve the Gateway address with:
+          kubectl get gateway -A
+{{- end }}
+{{- else if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "topograph.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch its status by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "topograph.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "topograph.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{- else if contains "ClusterIP" .Values.service.type }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "topograph.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}
+{{- if not .Values.nodeDataBroker.enabled }}
+
+  NOTE: node-data-broker is disabled; the node-observer broker readiness gate is also disabled.
+        Node identity must be supplied by existing metadata. Configure both
+        sources through config.nodeMetadata; otherwise the default Topograph
+        instance and region annotations are required.
+{{- else }}
+
+  NOTE: node-data-broker applies node annotations once when each broker pod starts.
+{{- end }}
+{{- if eq .Values.provider.name "firebird" }}
+
+  NOTE: Firebird requires provider.params.apiUrl to use HTTPS and runtime
+        clientId/clientSecret credentials. See docs/providers/firebird.md.
+{{- end }}
+{{- if eq .Values.provider.name "infiniband-k8s" }}
+
+  NOTE: InfiniBand fabric discovery uses ibnetdiscover; accelerator-domain
+        discovery source is {{ include "nodeDataBroker.acceleratorSource" . }}.
+{{- end }}
+{{- if eq .Values.engine.name "nfd" }}
+
+  NOTE: The NFD engine writes NodeFeature and NodeFeatureGroup resources in
+        {{ .Values.nfdNamespace }}. This must be the namespace where NFD master runs.
+{{- end }}
+{{- $kubeClient := default dict .Values.kubeClient }}
+{{- if or (hasKey $kubeClient "qps") (hasKey $kubeClient "burst") }}
+
+  NOTE: Kubernetes client limits are qps={{ default 5 (get $kubeClient "qps") }}
+        and burst={{ default 10 (get $kubeClient "burst") }}.
+        Configure these limits only through kubeClient.
+{{- end }}
+
+{{- if .Values.networkPolicy.enabled }}
+
+2. NetworkPolicy is enabled. Ingress is restricted to intra-release traffic{{ if .Values.networkPolicy.metricsScraperNamespace }} and the metrics scraper namespace ({{ .Values.networkPolicy.metricsScraperNamespace }}){{ end }}.
+{{- if or .Values.ingress.enabled .Values.gatewayAPI.enabled }}
+   WARNING: ingress/gatewayAPI is also enabled. The ingress or gateway controller
+   pod (in its own namespace) is blocked by the NetworkPolicy. Add an extraIngress
+   rule for the controller namespace, e.g.:
+     networkPolicy:
+       extraIngress:
+         - from:
+             - namespaceSelector:
+                 matchLabels:
+                   kubernetes.io/metadata.name: <controller-namespace>
+           ports:
+             - protocol: TCP
+               port: {{ .Values.service.port }}
+{{- end }}
+   If egress is constrained via extraEgress, ensure the Kubernetes API server
+   and provider topology source are included. See docs/engines/k8s.md.
+{{- end }}
+{{- if not .Values.serviceAccount.create }}
+
+2. Topograph is configured to use the existing ServiceAccount "{{ include "topograph.serviceAccountName" . }}".
+{{- if .Values.rbac.create }}
+   RBAC resources were rendered and bound to that ServiceAccount.
+{{- else }}
+   RBAC rendering is disabled; make sure the ServiceAccount already has the required permissions.
+{{- end }}
+{{- end }}

@@ -1,0 +1,131 @@
+{{- if .Values.rbac.create -}}
+{{- $engine := .Values.engine.name -}}
+{{- $provider := .Values.provider.name -}}
+{{- /*
+pods/exec is needed by providers that exec inside pods, and by Slinky only for
+legacy partition discovery through `scontrol show partition` in the controller
+pod (falling back to a login pod when present).
+Slinky skips that path when dynamic nodes are enabled or when a topology entry
+already supplies nodes, a pod selector, or the default flat topology.
+*/ -}}
+{{- $needsPodExec := false -}}
+{{- if eq $provider "infiniband-k8s" -}}
+{{- $needsPodExec = true -}}
+{{- end -}}
+{{- if eq $engine "slinky" -}}
+{{- $params := default dict .Values.engine.params -}}
+{{- if not (get $params "useDynamicNodes") -}}
+{{- range $topology := (default dict (get $params "topologies")) -}}
+{{- $spec := default dict $topology -}}
+{{- $hasNodes := hasKey $spec "nodes" -}}
+{{- $podSelector := get $spec "podSelector" -}}
+{{- $hasPodSelector := and $podSelector (or (get $podSelector "matchLabels") (get $podSelector "matchExpressions")) -}}
+{{- $isDefaultFlat := and (get $spec "clusterDefault") (eq (get $spec "plugin") "topology/flat") (not (get $spec "partition")) -}}
+{{- if and (not $hasNodes) (not $hasPodSelector) (not $isDefaultFlat) -}}
+{{- $needsPodExec = true -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- /*
+Gate the main ClusterRole rules by engine/provider. The API server only needs
+Kubernetes API access when the selected engine or provider actually calls the
+API.
+*/ -}}
+{{- $needsNodes := false -}}
+{{- if or (eq $engine "k8s") (eq $engine "slinky") (eq $engine "nfd") (eq $provider "dra") (eq $provider "infiniband-k8s") (eq $provider "crusoe") -}}
+{{- $needsNodes = true -}}
+{{- end -}}
+{{- $needsPods := false -}}
+{{- if or (eq $engine "slinky") (eq $provider "infiniband-k8s") -}}
+{{- $needsPods = true -}}
+{{- end -}}
+{{- $needsDaemonSets := false -}}
+{{- if eq $provider "infiniband-k8s" -}}
+{{- $needsDaemonSets = true -}}
+{{- end -}}
+{{- $needsConfigMaps := false -}}
+{{- if eq $engine "slinky" -}}
+{{- $needsConfigMaps = true -}}
+{{- end -}}
+{{- if or $needsNodes $needsPods $needsDaemonSets $needsConfigMaps $needsPodExec }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "topograph.rbacName" . }}
+rules:
+{{- if $needsPods }}
+- apiGroups: [""]
+  resources: [pods]
+  verbs: [list]
+{{- end }}
+{{- if $needsPodExec }}
+- apiGroups: [""]
+  resources: [pods/exec]
+  verbs: [create]
+{{- end }}
+{{- if $needsNodes }}
+{{- $nodeVerbs := list "list" -}}
+{{- if eq $engine "k8s" -}}
+{{- $nodeVerbs = list "get" "list" "patch" -}}
+{{- end -}}
+{{- if and (eq $engine "slinky") (get (default dict .Values.engine.params) "useDynamicNodes") -}}
+{{- $nodeVerbs = list "list" "patch" -}}
+{{- end }}
+- apiGroups: [""]
+  resources: [nodes]
+  verbs: {{ $nodeVerbs | toJson }}
+{{- end }}
+{{- if $needsDaemonSets }}
+- apiGroups: [apps]
+  resources: [daemonsets]
+  verbs: [get]
+{{- end }}
+{{- if $needsConfigMaps }}
+- apiGroups: [""]
+  resources: [configmaps]
+  verbs: [create,get,update]
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "topograph.rbacName" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "topograph.serviceAccountName" . }}
+  namespace: {{.Release.Namespace}}
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: {{ include "topograph.rbacName" . }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- if eq $engine "nfd" }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "topograph.rbacName" . }}
+  namespace: {{ .Values.nfdNamespace | quote }}
+rules:
+- apiGroups: [nfd.k8s-sigs.io]
+  resources: [nodefeatures,nodefeaturegroups]
+  verbs: [create,list,patch,delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "topograph.rbacName" . }}
+  namespace: {{ .Values.nfdNamespace | quote }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "topograph.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+  apiGroup: ""
+roleRef:
+  kind: Role
+  name: {{ include "topograph.rbacName" . }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}

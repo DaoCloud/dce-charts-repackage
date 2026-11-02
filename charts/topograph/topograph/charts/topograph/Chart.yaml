@@ -1,0 +1,40 @@
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://github.com/dsx-ai-factory/topograph/blob/main/docs/overview.md
+    - name: Chart Source
+      url: https://github.com/dsx-ai-factory/topograph/tree/main/charts/topograph
+  org.opencontainers.image.description: Discovers the physical network topology of
+    a cluster and exposes it to schedulers.
+  org.opencontainers.image.documentation: https://github.com/dsx-ai-factory/topograph/blob/main/docs/overview.md
+  org.opencontainers.image.licenses: Apache-2.0
+  org.opencontainers.image.source: https://github.com/dsx-ai-factory/topograph
+  org.opencontainers.image.title: Topograph
+  org.opencontainers.image.vendor: NVIDIA
+apiVersion: v2
+appVersion: v1.1.0
+description: Discovers the physical network topology of a cluster and exposes it to
+  schedulers.
+home: https://github.com/dsx-ai-factory/topograph
+icon: https://raw.githubusercontent.com/dsx-ai-factory/topograph/main/docs/assets/topograph-logo.png
+keywords:
+- topograph
+- topology
+- topology-aware
+- kubernetes
+- slurm
+- slinky
+- infiniband
+- nvlink
+- gpu
+- scheduling
+kubeVersion: '>=1.27.0-0'
+maintainers:
+- name: NVIDIA CORPORATION
+  url: https://topograph.run
+name: topograph
+sources:
+- https://github.com/dsx-ai-factory/topograph
+type: application
+version: 1.1.0
