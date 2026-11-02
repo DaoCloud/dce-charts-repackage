@@ -3,17 +3,19 @@
 CURRENT_DIR_PATH=$(cd "$(dirname "$0")" ; pwd )
 
 HELM_TEST_VALUES="\
-  --set iaas-network-provider.replicaCount=0 \
-  --set iaas-network-provider.config.iaasProvider.endpoint=https://iaas.example.com \
-  --set iaas-network-provider.config.iaasProvider.region=test-region \
-  --set iaas-network-provider.config.iaasProvider.projectID=test-project \
-  --set iaas-network-provider.config.iaasProvider.ecsEndpoint=https://ecs.example.com \
-  --set iaas-network-provider.config.iaasProvider.vpcEndpoint=https://vpc.example.com \
-  --set iaas-network-provider.config.iaasProvider.auth.mode=token \
-  --set iaas-network-provider.config.iaasProvider.auth.token.username=test-user \
-  --set iaas-network-provider.config.iaasProvider.auth.token.password=test-pass \
-  --set iaas-network-provider.config.iaasProvider.auth.token.iamDomain=test-domain \
-  --set iaas-network-provider.config.iaasProvider.auth.token.agencyName=test-agency"
+  --set iaas-network-provider.controller.replicaCount=0 \
+  --set iaas-network-provider.cloud.accessConfig.endpoint=https://iaas.example.com \
+  --set iaas-network-provider.cloud.accessConfig.region=test-region \
+  --set iaas-network-provider.cloud.accessConfig.projectID=test-project \
+  --set iaas-network-provider.cloud.accessConfig.projectName=test-project \
+  --set iaas-network-provider.cloud.accessConfig.ecsEndpoint=https://ecs.example.com \
+  --set iaas-network-provider.cloud.accessConfig.vpcEndpoint=https://vpc.example.com \
+  --set iaas-network-provider.cloud.accessConfig.iamEndpoint=https://iam.example.com \
+  --set iaas-network-provider.cloud.auth.mode=token \
+  --set iaas-network-provider.cloud.auth.secret=huawei-credentials \
+  --set iaas-network-provider.cloud.auth.token.username=test-user \
+  --set iaas-network-provider.cloud.auth.token.iamDomain=test-domain \
+  --set iaas-network-provider.cloud.auth.token.agencyName=test-agency"
 
 if [ "${BASH_SOURCE[0]}" != "$0" ] ; then
   return 0

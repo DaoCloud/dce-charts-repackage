@@ -1,6 +1,6 @@
 # iaas-network-provider
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.0](https://img.shields.io/badge/AppVersion-0.2.0-informational?style=flat-square)
 
 IaaS Network Provider — IPAM bridge between Spiderpool and Huawei Cloud
 
@@ -8,71 +8,22 @@ IaaS Network Provider — IPAM bridge between Spiderpool and Huawei Cloud
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| affinity | object | `{}` |  |
-| config.bindAddress | string | `":8443"` |  |
-| config.cache.iaasNetCacheTTLMinutes | int | `240` |  |
-| config.cache.preloadOnStartup | bool | `true` |  |
-| config.iaasProvider.auth.aksk.credentialsSecret | string | `"huawei-credentials"` |  |
-| config.iaasProvider.auth.mode | string | `"token"` |  |
-| config.iaasProvider.auth.token.agencyName | string | `""` |  |
-| config.iaasProvider.auth.token.iamDomain | string | `""` |  |
-| config.iaasProvider.auth.token.iamEndpoint | string | `""` |  |
-| config.iaasProvider.auth.token.password | string | `""` |  |
-| config.iaasProvider.auth.token.scEndpoint | string | `""` |  |
-| config.iaasProvider.auth.token.tokenRefreshBeforeExpiry | string | `"1h"` |  |
-| config.iaasProvider.auth.token.tokenRefreshFailThreshold | int | `3` |  |
-| config.iaasProvider.auth.token.tokenRefreshInterval | string | `"23h"` |  |
-| config.iaasProvider.auth.token.tokenRefreshRetryInterval | string | `"30s"` |  |
-| config.iaasProvider.auth.token.trustTenantName | string | `""` |  |
-| config.iaasProvider.auth.token.username | string | `""` |  |
-| config.iaasProvider.ecsEndpoint | string | `""` |  |
-| config.iaasProvider.endpoint | string | `""` |  |
-| config.iaasProvider.httpRequestTimeout | string | `"30s"` |  |
-| config.iaasProvider.projectID | string | `""` |  |
-| config.iaasProvider.projectName | string | `""` |  |
-| config.iaasProvider.provider | string | `"huaweicloud"` |  |
-| config.iaasProvider.region | string | `""` |  |
-| config.iaasProvider.securityGroups | list | `[]` |  |
-| config.iaasProvider.vpcEndpoint | string | `""` |  |
-| config.k8sClientConfig.burst | int | `400` |  |
-| config.k8sClientConfig.qps | int | `200` |  |
-| config.leaderElection.enabled | bool | `true` |  |
-| config.leaderElection.leaseDurationSeconds | int | `60` |  |
-| config.leaderElection.leaseName | string | `"iaas-network-provider-leader"` |  |
-| config.leaderElection.leaseNamespace | string | `"{{ .Release.Namespace }}"` |  |
-| config.leaderElection.renewDeadlineSeconds | int | `40` |  |
-| config.leaderElection.retryPeriodSeconds | int | `15` |  |
-| config.logLevel | string | `"info"` |  |
-| config.pprof.bindAddress | string | `":6060"` |  |
-| config.pprof.enabled | bool | `false` |  |
-| config.rateLimit.maxTransactionTimeoutSeconds | int | `16` |  |
-| config.rateLimit.qps | int | `2` |  |
-| config.rateLimit.queueTimeoutSeconds | int | `30` |  |
-| config.tls.certFile | string | `"/etc/iaas-network-provider/tls/tls.crt"` |  |
-| config.tls.keyFile | string | `"/etc/iaas-network-provider/tls/tls.key"` |  |
-| hostAliases | list | `[]` |  |
-| image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.registry | string | `"ghcr.io"` |  |
-| image.repository | string | `"daocloud/iaas-network-provider/controller"` |  |
-| image.tag | string | `""` |  |
-| nodeSelector | object | `{}` |  |
-| replicaCount | int | `1` |  |
-| resources.limits.cpu | string | `"500m"` |  |
-| resources.limits.memory | string | `"256Mi"` |  |
-| resources.requests.cpu | string | `"100m"` |  |
-| resources.requests.memory | string | `"128Mi"` |  |
-| service.nodePort.http | string | `""` |  |
-| service.nodePort.https | string | `""` |  |
-| service.port | int | `8080` |  |
-| service.tlsPort | int | `443` |  |
-| service.type | string | `"ClusterIP"` |  |
-| serviceAccount.create | bool | `true` |  |
-| serviceAccount.name | string | `"iaas-network-provider"` |  |
+| cloud | object | `{"accessConfig":{"ecsEndpoint":"","endpoint":"","iamEndpoint":"","projectID":"","projectName":"","region":"","scEndpoint":"","securityGroups":[],"vpcEndpoint":""},"allowInsecureHTTP":false,"auth":{"mode":"ak-sk","secret":"huawei-credentials","token":{"agencyName":"","iamDomain":"","tokenRefreshBeforeExpiry":"1h","tokenRefreshFailThreshold":3,"tokenRefreshInterval":"23h","tokenRefreshRetryInterval":"30s","trustTenantName":"","username":""}},"httpRequestTimeout":"30s","maxSubEniPerMachine":0,"maxSubEniPerNode":256,"provider":"huaweicloud"}` | --------------------------------------------------------------------------- |
+| controller | object | `{"affinity":{},"bindAddress":":8443","cache":{"iaasNetCacheTTLMinutes":240,"preloadOnStartup":true},"hostAliases":[],"image":{"pullPolicy":"IfNotPresent","registry":"ghcr.io","repository":"daocloud/iaas-network-provider/controller","tag":""},"ippoolManager":{"ipIdleTTLSeconds":120,"ipRecycleStrategy":"ttl","ipWorkersPerPool":10,"nodePoolLabelSelector":"ipam.spidernet.io/iaas-provider=huaweicloud"},"k8sClientConfig":{"burst":400,"qps":200},"leaderElection":{"enabled":true,"leaseDurationSeconds":60,"leaseName":"iaas-network-provider-leader","leaseNamespace":"{{ .Release.Namespace }}","renewDeadlineSeconds":40,"retryPeriodSeconds":15},"logLevel":"info","nodeSelector":{},"pprof":{"bindAddress":":6060","enabled":false},"rateLimit":{"burst":16,"maxTransactionTimeoutSeconds":16,"qps":6,"queueTimeoutSeconds":30},"replicaCount":1,"resources":{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"100m","memory":"128Mi"}},"serviceAccount":{"create":true,"name":"iaas-network-provider"},"tolerations":[]}` | --------------------------------------------------------------------------- |
+| grafanaDashboard.allowCrossNamespaceImport | bool | `true` |  |
+| grafanaDashboard.annotations | object | `{}` |  |
+| grafanaDashboard.folder | string | `""` |  |
+| grafanaDashboard.install | bool | `false` |  |
+| grafanaDashboard.instanceSelector.matchLabels | string | `nil` |  |
+| grafanaDashboard.labels | object | `{}` |  |
+| grafanaDashboard.namespace | string | `""` |  |
+| metrics | object | `{"prometheusAnnotations":true,"serviceMonitor":{"enabled":false,"interval":"30s","labels":{},"scrapeTimeout":"10s"}}` | --------------------------------------------------------------------------- Prometheus 指标采集。/metrics 与业务 API 同端口暴露(无需认证)。 |
+| service | object | `{"nodePort":{"https":""},"port":8443,"type":"ClusterIP"}` | --------------------------------------------------------------------------- |
 | tls.autoGenerate | bool | `true` |  |
+| tls.certFile | string | `"/etc/iaas-network-provider/tls/tls.crt"` |  |
 | tls.certValidityDays | int | `36500` |  |
-| tls.enabled | bool | `true` |  |
 | tls.existingSecret | string | `""` |  |
-| tolerations | list | `[]` |  |
+| tls.keyFile | string | `"/etc/iaas-network-provider/tls/tls.key"` |  |
 
 ----------------------------------------------
 Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)
