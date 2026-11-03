@@ -4,11 +4,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: {{ template "sonarqube.fullname" . }}-network-policy
-  labels:
-    app: {{ template "sonarqube.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "sonarqube.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
@@ -24,7 +20,7 @@ spec:
               release: {{ .Release.Name }}
       ports:
         - port: {{ .Values.service.internalPort }}
-{{ if .Values.prometheusExporter.enabled }}
+    {{ if .Values.prometheusExporter.enabled }}
     - from:
         - namespaceSelector:
             matchLabels:
@@ -34,81 +30,49 @@ spec:
           protocol: TCP
         - port: {{ .Values.prometheusExporter.webBeanPort }}
           protocol: TCP
-{{ end }}
-  egress:
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              networking/namespace: kube-system
-          podSelector:
-            matchLabels:
-              k8s-app: kube-dns
-      ports:
-        - port: 53
-          protocol: UDP
-{{- if .Values.postgresql.enabled }}
-    - to:
+    {{ end }}
+    {{- if .Values.agentOrchestrator.enabled }}
+    - from:
         - podSelector:
-            matchLabels:
-              app.kubernetes.io/name: postgresql
+            matchLabels: {{- include "sonarqube.agentOrchestrator.selectorLabels" . | nindent 14 }}
       ports:
-        - port: 5432
+        - port: {{ .Values.service.internalPort }}
           protocol: TCP
-{{- end }}
-    - to:
-        - ipBlock:
-            cidr: 0.0.0.0/0
-{{- end -}}
-
-{{ if and .Values.postgresql.enabled .Values.networkPolicy.enabled }}
----
-kind: NetworkPolicy
-apiVersion: networking.k8s.io/v1
-metadata:
-  name: {{ template "sonarqube.fullname" . }}-database
-  labels:
-    app: {{ template "sonarqube.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-spec:
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/name: postgresql
-  policyTypes:
-    - Ingress
-    - Egress
-  ingress:
+    {{- end }}
+    {{- if eq (include "sonarqube.vortex.enabled" .) "true" }}
     - from:
         - podSelector:
             matchLabels:
-              app: {{ template "sonarqube.name" . }}
+              app: {{ include "sonarqube.name" . }}-vortex
+              release: {{ .Release.Name }}
       ports:
-        - port: 5432
+        - port: {{ .Values.service.internalPort }}
+          protocol: TCP
+    {{- end }}
   egress:
+{{ include "sonarqube.dnsEgressRule" . | indent 4 }}
     - to:
-        - namespaceSelector: {}
-          podSelector:
-            matchLabels:
-              k8s-app: kube-dns
-      ports:
-        - port: 53
-          protocol: UDP
-{{- end }}
+        - ipBlock:
+            cidr: 0.0.0.0/0
+        - ipBlock:
+            cidr: "::/0"
+{{- end -}}
 
-{{- if and .Values.networkPolicy.enabled .Values.networkPolicy.additionalNetworkPolicys }}
+{{- if and .Values.networkPolicy.enabled (or .Values.networkPolicy.additionalNetworkPolicies .Values.networkPolicy.additionalNetworkPolicys) }}
 ---
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
   name: {{ template "sonarqube.fullname" . }}-additional-network-policy
-  labels:
-    app: {{ template "sonarqube.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+  labels: {{- include "sonarqube.labels" . | nindent 4 }}
 spec:
+{{- if.Values.networkPolicy.additionalNetworkPolicys -}}
 {{- with .Values.networkPolicy.additionalNetworkPolicys -}}
 {{ toYaml . | nindent 2 }}
-{{- end }}
+{{- end -}}
+{{- else -}}
+{{- with .Values.networkPolicy.additionalNetworkPolicies -}}
+{{ toYaml . | nindent 2 }}
+{{- end -}}
+{{- end -}}
 {{- end -}}
