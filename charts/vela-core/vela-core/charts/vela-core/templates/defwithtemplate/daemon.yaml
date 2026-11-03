@@ -14,7 +14,6 @@ spec:
         import (
         	"strconv"
         )
-
         mountsArray: [
         	if parameter.volumeMounts != _|_ && parameter.volumeMounts.pvc != _|_ for v in parameter.volumeMounts.pvc {
         		{

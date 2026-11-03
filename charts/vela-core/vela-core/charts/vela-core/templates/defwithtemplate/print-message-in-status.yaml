@@ -15,7 +15,6 @@ spec:
         import (
         	"vela/builtin"
         )
-
         parameter: message: string
 
         msg: builtin.#Message & {
