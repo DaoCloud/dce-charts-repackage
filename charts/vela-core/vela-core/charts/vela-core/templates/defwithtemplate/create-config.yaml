@@ -15,7 +15,6 @@ spec:
         import (
         	"vela/config"
         )
-
         deploy: config.#CreateConfig & {
         	$params: parameter
         }
