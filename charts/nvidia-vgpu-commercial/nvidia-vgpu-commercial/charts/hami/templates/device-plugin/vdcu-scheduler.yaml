@@ -1,0 +1,207 @@
+{{- if .Values.devices.vdcu.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vdcu-scheduler-plugin-sa
+  namespace: {{ .Release.Namespace | quote }}
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: vdcu-scheduler-plugin-rolebinding
+  namespace: {{ .Release.Namespace | quote }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: vdcu-scheduler-plugin
+subjects:
+  - kind: ServiceAccount
+    name: vdcu-scheduler-plugin-sa
+    namespace: {{ .Release.Namespace | quote }}
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: vdcu-scheduler-plugin
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - endpoints
+      - events
+    verbs:
+      - create
+      - get
+      - update
+  - apiGroups:
+      - ""
+    resourceNames:
+      - vdcu-scheduler-plugin
+    resources:
+      - endpoints
+    verbs:
+      - delete
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - delete
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - bindings
+      - pods/binding
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - pods/status
+    verbs:
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - replicationcontrollers
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+      - extensions
+    resources:
+      - replicasets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - statefulsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - policy
+    resources:
+      - poddisruptionbudgets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+      - persistentvolumes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "storage.k8s.io"
+    resources:
+      - storageclasses
+      - csinodes
+      - csistoragecapacities
+      - csidrivers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - leases
+    verbs:
+      - create
+      - get
+      - list
+      - update
+  - apiGroups:
+      - "events.k8s.io"
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vdcu-scheduler-plugin
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: vdcu-scheduler-plugin
+  template:
+    metadata:
+      labels:
+        component: vdcu-scheduler-plugin
+    spec:
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+          operator: Equal
+      serviceAccount: vdcu-scheduler-plugin-sa
+      containers:
+        - name: vdcu-scheduler-plugin
+          image: {{ .Values.devices.vdcu.scheduler.image | quote }}
+          imagePullPolicy: IfNotPresent
+          command: [ "/bin/sh", "-c" ]
+          args: [ "./usr/local/bin/vdcu-scheduler-starter  " ]
+          env:
+            - name: LOG_LEVEL
+              value: "2"
+            - name: NODE_SCHEDULER_POLICY
+              value: binpack
+            - name: GPU_SCHEDULER_POLICY
+              value: spread
+            - name: SLEEP_TIME # bind时间延迟,单位：秒
+              value: "0"
+{{- end }}

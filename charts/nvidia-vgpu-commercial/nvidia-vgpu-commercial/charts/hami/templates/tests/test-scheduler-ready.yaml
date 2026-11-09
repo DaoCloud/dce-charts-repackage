@@ -1,0 +1,46 @@
+{{- if not .Values.dra.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "hami-enterprise.fullname" . }}-scheduler-ready-test
+  namespace: {{ include "hami-enterprise.namespace" . }}
+  labels:
+    app.kubernetes.io/component: hami-test
+    {{- include "hami-enterprise.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 60
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: hami-test
+        {{- include "hami-enterprise.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      {{- include "hami.scheduler.extender.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: scheduler-ready
+          image: {{ include "hami.scheduler.extender.image" . }}
+          imagePullPolicy: {{ .Values.scheduler.extender.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              {{- if .Values.scheduler.admissionWebhook.enabled }}
+              scheme=https
+              {{- else }}
+              scheme=http
+              {{- end }}
+              url="${scheme}://{{ include "hami-enterprise.scheduler" . }}:{{ .Values.scheduler.service.httpPort | default 443 }}/readyz"
+              for i in 1 2 3 4 5; do
+                if curl -k --fail --connect-timeout 5 "${url}"; then
+                  exit 0
+                fi
+                sleep 5
+              done
+              exit 1
+{{- end }}

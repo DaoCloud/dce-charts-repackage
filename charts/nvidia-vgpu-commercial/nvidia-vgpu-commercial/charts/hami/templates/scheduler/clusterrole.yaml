@@ -1,0 +1,43 @@
+{{- if not .Values.dra.enabled -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "hami-enterprise.scheduler" . }}
+  labels:
+    app.kubernetes.io/component: "hami-scheduler"
+    {{- include "hami-enterprise.schedulerLabels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "configmaps"]
+    verbs: ["get", "list", "watch", "patch"]
+  - apiGroups: [""]
+    resources: ["pods/binding"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "patch", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "get", "list"]
+  - apiGroups: [""]
+    resources: ["resourcequotas"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get","list","watch"]
+  - apiGroups: ["resource.k8s.io"]
+    resources: ["deviceclasses", "resourceclaims", "resourceclaimtemplates", "resourceslices"]
+    verbs: ["get", "list", "watch"]
+
+---
+{{- if .Values.mockDevicePlugin.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "hami-enterprise.mock-device-plugin" . }}
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "update", "list", "patch"]
+{{- end -}}
+{{- end }}

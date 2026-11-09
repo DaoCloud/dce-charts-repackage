@@ -1,0 +1,79 @@
+{{- if and .Values.scheduler.admissionWebhook.enabled (not .Values.dra.enabled) .Values.scheduler.patch.enabled (not .Values.scheduler.certManager.enabled) }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "hami-enterprise.fullname" . }}-admission-patch
+  namespace: {{ include "hami-enterprise.namespace" . }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "hami-enterprise.schedulerLabels" . | nindent 4 }}
+    app.kubernetes.io/component: hami-scheduler
+spec:
+  {{- if .Capabilities.APIVersions.Has "batch/v1alpha1" }}
+  # Alpha feature since k8s 1.12
+  ttlSecondsAfterFinished: 0
+  {{- end }}
+  template:
+    metadata:
+      name: {{ include "hami-enterprise.fullname" . }}-admission-patch
+      {{- if .Values.scheduler.patch.podAnnotations }}
+      annotations: {{ toYaml .Values.scheduler.patch.podAnnotations | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "hami-enterprise.schedulerLabels" . | nindent 8 }}
+        app.kubernetes.io/component: hami-scheduler
+        hami.io/webhook: ignore
+    spec:
+      {{- if .Values.scheduler.patch.priorityClassName }}
+      priorityClassName: {{ .Values.scheduler.patch.priorityClassName }}
+      {{- end }}
+      {{- if ge (regexReplaceAll "[^0-9]" .Capabilities.KubeVersion.Minor "" | int) 22 }}
+        {{- include "hami.scheduler.patch.new.imagePullSecrets" . | nindent 6 }}
+      {{- else }}
+        {{- include "hami.scheduler.patch.imagePullSecrets" . | nindent 6 }}
+      {{- end }}
+      containers:
+        - name: patch
+          {{- if ge (regexReplaceAll "[^0-9]" .Capabilities.KubeVersion.Minor "" | int) 22 }}
+          image: {{ include "hami.scheduler.patch.new.image" . }}
+          imagePullPolicy: {{ .Values.scheduler.patch.imageNew.pullPolicy }}
+          {{- else }}
+          image: {{ include "hami.scheduler.patch.image" . }}
+          imagePullPolicy: {{ .Values.scheduler.patch.image.pullPolicy }}
+          {{- end }}
+          {{- if .Values.platform.openshift }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          {{- end }}
+          args:
+            - patch
+            - --webhook-name={{ include "hami-enterprise.scheduler.webhook" . }}
+            - --namespace={{ include "hami-enterprise.namespace" . }}
+            {{- if and .Values.devices.ascend.enabled (semverCompare ">=1.30.0-0" .Capabilities.KubeVersion.Version) }}
+            - --patch-validating=true
+            {{- else }}
+            - --patch-validating=false
+            {{- end }}
+            - --secret-name={{ include "hami-enterprise.scheduler.tls" . }}
+      restartPolicy: OnFailure
+      serviceAccountName: {{ include "hami-enterprise.fullname" . }}-admission
+      {{- if .Values.scheduler.patch.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.scheduler.patch.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.scheduler.patch.tolerations }}
+      tolerations: {{ toYaml .Values.scheduler.patch.tolerations | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        {{- if .Values.platform.openshift }}
+        seccompProfile:
+          type: RuntimeDefault
+        {{- end }}
+        {{- if and (not .Values.platform.openshift) .Values.scheduler.patch.runAsUser }}
+        runAsUser: {{ .Values.scheduler.patch.runAsUser }}
+        {{- end }}
+{{- end }}

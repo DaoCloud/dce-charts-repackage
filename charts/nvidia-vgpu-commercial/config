@@ -1,0 +1,35 @@
+export USE_OPENSOURCE_CHART=false
+# build by project-self script, pulling the upstream chart from Dynamia OCI registry
+# refer to https://docs.dynamia.ai/zh/docs/software
+export BUILD_SELF=build.sh
+export CHART_OCI_REF=oci://ghcr.io/dynamia-ai/charts/hami-enterprise
+
+# UPGRADE_METHOD is intentionally unset: no upstream repo to auto-upgrade from,
+# and generateChart.sh skips the build entirely when it is "none"
+export UPGRADE_REVIWER=lengrongfu
+export TEST_ASSIGNER=lengrongfu
+
+# 上游 hami-enterprise chart 版本
+# changelog: https://docs.dynamia.ai/zh/changelog/hami-enterprise/2.10.0-r5
+export VERSION=2.10.0-r5
+
+# 版本后缀（可覆盖，如 +1, +2, -rc1 等）
+export VERSION_SUFFIX=+1
+
+# nvidia-vgpu-commercial chart version
+export CUSTOM_VERSION=${VERSION}${VERSION_SUFFIX}
+
+# push to daocloud repo
+export DAOCLOUD_REPO_PROJECT=addon
+
+export NO_TRIVY=true
+
+# vDCU (Hygon) images
+export VDCU_LABEL_NODE_IMAGE="release.daocloud.io/dcu/dcu-label-node:v2.4.1"
+export VDCU_DEVICE_PLUGIN_IMAGE="release.daocloud.io/dcu/dcu-device-plugin:v2.4.1"
+export VDCU_ADMISSION_WEBHOOK_IMAGE="release.daocloud.io/dcu/k8s-vdcu-admission-webhook:v2.4.0"
+export VDCU_SCHEDULER_IMAGE="release.daocloud.io/dcu/k8s-vdcu-scheduler:v2.4.0"
+export VDCU_EXPORTER_IMAGE="release.daocloud.io/dcu/dcu-exporter:v2.3.0"
+export VDCU_EXPORTER_VERSION="v2.3.0"
+export VDCU_EXPORTER_PORT="16080"
+export VDCU_CLEANUP_HOOK_IMAGE="docker.m.daocloud.io/rancher/kubectl:v1.28.0"

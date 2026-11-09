@@ -1,0 +1,123 @@
+{{- if and .Values.scheduler.admissionWebhook.enabled (not .Values.dra.enabled) -}}
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  {{- if .Values.scheduler.certManager.enabled }}
+  annotations:
+    cert-manager.io/inject-ca-from: {{ include "hami-enterprise.namespace" . }}/{{ include "hami-enterprise.scheduler" . }}-serving-cert
+  {{- end }}
+  name: {{ include "hami-enterprise.scheduler.webhook" . }}
+webhooks:
+  - admissionReviewVersions:
+    - v1beta1
+    clientConfig:
+      {{- if .Values.scheduler.admissionWebhook.customURL.enabled }}
+      url: https://{{ .Values.scheduler.admissionWebhook.customURL.host}}:{{.Values.scheduler.admissionWebhook.customURL.port}}{{.Values.scheduler.admissionWebhook.customURL.path}}
+      {{- else }}
+      service:
+        name: {{ include "hami-enterprise.scheduler" . }}
+        namespace: {{ include "hami-enterprise.namespace" . }}
+        path: /webhook
+        port: {{ .Values.scheduler.service.httpPort }}
+      {{- end }}
+    failurePolicy: {{ .Values.scheduler.admissionWebhook.failurePolicy }}
+    matchPolicy: Equivalent
+    name: vgpu.hami.io
+    {{- if or (not (hasKey .Values.scheduler.admissionWebhook "manageNamespaceSelector")) .Values.scheduler.admissionWebhook.manageNamespaceSelector }}
+    namespaceSelector:
+      {{- if .Values.scheduler.admissionWebhook.namespaceSelector.matchLabels }}
+      matchLabels:
+        {{- toYaml .Values.scheduler.admissionWebhook.namespaceSelector.matchLabels | nindent 8 }}
+      {{- end }}
+      matchExpressions:
+      - key: hami.io/webhook
+        operator: NotIn
+        values:
+        - ignore
+      {{- if .Values.scheduler.admissionWebhook.whitelistNamespaces }}
+      - key: kubernetes.io/metadata.name
+        operator: NotIn
+        values:
+        {{- toYaml .Values.scheduler.admissionWebhook.whitelistNamespaces | nindent 10 }}
+      {{- end }}
+      {{- if .Values.scheduler.admissionWebhook.namespaceSelector.matchExpressions }}
+      {{- toYaml .Values.scheduler.admissionWebhook.namespaceSelector.matchExpressions | nindent 6 }}
+      {{- end }}
+    {{- end }}
+    objectSelector:
+      {{- if .Values.scheduler.admissionWebhook.objectSelector.matchLabels }}
+      matchLabels:
+        {{- toYaml .Values.scheduler.admissionWebhook.objectSelector.matchLabels | nindent 8 }}
+      {{- end }}
+      matchExpressions:
+      - key: hami.io/webhook
+        operator: NotIn
+        values:
+        - ignore
+      {{- if .Values.scheduler.admissionWebhook.objectSelector.matchExpressions }}
+      {{- toYaml .Values.scheduler.admissionWebhook.objectSelector.matchExpressions | nindent 6 }}
+      {{- end }}
+    reinvocationPolicy: {{ .Values.scheduler.admissionWebhook.reinvocationPolicy }}
+    rules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+        resources:
+          - pods
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 10
+{{- end }}
+{{- if and .Values.scheduler.admissionWebhook.enabled (not .Values.dra.enabled) .Values.devices.ascend.enabled (semverCompare ">=1.30.0-0" .Capabilities.KubeVersion.Version) }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  {{- if .Values.scheduler.certManager.enabled }}
+  annotations:
+    cert-manager.io/inject-ca-from: {{ include "hami-enterprise.namespace" . }}/{{ include "hami-enterprise.scheduler" . }}-serving-cert
+  {{- end }}
+  # Reuse the mutating webhook name so kube-webhook-certgen patches both CA bundles.
+  name: {{ include "hami-enterprise.scheduler.webhook" . }}
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "hami-enterprise.scheduler" . }}
+        namespace: {{ include "hami-enterprise.namespace" . }}
+        path: /vnpu/validate
+        port: {{ .Values.scheduler.service.httpPort }}
+    failurePolicy: Fail
+    matchPolicy: Equivalent
+    name: vnpu-allocation-guard.hami.io
+    matchConditions:
+      - name: protected-vnpu-annotation-changed
+        expression: >-
+          (request.operation == 'CREATE' &&
+           {{ include "hami-enterprise.vnpuCreateReservedAnnotationCELList" . }}.exists(k,
+             has(object.metadata.annotations) && k in object.metadata.annotations)) ||
+          (request.operation == 'UPDATE' &&
+           {{ include "hami-enterprise.vnpuProtectedAnnotationCELList" . }}.exists(k,
+             ((has(oldObject.metadata.annotations) && k in oldObject.metadata.annotations) !=
+              (has(object.metadata.annotations) && k in object.metadata.annotations)) ||
+             (has(oldObject.metadata.annotations) && k in oldObject.metadata.annotations &&
+              has(object.metadata.annotations) && k in object.metadata.annotations &&
+              oldObject.metadata.annotations[k] != object.metadata.annotations[k])))
+    rules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 10
+{{- end }}

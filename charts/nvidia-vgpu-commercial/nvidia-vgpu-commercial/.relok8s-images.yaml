@@ -1,0 +1,39 @@
+# ==================== 主 chart (hami-enterprise，alias hami) 镜像 ====================
+# kube-scheduler
+- "{{ .hami.scheduler.kubeScheduler.image.registry }}/{{ .hami.scheduler.kubeScheduler.image.repository }}:{{ .hami.scheduler.kubeScheduler.image.tag }}"
+
+# scheduler extender (hami 核心组件)
+- "{{ .hami.scheduler.extender.image.registry }}/{{ .hami.scheduler.extender.image.repository }}:{{ .hami.global.imageTag }}"
+
+# webhook certgen (旧版)
+- "{{ .hami.scheduler.patch.image.registry }}/{{ .hami.scheduler.patch.image.repository }}:{{ .hami.scheduler.patch.image.tag }}"
+
+# webhook certgen (新版)
+- "{{ .hami.scheduler.patch.imageNew.registry }}/{{ .hami.scheduler.patch.imageNew.repository }}:{{ .hami.scheduler.patch.imageNew.tag }}"
+
+# device plugin (hami 核心组件)
+- "{{ .hami.devicePlugin.image.registry }}/{{ .hami.devicePlugin.image.repository }}:{{ .hami.global.imageTag }}"
+
+# device plugin monitor (hami 核心组件)
+- "{{ .hami.devicePlugin.monitor.image.registry }}/{{ .hami.devicePlugin.monitor.image.repository }}:{{ .hami.global.imageTag }}"
+
+# mock device plugin (用于测试环境，当 mockDevicePlugin.enabled=true 时)
+- "{{ .hami.mockDevicePlugin.image.registry }}/{{ .hami.mockDevicePlugin.image.repository }}:{{ .hami.mockDevicePlugin.image.tag }}"
+
+# vdcu label-node
+- "{{ .hami.devices.vdcu.labelNode.image }}"
+
+# vdcu device plugin (hami)
+- "{{ .hami.devices.vdcu.devicePlugin.image }}"
+
+# vdcu admission webhook
+- "{{ .hami.devices.vdcu.admissionWebhook.image }}"
+
+# vdcu scheduler
+- "{{ .hami.devices.vdcu.scheduler.image }}"
+
+# dcu-exporter
+- "{{ .hami.devices.vdcu.exporter.image }}"
+
+# vdcu cleanup hook (helm pre-delete/pre-upgrade Job 用的 kubectl 镜像)
+- "{{ .hami.devices.vdcu.cleanupHook.image }}"

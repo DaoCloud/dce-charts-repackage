@@ -1,0 +1,912 @@
+## @section Global configuration
+# global.imageRegistry -- Global Docker image registry
+
+# global.imagePullSecrets -- Global Docker image pull secrets
+
+# global.imageTag -- Global image tag for HAMi Enterprise components
+
+# global.gpuHookPath -- Path for GPU hook installation on nodes
+
+# global.labels -- Global labels to add to all resources
+
+# global.annotations -- Global annotations to add to all resources
+
+# global.managedNodeSelectorEnable -- Enable managed node selector for GPU nodes
+
+# global.managedNodeSelector -- Node selector configuration for managed GPU nodes
+global:
+  imageRegistry: ""
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  imagePullSecrets: []
+  imageTag: "v2.10.0-r5"
+  gpuHookPath: /usr/local
+  labels: {}
+  annotations: {}
+  managedNodeSelectorEnable: false
+  managedNodeSelector:
+    usage: "gpu"
+# nameOverride -- Override the chart name
+
+# fullnameOverride -- Override the fullname of the chart
+
+# namespaceOverride -- Override the namespace
+nameOverride: ""
+fullnameOverride: ""
+namespaceOverride: ""
+# -- Keep historical hami/hami scheduler and NVIDIA device-plugin selector labels. Enable when upgrading an existing Enterprise release and keep enabled on subsequent upgrades.
+legacySelectorLabels: false
+## @section Platform
+# platform.openshift -- Enable OpenShift-specific resources and handling
+
+# platform.openshiftVersion -- OpenShift version used to resolve the Red Hat OpenShift hyperkube image tag when `platform.openshift=true` and `scheduler.kubeScheduler.image.tag` is empty
+platform:
+  openshift: false
+  openshiftVersion: ""
+## @section OpenShift
+# openshift.securityContextConstraints.create -- Create the named device-plugin SCC and its use ClusterRole when OpenShift support is enabled. Set this to false only when both the SCC and `system:openshift:scc:<name>` ClusterRole already exist, such as for the built-in `privileged` SCC.
+
+# openshift.securityContextConstraints.name -- SCC granted to enabled device-plugin service accounts. When `create=false`, the matching `system:openshift:scc:<name>` ClusterRole must already exist. The built-in `privileged` SCC requires `create=false`.
+openshift:
+  securityContextConstraints:
+    create: true
+    name: "hami-device-plugin"
+## @section SELinux
+# selinux.enabled -- Relabel shared vGPU host directories on SELinux-enabled Kubernetes nodes
+
+# selinux.type -- SELinux type applied to shared vGPU host directories
+
+# selinux.level -- SELinux level applied to shared vGPU host directories
+selinux:
+  enabled: false
+  type: container_file_t
+  level: s0
+## @section NVIDIA GPU Resource Names
+# resourceName -- NVIDIA GPU resource name
+
+# resourceMem -- NVIDIA GPU memory resource name
+
+# resourceMemPercentage -- NVIDIA GPU memory percentage resource name
+
+# resourceCores -- NVIDIA GPU cores resource name
+
+# resourcePriority -- NVIDIA GPU priority resource name
+resourceName: "nvidia.com/vgpu"
+resourceMem: "nvidia.com/gpumem"
+resourceMemPercentage: "nvidia.com/gpumem-percentage"
+resourceCores: "nvidia.com/gpucores"
+resourcePriority: "nvidia.com/priority"
+## @section MLU (Cambricon) Resource Names
+# mluResourceName -- MLU resource name
+
+# mluResourceMem -- MLU memory resource name
+
+# mluResourceCores -- MLU cores resource name
+mluResourceName: "cambricon.com/vmlu"
+mluResourceMem: "cambricon.com/mlu.smlu.vmemory"
+mluResourceCores: "cambricon.com/mlu.smlu.vcore"
+## @section Hygon HCU Resource Names
+# hcuResourceName -- Hygon HCU resource name
+
+# hcuResourceMem -- Hygon HCU memory resource name
+
+# hcuResourceCores -- Hygon HCU cores resource name
+hcuResourceName: "hygon.com/hcunum"
+hcuResourceMem: "hygon.com/hcumem"
+hcuResourceCores: "hygon.com/hcucores"
+## @section Metax sGPU Resource Names
+# metaxResourceName -- Metax sGPU resource name
+
+# metaxResourceCore -- Metax sGPU core resource name
+
+# metaxResourceMem -- Metax sGPU memory resource name
+
+# metaxsGPUTopologyAware -- Enable Metax sGPU topology awareness
+metaxResourceName: "metax-tech.com/sgpu"
+metaxResourceCore: "metax-tech.com/vcore"
+metaxResourceMem: "metax-tech.com/vmemory"
+metaxsGPUTopologyAware: "false"
+## @section Enflame VGCU Resource Names
+# enflameResourceNameVGCU -- Enflame VGCU resource name
+
+# enflameResourceNameVGCUPercentage -- Enflame VGCU percentage resource name
+enflameResourceNameVGCU: "enflame.com/vgcu"
+enflameResourceNameVGCUPercentage: "enflame.com/vgcu-percentage"
+## @section Enflame DRS Resource Names
+# enflameResourceNameDRSGCU -- Enflame DRS GCU resource name
+
+# enflameResourceNameGCUMemory -- Enflame GCU memory resource name
+
+# enflameResourceNameGCUCore -- Enflame GCU core resource name
+enflameResourceNameDRSGCU: "enflame.com/drs-gcu"
+enflameResourceNameGCUMemory: "enflame.com/gcu-memory"
+enflameResourceNameGCUCore: "enflame.com/gcu-core"
+## @section Kunlun XPU Resource Names
+# kunlunResourceName -- Kunlun XPU resource name
+
+# kunlunResourceVCountName -- Kunlun virtual XPU count resource name
+
+# kunlunResourceVMemoryName -- Kunlun virtual XPU memory resource name
+kunlunResourceName: "kunlunxin.com/xpu"
+kunlunResourceVCountName: "kunlunxin.com/vxpu"
+kunlunResourceVMemoryName: "kunlunxin.com/vxpu-memory"
+## @section Vastai Resource Names
+# vastaiResourceName -- Vastai resource name
+vastaiResourceName: "vastaitech.com/va"
+## @section Biren Resource Names
+# birenResourceName -- Biren GPU resource name
+birenResourceName: "birentech.com/gpu"
+# schedulerName -- Name of the scheduler
+schedulerName: "hami-scheduler"
+## @section Physical HAMi device resource pools
+## @section Pod Security Policy
+# podSecurityPolicy.enabled -- Enable PodSecurityPolicy
+podSecurityPolicy:
+  enabled: false
+## @section Scheduler
+# scheduler.nodeName -- Node name for scheduler pod. If installing as default scheduler, set this to skip the schedule workflow
+
+# scheduler.overwriteEnv -- Overwrite environment variables
+
+# scheduler.useDownward -- Whether to enable useDownward in the generated scheduler device config for NVIDIA devices
+
+# scheduler.defaultSchedulerPolicy.nodeSchedulerPolicy -- Node-level scheduling policy. Supported values: `binpack`, `spread`
+
+# scheduler.defaultSchedulerPolicy.gpuSchedulerPolicy -- GPU-level scheduling policy. Supported values: `binpack`, `spread`
+
+# scheduler.metricsBindAddress -- Address to bind metrics server
+
+# scheduler.forceOverwriteDefaultScheduler -- Force overwrite the default scheduler name in pods when it equals the K8s default scheduler name
+
+# scheduler.livenessProbe -- Enable liveness probe for scheduler
+
+# scheduler.leaderElect -- Enable leader election for scheduler
+
+# scheduler.replicas -- Number of scheduler replicas (only effective when leaderElect is true)
+scheduler:
+  nodeName: ""
+  overwriteEnv: "false"
+  useDownward: true
+  defaultSchedulerPolicy:
+    nodeSchedulerPolicy: binpack
+    gpuSchedulerPolicy: spread
+  metricsBindAddress: ":9395"
+  forceOverwriteDefaultScheduler: true
+  livenessProbe: false
+  leaderElect: true
+  replicas: 1
+  kubeScheduler:
+    # scheduler.kubeScheduler.enabled -- Whether to run kube-scheduler container in the scheduler pod
+    enabled: true
+    # scheduler.kubeScheduler.image.registry -- kube-scheduler image registry
+
+    # scheduler.kubeScheduler.image.repository -- kube-scheduler image repository
+
+    # scheduler.kubeScheduler.image.tag -- kube-scheduler image tag (immutable tags are recommended)
+
+    # scheduler.kubeScheduler.image.pullPolicy -- kube-scheduler image pull policy
+
+    # scheduler.kubeScheduler.image.pullSecrets -- Specify docker-registry secret names as an array
+    image:
+      registry: "k8s-gcr.m.daocloud.io"
+      repository: "kubernetes/kube-scheduler"
+      tag: "v1.28.0"
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## Example:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+    # scheduler.kubeScheduler.resources -- Resources for kube-scheduler container
+    resources:
+      limits:
+        cpu: 500m
+        memory: 720Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    # If you do want to specify resources, uncomment the following lines, adjust them as necessary.
+    # and remove the curly braces after 'resources:'.
+
+    #      limits:
+    #        cpu: 1000m
+    #        memory: 1000Mi
+    #      requests:
+    #        cpu: 100m
+    #        memory: 100Mi
+    # scheduler.kubeScheduler.extraNewArgs -- Extra arguments for kube-scheduler (new config format)
+    extraNewArgs:
+      - --config=/config/config.yaml
+      - -v=4
+    # scheduler.kubeScheduler.extraArgs -- Extra arguments for kube-scheduler (legacy config format)
+    extraArgs:
+      - --policy-config-file=/config/config.json
+      - -v=4
+  extender:
+    # scheduler.extender.image.registry -- Scheduler extender image registry
+
+    # scheduler.extender.image.repository -- Scheduler extender image repository
+
+    # scheduler.extender.image.tag -- Scheduler extender image tag (immutable tags are recommended)
+
+    # scheduler.extender.image.pullPolicy -- Scheduler extender image pull policy
+
+    # scheduler.extender.image.pullSecrets -- Specify docker-registry secret names as an array
+    image:
+      registry: "ghcr.m.daocloud.io"
+      repository: "dynamia-ai/hami-enterprise"
+      tag: ""
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## Example:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+    # scheduler.extender.resources -- Resources for scheduler extender container
+    resources:
+      limits:
+        cpu: 500m
+        memory: 720Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    # If you do want to specify resources, uncomment the following lines, adjust them as necessary,
+    # and remove the curly braces after 'resources:'.
+
+    #      limits:
+    #        cpu: 1000m
+    #        memory: 1000Mi
+    #      requests:
+    #        cpu: 100m
+    #        memory: 100Mi
+    # scheduler.extender.extraArgs -- Extra arguments for scheduler extender
+    extraArgs:
+      - --debug
+      - -v=4
+  # scheduler.nodeLockExpire -- Node lock expiration time
+  nodeLockExpire: "5m"
+  # scheduler.podAnnotations -- Annotations for scheduler pod
+  podAnnotations: {}
+  # scheduler.tolerations -- Tolerations for scheduler pod
+  tolerations: []
+  # scheduler.serviceAccountName -- Service account name for scheduler
+  #serviceAccountName: "hami-scheduler-sa"
+  admissionWebhook:
+    # scheduler.admissionWebhook.enabled -- Enable admission webhook. If disabled, pods must be configured with correct schedulerName manually
+    enabled: true
+    customURL:
+      # scheduler.admissionWebhook.customURL.enabled -- Enable custom webhook URL
+      enabled: false
+      # scheduler.admissionWebhook.customURL.host -- Webhook host (must be an endpoint using https)
+      host: 127.0.0.1
+      # scheduler.admissionWebhook.customURL.port -- Webhook port
+      port: 31998
+      # scheduler.admissionWebhook.customURL.path -- Webhook path
+      path: /webhook
+    # scheduler.admissionWebhook.whitelistNamespaces -- Namespaces that the webhook will not be applied to
+    whitelistNamespaces: []
+    ## Set manageNamespaceSelector to false on managed platforms (e.g. AKS) where the platform
+    ## mutates and owns the namespaceSelector field, to avoid server-side apply ownership conflicts.
+    # scheduler.admissionWebhook.manageNamespaceSelector -- Whether the chart renders and manages the webhook's namespaceSelector field
+    manageNamespaceSelector: true
+    # scheduler.admissionWebhook.namespaceSelector -- Namespace selector for webhook
+    namespaceSelector:
+      matchLabels: {}
+      matchExpressions: []
+    # scheduler.admissionWebhook.objectSelector -- Object selector for webhook
+    objectSelector:
+      matchExpressions: []
+    # scheduler.admissionWebhook.reinvocationPolicy -- Reinvocation policy for webhook
+    reinvocationPolicy: Never
+    # scheduler.admissionWebhook.failurePolicy -- Failure policy for webhook
+    failurePolicy: Ignore
+  ## TLS Certificate Option 1: Use cert-manager to generate self-signed certificate.
+  ## If enabled, always takes precedence over options 2.
+  certManager:
+    # scheduler.certManager.enabled -- Enable cert-manager for TLS certificate generation
+    enabled: false
+  ## TLS Certificate Option 2: Use kube-webhook-certgen to generate self-signed certificate.
+  ## If true and certManager.enabled is false, Helm will automatically create a self-signed cert and secret for you.
+  patch:
+    # scheduler.patch.enabled -- Enable kube-webhook-certgen patch job
+    enabled: true
+    # scheduler.patch.image.registry -- kube-webhook-certgen image registry
+
+    # scheduler.patch.image.repository -- kube-webhook-certgen image repository
+
+    # scheduler.patch.image.tag -- kube-webhook-certgen image tag
+
+    # scheduler.patch.image.pullPolicy -- kube-webhook-certgen image pull policy
+
+    # scheduler.patch.image.pullSecrets -- Specify docker-registry secret names as an array
+    image:
+      registry: "docker.m.daocloud.io"
+      repository: "jettech/kube-webhook-certgen"
+      tag: "v1.5.2"
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## Example:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+    ## The Kubernetes 1.22+ patch image must use admissionregistration/v1 client
+    ## types that include matchConditions. Older certgen images erase those
+    ## conditions when they update complete webhook objects.
+    # scheduler.patch.imageNew.registry -- Kubernetes 1.22+ kube-webhook-certgen image registry
+
+    # scheduler.patch.imageNew.repository -- Kubernetes 1.22+ kube-webhook-certgen image repository
+
+    # scheduler.patch.imageNew.tag -- Kubernetes 1.22+ kube-webhook-certgen image tag
+
+    # scheduler.patch.imageNew.pullPolicy -- Kubernetes 1.22+ kube-webhook-certgen image pull policy
+
+    # scheduler.patch.imageNew.pullSecrets -- Specify docker-registry secret names as an array
+    imageNew:
+      registry: "k8s.m.daocloud.io"
+      repository: "ingress-nginx/kube-webhook-certgen"
+      tag: "v1.6.9"
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## Example:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+    # scheduler.patch.priorityClassName -- Priority class name for patch job
+    priorityClassName: ""
+    # scheduler.patch.podAnnotations -- Annotations for patch job pod
+    podAnnotations: {}
+    # scheduler.patch.nodeSelector -- Node selector for patch job
+    nodeSelector: {}
+    # scheduler.patch.tolerations -- Tolerations for patch job
+    tolerations: []
+    # scheduler.patch.runAsUser -- User ID to run patch job as. OpenShift omits this value at render time so its SCC can allocate an allowed UID
+    runAsUser: 2000
+  service:
+    # scheduler.service.type -- Service type for scheduler
+    type: NodePort
+    # scheduler.service.httpPort -- HTTP port for scheduler service
+    httpPort: 443
+    # scheduler.service.schedulerPort -- NodePort for scheduler HTTP
+    schedulerPort: 31998
+    # scheduler.service.monitorPort -- Monitoring port for scheduler service
+    monitorPort: 31993
+    # scheduler.service.monitorTargetPort -- Target port for monitoring
+    monitorTargetPort: 9395
+    # scheduler.service.httpTargetPort -- Target port on which the scheduler extender listens
+    httpTargetPort: 9443
+    # scheduler.service.labels -- Labels for scheduler service
+    labels: {}
+    # scheduler.service.annotations -- Annotations for scheduler service
+    annotations: {}
+  serviceMonitor:
+    enable: false
+## @section Device Plugin
+# devicePlugin.enabled -- Enable device plugin
+
+# devicePlugin.gpuOperatorToolkitReady.enabled -- Enable GPU operator toolkit ready check
+
+# devicePlugin.gpuOperatorToolkitReady.hostPath -- Host path for GPU operator toolkit ready check
+
+# devicePlugin.gpuOperatorToolkitReady.securityContext -- Security context for the GPU operator toolkit validation init container
+devicePlugin:
+  enabled: true
+  gpuOperatorToolkitReady:
+    enabled: false
+    hostPath: "/run/nvidia/validations"
+    securityContext:
+      privileged: true
+      runAsUser: 0
+  # devicePlugin.image.registry -- Device plugin image registry
+
+  # devicePlugin.image.repository -- Device plugin image repository
+
+  # devicePlugin.image.tag -- Device plugin image tag (immutable tags are recommended)
+
+  # devicePlugin.image.pullPolicy -- Device plugin image pull policy
+
+  # devicePlugin.image.pullSecrets -- Specify docker-registry secret names as an array
+  image:
+    registry: "ghcr.m.daocloud.io"
+    repository: "dynamia-ai/hami-enterprise"
+    tag: ""
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+  monitor:
+    # devicePlugin.monitor.image.registry -- Monitor image registry
+
+    # devicePlugin.monitor.image.repository -- Monitor image repository
+
+    # devicePlugin.monitor.image.tag -- Monitor image tag (immutable tags are recommended)
+
+    # devicePlugin.monitor.image.pullPolicy -- Monitor image pull policy
+
+    # devicePlugin.monitor.image.pullSecrets -- Specify docker-registry secret names as an array
+    image:
+      registry: "ghcr.m.daocloud.io"
+      repository: "dynamia-ai/hami-enterprise"
+      tag: ""
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## Example:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+    # devicePlugin.monitor.ctrPath -- Container path for monitor
+    ctrPath: /usr/local/vgpu/containers
+    # devicePlugin.monitor.resyncInterval -- Resync interval for monitor
+    resyncInterval: "5m"
+    # devicePlugin.monitor.extraArgs -- Extra arguments for monitor
+    extraArgs:
+      - -v=4
+    # devicePlugin.monitor.extraEnvs -- Extra environment variables for monitor as a Kubernetes env list.
+    extraEnvs: [] # @schema allOf:[{type: array, items: {type: object, required: [name], properties: {name: {type: string, minLength: 1}, value: {type: string}, valueFrom: {type: object}}}}]
+    # devicePlugin.monitor.securityContext -- Security context for the monitor container
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+        add: ["SYS_ADMIN"]
+    # devicePlugin.monitor.resources -- Resources for monitor container
+    resources:
+      limits:
+        cpu: 500m
+        memory: 720Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+        # If you do want to specify resources, uncomment the following lines, adjust them as necessary.
+        # and remove the curly braces after 'resources:'.
+  #      limits:
+  #        cpu: 1000m
+  #        memory: 1000Mi
+  #      requests:
+  #        cpu: 100m
+  #        memory: 100Mi
+
+  # devicePlugin.deviceSplitCount -- Number of slices to split each GPU into
+  deviceSplitCount: 10
+  # devicePlugin.deviceMemoryScaling -- Device memory scaling factor
+  deviceMemoryScaling: 1
+  # devicePlugin.deviceCoreScaling -- Device core scaling factor
+  deviceCoreScaling: 1
+  ## Advertise the physical GPU's NUMA node on each vGPU replica so kubelet's TopologyManager can
+  ## align CPU and GPU NUMA nodes. Opt-in because it changes admission behavior when
+  ## topologyManagerPolicy is single-numa-node.
+  # devicePlugin.enableNumaTopology -- Advertise the physical GPU's NUMA node on each vGPU replica
+  enableNumaTopology: false
+  ## NUMA alignment refit: when enabled, the device plugin asks the Scheduler to
+  ## re-run placement over the NUMA-restricted device set returned by kubelet.
+  ## This requires enableNumaTopology and per-node
+  ## enablegetpreferredallocation configuration. Pods opt in with the
+  ## hami.io/numa-alignment annotation. Disabled by default.
+  # devicePlugin.numaRefit -- NUMA alignment refit configuration
+  numaRefit:
+    # devicePlugin.numaRefit.enabled -- Enable NUMA alignment refit
+    enabled: false
+    # devicePlugin.numaRefit.schedulerEndpoint -- Scheduler base URL override. Defaults to the in-cluster Scheduler service
+    schedulerEndpoint: ""
+    # devicePlugin.numaRefit.tlsInsecure -- Skip Scheduler TLS verification. Set false with caFile or caSecret to verify TLS
+    tlsInsecure: true
+    # devicePlugin.numaRefit.caFile -- Path to a CA bundle already mounted in the device-plugin Pod
+    caFile: ""
+    # devicePlugin.numaRefit.caSecret -- Secret containing ca.crt, mounted at /etc/hami/numa-refit-ca
+    caSecret: ""
+  ## Pre-configured device memory in MB for GPUs that don't support memory query (e.g., unified memory architecture GPUs like NVIDIA GB10/DGX Spark).
+  ## Set to 0 to use auto-detection (default). For unified memory GPUs, set to the total GPU memory (e.g., 131072 for 128GB).
+  ## Can be overridden per-node via nodeConfiguration.config.
+  # devicePlugin.preConfiguredDeviceMemory -- Pre-configured device memory in MB for GPUs that don't support memory query. Set to 0 for auto-detection
+  preConfiguredDeviceMemory: 0
+  ## Node configuration for device plugin, Priority: externalConfigName > config > default config
+  nodeConfiguration:
+    ## If you want to use a custom config.json, you can set the content here.
+    ## If this is set, it will override the default config.json (An example is as follows).
+    # devicePlugin.nodeConfiguration.config -- Node configuration for device plugin. If set, overrides the default config.json
+    config: |
+      {
+        "nodeconfig": [
+          {
+            "name": "your-node-name",
+            "operatingmode": "hami-core",
+            "devicememoryscaling": 1,
+            "devicesplitcount": 10,
+            "preconfigureddevicememory": 0,
+            "enablenumatopology": false,
+            "migstrategy": "none",
+            "filterdevices": {
+              "uuid": [],
+              "index": []
+            },
+            "enablegetpreferredallocation": false
+          }
+        ]
+      }
+    ## If you want to use an existing ConfigMap, you can set the name here.
+    ## If this is set, the chart will not create the ConfigMap and will use the existing one.
+    # devicePlugin.nodeConfiguration.externalConfigName -- Name of an existing ConfigMap to use for node configuration
+    externalConfigName: ""
+  ## The runtime class name to be used by the device plugin, and added to the pod.spec.runtimeClassName of applications utilizing NVIDIA GPUs
+  # devicePlugin.runtimeClassName -- Runtime class name to be used by the device plugin
+  runtimeClassName: ""
+  ## Whether to create runtime class, name comes from runtimeClassName when it is set
+  # devicePlugin.createRuntimeClass -- Whether to create runtime class
+  createRuntimeClass: false
+  # devicePlugin.migStrategy -- MIG strategy. Supported values: `none`, `single`, `mixed`
+  migStrategy: "none"
+  # devicePlugin.disablecorelimit -- Disable core limit
+  disablecorelimit: "false"
+  # devicePlugin.passDeviceSpecsEnabled -- Enable passing device specs
+  passDeviceSpecsEnabled: false
+  # devicePlugin.deviceListStrategy -- Device list strategy. Supported values: `envvar`, `volume-mounts`, `cdi-annotations`
+  deviceListStrategy: "envvar"
+  # devicePlugin.cdiVendor -- CDI vendor for generated specs and device annotations (default: k8s.device-plugin.nvidia.com)
+  cdiVendor: ""
+  # devicePlugin.nvidiaHookPath -- Path for NVIDIA hook
+  nvidiaHookPath: ""
+  # devicePlugin.nvidiaDriverRoot -- NVIDIA driver root on the host, mounted into the device plugin and monitor containers
+  nvidiaDriverRoot: ""
+  # devicePlugin.gdrcopyEnabled -- Enable GDRCopy
+  gdrcopyEnabled: false
+  # devicePlugin.gdsEnabled -- Enable GDS
+  gdsEnabled: false
+  # devicePlugin.mofedEnabled -- Enable Mellanox OFED
+  mofedEnabled: false
+  # devicePlugin.extraArgs -- Extra arguments for device plugin
+  extraArgs:
+    - -v=4
+  # devicePlugin.extraEnvs -- Extra environment variables for device plugin as a Kubernetes env list.
+  extraEnvs: [] # @schema allOf:[{type: array, items: {type: object, required: [name], properties: {name: {type: string, minLength: 1}, value: {type: string}, valueFrom: {type: object}}}}]
+  service:
+    # devicePlugin.service.type -- Service type for device plugin
+    type: NodePort
+    # devicePlugin.service.httpPort -- HTTP port for device plugin service
+    httpPort: 31992
+    # devicePlugin.service.labels -- Labels for device plugin service
+    labels: {}
+    # devicePlugin.service.annotations -- Annotations for device plugin service
+    annotations: {}
+  # devicePlugin.pluginPath -- Path for device plugin socket
+  pluginPath: /var/lib/kubelet/device-plugins
+  # devicePlugin.libPath -- Library path for vGPU
+  libPath: /usr/local/vgpu
+  # devicePlugin.podAnnotations -- Annotations for device plugin pod
+  podAnnotations: {}
+  # devicePlugin.hostPID -- Share the host PID namespace with the device plugin pod
+  hostPID: true
+  # devicePlugin.hostNetwork -- Share the host network namespace with the device plugin pod
+  hostNetwork: false
+  # devicePlugin.securityContext -- Security context for the device plugin container
+  securityContext:
+    privileged: true
+    allowPrivilegeEscalation: true
+    capabilities:
+      drop: ["ALL"]
+      add: ["SYS_ADMIN"]
+  # devicePlugin.nvidiaNodeSelector -- Node selector for NVIDIA device plugin
+  nvidiaNodeSelector:
+    nvidia.com/vgpu.deploy.device-plugin: "true"
+  # devicePlugin.tolerations -- Tolerations for device plugin pod
+  tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+  updateStrategy:
+    # devicePlugin.updateStrategy.type -- Update strategy for device plugin DaemonSet
+    type: RollingUpdate
+    rollingUpdate:
+      # devicePlugin.updateStrategy.rollingUpdate.maxUnavailable -- Maximum unavailable pods during update
+      maxUnavailable: 1
+  # devicePlugin.resources -- Resources for device plugin container
+  resources:
+    limits:
+      cpu: 500m
+      memory: 720Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+      # If you do want to specify resources, uncomment the following lines, adjust them as necessary.
+      # and remove the curly braces after 'resources:'.
+#    limits:
+#       cpu: 1000m
+#       memory: 1000Mi
+#    requests:
+#      cpu: 100m
+#      memory: 100Mi
+
+## @section Mock Device Plugin
+# mockDevicePlugin.enabled -- Enable mock device plugin
+mockDevicePlugin:
+  enabled: false
+  # mockDevicePlugin.image.registry -- Mock device plugin image registry
+
+  # mockDevicePlugin.image.repository -- Mock device plugin image repository
+
+  # mockDevicePlugin.image.tag -- Mock device plugin image tag
+
+  # mockDevicePlugin.image.pullPolicy -- Mock device plugin image pull policy
+
+  # mockDevicePlugin.image.pullSecrets -- Specify docker-registry secret names as an array
+  image:
+    registry: "docker.io"
+    repository: "projecthami/mock-device-plugin"
+    tag: "1.0.1"
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## Example:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+## @section DRA (Dynamic Resource Allocation)
+## If this option is enabled, the DRA will be installed and the scheduler extender will not be installed.
+# dra.enabled -- Enable DRA (Dynamic Resource Allocation)
+dra:
+  enabled: false
+## Configuration for the hami-dra subchart, which includes DRA drivers.
+## This is part of config for DRA, please refer to the DRA documentation for more details.
+# hami-dra.monitor.enabled -- Enable monitor for hami-dra
+
+# hami-dra.drivers.nvidia.enabled -- Enable NVIDIA DRA driver
+
+# hami-dra.drivers.nvidia.containerDriver -- Enable container driver for NVIDIA DRA
+
+# hami-dra.drivers.nvidia.image.repository -- NVIDIA DRA driver image repository
+
+# hami-dra.drivers.nvidia.image.tag -- NVIDIA DRA driver image tag
+hami-dra:
+  monitor:
+    enabled: true
+  drivers:
+    nvidia:
+      enabled: true
+      ## If you are using gpu driver on host, you need to set this to false
+      containerDriver: true
+      image:
+        repository: ghcr.io/project-hami/k8s-dra-driver
+        tag: "main"
+## @section Devices
+# devices.alibaba.enabled -- Enable Alibaba PPU device
+
+# devices.alibaba.ppuCorePolicy -- PPU core policy for Alibaba devices
+devices:
+  alibaba:
+    enabled: true
+    ppuCorePolicy: default
+    # devices.alibaba.customresources -- Custom resource definitions for Alibaba devices
+    customresources:
+      - alibaba.com/ppu
+      - alibaba.com/ppu-memory
+      - alibaba.com/gpu-core
+  amd:
+    # devices.amd.customresources -- Custom resource definitions for AMD devices
+    customresources:
+      - amd.com/gpu
+      - amd.com/gpumem
+      - amd.com/gpucores
+  awsneuron:
+    # devices.awsneuron.customresources -- Custom resource definitions for AWS Neuron devices
+    customresources:
+      - aws.amazon.com/neuron
+      - aws.amazon.com/neuroncore
+  kunlun:
+    # devices.kunlun.enabled -- Enable Kunlun device plugin
+    enabled: true
+    # devices.kunlun.customresources -- Custom resource definitions for Kunlun devices
+    customresources:
+      - kunlunxin.com/xpu
+      - kunlunxin.com/vxpu
+      - kunlunxin.com/vxpu-memory
+  enflame:
+    # devices.enflame.enabled -- Enable Enflame device plugin
+    enabled: true
+    # devices.enflame.customresources -- Custom resource definitions for Enflame devices
+    customresources:
+      - enflame.com/drs-gcu
+      - enflame.com/gcu-memory
+      - enflame.com/gcu-core
+      - enflame.com/gcu
+      - enflame.com/vgcu
+      - enflame.com/vgcu-percentage
+  mthreads:
+    # devices.mthreads.enabled -- Enable MThreads device plugin
+    enabled: true
+    # devices.mthreads.customresources -- Custom resource definitions for MThreads devices
+    customresources:
+      - mthreads.com/vgpu
+  vastai:
+    # devices.vastai.enabled -- Enable Vastai device plugin
+    enabled: true
+    # devices.vastai.customresources -- Custom resource definitions for Vastai devices
+    customresources:
+      - vastaitech.com/va
+  biren:
+    # devices.biren.enabled -- Enable Biren device plugin
+    enabled: true
+    # devices.biren.customresources -- Custom resource definitions for Biren devices
+    customresources:
+      - birentech.com/gpu
+  nvidia:
+    # devices.nvidia.gpuCorePolicy -- GPU core policy for NVIDIA devices
+    gpuCorePolicy: default
+    # devices.nvidia.libCudaLogLevel -- libCUDA log level
+    libCudaLogLevel: 2
+  ascend:
+    # devices.ascend.enabled -- Enable Ascend device plugin
+    enabled: false
+    # devices.ascend.image -- Ascend device plugin image
+    image: ""
+    # devices.ascend.imagePullPolicy -- Image pull policy for Ascend device plugin
+    imagePullPolicy: IfNotPresent
+    # devices.ascend.extraArgs -- Extra arguments for Ascend device plugin
+    extraArgs: []
+    # devices.ascend.nodeSelector -- Node selector for Ascend device plugin
+    nodeSelector:
+      ascend: "on"
+    # devices.ascend.tolerations -- Tolerations for Ascend device plugin
+    tolerations: []
+    # devices.ascend.runtimeClassName -- Runtime class name for Ascend NPU pods
+    runtimeClassName: ""
+    # devices.ascend.hamiVnpuCore -- Enable soft-partitioning based on hami-vnpu-core (node-level annotation takes higher priority)
+    hamiVnpuCore: false
+    # devices.ascend.hamiVnpuMode -- Backend: template, hami-core (alias hamiCore), or enpu. Empty preserves hamiVnpuCore compatibility.
+    hamiVnpuMode: ""
+    # devices.ascend.hamiCorePolicy -- Default hami-core runtime policy; Pod and node settings take precedence. Explicit enterprise force/disable controls remain effective.
+    hamiCorePolicy: spatial
+    # devices.ascend.enpuPolicy -- Default ENPU policy; enabling ENPU also requires compatible runtime assets on the node.
+    enpuPolicy: elastic
+    # devices.ascend.deviceCoreScaling -- hami-core advertised percentage capacity multiplier; each workload still requests at most 100 percent.
+    deviceCoreScaling: 1
+    # devices.ascend.deviceSplitCount -- Number of virtual devices advertised per physical Ascend NPU in soft-slicing mode. A positive node-level vDeviceCount overrides it.
+    deviceSplitCount: 10 # @schema minimum:1
+    # devices.ascend.customresources -- Custom resource definitions for Ascend devices
+    customresources:
+      - huawei.com/Ascend910A
+      - huawei.com/Ascend910A-memory
+      - huawei.com/Ascend910A-core
+      - huawei.com/Ascend910B2
+      - huawei.com/Ascend910B2-memory
+      - huawei.com/Ascend910B2-core
+      - huawei.com/Ascend910B3
+      - huawei.com/Ascend910B3-memory
+      - huawei.com/Ascend910B3-core
+      - huawei.com/Ascend910B4
+      - huawei.com/Ascend910B4-memory
+      - huawei.com/Ascend910B4-core
+      - huawei.com/Ascend910B4-1
+      - huawei.com/Ascend910B4-1-memory
+      - huawei.com/Ascend910B4-1-core
+      - huawei.com/Ascend310P
+      - huawei.com/Ascend310P-memory
+      - huawei.com/Ascend310P-core
+      - huawei.com/Ascend910C
+      - huawei.com/Ascend910C-memory
+      - huawei.com/Ascend910C-core
+  iluvatar:
+    # devices.iluvatar.enabled -- Enable Iluvatar device plugin
+    enabled: false
+    # devices.iluvatar.customresources -- Custom resource definitions for Iluvatar devices
+    customresources:
+      - iluvatar.ai/BI-V100-vgpu
+      - iluvatar.ai/BI-V100.vCore
+      - iluvatar.ai/BI-V100.vMem
+      - iluvatar.ai/BI-V150-vgpu
+      - iluvatar.ai/BI-V150.vCore
+      - iluvatar.ai/BI-V150.vMem
+      - iluvatar.ai/MR-V100-vgpu
+      - iluvatar.ai/MR-V100.vCore
+      - iluvatar.ai/MR-V100.vMem
+      - iluvatar.ai/MR-V50-vgpu
+      - iluvatar.ai/MR-V50.vCore
+      - iluvatar.ai/MR-V50.vMem
+  vdcu:
+    enabled: false
+    labelNode:
+      image: release.daocloud.io/dcu/dcu-label-node:v2.4.1
+    devicePlugin:
+      image: release.daocloud.io/dcu/dcu-device-plugin:v2.4.1
+    admissionWebhook:
+      image: release.daocloud.io/dcu/k8s-vdcu-admission-webhook:v2.4.0
+    scheduler:
+      image: release.daocloud.io/dcu/k8s-vdcu-scheduler:v2.4.0
+    exporter:
+      image: release.daocloud.io/dcu/dcu-exporter:v2.3.0
+      version: v2.3.0
+      port: 16080
+      kubeletPath: /var/lib/kubelet
+      extraHostVolumes:
+        - name: kfd
+          hostPath: /dev/kfd
+        - name: mkfd
+          hostPath: /dev/mkfd
+        - name: dri
+          hostPath: /dev/dri
+        - name: hostname
+          hostPath: /etc/hostname
+        - name: vdev
+          hostPath: /etc/vdev
+        - name: hyhal
+          hostPath: /opt/hyhal
+      extraVolumeMounts:
+        - name: kfd
+          readOnly: true
+          mountPath: /dev/kfd
+        - name: mkfd
+          readOnly: true
+          mountPath: /dev/mkfd
+        - name: dri
+          readOnly: true
+          mountPath: /dev/dri
+        - name: hostname
+          readOnly: true
+          mountPath: /etc/hostname
+        - name: vdev
+          readOnly: true
+          mountPath: /etc/vdev
+        - name: hyhal
+          readOnly: true
+          mountPath: /opt/hyhal
+    cleanupHook:
+      image: docker.m.daocloud.io/rancher/kubectl:v1.28.0
+# legacyMetrics -- Enable legacy metrics
+legacyMetrics: false
+## @section Prometheus
+# prometheus.enabled -- Enable Prometheus metrics
+prometheus:
+  enabled: false
+# Device config overrides
+# If content is set under device-config.content, it will be used as the device-config.yaml
+# payload in the hami-scheduler-device ConfigMap instead of files/device-config.yaml or the default config.
+# Example:
+# device-config:
+#   content: |
+#     nvidia:
+#       migProfileAllowlist:
+#         - models: [ "RTX 6000 Ada" ]
+#           profiles: [ "1g.6gb", "2g.12gb", "4g.24gb" ]
+device-config:
+  content: ""

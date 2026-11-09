@@ -1,0 +1,21 @@
+{{- if and .Values.scheduler.admissionWebhook.enabled (not .Values.dra.enabled) .Values.scheduler.patch.enabled (not .Values.scheduler.certManager.enabled) }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "hami-enterprise.fullname" . }}-admission
+  namespace: {{ include "hami-enterprise.namespace" . }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "hami-enterprise.schedulerLabels" . | nindent 4 }}
+    app.kubernetes.io/component: hami-scheduler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "hami-enterprise.fullname" . }}-admission
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "hami-enterprise.fullname" . }}-admission
+    namespace: {{ include "hami-enterprise.namespace" . }}
+{{- end }}
