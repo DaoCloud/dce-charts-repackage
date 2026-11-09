@@ -2,10 +2,15 @@ export USE_OPENSOURCE_CHART=false
 # build by project-self script, pulling the upstream chart from Dynamia OCI registry
 # refer to https://docs.dynamia.ai/zh/docs/software
 export BUILD_SELF=build.sh
-export CHART_OCI_REF=oci://ghcr.io/dynamia-ai/charts/hami-enterprise
 
-# UPGRADE_METHOD is intentionally unset: no upstream repo to auto-upgrade from,
-# and generateChart.sh skips the build entirely when it is "none"
+# must
+export REPO_URL=oci://ghcr.io/dynamia-ai/charts
+export REPO_NAME=dynamia
+export CHART_NAME=hami-enterprise
+export CHART_OCI_REF=${REPO_URL}/${CHART_NAME}
+
+# pr, issue, none ("none" also makes generateChart.sh skip the build)
+export UPGRADE_METHOD=pr
 export UPGRADE_REVIWER=lengrongfu
 export TEST_ASSIGNER=lengrongfu
 
