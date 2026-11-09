@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "hami": {
+            "type": "object",
+            "properties": {
+                "schedulerName": {
+                    "type": "string",
+                    "default": "hami-scheduler"
+                },
+                "devicePlugin": {
+                    "type": "object",
+                    "properties": {
+                        "deviceCoreScaling": {
+                            "type": "number"
+                        },
+                        "deviceMemoryScaling": {
+                            "type": "number"
+                        },
+                        "deviceSplitCount": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "scheduler": {
+                    "type": "object",
+                    "properties": {
+                        "serviceMonitor": {
+                            "type": "object",
+                            "properties": {
+                                "enable": {
+                                    "type": "boolean",
+                                    "default": false,
+                                    "description": "Ensure the insight-agent is installed and running to enable this feature; otherwise, the nvidia-vgpu-commercial installation may fail."
+                                }
+                            }
+                        }
+                    }
+                },
+                "devices": {
+                    "type": "object",
+                    "properties": {
+                        "ascend": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "default": false,
+                                    "description": "Enable Huawei Ascend support in the HAMi scheduler. The Ascend device plugin is no longer bundled; install Dynamia ascend-device-plugin chart separately."
+                                }
+                            }
+                        },
+                        "vdcu": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "default": false,
+                                    "description": "Enable Hygon DCU/vDCU device plugin, scheduler and admission webhook."
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "After installation, the original GPU node remains unchanged. Newly added GPU nodes default to use full GPU. If you need to switch to vGPU, please go to the appropriate node to make the switch."
+        }
+    }
+}

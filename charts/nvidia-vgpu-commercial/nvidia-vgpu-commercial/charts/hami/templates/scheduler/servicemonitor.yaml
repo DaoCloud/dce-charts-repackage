@@ -1,0 +1,22 @@
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1/ServiceMonitor") .Values.prometheus.enabled }}
+# Prometheus Service Monitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "hami-enterprise.scheduler" . }}-metrics-monitor
+  namespace: {{ include "hami-enterprise.namespace" . }}
+  labels:
+    app.kubernetes.io/component: hami-scheduler
+    {{- include "hami-enterprise.schedulerLabels" . | nindent 4 }}
+    {{- with .Values.global.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: hami-scheduler
+      {{- include "hami-enterprise.schedulerSelectorLabels" . | nindent 6 }}
+  endpoints:
+  - port: monitor
+    path: "/metrics"
+{{- end }}

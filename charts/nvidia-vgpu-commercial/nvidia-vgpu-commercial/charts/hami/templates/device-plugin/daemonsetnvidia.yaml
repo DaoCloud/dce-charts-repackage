@@ -1,0 +1,350 @@
+{{- if and .Values.devicePlugin.enabled (not .Values.dra.enabled) }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "hami-enterprise.device-plugin" . }}
+  namespace: {{ include "hami-enterprise.namespace" . }}
+  labels:
+    app.kubernetes.io/component: hami-device-plugin
+    {{- include "hami-enterprise.devicePluginLabels" . | nindent 4 }}
+    {{- with .Values.global.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if .Values.global.annotations }}
+  annotations: {{ toYaml .Values.global.annotations | nindent 4}}
+  {{- end }}
+spec:
+  updateStrategy:
+    {{- with .Values.devicePlugin.updateStrategy }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: hami-device-plugin
+      {{- include "hami-enterprise.devicePluginSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: hami-device-plugin
+        hami.io/webhook: ignore
+        {{- include "hami-enterprise.devicePluginSelectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/hami-scheduler-config: {{ include (print $.Template.BasePath "/scheduler/configmap.yaml") . | sha256sum }}
+        checksum/hami-scheduler-device-config: {{ include (print $.Template.BasePath "/scheduler/device-configmap.yaml") . | sha256sum }}
+      {{- if .Values.devicePlugin.podAnnotations }}
+        {{- toYaml .Values.devicePlugin.podAnnotations | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.devicePlugin.runtimeClassName }}
+      runtimeClassName: {{ .Values.devicePlugin.runtimeClassName }}
+      {{- end }}
+      serviceAccountName: {{ include "hami-enterprise.device-plugin" . }}
+      priorityClassName: system-node-critical
+      hostPID: {{ .Values.devicePlugin.hostPID }}
+      hostNetwork: {{ .Values.devicePlugin.hostNetwork | default false }}
+      {{- include "hami.devicePlugin.imagePullSecrets" . | nindent 6 }}
+      {{- if or .Values.selinux.enabled .Values.devicePlugin.gpuOperatorToolkitReady.enabled }}
+      initContainers:
+        {{- if .Values.selinux.enabled }}
+        - name: selinux-relabel
+          image: {{ include "hami.devicePlugin.image" . }}
+          imagePullPolicy: {{ .Values.devicePlugin.image.pullPolicy }}
+          securityContext:
+            privileged: true
+            allowPrivilegeEscalation: true
+            runAsUser: 0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+              mkdir -p /host/hami/vgpu /host/hami/containers /host/hami/tmp/vgpulock
+              chmod 0777 /host/hami/containers
+              chmod 1777 /host/hami/tmp/vgpulock
+              chcon -R -t "${SELINUX_TYPE}" -l "${SELINUX_LEVEL}" \
+                /host/hami/vgpu /host/hami/containers /host/hami/tmp/vgpulock
+          env:
+            - name: SELINUX_TYPE
+              value: {{ .Values.selinux.type | quote }}
+            - name: SELINUX_LEVEL
+              value: {{ .Values.selinux.level | quote }}
+          volumeMounts:
+            - name: lib
+              mountPath: /host/hami/vgpu
+            - name: ctrs
+              mountPath: /host/hami/containers
+            - name: hosttmp
+              mountPath: /host/hami/tmp
+        {{- end }}
+        {{- if .Values.devicePlugin.gpuOperatorToolkitReady.enabled }}
+        - name: toolkit-validation
+          image: {{ include "hami.devicePlugin.image" . }}
+          imagePullPolicy: {{ .Values.devicePlugin.image.pullPolicy }}
+          {{- with .Values.devicePlugin.gpuOperatorToolkitReady.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Waiting for NVIDIA Toolkit to be ready..."
+              until [ -f {{ .Values.devicePlugin.gpuOperatorToolkitReady.hostPath }}/toolkit-ready ]; do 
+                echo "Waiting for {{ .Values.devicePlugin.gpuOperatorToolkitReady.hostPath }}/toolkit-ready..."
+                sleep 5
+              done
+              echo "NVIDIA Toolkit is ready!"
+          volumeMounts:
+            - name: nvidia-validations
+              mountPath: {{ .Values.devicePlugin.gpuOperatorToolkitReady.hostPath | quote }}
+              mountPropagation: HostToContainer
+              readOnly: true
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: device-plugin
+          image: {{ include "hami.devicePlugin.image" . }}
+          imagePullPolicy: {{ .Values.devicePlugin.image.pullPolicy }}
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh","-c", {{ printf "/k8s-vgpu/bin/vgpu-init.sh %s/vgpu/" .Values.global.gpuHookPath | quote }}]
+          command:
+            - nvidia-device-plugin
+            - --config-file=/device-config.yaml
+            - --mig-strategy={{ .Values.devicePlugin.migStrategy }}
+            - --disable-core-limit={{ .Values.devicePlugin.disablecorelimit }}
+            {{- range .Values.devicePlugin.extraArgs }}
+            - {{ . }}
+            {{- end }}
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            - name: NVIDIA_MIG_MONITOR_DEVICES
+              value: all
+            - name: DEVICE_LIST_STRATEGY
+              value: {{ .Values.devicePlugin.deviceListStrategy }}
+            {{- if .Values.devicePlugin.cdiVendor }}
+            - name: CDI_VENDOR
+              value: {{ .Values.devicePlugin.cdiVendor | quote }}
+            {{- end }}
+            - name: HOOK_PATH
+              value: {{ .Values.global.gpuHookPath }}
+            {{- if typeIs "bool" .Values.devicePlugin.passDeviceSpecsEnabled }}
+            - name: PASS_DEVICE_SPECS
+              value: {{ .Values.devicePlugin.passDeviceSpecsEnabled | quote }}
+            {{- end }}
+            {{- if and (kindIs "string" .Values.devicePlugin.nvidiaDriverRoot) .Values.devicePlugin.nvidiaDriverRoot }}
+            - name: NVIDIA_DRIVER_ROOT
+              value: {{ .Values.devicePlugin.nvidiaDriverRoot }}
+            {{- end }}
+            {{- if .Values.devicePlugin.nvidiaHookPath }}
+            - name: NVIDIA_CDI_HOOK_PATH
+              value: {{ .Values.devicePlugin.nvidiaHookPath }}
+            {{- end }}
+            {{- if .Values.devicePlugin.gdrcopyEnabled }}
+            - name: GDRCOPY_ENABLED
+              value: {{ .Values.devicePlugin.gdrcopyEnabled | quote }}
+            {{- end }}
+            {{- if .Values.devicePlugin.gdsEnabled }}
+            - name: GDS_ENABLED
+              value: {{ .Values.devicePlugin.gdsEnabled | quote }}
+            {{- end }}
+            {{- if .Values.devicePlugin.mofedEnabled }}
+            - name: MOFED_ENABLED
+              value: {{ .Values.devicePlugin.mofedEnabled | quote }}
+            {{- end }}
+            {{- if eq (.Values.scheduler.defaultSchedulerPolicy.gpuSchedulerPolicy | default "spread")  "topology-aware" }}
+            - name: ENABLE_TOPOLOGY_SCORE
+              value: "true"
+            {{- end }}
+            {{- with .Values.devicePlugin.numaRefit }}
+            {{- if .enabled }}
+            - name: HAMI_SCHEDULER_ENDPOINT
+              value: {{ .schedulerEndpoint | default (printf "https://%s.%s.svc:%v" (include "hami-enterprise.scheduler" $) (include "hami-enterprise.namespace" $) ($.Values.scheduler.service.httpPort | default 443)) | quote }}
+            {{- if .tlsInsecure }}
+            - name: HAMI_SCHEDULER_TLS_INSECURE
+              value: "true"
+            {{- end }}
+            {{- if .caFile }}
+            - name: HAMI_SCHEDULER_CA_FILE
+              value: {{ .caFile | quote }}
+            {{- else if .caSecret }}
+            - name: HAMI_SCHEDULER_CA_FILE
+              value: "/etc/hami/numa-refit-ca/ca.crt"
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.devicePlugin.extraEnvs }}
+            {{- . | toYaml | nindent 12 }}
+            {{- end }}
+          {{- with .Values.devicePlugin.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+          {{- toYaml .Values.devicePlugin.resources | nindent 12 }}
+          volumeMounts:
+            - name: device-plugin
+              mountPath: /var/lib/kubelet/device-plugins
+            - name: lib
+              mountPath: {{ printf "%s%s" .Values.global.gpuHookPath "/vgpu" }}
+            - name: usrbin
+              mountPath: /usrbin
+            - name: deviceconfig
+              mountPath: /config
+            - name: hosttmp
+              mountPath: /tmp
+            - name: device-config
+              mountPath: /device-config.yaml
+              subPath: device-config.yaml
+            - name: cdi-root
+              mountPath: /var/run/cdi
+            {{- if and .Values.devicePlugin.numaRefit .Values.devicePlugin.numaRefit.enabled .Values.devicePlugin.numaRefit.caSecret }}
+            - name: numa-refit-ca
+              mountPath: /etc/hami/numa-refit-ca
+              readOnly: true
+            {{- end }}
+            - name: deviceconfig
+              mountPath: /k8s-vgpu/lib/nvidia/ld.so.preload
+              subPath: ld.so.preload
+              readOnly: true
+            {{- if and (kindIs "string" .Values.devicePlugin.nvidiaDriverRoot) .Values.devicePlugin.nvidiaDriverRoot }}
+            # We always mount the driver root at /driver-root in the container.
+            # This is required for CDI detection to work correctly.
+            - name: driver-root
+              mountPath: /driver-root
+              readOnly: true
+            {{- end }}
+        - name: vgpu-monitor
+          image: {{ include "hami.devicePlugin.monitor.image" . }}
+          imagePullPolicy: {{ .Values.devicePlugin.monitor.image.pullPolicy }}
+          command:
+            - "vGPUmonitor"
+            {{- if .Values.legacyMetrics }}
+            - "--legacy-metrics=true"
+            {{- end }}
+            {{- range .Values.devicePlugin.monitor.extraArgs }}
+            - {{ . }}
+            {{- end }}
+          {{- with .Values.devicePlugin.monitor.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+            - name: NVIDIA_MIG_MONITOR_DEVICES
+              value: "all"
+            - name: HOOK_PATH
+              value: "{{ .Values.global.gpuHookPath }}/vgpu"
+            - name: HAMI_RESYNC_INTERVAL
+              value: {{ .Values.devicePlugin.monitor.resyncInterval | default "5m" | quote }}
+            {{- if and (kindIs "string" .Values.devicePlugin.nvidiaDriverRoot) .Values.devicePlugin.nvidiaDriverRoot }}
+            - name: NVIDIA_DRIVER_ROOT
+              value: {{ .Values.devicePlugin.nvidiaDriverRoot }}
+            {{- end }}
+            {{- with .Values.devicePlugin.monitor.extraEnvs }}
+            {{- . | toYaml | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: metrics
+              containerPort: 9394
+              protocol: TCP
+          resources:
+          {{- toYaml .Values.devicePlugin.monitor.resources | nindent 12 }}
+          volumeMounts:
+            - name: ctrs
+              mountPath: {{ .Values.devicePlugin.monitor.ctrPath }}
+            - name: dockers
+              mountPath: /run/docker
+            - name: containerds
+              mountPath: /run/containerd
+            - name: sysinfo
+              mountPath: /sysinfo
+            - name: hostvar
+              mountPath: /hostvar
+            - name: hosttmp
+              mountPath: /tmp
+            {{- if and (kindIs "string" .Values.devicePlugin.nvidiaDriverRoot) .Values.devicePlugin.nvidiaDriverRoot }}
+            - name: driver-root
+              mountPath: /driver-root
+              readOnly: true
+              mountPropagation: HostToContainer
+            {{- end }}
+      volumes:
+        {{- if and .Values.devicePlugin.numaRefit .Values.devicePlugin.numaRefit.enabled .Values.devicePlugin.numaRefit.caSecret }}
+        - name: numa-refit-ca
+          secret:
+            secretName: {{ .Values.devicePlugin.numaRefit.caSecret }}
+        {{- end }}
+        - name: ctrs
+          hostPath:
+            path: {{ .Values.devicePlugin.monitor.ctrPath }}
+            {{- if .Values.selinux.enabled }}
+            type: DirectoryOrCreate
+            {{- end }}
+        - name: hosttmp
+          hostPath:
+            path: /tmp
+        - name: dockers
+          hostPath:
+            path: /run/docker
+        - name: containerds
+          hostPath:
+            path: /run/containerd
+        - name: device-plugin
+          hostPath:
+            path: {{ .Values.devicePlugin.pluginPath }}
+        - name: lib
+          hostPath:
+            path: {{ .Values.devicePlugin.libPath }}
+            {{- if .Values.selinux.enabled }}
+            type: DirectoryOrCreate
+            {{- end }}
+        {{- if .Values.devicePlugin.gpuOperatorToolkitReady.enabled }}
+        - name: nvidia-validations
+          hostPath:
+            path: {{ .Values.devicePlugin.gpuOperatorToolkitReady.hostPath }}
+            type: DirectoryOrCreate
+        {{- end }}
+        {{- if and (kindIs "string" .Values.devicePlugin.nvidiaDriverRoot) .Values.devicePlugin.nvidiaDriverRoot }}
+        - name: driver-root
+          hostPath:
+            path: {{ .Values.devicePlugin.nvidiaDriverRoot }}
+            type: Directory
+        {{- end }}
+        - name: cdi-root
+          hostPath:
+            path: /var/run/cdi
+            type: DirectoryOrCreate
+        - name: usrbin
+          hostPath:
+            path: /usr/bin
+        - name: sysinfo
+          hostPath:
+            path: /sys
+        - name: hostvar
+          hostPath:
+            path: /var
+        - name: deviceconfig
+          configMap:
+            name: {{ .Values.devicePlugin.nodeConfiguration.externalConfigName | default (include "hami-enterprise.device-plugin" .) }}
+        - name: device-config
+          configMap:
+            name: {{ include "hami-enterprise.scheduler" . }}-device
+      {{- if .Values.devicePlugin.nvidiaNodeSelector }}
+      nodeSelector: {{ toYaml .Values.devicePlugin.nvidiaNodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.devicePlugin.tolerations }}
+      tolerations: {{ toYaml .Values.devicePlugin.tolerations | nindent 8 }}
+      {{- end }}
+{{- end }}

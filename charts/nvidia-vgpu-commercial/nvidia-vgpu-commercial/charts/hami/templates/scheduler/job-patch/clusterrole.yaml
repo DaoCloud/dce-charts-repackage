@@ -1,0 +1,30 @@
+{{- if and .Values.scheduler.admissionWebhook.enabled (not .Values.dra.enabled) .Values.scheduler.patch.enabled (not .Values.scheduler.certManager.enabled) }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "hami-enterprise.fullname" . }}-admission
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "hami-enterprise.schedulerLabels" . | nindent 4 }}
+    app.kubernetes.io/component: hami-scheduler
+rules:
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+      {{- if and .Values.devices.ascend.enabled (semverCompare ">=1.30.0-0" .Capabilities.KubeVersion.Version) }}
+      - validatingwebhookconfigurations
+      {{- end }}
+    verbs:
+      - get
+      - update
+{{- if .Values.podSecurityPolicy.enabled }}
+  - apiGroups: ['extensions']
+    resources: ['podsecuritypolicies']
+    verbs:     ['use']
+    resourceNames:
+    - {{ include "hami-enterprise.fullname" . }}-admission
+{{- end }}
+{{- end }}

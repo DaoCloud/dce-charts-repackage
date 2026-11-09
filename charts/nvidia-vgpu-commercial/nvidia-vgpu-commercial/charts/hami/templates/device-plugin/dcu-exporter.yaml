@@ -1,0 +1,112 @@
+{{- if .Values.devices.vdcu.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dcu-exporter
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/name: dcu-exporter
+    app.kubernetes.io/component: hami-device-plugin
+    app.kubernetes.io/version: {{ .Values.devices.vdcu.exporter.version | quote }}
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dcu-exporter
+      app.kubernetes.io/version: {{ .Values.devices.vdcu.exporter.version | quote }}
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.devices.vdcu.exporter.port | quote }}
+        prometheus.io/path: metrics
+      labels:
+        app.kubernetes.io/name: dcu-exporter
+        app.kubernetes.io/version: {{ .Values.devices.vdcu.exporter.version | quote }}
+      name: dcu-exporter
+    spec:
+      hostNetwork: true
+      serviceAccountName: dcu-exporter-pod-reader
+      containers:
+        - name: dcu-exporter
+          image: {{ .Values.devices.vdcu.exporter.image | quote }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          env:
+            - name: DCU_EXPORTER_KUBERNETES
+              value: "true"
+            - name: DCU_EXPORTER_LISTEN
+              value: {{ .Values.devices.vdcu.exporter.port | quote }}
+          ports:
+            - name: monitorport
+              containerPort: {{ .Values.devices.vdcu.exporter.port }}
+              hostPort: {{ .Values.devices.vdcu.exporter.port }}
+          volumeMounts:
+            - name: var
+              readOnly: true
+              mountPath: /var/lib/kubelet
+            {{- with .Values.devices.vdcu.exporter.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: var
+          hostPath:
+            path: {{ .Values.devices.vdcu.exporter.kubeletPath | default "/var/lib/kubelet" | quote }}
+        {{- range .Values.devices.vdcu.exporter.extraHostVolumes }}
+        - name: {{ .name | quote }}
+          hostPath:
+            path: {{ .hostPath | quote }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dcu-exporter
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/name: dcu-exporter
+    app.kubernetes.io/component: hami-device-plugin
+    app.kubernetes.io/version: {{ .Values.devices.vdcu.exporter.version | quote }}
+spec:
+  selector:
+    app.kubernetes.io/name: dcu-exporter
+    app.kubernetes.io/version: {{ .Values.devices.vdcu.exporter.version | quote }}
+  ports:
+    - name: monitorport
+      port: {{ .Values.devices.vdcu.exporter.port }}
+      targetPort: monitorport
+  type: NodePort
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dcu-exporter-pod-reader
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dcu-exporter-pod-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["*"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["pods"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dcu-exporter-read-pods-global
+subjects:
+  - kind: ServiceAccount
+    name: dcu-exporter-pod-reader
+    namespace: {{ .Release.Namespace | quote }}
+roleRef:
+  kind: ClusterRole
+  name: dcu-exporter-pod-reader
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

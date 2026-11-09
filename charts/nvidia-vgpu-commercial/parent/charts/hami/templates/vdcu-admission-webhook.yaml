@@ -1,0 +1,284 @@
+{{- if .Values.devices.vdcu.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admission-webhook-dcu-svc
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app: admission-webhook-dcu
+spec:
+  ports:
+    - port: 443
+      targetPort: 443
+  selector:
+    app: admission-webhook-dcu
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vdcu-admission-webhook
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app: admission-webhook-dcu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admission-webhook-dcu
+  template:
+    metadata:
+      labels:
+        app: admission-webhook-dcu
+    spec:
+      serviceAccount: admission-webhook-dcu-sa
+      tolerations:
+        - effect: NoSchedule
+          key:  node-role.kubernetes.io/control-plane
+          operator: Equal
+#      hostNetwork: true  # 让 Pod 直接使用宿主机网络
+      dnsPolicy: ClusterFirstWithHostNet  # 让 Pod 在 hostNetwork 下仍能解析集群内部 DNS
+      initContainers:
+        - name: init-certs
+          image: {{ .Values.devices.vdcu.admissionWebhook.image | quote }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "/usr/local/bin/admission-webhook-dcu -init-certs=true -namespace=${NAMESPACE}"
+          volumeMounts:
+            - name: webhook-certs
+              mountPath: /etc/webhook/certs
+            - name: shared-volume
+              mountPath: /shared
+      containers:
+        - name: admission-webhook-dcu
+          image: {{ .Values.devices.vdcu.admissionWebhook.image | quote }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "/usr/local/bin/admission-webhook-dcu -alsologtostderr -v=2 -namespace=${NAMESPACE}"
+          volumeMounts:
+            - name: webhook-certs
+              mountPath: /etc/webhook/certs
+              readOnly: true
+            - name: shared-volume
+              mountPath: /shared
+      volumes:
+        - name: webhook-certs
+          secret:
+            secretName: admission-webhook-dcu-certs
+            optional: true  # 让 Pod 在 Secret 还没创建时也能启动
+        - name: shared-volume
+          emptyDir: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admission-webhook-dcu-sa
+  namespace: {{ .Release.Namespace | quote }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: admission-webhook-dcu-cr
+  labels:
+    app: admission-webhook-dcu
+rules:
+  - apiGroups:
+      - sugon.com
+    resources:
+      - "*"
+    verbs:
+      - "*"
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - events
+      - deployments
+      - daemonsets
+      - replicasets
+      - statefulsets
+      - pvc
+      - persistentVolumeClaim
+      - persistentvolumes
+      - persistentvolumeclaims
+      - storageclasses
+      - nodes
+      - secrets
+    verbs:
+      - "*"
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - daemonsets
+      - replicasets
+      - statefulsets
+      - pvc
+      - persistentVolumeClaim
+      - persistentvolumes
+      - persistentvolumeclaims
+      - storageclasses
+      - secrets
+    verbs:
+      - "*"
+  - apiGroups:
+      - autoscaling
+    resources:
+      - '*'
+    verbs:
+      - '*'
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - pods
+      - events
+      - deployments
+      - daemonsets
+      - replicasets
+      - statefulsets
+      - pvc
+      - persistentVolumeClaim
+      - persistentvolumeclaims
+      - persistentvolumes
+      - storageclasses
+      - secrets
+    verbs:
+      - '*'
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+      - patch
+      - watch
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: admission-webhook-dcu-crb
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app: admission-webhook-dcu
+subjects:
+  - kind: ServiceAccount
+    name: admission-webhook-dcu-sa
+    namespace: {{ .Release.Namespace | quote }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admission-webhook-dcu-cr
+---
+# admission-webhook-dcu 进程在运行时自行 create MutatingWebhookConfiguration，
+# 不在 helm release 资源清单内，uninstall/upgrade 时容易残留并阻塞全集群 Pod 创建。
+# pre-delete: 卸载兜底
+# pre-upgrade: 防止用户 upgrade 时把 vdcu 关掉后残留（webhook 进程下次启动会自己重建配置，幂等）
+#
+# 用独立的 hook-managed SA/RBAC，避免在"首次 upgrade 启用 vdcu"时
+# 因 admission-webhook-dcu-sa 还未创建导致 Job 起不来。
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vdcu-webhook-cleanup-sa
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app: admission-webhook-dcu
+  annotations:
+    "helm.sh/hook": pre-delete,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vdcu-webhook-cleanup-cr
+  labels:
+    app: admission-webhook-dcu
+  annotations:
+    "helm.sh/hook": pre-delete,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["mutatingwebhookconfigurations"]
+    verbs: ["get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vdcu-webhook-cleanup-crb
+  labels:
+    app: admission-webhook-dcu
+  annotations:
+    "helm.sh/hook": pre-delete,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+subjects:
+  - kind: ServiceAccount
+    name: vdcu-webhook-cleanup-sa
+    namespace: {{ .Release.Namespace | quote }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: vdcu-webhook-cleanup-cr
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vdcu-webhook-cleanup
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app: admission-webhook-dcu
+  annotations:
+    "helm.sh/hook": pre-delete,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 60
+  template:
+    metadata:
+      labels:
+        app: admission-webhook-dcu
+    spec:
+      restartPolicy: Never
+      serviceAccountName: vdcu-webhook-cleanup-sa
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+          operator: Equal
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Equal
+      containers:
+        - name: cleanup
+          image: {{ (.Values.devices.vdcu.cleanupHook).image | default "docker.m.daocloud.io/rancher/kubectl:v1.28.0" | quote }}
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/kubectl
+          args:
+            - delete
+            - mutatingwebhookconfiguration
+            - -l
+            - app=admission-webhook-dcu
+            - --ignore-not-found
+{{- end }}

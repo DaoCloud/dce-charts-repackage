@@ -1,0 +1,39 @@
+{{- if not .Values.dra.enabled }}
+{{- if .Values.scheduler.serviceMonitor.enable }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    operator.insight.io/managed-by: insight
+    {{- include "hami-enterprise.labels" . | nindent 4 }}
+  name: {{ include "hami-enterprise.scheduler" . }}-exporter
+  namespace: {{ include "hami-enterprise.namespace" . }}
+spec:
+  endpoints:
+  - bearerTokenSecret:
+      key: ""
+    interval: 15s
+    metricRelabelings:
+    - action: replace
+      sourceLabels:
+      - podname
+      targetLabel: exported_pod
+    - action: replace
+      sourceLabels:
+      - podnamespace
+      targetLabel: exported_namespace
+    - action: replace
+      sourceLabels:
+      - nodeid
+      targetLabel: node
+    path: /metrics
+    port: monitor
+  jobLabel: app
+  namespaceSelector:
+    matchNames:
+    - {{ include "hami-enterprise.namespace" . }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: hami-scheduler
+{{- end }}
+{{- end }}
