@@ -1,48 +1,52 @@
 #!/bin/bash
 
-set -x 
+set -x
 set -o errexit
 set -o nounset
 set -o pipefail
 
-
 CURRENT_DIR_PATH=$(cd $(dirname $0); pwd)
-
 cd $CURRENT_DIR_PATH
-if [ ! -d "chart-harbor-operator" ]; then
-    git clone https://github.com/goharbor/harbor-operator.git chart-harbor-operator
-fi
-cd chart-harbor-operator && git checkout $VERSION && cd ../
-cp -rf chart-harbor-operator/charts/harbor-operator . && rm -rf chart-harbor-operator
+
+# The operator image, published with the chart by DaoCloud/harbor-operator-lts.
+IMAGE_REGISTRY=ghcr.m.daocloud.io
+IMAGE_REPOSITORY=daocloud/harbor-operator-lts/harbor-operator
+# Kangaroo deploys Harbor from release.daocloud.io/goharbor (online) or the offline registry.
+HARBOR_REGISTRY=release.daocloud.io
+
+rm -rf harbor-operator
+helm pull "${REPO_URL}" --version "${VERSION}" --untar
 ls -lh
 
+# Kangaroo deploys the minio, redis and postgres operators itself. Helm loads every chart under
+# charts/ even without a dependency entry, so drop the bundled sub-charts as well.
+rm -rf harbor-operator/charts harbor-operator/Chart.lock
+yq -i 'del(.dependencies)' harbor-operator/Chart.yaml
+
 cp .relok8s-images.yaml ./harbor-operator/
+for version in ${HARBOR_VERSIONS}; do
+  for component in core nginx chartmuseum jobservice registryctl distribution portal trivy; do
+    echo "- \"{{ .harbor.registry }}/{{ .harbor.${component}.repository }}:{{ .harbor.relok8sPlaceholder }}${version}\"" >> ./harbor-operator/.relok8s-images.yaml
+  done
+done
 
-# add image.registry field
-imageRegistry=`sed -n -e 'registry: release.daocloud.io' harbor-operator/values.yaml`
-os=$(uname)
-echo $os
+# sed -i.bak works with both GNU and BSD sed.
+VALUES=harbor-operator/values.yaml
+# image.registry / image.repository: the chart only has image.repository.
+sed -i.bak -E "1,10s#^  repository: .*#  registry: ${IMAGE_REGISTRY}\\
+  repository: ${IMAGE_REPOSITORY}#" ${VALUES}
+grep -q "^  registry: ${IMAGE_REGISTRY}$" ${VALUES}
+sed -i.bak "s/installCRDs: false/installCRDs: true/g" ${VALUES}
+rm -f ${VALUES}.bak
 
-if [ $os == "Darwin" ];then
-    if [ ! $imageRegistry ];then
-        line=`sed -n -e '/# image.repository/=' harbor-operator/values.yaml`
-        echo "line is:" $line
-        sed -i "" "$line i\\
-  registry: release.daocloud.io
-        " harbor-operator/values.yaml
-    fi
-elif [ $os == "Linux" ];then
-    if [ ! $imageRegistry ];then
-            line=`sed -n -e '/# image.repository/=' harbor-operator/values.yaml`
-            echo "line is:" $line
-            sed -i "$line i \  registry: release.daocloud.io" harbor-operator/values.yaml
-    fi
-fi
-
-# add harbor every compose repository and harbor tag version
+# Harbor images: the operator does not read these values; they exist so that relok8s lists the
+# Harbor images of every version in HARBOR_VERSIONS for offline packages.
 echo "
 harbor:
-  tag: ${HARBOR_VERSION}
+  registry: ${HARBOR_REGISTRY}
+  versions: [$(echo ${HARBOR_VERSIONS} | sed 's/ /, /g')]
+  # keep empty: lets relok8s resolve the per-version tags in .relok8s-images.yaml
+  relok8sPlaceholder: \"\"
   core:
     repository: goharbor/harbor-core
   nginx:
@@ -59,71 +63,19 @@ harbor:
      repository: goharbor/harbor-portal
   trivy:
      repository: goharbor/trivy-adapter-photon
-" >> harbor-operator/values.yaml
+" >> ${VALUES}
 
-pwd
-if [ ! -f ./harbor-operator/values.schema.json ] ; then
-    echo "auto generate values.schema.js on"
-    if ! helm schema-gen -h &>/dev/null ; then
-        echo "install helm-schema-gen "
-        helm plugin install https://github.com/karuppiah7890/helm-schema-gen.git
-    fi
-    cd  ./harbor-operator
-    ls -lh
-    helm schema-gen values.yaml > ./values.schema.json
-    (($?!=0)) && echo "error, failed to call schema-gen" && exit 9
-    cd ../
-fi
+# Prefix the image with image.registry.
+DEPLOYMENT=harbor-operator/templates/deployment.yaml
+sed -i.bak "s/'{{.Values.image.repository}}:{{.Values.image.tag|default .Chart.AppVersion}}'/\"{{ .Values.image.registry }}\/{{.Values.image.repository}}:{{.Values.image.tag|default .Chart.AppVersion}}\"/g" ${DEPLOYMENT}
+rm -f ${DEPLOYMENT}.bak
+grep -q '{{ .Values.image.registry }}/' ${DEPLOYMENT}
 
-# echo $VERSION
-ChartVersion=`echo ${VERSION}|sed 's/v//' | sed 's/-rc1//'`
-if [ $os == "Linux" ];then
-    sed -i "s/version: 0.1.0/version: ${ChartVersion}/g" harbor-operator/Chart.yaml
-elif [ $os == "Darwin" ];then
-    sed -i "" "s/version: 0.1.0/version: ${ChartVersion}/g" harbor-operator/Chart.yaml
-fi
-
-startLine=`sed -n -e '/dependencies:/=' harbor-operator/Chart.yaml`
-if [ ! $startLine ];then
-    echo "not found"
-    exit 0
-fi
-endLine=`sed -n -e '/- database/=' harbor-operator/Chart.yaml`
-if [ $os == "Linux" ];then
-    sed -i "$startLine","$endLine"d harbor-operator/Chart.yaml
-elif [ $os == "Darwin" ];then
-    sed -i '' "$startLine","$endLine"d harbor-operator/Chart.yaml
-fi
-
-# replace image url
-if [ $os == "Linux" ];then
-  sed -i "s/'{{.Values.image.repository}}:{{.Values.image.tag|default .Chart.AppVersion}}'/\"{{ .Values.image.registry }}\/{{.Values.image.repository}}:{{.Values.image.tag|default .Chart.AppVersion}}\"/g" harbor-operator/templates/deployment.yaml
-elif [ $os == "Darwin" ];then
-  sed -i "" "s/'{{.Values.image.repository}}:{{.Values.image.tag|default .Chart.AppVersion}}'/\"{{ .Values.image.registry }}\/{{.Values.image.repository}}:{{.Values.image.tag|default .Chart.AppVersion}}\"/g" harbor-operator/templates/deployment.yaml
-fi
-
-# send keyword to Chart.yaml
-echo "
-keywords:
-  - harbor-operator
-" >> harbor-operator/Chart.yaml
-
-# remove README.md
-rm -rf harbor-operator/README.md
-rm -rf harbor-operator/README.md.gotmpl
-
-# update installCRDs: true
-if [ $os == "Linux" ];then
-    sed -i "s/installCRDs: false/installCRDs: true/g" harbor-operator/values.yaml
-elif [ $os == "Darwin" ];then
-    sed -i "" "s/installCRDs: false/installCRDs: true/g" harbor-operator/values.yaml
-fi
-
-# replace values.schema.json
+rm -rf harbor-operator/README.md harbor-operator/README.md.gotmpl
 cp ./parent/values.schema.json ./harbor-operator/values.schema.json
 
-
 yq -i '
-   .annotations["addon.kpanda.io/namespace"]="kangaroo-system"|
+   .keywords = ["harbor-operator"] |
+   .annotations["addon.kpanda.io/namespace"]="kangaroo-system" |
    .annotations["addon.kpanda.io/release-name"]="harbor-operator"
 ' harbor-operator/Chart.yaml
