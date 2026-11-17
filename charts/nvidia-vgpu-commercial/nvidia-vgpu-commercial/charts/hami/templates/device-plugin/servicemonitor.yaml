@@ -1,0 +1,23 @@
+{{- if and .Values.devicePlugin.enabled (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1/ServiceMonitor") .Values.prometheus.enabled }}
+# Prometheus Service Monitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "hami-enterprise.device-plugin" . }}-metrics-monitor
+  namespace: {{ include "hami-enterprise.namespace" . }}
+  labels:
+    app.kubernetes.io/component: hami-device-plugin
+    {{- include "hami-enterprise.labels" . | nindent 4 }}
+    {{- with .Values.global.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: hami-device-plugin
+      {{- include "hami-enterprise.selectorLabels" . | nindent 6 }}
+  endpoints:
+  - port: monitorport
+    path: "/metrics"
+    honorLabels: true
+{{- end }}

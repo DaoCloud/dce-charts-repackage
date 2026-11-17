@@ -1,0 +1,64 @@
+{{- if .Values.scheduler.admissionWebhook.enabled -}}
+{{- if and (.Values.scheduler.patch.enabled) (not .Values.scheduler.certManager.enabled) }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "hami-enterprise.fullname" . }}-admission-patch
+  namespace: {{ include "hami-enterprise.namespace" . }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "hami-enterprise.labels" . | nindent 4 }}
+    app.kubernetes.io/component: admission-webhook
+spec:
+  template:
+    metadata:
+      name: {{ include "hami-enterprise.fullname" . }}-admission-patch
+      {{- if .Values.scheduler.patch.podAnnotations }}
+      annotations: {{ toYaml .Values.scheduler.patch.podAnnotations | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "hami-enterprise.labels" . | nindent 8 }}
+        app.kubernetes.io/component: admission-webhook
+        hami.io/webhook: ignore
+    spec:
+      {{- if .Values.scheduler.patch.priorityClassName }}
+      priorityClassName: {{ .Values.scheduler.patch.priorityClassName }}
+      {{- end }}
+      {{- include "hami.scheduler.patch.new.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: patch
+          image: {{ include "hami.scheduler.patch.new.image" . }}
+          imagePullPolicy: {{ .Values.scheduler.patch.imageNew.pullPolicy }}
+          {{- if .Values.platform.openshift }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          {{- end }}
+          args:
+            - patch
+            - --webhook-name={{ include "hami-enterprise.scheduler.webhook" . }}
+            - --namespace={{ include "hami-enterprise.namespace" . }}
+            - --patch-validating={{ include "hami-enterprise.allocationValidationEnabled" . }}
+            - --secret-name={{ include "hami-enterprise.scheduler.tls" . }}
+      restartPolicy: OnFailure
+      serviceAccountName: {{ include "hami-enterprise.fullname" . }}-admission
+      {{- if .Values.scheduler.patch.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.scheduler.patch.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.scheduler.patch.tolerations }}
+      tolerations: {{ toYaml .Values.scheduler.patch.tolerations | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        {{- if .Values.platform.openshift }}
+        seccompProfile:
+          type: RuntimeDefault
+        {{- end }}
+        {{- if and (not .Values.platform.openshift) .Values.scheduler.patch.runAsUser }}
+        runAsUser: {{ .Values.scheduler.patch.runAsUser }}
+        {{- end }}
+{{- end }}
+{{- end }}
