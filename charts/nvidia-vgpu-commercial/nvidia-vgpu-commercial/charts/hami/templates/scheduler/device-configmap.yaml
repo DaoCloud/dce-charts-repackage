@@ -1,0 +1,142 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "hami-enterprise.scheduler" . }}-device
+  namespace: {{ include "hami-enterprise.namespace" . }}
+  labels:
+    app.kubernetes.io/component: hami-scheduler
+    {{- include "hami-enterprise.labels" . | nindent 4 }}
+data:
+  device-config.yaml: |-
+  {{- if and (index .Values "device-config") (index .Values "device-config" "content") }}
+  {{- (index .Values "device-config" "content") | nindent 4 }}
+  {{- else if .Files.Glob "files/device-config.yaml" }}
+  {{- .Files.Get "files/device-config.yaml" | nindent 4}}
+  {{- else }}
+    nvidia:
+      useDownward: {{ .Values.scheduler.useDownward }}
+      postNvidiaSmi: true
+      resourceCountName: {{ .Values.devices.nvidia.resourceCountName }}
+      resourceMemoryName: {{ .Values.devices.nvidia.resourceMemoryName }}
+      resourceMemoryPercentageName: {{ .Values.devices.nvidia.resourceMemoryPercentageName }}
+      resourceCoreName: {{ .Values.devices.nvidia.resourceCoreName }}
+      resourcePriorityName: {{ .Values.devices.nvidia.resourcePriorityName }}
+      overwriteEnv: {{ .Values.scheduler.overwriteEnv | default "false" }}
+      defaultMemory: {{ .Values.devices.nvidia.defaultMemory }}
+      defaultCores: {{ .Values.devices.nvidia.defaultCores }}
+      defaultGPUNum: {{ .Values.devices.nvidia.defaultGPUNum }}
+      preConfiguredDeviceMemory: {{ .Values.devices.nvidia.preConfiguredDeviceMemory }}
+      memoryFactor: {{ .Values.devices.nvidia.memoryFactor }}
+      deviceSplitCount: {{ .Values.devices.nvidia.deviceSplitCount }}
+      deviceMemoryScaling: {{ .Values.devices.nvidia.deviceMemoryScaling }}
+      deviceCoreScaling: {{ .Values.devices.nvidia.deviceCoreScaling }}
+      enableNumaTopology: {{ .Values.devices.nvidia.enableNumaTopology }}
+      gpuCorePolicy: {{ .Values.devices.nvidia.gpuCorePolicy }}
+      libCudaLogLevel: {{ .Values.devices.nvidia.libCudaLogLevel }}
+      limitDelivery: {{ .Values.devices.nvidia.limitDelivery | default "file" }}
+      runtimeClassName: "{{ .Values.devices.nvidia.runtimeClassName }}"
+      adoptExistingMIGInstances: {{ .Values.devices.nvidia.adoptExistingMIGInstances | default false }}
+      migProfileAllowlist:
+{{ toYaml .Values.devices.nvidia.migProfileAllowlist | indent 8 }}
+    alibaba:
+      resourceCountName: "alibaba.com/ppu"
+      resourceMemoryName: "alibaba.com/ppu-memory"
+      resourceMemoryPercentageName: "alibaba.com/ppu-memory-percentage"
+      resourceCoreName: "alibaba.com/gpu-core"
+      resourcePriorityName: "alibaba.com/priority"
+      overwriteEnv: false
+      defaultMemory: 0
+      defaultCores: 0
+      defaultPPUNum: 1
+      memoryFactor: 1
+      deviceSplitCount: {{ .Values.devices.nvidia.deviceSplitCount }}
+      deviceMemoryScaling: {{ .Values.devices.nvidia.deviceMemoryScaling }}
+      deviceCoreScaling: {{ .Values.devices.nvidia.deviceCoreScaling }}
+      ppuCorePolicy: {{ .Values.devices.alibaba.ppuCorePolicy | default "default" }}
+      runtimeClassName: "{{ .Values.devices.nvidia.runtimeClassName }}"
+    cambricon:
+      resourceCountName: {{ .Values.devices.cambricon.resourceCountName }}
+      resourceMemoryName: {{ .Values.devices.cambricon.resourceMemoryName }}
+      resourceCoreName: {{ .Values.devices.cambricon.resourceCoreName }}
+    hygon:
+      resourceCountName: {{ .Values.devices.hygon.resourceCountName }}
+      resourceMemoryName: {{ .Values.devices.hygon.resourceMemoryName }}
+      resourceCoreName: {{ .Values.devices.hygon.resourceCoreName }}
+      memoryFactor: {{ .Values.devices.hygon.memoryFactor }}
+    metax:
+      resourceCountName: {{ .Values.devices.metax.resourceCountName }}
+      resourceVCountName: {{ .Values.devices.metax.resourceVCountName }}
+      resourceVMemoryName: {{ .Values.devices.metax.resourceVMemoryName }}
+      resourceVCoreName: {{ .Values.devices.metax.resourceVCoreName }}
+      sgpuTopologyAware: {{ .Values.devices.metax.sgpuTopologyAware }}
+    enflame:
+      resourceNameVGCU: {{ .Values.devices.enflame.resourceNameVGCU }}
+      resourceNameVGCUPercentage: {{ .Values.devices.enflame.resourceNameVGCUPercentage }}
+      resourceNameGCU: {{ .Values.devices.enflame.resourceNameGCU }}
+      resourceNameDRSGCU: {{ .Values.devices.enflame.resourceNameDRSGCU }}
+      resourceNameGCUMemory: {{ .Values.devices.enflame.resourceNameGCUMemory }}
+      resourceNameGCUCore: {{ .Values.devices.enflame.resourceNameGCUCore }}
+    mthreads:
+      resourceCountName: {{ .Values.devices.mthreads.resourceCountName }}
+      resourceMemoryName: {{ .Values.devices.mthreads.resourceMemoryName }}
+      resourceCoreName: {{ .Values.devices.mthreads.resourceCoreName }}
+      memoryPerCard:
+{{- $memoryPerCard := .Values.devices.mthreads.memoryPerCard }}
+{{- /* Keep legacy scalar overrides compatible with the list-based runtime field. */}}
+{{- if and (not (kindIs "slice" $memoryPerCard)) (not (kindIs "invalid" $memoryPerCard)) }}
+{{- $memoryPerCard = list $memoryPerCard }}
+{{- end }}
+{{ toYaml $memoryPerCard | indent 8 }}
+    iluvatars:
+{{ toYaml .Values.devices.iluvatar.configs | indent 6 }}
+    {{- if .Values.devices.remotegpu.enabled }}
+    remotegpu:
+      resourceCountName: {{ .Values.devices.remotegpu.resourceCountName }}
+      resourceMemoryName: {{ .Values.devices.remotegpu.resourceMemoryName }}
+      defaultPort: {{ .Values.devices.remotegpu.defaultPort }}
+      {{- /* Unset means the device plugin image; "" is the documented opt-out,
+             which `default` would have swallowed along with it. */}}
+      {{- if kindIs "invalid" .Values.devices.remotegpu.libImage }}
+      libImage: {{ include "hami.devicePlugin.image" . | quote }}
+      {{- else }}
+      libImage: {{ .Values.devices.remotegpu.libImage | quote }}
+      {{- end }}
+      clientImage: {{ include "common.images.source" (dict "image" .Values.devices.remotegpu.clientImage "global" .Values.global) | quote }}
+      sessionImage: {{ .Values.devices.remotegpu.sessionImage | quote }}
+      {{- $sessionImagePullSecrets := concat (.Values.global.imagePullSecrets | default (list)) (.Values.devices.remotegpu.sessionImagePullSecrets | default (list)) }}
+      {{- with $sessionImagePullSecrets }}
+      sessionImagePullSecrets:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+    {{- end }}
+    kunlun:
+      resourceCountName: {{ .Values.devices.kunlun.resourceCountName }}
+      resourceVCountName: {{ .Values.devices.kunlun.resourceVCountName }}
+      resourceVMemoryName: {{ .Values.devices.kunlun.resourceVMemoryName }}
+    awsneuron:
+      resourceCountName: {{ .Values.devices.awsneuron.resourceCountName }}
+      resourceCoreName: {{ .Values.devices.awsneuron.resourceCoreName }}
+    amd:
+      resourceCountName: {{ .Values.devices.amd.resourceCountName }}
+      resourceCoreName: {{ .Values.devices.amd.resourceCoreName }}
+      resourceMemoryName: {{ .Values.devices.amd.resourceMemoryName }}
+      defaultGPUNum: {{ .Values.devices.amd.defaultGPUNum }}
+      defaultMemory: {{ .Values.devices.amd.defaultMemory }}
+      defaultCores: {{ .Values.devices.amd.defaultCores }}
+      resourceMemoryPercentageName: {{ .Values.devices.amd.resourceMemoryPercentageName }}
+      runtimeClassName: "{{ .Values.devices.amd.runtimeClassName }}"
+    vastai:
+      resourceCountName: {{ .Values.devices.vastai.resourceCountName }}
+    biren:
+      resourceCountName: {{ .Values.devices.biren.resourceCountName }}
+    vnpus:
+      hamiCorePolicy: {{ .Values.devices.ascend.hamiCorePolicy | quote }}
+      deviceCoreScaling: {{ .Values.devices.ascend.deviceCoreScaling }}
+      deviceSplitCount: {{ .Values.devices.ascend.deviceSplitCount | int64 }}
+      hamiVnpuMode: {{ include "hami-enterprise.ascendVnpuMode" . | quote }}
+      enpuPolicy: {{ .Values.devices.ascend.enpuPolicy | default "elastic" | quote }}
+      overwriteEnv: {{ .Values.scheduler.overwriteEnv | default "false" }}
+      runtimeClassName: "{{ .Values.devices.ascend.runtimeClassName }}"
+      configs:
+{{ toYaml .Values.devices.ascend.configs | indent 8 }}
+  {{ end }}

@@ -1,0 +1,80 @@
+{{- if .Values.devices.vdcu.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cr-node-labeller
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["watch", "get", "list", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: labeller
+  namespace: {{ .Release.Namespace | quote }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cr-node-labeller
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: {{ .Release.Namespace | quote }}
+  - kind: ServiceAccount
+    name: default
+    namespace: kube-system
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dcu-label-node
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  selector:
+    matchLabels:
+      name: dcu-label-node
+  template:
+    metadata:
+      labels:
+        name: dcu-label-node
+    spec:
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      containers:
+      - image: {{ .Values.devices.vdcu.labelNode.image | quote }}
+        name: dcu-label-node-cntr
+        securityContext:
+          privileged: true
+        env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+        volumeMounts:
+          - name: dev
+            mountPath: /dev
+          - name: vdev
+            mountPath: /etc/vdev
+          - name: hyhal
+            readOnly: true
+            mountPath: /opt/hyhal
+          - name: hostname
+            mountPath: /etc/hostname
+      volumes:
+        - name: dev
+          hostPath:
+            path: /dev
+        - name: vdev
+          hostPath:
+            path: /etc/vdev
+            type: DirectoryOrCreate
+        - name: hyhal
+          hostPath:
+            path: /opt/hyhal
+            type: DirectoryOrCreate
+        - name: hostname
+          hostPath:
+            path: /etc/hostname
+{{- end }}
