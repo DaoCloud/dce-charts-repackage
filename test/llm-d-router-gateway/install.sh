@@ -32,6 +32,7 @@ kubectl apply -f https://github.com/kubernetes-sigs/gateway-api-inference-extens
 helm install llm-d-router-gateway chart-museum/llm-d-router-gateway ${HELM_MUST_OPTION} \
   --set llm-d-router-gateway.router.modelServers\.matchLabels.app=vllm-llama3-8b-instruct \
   --set llm-d-router-gateway.router.epp.replicas=2 \
+  --set llm-d-router-gateway.router.epp.haMode=all-active \
   --set llm-d-router-gateway.router.epp.deploymentStrategy.type=RollingUpdate \
   --namespace llm-d-router-gateway --create-namespace
 
