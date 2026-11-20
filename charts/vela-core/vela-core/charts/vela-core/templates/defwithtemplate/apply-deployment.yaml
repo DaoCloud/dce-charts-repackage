@@ -14,12 +14,9 @@ spec:
     cue:
       template: |
         import (
-        	"strconv"
-        	"strings"
         	"vela/kube"
         	"vela/builtin"
         )
-
         output: kube.#Apply & {
         	$params: {
         		cluster: parameter.cluster

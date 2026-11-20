@@ -18,7 +18,6 @@ spec:
         	"vela/multicluster"
         	"vela/builtin"
         )
-
         if parameter.auto == false {
         	suspend: builtin.#Suspend & {$params: message: "Waiting approval to the deploy step \"\(context.stepName)\""}
         }

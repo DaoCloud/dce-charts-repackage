@@ -17,9 +17,7 @@ spec:
         	"vela/config"
         	"vela/kube"
         	"vela/builtin"
-        	"strings"
         )
-
         cfg: config.#CreateConfig & {
         	$params: {
         		name:      "\(context.name)-\(context.stepName)"
@@ -87,9 +85,9 @@ spec:
         	}
         }
         providerBasic: {
-        	accessKey: string
-        	secretKey: string
-        	region:    string
+        	accessKey!: string
+        	secretKey!: string
+        	region!:    string
         }
         #AlibabaProvider: {
         	providerBasic
@@ -141,5 +139,5 @@ spec:
         	type:       "ucloud"
         	name:       *"ucloud-provider" | string
         }
-        parameter: *#AlibabaProvider | #AWSProvider | #AzureProvider | #BaiduProvider | #ECProvider | #GCPProvider | #TencentProvider | #UCloudProvider
+        parameter: #AlibabaProvider | #AWSProvider | #AzureProvider | #BaiduProvider | #ECProvider | #GCPProvider | #TencentProvider | #UCloudProvider
 

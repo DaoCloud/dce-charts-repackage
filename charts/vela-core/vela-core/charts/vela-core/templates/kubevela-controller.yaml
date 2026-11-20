@@ -298,6 +298,14 @@ spec:
             - "--max-workflow-step-error-retry-times={{ .Values.workflow.step.errorRetryTimes }}"
             - "--enable-external-package-for-default-compiler={{ .Values.workflow.enableExternalPackageForDefaultCompiler }}"
             - "--enable-external-package-watch-for-default-compiler={{ .Values.workflow.enableExternalPackageWatchForDefaultCompiler }}"
+            - "--enable-cue-version-compatibility={{ .Values.workflow.enableCUEVersionCompatibility }}"
+            - "--cue-compatibility-cache-size={{ .Values.workflow.cueCompatibilityCacheSize }}"
+            - "--cue-upgrade-list-concat-enabled={{ .Values.workflow.cueUpgradeListConcatEnabled }}"
+            - "--cue-upgrade-error-field-label-enabled={{ .Values.workflow.cueUpgradeErrorFieldLabelEnabled }}"
+            - "--cue-upgrade-bool-default-guard-enabled={{ .Values.workflow.cueUpgradeBoolDefaultGuardEnabled }}"
+            - "--cue-upgrade-generic-default-guard-enabled={{ .Values.workflow.cueUpgradeGenericDefaultGuardEnabled }}"
+            - "--cue-upgrade-keepvalidators-singleton-enabled={{ .Values.workflow.cueUpgradeKeepValidatorsSingletonEnabled }}"
+            - "--cue-upgrade-evalv3-selfref-guard-enabled={{ .Values.workflow.cueUpgradeEvalv3SelfRefGuardEnabled }}"
             - "--feature-gates=EnableSuspendOnFailure={{- .Values.workflow.enableSuspendOnFailure | toString -}}"
             - "--feature-gates=GzipResourceTracker={{- .Values.featureGates.gzipResourceTracker | toString -}}"
             - "--feature-gates=AuthenticateApplication={{- .Values.authentication.enabled | toString -}}"
@@ -314,6 +322,8 @@ spec:
             - "--feature-gates=EnableCueValidation={{- .Values.featureGates.enableCueValidation | toString -}}"
             - "--feature-gates=EnableApplicationStatusMetrics={{- .Values.featureGates.enableApplicationStatusMetrics | toString -}}"
             - "--feature-gates=ValidateResourcesExist={{- .Values.featureGates.validateResourcesExist | toString -}}"
+            - "--feature-gates=EnableApplicationScopedPolicies={{- .Values.featureGates.enableApplicationScopedPolicies | toString -}}"
+            - "--feature-gates=EnableGlobalPolicies={{- .Values.featureGates.enableGlobalPolicies | toString -}}"
             - "--feature-gates=ValidateDefinitionPermissions={{ .Values.authorization.definitionValidationEnabled | toString -}}"
             {{ if .Values.authentication.enabled }}
             {{ if .Values.authentication.withUser }}
@@ -331,6 +341,16 @@ spec:
             - "--dev-logs={{ .Values.devLogs }}"
           image: {{ include "global.images.image" (dict "imageRoot" .Values.image "global" .Values.global ) }}
           imagePullPolicy: {{ quote .Values.image.pullPolicy }}
+          {{- if or .Values.extraEnvs .Values.featureGates.enableCueExpVariable }}
+          env:
+          {{- with .Values.extraEnvs }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.featureGates.enableCueExpVariable }}
+            - name: CUE_EXPERIMENT
+              value: "evalv3=0,keepvalidators=0"
+          {{- end }}
+          {{- end }}
           resources:
           {{- toYaml .Values.resources | nindent 12 }}
           {{ if .Values.admissionWebhooks.enabled }}
