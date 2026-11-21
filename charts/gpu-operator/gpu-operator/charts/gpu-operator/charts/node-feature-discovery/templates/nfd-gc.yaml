@@ -22,6 +22,9 @@ spec:
     metadata:
       labels:
         {{- include "node-feature-discovery.selectorLabels" . | nindent 8 }}
+        {{- with .Values.gc.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         role: gc
       {{- with .Values.gc.annotations }}
       annotations:
@@ -37,6 +40,13 @@ spec:
       securityContext:
         {{- toYaml .Values.gc.podSecurityContext | nindent 8 }}
       hostNetwork: {{ .Values.gc.hostNetwork }}
+      {{- if kindIs "bool" .Values.gc.hostUsers }}
+      hostUsers: {{ .Values.gc.hostUsers }}
+      {{- end }}
+      {{- with .Values.gc.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: gc
         image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -90,17 +100,14 @@ spec:
           {{- if .Values.gc.interval | empty | not }}
           - "-gc-interval={{ .Values.gc.interval }}"
           {{- end }}
+          - "-port={{ .Values.gc.port | default "8080"}}"
           {{- with .Values.gc.extraArgs }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
         resources:
       {{- toYaml .Values.gc.resources | nindent 12 }}
         securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop: [ "ALL" ]
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
+      {{- toYaml .Values.gc.securityContext | nindent 12 }}
         ports:
           - name: http
             containerPort: {{ .Values.gc.port | default "8080"}}
