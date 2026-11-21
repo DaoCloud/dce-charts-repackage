@@ -3,9 +3,9 @@
 description: Find the default values and descriptions of settings in the Redpanda Console Helm chart.
 ---
 
-![Version: 3.2.0](https://img.shields.io/badge/Version-3.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v3.2.2](https://img.shields.io/badge/AppVersion-v3.2.2-informational?style=flat-square)
+![Version: 3.15.0](https://img.shields.io/badge/Version-3.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v3.15.0](https://img.shields.io/badge/AppVersion-v3.15.0-informational?style=flat-square)
 
-This page describes the official Redpanda Console Helm Chart. In particular, this page describes the contents of the chart’s [`values.yaml` file](https://github.com/redpanda-data/helm-charts/blob/main/charts/console/values.yaml).
+This page describes the official Redpanda Console Helm Chart. In particular, this page describes the contents of the chart’s [`values.yaml` file](https://github.com/redpanda-data/redpanda-operator/blob/main/charts/console/chart/values.yaml).
 Each of the settings is listed and described on this page, along with any default values.
 
 The Redpanda Console Helm chart is included as a subchart in the Redpanda Helm chart so that you can deploy and configure Redpanda and Redpanda Console together.
@@ -117,6 +117,28 @@ Override `console.fullname` template.
 
 **Default:** `""`
 
+### [gateway](https://artifacthub.io/packages/helm/redpanda-data/console?modal=values&path=gateway)
+
+Gateway API `HTTPRoute` settings.
+
+**Default:**
+
+```
+{"annotations":{},"enabled":false,"hostnames":["chart-example.local"],"parentRefs":[],"path":"/","pathType":"PathPrefix"}
+```
+
+### [gateway.parentRefs](https://artifacthub.io/packages/helm/redpanda-data/console?modal=values&path=gateway.parentRefs)
+
+Gateway parent references for this route. If no parentRefs are specified, the HTTPRoute is still rendered but will not attach to any Gateway until configured.
+
+**Default:** `[]`
+
+### [gateway.pathType](https://artifacthub.io/packages/helm/redpanda-data/console?modal=values&path=gateway.pathType)
+
+One of Exact, PathPrefix, or RegularExpression.
+
+**Default:** `"PathPrefix"`
+
 ### [image](https://artifacthub.io/packages/helm/redpanda-data/console?modal=values&path=image)
 
 Redpanda Console Docker image settings.
@@ -133,9 +155,15 @@ The imagePullPolicy.
 
 **Default:** `"IfNotPresent"`
 
+### [image.registry](https://artifacthub.io/packages/helm/redpanda-data/console?modal=values&path=image.registry)
+
+Container registry that hosts the Redpanda Console image. The image reference is `<registry>/<repository>:<tag>`, or `<repository>:<tag>` if this is empty.
+
+**Default:** `"docker.redpanda.com"`
+
 ### [image.repository](https://artifacthub.io/packages/helm/redpanda-data/console?modal=values&path=image.repository)
 
-Docker repository from which to pull the Redpanda Docker image.
+Repository of the Redpanda Console image within `image.registry`. Set the registry hostname in `image.registry`, not here.
 
 **Default:** `"redpandadata/console"`
 
@@ -196,6 +224,18 @@ Settings for liveness and readiness probes. For details, see the [Kubernetes doc
 ```
 {"failureThreshold":3,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1}
 ```
+
+### [monitoring.enabled](https://artifacthub.io/packages/helm/redpanda-data/console?modal=values&path=monitoring.enabled)
+
+**Default:** `false`
+
+### [monitoring.labels](https://artifacthub.io/packages/helm/redpanda-data/console?modal=values&path=monitoring.labels)
+
+**Default:** `{}`
+
+### [monitoring.scrapeInterval](https://artifacthub.io/packages/helm/redpanda-data/console?modal=values&path=monitoring.scrapeInterval)
+
+**Default:** `"1m"`
 
 ### [nameOverride](https://artifacthub.io/packages/helm/redpanda-data/console?modal=values&path=nameOverride)
 
@@ -291,7 +331,7 @@ SecretMounts is an abstraction to make a Secret available in the container's fil
 
 ### [service.annotations](https://artifacthub.io/packages/helm/redpanda-data/console?modal=values&path=service.annotations)
 
-Override the value in `console.config.server.listenPort` if not `nil` targetPort:
+Annotations to add to the Console Service.
 
 **Default:** `{}`
 
