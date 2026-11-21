@@ -17,12 +17,14 @@ crds:
   reservations: true
   podgroups: true
   podmigrationjobs: true
+  clusternetworktopologies: true
+  scheduleexplanations: true
 
 # values for koordinator installation
 installation:
   namespace: koordinator-system
   roleListGroups:
-    - '*'
+  - '*'
 
 featureGates: ""
 
@@ -33,7 +35,7 @@ imagePullSecrets: {}
 koordlet:
   image:
     repository: koordinator-sh/koordlet
-    tag: "v1.5.0"
+    tag: "v1.8.0"
   resources:
     limits:
       cpu: 200m
@@ -54,12 +56,12 @@ koordlet:
     predictionCheckpointDir: /var/run/koordlet/prediction-checkpoints
     # if not specified, use tmpfs by default
     koordletTSDBDir: ""
+    podResourcesProxyPath: /var/run/koordlet/pod-resources/
   runtimeClassName: ""
   nodeAffinity: {}
   metrics:
     port: 9316
   enableServiceMonitor: false
-
 
 manager:
   # settings for log print
@@ -70,7 +72,7 @@ manager:
   replicas: 2
   image:
     repository: koordinator-sh/koord-manager
-    tag: "v1.5.0"
+    tag: "v1.8.0"
   webhook:
     port: 9876
   metrics:
@@ -102,11 +104,11 @@ webhookConfiguration:
     elasticquotas: Ignore
     nodeStatus: Ignore
     nodes: Ignore
+    reservations: Ignore
   timeoutSeconds: 30
 
 serviceAccount:
   annotations: {}
-
 
 scheduler:
   # settings for log print
@@ -117,7 +119,7 @@ scheduler:
   replicas: 2
   image:
     repository: koordinator-sh/koord-scheduler
-    tag: "v1.5.0"
+    tag: "v1.8.0"
   port: 10251
 
   # feature-gates for k8s > 1.22
@@ -126,6 +128,15 @@ scheduler:
   compatible122FeatureGates: "CompatibleCSIStorageCapacity=true"
   # feature-gates for k8s < 1.22
   compatibleBelow122FeatureGates: "DisableCSIStorageCapacityInformer=true,CompatiblePodDisruptionBudget=true"
+  enableJobPreemption: true
+
+  # deviceShare plugin args. See koordinator PR #2789.
+  # gpuShareUnsupportedModels lists GPU vendor-model pairs that do not support GPU sharing (e.g. vNPU).
+  # Pods requesting gpu.shared resources will be filtered out from nodes matching any of these models.
+  deviceShare:
+    gpuShareUnsupportedModels:
+    - vendor: "huawei"
+      model: "Ascend-310P3-300I-DUO"
 
   # resources of koord-scheduler container
   resources:
@@ -141,6 +152,7 @@ scheduler:
   nodeAffinity: {}
   nodeSelector: {}
   tolerations: []
+  monitorEnabled: false
 
 descheduler:
   # settings for log print
@@ -151,7 +163,7 @@ descheduler:
   replicas: 2
   image:
     repository: koordinator-sh/koord-descheduler
-    tag: "v1.5.0"
+    tag: "v1.8.0"
   port: 10251
 
   featureGates: ""
@@ -170,3 +182,21 @@ descheduler:
   nodeAffinity: {}
   nodeSelector: {}
   tolerations: []
+  monitorEnabled: false
+
+deviceDaemon:
+  image:
+    repository: koordinator-sh/koord-device-daemon
+    tag: "v1.8.0"
+  resources:
+    limits:
+      cpu: 200m
+      # recommended for less than 200 pods per node
+      memory: 256Mi
+    requests:
+      cpu: "0"
+      memory: "0"
+  log:
+    # log level for koordlet
+    level: "4"
+  nodeAffinity: {}
