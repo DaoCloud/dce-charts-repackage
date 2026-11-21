@@ -67,9 +67,13 @@ metallb:
       # - sourceLabels: [__meta_kubernetes_pod_node_name]
       #   separator: ;
       #   regex: ^(.*)$
-      #   target_label: nodename
+      #   targetLabel: nodename
       #   replacement: $1
       #   action: replace
+
+      # optional tls configuration for the podMonitor endpoints.
+      tlsConfig:
+        insecureSkipVerify: true
     # Prometheus Operator ServiceMonitors. To be used as an alternative
     # to podMonitor, supports secure metrics.
     serviceMonitor:
@@ -110,7 +114,7 @@ metallb:
       # - sourceLabels: [__meta_kubernetes_pod_node_name]
       #   separator: ;
       #   regex: ^(.*)$
-      #   target_label: nodename
+      #   targetLabel: nodename
       #   replacement: $1
       #   action: replace
     # Prometheus Operator alertmanager alerts
@@ -172,7 +176,7 @@ metallb:
     webhookMode: enabled
     image:
       repository: metallb/controller
-      tag: v0.16.1
+      tag: v0.16.2
       pullPolicy:
       registry: quay.m.daocloud.io
     ## @param controller.updateStrategy.type Metallb controller deployment strategy type.
@@ -184,6 +188,7 @@ metallb:
     ##    maxSurge: 25%
     ##    maxUnavailable: 25%
     ##
+    revisionHistoryLimit: 10
     strategy:
       type: RollingUpdate
     serviceAccount:
@@ -252,14 +257,17 @@ metallb:
     ignoreExcludeLB: false
     # --  BGP debounce timeout for FRR configuration reloads, in milliseconds. Only applies when BGP type is frr. Default (when unset) is 3000 ms. This feature is experimental
     bgpDebounceTimeout: null
+    # -- Interval in seconds for periodic gratuitous ARP/NDP announcements. Unset or 0 (default) disables periodic announcements.
+    gratuitousARPInterval: null
     image:
       repository: metallb/speaker
-      tag: v0.16.1
+      tag: v0.16.2
       pullPolicy:
       registry: quay.m.daocloud.io
     ## @param speaker.updateStrategy.type Speaker daemonset strategy type
     ## ref: https://kubernetes.io/docs/tasks/manage-daemon/update-daemon-set/
     ##
+    revisionHistoryLimit: 10
     updateStrategy:
       ## StrategyType
       ## Can be set to RollingUpdate or OnDelete
@@ -329,6 +337,24 @@ metallb:
         registry: quay.m.daocloud.io
       metricsPort: 9121
       resources: {}
+      # -- Path to the tini binary inside the FRR container. Override this
+      # when using an FRR image (e.g. Docker Hardened Images) that places
+      # tini at a different location.
+      tiniPath: /sbin/tini
+      # -- Path to the docker-start script inside the FRR container. Override
+      # this when using an FRR image (e.g. Docker Hardened Images) that places
+      # docker-start at a different location.
+      dockerStartPath: /usr/lib/frr/docker-start
+      # -- Security context for the FRR container.
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          add:
+            - NET_ADMIN
+            - NET_RAW
+            - SYS_ADMIN
+            - NET_BIND_SERVICE
     reloader:
       resources: {}
     frrMetrics:
@@ -355,6 +381,9 @@ metallb:
     external: false
     # -- Namespace where external frr-k8s is installed (only used when external=true).
     namespace: ""
+    # -- Pass BGP secret references to frr-k8s without resolving them. The secret must
+    # exist in the frr-k8s namespace. Only used when external=true.
+    secretPassthrough: false
   # Values passed to the frr-k8s subchart (note the hyphen in "frr-k8s").
   # For all available options, see:
   # https://github.com/metallb/frr-k8s/blob/main/charts/frr-k8s/values.yaml
