@@ -1,6 +1,6 @@
 # metallb
 
-![Version: 0.16.1](https://img.shields.io/badge/Version-0.16.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.16.1](https://img.shields.io/badge/AppVersion-0.16.1-informational?style=flat-square)
+![Version: 0.16.2](https://img.shields.io/badge/Version-0.16.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.16.2](https://img.shields.io/badge/AppVersion-0.16.2-informational?style=flat-square)
 
 A network load-balancer implementation for Kubernetes using standard routing protocols
 
@@ -8,7 +8,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://metallb.github.io/metallb | metallb | 0.16.1 |
+| https://metallb.github.io/metallb | metallb | 0.16.2 |
 
 ## Values
 
@@ -34,7 +34,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.image.pullPolicy | string | `nil` |  |
 | metallb.controller.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.controller.image.repository | string | `"metallb/controller"` |  |
-| metallb.controller.image.tag | string | `"v0.16.1"` |  |
+| metallb.controller.image.tag | string | `"v0.16.2"` |  |
 | metallb.controller.labels | object | `{}` |  |
 | metallb.controller.livenessProbe.enabled | bool | `true` |  |
 | metallb.controller.livenessProbe.failureThreshold | int | `3` |  |
@@ -58,6 +58,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.controller.resources.limits.memory | string | `"500Mi"` |  |
 | metallb.controller.resources.requests.cpu | string | `"50m"` |  |
 | metallb.controller.resources.requests.memory | string | `"100Mi"` |  |
+| metallb.controller.revisionHistoryLimit | int | `10` |  |
 | metallb.controller.runtimeClassName | string | `""` |  |
 | metallb.controller.securityContext.fsGroup | int | `65534` |  |
 | metallb.controller.securityContext.runAsNonRoot | bool | `true` |  |
@@ -74,6 +75,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.frrk8s.enabled | bool | `true` | If set, enables frrk8s as a backend. This is mutually exclusive to frr mode. |
 | metallb.frrk8s.external | bool | `false` | If true, uses an external frr-k8s installation instead of the bundled subchart. |
 | metallb.frrk8s.namespace | string | `""` | Namespace where external frr-k8s is installed (only used when external=true). |
+| metallb.frrk8s.secretPassthrough | bool | `false` | Pass BGP secret references to frr-k8s without resolving them. The secret must exist in the frr-k8s namespace. Only used when external=true. |
 | metallb.fullnameOverride | string | `""` |  |
 | metallb.imagePullSecrets | list | `[]` |  |
 | metallb.loadBalancerClass | string | `""` |  |
@@ -90,6 +92,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.prometheus.podMonitor.jobLabel | string | `"app.kubernetes.io/name"` |  |
 | metallb.prometheus.podMonitor.metricRelabelings | list | `[]` |  |
 | metallb.prometheus.podMonitor.relabelings | list | `[]` |  |
+| metallb.prometheus.podMonitor.tlsConfig.insecureSkipVerify | bool | `true` |  |
 | metallb.prometheus.prometheusRule.additionalLabels."operator.insight.io/managed-by" | string | `"insight"` |  |
 | metallb.prometheus.prometheusRule.addressPoolExhausted.enabled | bool | `true` |  |
 | metallb.prometheus.prometheusRule.addressPoolExhausted.excludePools | string | `""` |  |
@@ -133,6 +136,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.enabled | bool | `true` |  |
 | metallb.speaker.excludeInterfaces.enabled | bool | `true` |  |
 | metallb.speaker.extraContainers | list | `[]` |  |
+| metallb.speaker.frr.dockerStartPath | string | `"/usr/lib/frr/docker-start"` | Path to the docker-start script inside the FRR container. Override this when using an FRR image (e.g. Docker Hardened Images) that places docker-start at a different location. |
 | metallb.speaker.frr.enabled | bool | `false` |  |
 | metallb.speaker.frr.image.pullPolicy | string | `nil` |  |
 | metallb.speaker.frr.image.registry | string | `"quay.m.daocloud.io"` |  |
@@ -140,12 +144,15 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.frr.image.tag | string | `"10.5.3"` |  |
 | metallb.speaker.frr.metricsPort | int | `9121` |  |
 | metallb.speaker.frr.resources | object | `{}` |  |
+| metallb.speaker.frr.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"add":["NET_ADMIN","NET_RAW","SYS_ADMIN","NET_BIND_SERVICE"]},"readOnlyRootFilesystem":true}` | Security context for the FRR container. |
+| metallb.speaker.frr.tiniPath | string | `"/sbin/tini"` | Path to the tini binary inside the FRR container. Override this when using an FRR image (e.g. Docker Hardened Images) that places tini at a different location. |
 | metallb.speaker.frrMetrics.resources | object | `{}` |  |
+| metallb.speaker.gratuitousARPInterval | string | `nil` | Interval in seconds for periodic gratuitous ARP/NDP announcements. Unset or 0 (default) disables periodic announcements. |
 | metallb.speaker.ignoreExcludeLB | bool | `false` |  |
 | metallb.speaker.image.pullPolicy | string | `nil` |  |
 | metallb.speaker.image.registry | string | `"quay.m.daocloud.io"` |  |
 | metallb.speaker.image.repository | string | `"metallb/speaker"` |  |
-| metallb.speaker.image.tag | string | `"v0.16.1"` |  |
+| metallb.speaker.image.tag | string | `"v0.16.2"` |  |
 | metallb.speaker.initContainers.cpFrrFiles.resources | object | `{}` |  |
 | metallb.speaker.initContainers.cpMetrics.resources | object | `{}` |  |
 | metallb.speaker.initContainers.cpReloader.resources | object | `{}` |  |
@@ -177,6 +184,7 @@ A network load-balancer implementation for Kubernetes using standard routing pro
 | metallb.speaker.resources.limits.memory | string | `"300Mi"` |  |
 | metallb.speaker.resources.requests.cpu | string | `"60m"` |  |
 | metallb.speaker.resources.requests.memory | string | `"80Mi"` |  |
+| metallb.speaker.revisionHistoryLimit | int | `10` |  |
 | metallb.speaker.runtimeClassName | string | `""` |  |
 | metallb.speaker.securityContext | object | `{}` |  |
 | metallb.speaker.serviceAccount.annotations | object | `{}` |  |
