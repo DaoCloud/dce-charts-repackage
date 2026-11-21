@@ -1,15 +1,19 @@
 annotations:
   artifacthub.io/changes: |
     - kind: added
-      description: "Added default Metrics Server resource requests."
+      description: "Add chart option to permit setting hostUsers for additional isolation."
+    - kind: added
+      description: "Add `namespaceOverride` which allows deploying to a namespace other than `.Release.namespace`."
     - kind: changed
-      description: "Updated the Metrics Server OCI image to v0.6.3."
+      description: "Apply `tls.certManager.annotations` and `tls.certManager.labels` to the Cert Manager `Certificate` resource; these values are documented but were previously never rendered."
     - kind: changed
-      description: "Updated the addon resizer OCI image to v1.8.19."
+      description: "Use `metrics-server.fullname` instead of `metrics-server.name` for ClusterRole."
     - kind: changed
-      description: "Changed the default addon resizer nanny resource configuration to match the documented Metrics Server autoscaling values."
+      description: "Update the _Metrics Server_ OCI image to [`0.9.0`](https://github.com/kubernetes-sigs/metrics-server/releases/tag/v0.9.0)."
+    - kind: fixed
+      description: "Stop rendering `annotations: null` on the cert-manager `Issuer`, which referenced an undefined `additionalAnnotations` value. This mirrors the earlier APIService fix and prevents permanent GitOps `OutOfSync`."
 apiVersion: v2
-appVersion: 0.6.4
+appVersion: 0.9.0
 description: Metrics Server is a scalable, efficient source of container resource
   metrics for Kubernetes built-in autoscaling pipelines.
 home: https://github.com/kubernetes-sigs/metrics-server
@@ -29,4 +33,4 @@ name: metrics-server
 sources:
 - https://github.com/kubernetes-sigs/metrics-server
 type: application
-version: 3.11.0
+version: 3.14.0
