@@ -79,6 +79,21 @@ Full image name with tag
 {{- .Values.driver.manager.repository -}}/{{- .Values.driver.manager.image -}}:{{- .Values.driver.manager.version -}}
 {{- end }}
 
+{{/*
+Full image name with tag
+*/}}
+{{- define "validator.fullimage" -}}
+{{- .Values.validator.repository -}}/{{- .Values.validator.image -}}:{{- .Values.validator.version | default .Chart.AppVersion -}}
+{{- end }}
+
+{{/*
+Name of the chart-managed GPUCluster CR; the pre-delete cleanup hook deletes it by
+this name.
+*/}}
+{{- define "gpu-operator.gpucluster-name" -}}
+gpu-cluster
+{{- end }}
+
 {{- define "toolkit.version" -}}
 {{- if and (eq .Values.systemOS "ubuntu24.04") .Values.toolkit.versionubuntu24 }}
  {{- default .Values.toolkit.versionubuntu24 }}
