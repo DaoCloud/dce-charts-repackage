@@ -191,6 +191,14 @@ spec:
                       directory:
                         description: Directory holds path/directory specific options
                         properties:
+                          disableExtensionFilter:
+                            description: |-
+                              DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                              manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                              .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                              so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                              glob patterns instead.
+                            type: boolean
                           exclude:
                             description: Exclude contains a glob pattern to match
                               paths against that should be explicitly excluded from
@@ -421,12 +429,12 @@ spec:
                               apply common labels to resource selectors or not
                             type: boolean
                           namePrefix:
-                            description: NamePrefix is a prefix appended to resources
-                              for Kustomize apps
+                            description: NamePrefix overrides the namePrefix in the
+                              kustomization.yaml for Kustomize apps
                             type: string
                           nameSuffix:
-                            description: NameSuffix is a suffix appended to resources
-                              for Kustomize apps
+                            description: NameSuffix overrides the nameSuffix in the
+                              kustomization.yaml for Kustomize apps
                             type: string
                           namespace:
                             description: Namespace sets the namespace that Kustomize
@@ -552,6 +560,13 @@ spec:
                         description: RepoURL is the URL to the repository (Git or
                           Helm) that contains the application manifests
                         type: string
+                      tagPrefix:
+                        description: |-
+                          TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                          The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                          For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                          "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
+                        type: string
                       targetRevision:
                         description: |-
                           TargetRevision defines the revision of the source to sync the application to.
@@ -576,6 +591,14 @@ spec:
                         directory:
                           description: Directory holds path/directory specific options
                           properties:
+                            disableExtensionFilter:
+                              description: |-
+                                DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                                manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                                .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                                so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                                glob patterns instead.
+                              type: boolean
                             exclude:
                               description: Exclude contains a glob pattern to match
                                 paths against that should be explicitly excluded from
@@ -810,12 +833,12 @@ spec:
                                 to apply common labels to resource selectors or not
                               type: boolean
                             namePrefix:
-                              description: NamePrefix is a prefix appended to resources
-                                for Kustomize apps
+                              description: NamePrefix overrides the namePrefix in
+                                the kustomization.yaml for Kustomize apps
                               type: string
                             nameSuffix:
-                              description: NameSuffix is a suffix appended to resources
-                                for Kustomize apps
+                              description: NameSuffix overrides the nameSuffix in
+                                the kustomization.yaml for Kustomize apps
                               type: string
                             namespace:
                               description: Namespace sets the namespace that Kustomize
@@ -940,6 +963,13 @@ spec:
                         repoURL:
                           description: RepoURL is the URL to the repository (Git or
                             Helm) that contains the application manifests
+                          type: string
+                        tagPrefix:
+                          description: |-
+                            TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                            The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                            For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                            "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
                           type: string
                         targetRevision:
                           description: |-
@@ -1083,6 +1113,14 @@ spec:
                   directory:
                     description: Directory holds path/directory specific options
                     properties:
+                      disableExtensionFilter:
+                        description: |-
+                          DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                          manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                          .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                          so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                          glob patterns instead.
+                        type: boolean
                       exclude:
                         description: Exclude contains a glob pattern to match paths
                           against that should be explicitly excluded from being used
@@ -1309,11 +1347,11 @@ spec:
                           common labels to resource selectors or not
                         type: boolean
                       namePrefix:
-                        description: NamePrefix is a prefix appended to resources
+                        description: NamePrefix overrides the namePrefix in the kustomization.yaml
                           for Kustomize apps
                         type: string
                       nameSuffix:
-                        description: NameSuffix is a suffix appended to resources
+                        description: NameSuffix overrides the nameSuffix in the kustomization.yaml
                           for Kustomize apps
                         type: string
                       namespace:
@@ -1436,6 +1474,13 @@ spec:
                     description: RepoURL is the URL to the repository (Git or Helm)
                       that contains the application manifests
                     type: string
+                  tagPrefix:
+                    description: |-
+                      TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                      The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                      For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                      "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
+                    type: string
                   targetRevision:
                     description: |-
                       TargetRevision defines the revision of the source to sync the application to.
@@ -1456,6 +1501,14 @@ spec:
                       directory:
                         description: Directory specifies path/directory specific options
                         properties:
+                          disableExtensionFilter:
+                            description: |-
+                              DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                              manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                              .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                              so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                              glob patterns instead.
+                            type: boolean
                           exclude:
                             description: Exclude contains a glob pattern to match
                               paths against that should be explicitly excluded from
@@ -1686,12 +1739,12 @@ spec:
                               apply common labels to resource selectors or not
                             type: boolean
                           namePrefix:
-                            description: NamePrefix is a prefix appended to resources
-                              for Kustomize apps
+                            description: NamePrefix overrides the namePrefix in the
+                              kustomization.yaml for Kustomize apps
                             type: string
                           nameSuffix:
-                            description: NameSuffix is a suffix appended to resources
-                              for Kustomize apps
+                            description: NameSuffix overrides the nameSuffix in the
+                              kustomization.yaml for Kustomize apps
                             type: string
                           namespace:
                             description: Namespace sets the namespace that Kustomize
@@ -1841,6 +1894,11 @@ spec:
                         minLength: 1
                         pattern: ^.{2,}|[^./]$
                         type: string
+                      repoURL:
+                        description: |-
+                          RepoURL is the URL to the git repository that contains the hydrated manifests. If not set, defaults to
+                          the DrySource.RepoURL.
+                        type: string
                       targetBranch:
                         description: |-
                           TargetBranch is the branch from which hydrated manifests will be synced.
@@ -1868,6 +1926,14 @@ spec:
                     directory:
                       description: Directory holds path/directory specific options
                       properties:
+                        disableExtensionFilter:
+                          description: |-
+                            DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                            manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                            .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                            so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                            glob patterns instead.
+                          type: boolean
                         exclude:
                           description: Exclude contains a glob pattern to match paths
                             against that should be explicitly excluded from being
@@ -2097,12 +2163,12 @@ spec:
                             common labels to resource selectors or not
                           type: boolean
                         namePrefix:
-                          description: NamePrefix is a prefix appended to resources
-                            for Kustomize apps
+                          description: NamePrefix overrides the namePrefix in the
+                            kustomization.yaml for Kustomize apps
                           type: string
                         nameSuffix:
-                          description: NameSuffix is a suffix appended to resources
-                            for Kustomize apps
+                          description: NameSuffix overrides the nameSuffix in the
+                            kustomization.yaml for Kustomize apps
                           type: string
                         namespace:
                           description: Namespace sets the namespace that Kustomize
@@ -2226,6 +2292,13 @@ spec:
                     repoURL:
                       description: RepoURL is the URL to the repository (Git or Helm)
                         that contains the application manifests
+                      type: string
+                    tagPrefix:
+                      description: |-
+                        TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                        The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                        For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                        "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
                       type: string
                     targetRevision:
                       description: |-
@@ -2359,10 +2432,8 @@ spec:
                     format: date-time
                     type: string
                   message:
-                    description: |-
-                      Message is a human-readable informational message describing the health status
-
-                      Deprecated: this field is not used and will be removed in a future release.
+                    description: Message is a human-readable informational message
+                      describing the health status
                     type: string
                   status:
                     description: Status holds the status code of the application
@@ -2422,6 +2493,14 @@ spec:
                         directory:
                           description: Directory holds path/directory specific options
                           properties:
+                            disableExtensionFilter:
+                              description: |-
+                                DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                                manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                                .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                                so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                                glob patterns instead.
+                              type: boolean
                             exclude:
                               description: Exclude contains a glob pattern to match
                                 paths against that should be explicitly excluded from
@@ -2656,12 +2735,12 @@ spec:
                                 to apply common labels to resource selectors or not
                               type: boolean
                             namePrefix:
-                              description: NamePrefix is a prefix appended to resources
-                                for Kustomize apps
+                              description: NamePrefix overrides the namePrefix in
+                                the kustomization.yaml for Kustomize apps
                               type: string
                             nameSuffix:
-                              description: NameSuffix is a suffix appended to resources
-                                for Kustomize apps
+                              description: NameSuffix overrides the nameSuffix in
+                                the kustomization.yaml for Kustomize apps
                               type: string
                             namespace:
                               description: Namespace sets the namespace that Kustomize
@@ -2787,6 +2866,13 @@ spec:
                           description: RepoURL is the URL to the repository (Git or
                             Helm) that contains the application manifests
                           type: string
+                        tagPrefix:
+                          description: |-
+                            TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                            The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                            For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                            "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
+                          type: string
                         targetRevision:
                           description: |-
                             TargetRevision defines the revision of the source to sync the application to.
@@ -2810,6 +2896,14 @@ spec:
                           directory:
                             description: Directory holds path/directory specific options
                             properties:
+                              disableExtensionFilter:
+                                description: |-
+                                  DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                                  manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                                  .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                                  so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                                  glob patterns instead.
+                                type: boolean
                               exclude:
                                 description: Exclude contains a glob pattern to match
                                   paths against that should be explicitly excluded
@@ -3049,12 +3143,12 @@ spec:
                                   not
                                 type: boolean
                               namePrefix:
-                                description: NamePrefix is a prefix appended to resources
-                                  for Kustomize apps
+                                description: NamePrefix overrides the namePrefix in
+                                  the kustomization.yaml for Kustomize apps
                                 type: string
                               nameSuffix:
-                                description: NameSuffix is a suffix appended to resources
-                                  for Kustomize apps
+                                description: NameSuffix overrides the nameSuffix in
+                                  the kustomization.yaml for Kustomize apps
                                 type: string
                               namespace:
                                 description: Namespace sets the namespace that Kustomize
@@ -3183,6 +3277,13 @@ spec:
                             description: RepoURL is the URL to the repository (Git
                               or Helm) that contains the application manifests
                             type: string
+                          tagPrefix:
+                            description: |-
+                              TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                              The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                              For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                              "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
+                            type: string
                           targetRevision:
                             description: |-
                               TargetRevision defines the revision of the source to sync the application to.
@@ -3201,6 +3302,7 @@ spec:
               observedAt:
                 description: |-
                   ObservedAt indicates when the application state was updated without querying latest git state
+
                   Deprecated: controller no longer updates ObservedAt field
                 format: date-time
                 type: string
@@ -3349,6 +3451,14 @@ spec:
                                 description: Directory holds path/directory specific
                                   options
                                 properties:
+                                  disableExtensionFilter:
+                                    description: |-
+                                      DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                                      manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                                      .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                                      so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                                      glob patterns instead.
+                                    type: boolean
                                   exclude:
                                     description: Exclude contains a glob pattern to
                                       match paths against that should be explicitly
@@ -3597,12 +3707,12 @@ spec:
                                       or not
                                     type: boolean
                                   namePrefix:
-                                    description: NamePrefix is a prefix appended to
-                                      resources for Kustomize apps
+                                    description: NamePrefix overrides the namePrefix
+                                      in the kustomization.yaml for Kustomize apps
                                     type: string
                                   nameSuffix:
-                                    description: NameSuffix is a suffix appended to
-                                      resources for Kustomize apps
+                                    description: NameSuffix overrides the nameSuffix
+                                      in the kustomization.yaml for Kustomize apps
                                     type: string
                                   namespace:
                                     description: Namespace sets the namespace that
@@ -3733,6 +3843,13 @@ spec:
                                 description: RepoURL is the URL to the repository
                                   (Git or Helm) that contains the application manifests
                                 type: string
+                              tagPrefix:
+                                description: |-
+                                  TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                                  The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                                  For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                                  "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
+                                type: string
                               targetRevision:
                                 description: |-
                                   TargetRevision defines the revision of the source to sync the application to.
@@ -3759,6 +3876,14 @@ spec:
                                   description: Directory holds path/directory specific
                                     options
                                   properties:
+                                    disableExtensionFilter:
+                                      description: |-
+                                        DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                                        manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                                        .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                                        so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                                        glob patterns instead.
+                                      type: boolean
                                     exclude:
                                       description: Exclude contains a glob pattern
                                         to match paths against that should be explicitly
@@ -4010,12 +4135,12 @@ spec:
                                         selectors or not
                                       type: boolean
                                     namePrefix:
-                                      description: NamePrefix is a prefix appended
-                                        to resources for Kustomize apps
+                                      description: NamePrefix overrides the namePrefix
+                                        in the kustomization.yaml for Kustomize apps
                                       type: string
                                     nameSuffix:
-                                      description: NameSuffix is a suffix appended
-                                        to resources for Kustomize apps
+                                      description: NameSuffix overrides the nameSuffix
+                                        in the kustomization.yaml for Kustomize apps
                                       type: string
                                     namespace:
                                       description: Namespace sets the namespace that
@@ -4147,6 +4272,13 @@ spec:
                                 repoURL:
                                   description: RepoURL is the URL to the repository
                                     (Git or Helm) that contains the application manifests
+                                  type: string
+                                tagPrefix:
+                                  description: |-
+                                    TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                                    The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                                    For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                                    "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
                                   type: string
                                 targetRevision:
                                   description: |-
@@ -4301,6 +4433,14 @@ spec:
                           directory:
                             description: Directory holds path/directory specific options
                             properties:
+                              disableExtensionFilter:
+                                description: |-
+                                  DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                                  manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                                  .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                                  so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                                  glob patterns instead.
+                                type: boolean
                               exclude:
                                 description: Exclude contains a glob pattern to match
                                   paths against that should be explicitly excluded
@@ -4540,12 +4680,12 @@ spec:
                                   not
                                 type: boolean
                               namePrefix:
-                                description: NamePrefix is a prefix appended to resources
-                                  for Kustomize apps
+                                description: NamePrefix overrides the namePrefix in
+                                  the kustomization.yaml for Kustomize apps
                                 type: string
                               nameSuffix:
-                                description: NameSuffix is a suffix appended to resources
-                                  for Kustomize apps
+                                description: NameSuffix overrides the nameSuffix in
+                                  the kustomization.yaml for Kustomize apps
                                 type: string
                               namespace:
                                 description: Namespace sets the namespace that Kustomize
@@ -4674,6 +4814,13 @@ spec:
                             description: RepoURL is the URL to the repository (Git
                               or Helm) that contains the application manifests
                             type: string
+                          tagPrefix:
+                            description: |-
+                              TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                              The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                              For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                              "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
+                            type: string
                           targetRevision:
                             description: |-
                               TargetRevision defines the revision of the source to sync the application to.
@@ -4698,6 +4845,14 @@ spec:
                               description: Directory holds path/directory specific
                                 options
                               properties:
+                                disableExtensionFilter:
+                                  description: |-
+                                    DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                                    manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                                    .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                                    so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                                    glob patterns instead.
+                                  type: boolean
                                 exclude:
                                   description: Exclude contains a glob pattern to
                                     match paths against that should be explicitly
@@ -4944,12 +5099,12 @@ spec:
                                     not
                                   type: boolean
                                 namePrefix:
-                                  description: NamePrefix is a prefix appended to
-                                    resources for Kustomize apps
+                                  description: NamePrefix overrides the namePrefix
+                                    in the kustomization.yaml for Kustomize apps
                                   type: string
                                 nameSuffix:
-                                  description: NameSuffix is a suffix appended to
-                                    resources for Kustomize apps
+                                  description: NameSuffix overrides the nameSuffix
+                                    in the kustomization.yaml for Kustomize apps
                                   type: string
                                 namespace:
                                   description: Namespace sets the namespace that Kustomize
@@ -5078,6 +5233,13 @@ spec:
                             repoURL:
                               description: RepoURL is the URL to the repository (Git
                                 or Helm) that contains the application manifests
+                              type: string
+                            tagPrefix:
+                              description: |-
+                                TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                                The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                                For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                                "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
                               type: string
                             targetRevision:
                               description: |-
@@ -5220,6 +5382,14 @@ spec:
                                 description: Directory specifies path/directory specific
                                   options
                                 properties:
+                                  disableExtensionFilter:
+                                    description: |-
+                                      DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                                      manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                                      .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                                      so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                                      glob patterns instead.
+                                    type: boolean
                                   exclude:
                                     description: Exclude contains a glob pattern to
                                       match paths against that should be explicitly
@@ -5469,12 +5639,12 @@ spec:
                                       or not
                                     type: boolean
                                   namePrefix:
-                                    description: NamePrefix is a prefix appended to
-                                      resources for Kustomize apps
+                                    description: NamePrefix overrides the namePrefix
+                                      in the kustomization.yaml for Kustomize apps
                                     type: string
                                   nameSuffix:
-                                    description: NameSuffix is a suffix appended to
-                                      resources for Kustomize apps
+                                    description: NameSuffix overrides the nameSuffix
+                                      in the kustomization.yaml for Kustomize apps
                                     type: string
                                   namespace:
                                     description: Namespace sets the namespace that
@@ -5627,6 +5797,11 @@ spec:
                                 minLength: 1
                                 pattern: ^.{2,}|[^./]$
                                 type: string
+                              repoURL:
+                                description: |-
+                                  RepoURL is the URL to the git repository that contains the hydrated manifests. If not set, defaults to
+                                  the DrySource.RepoURL.
+                                type: string
                               targetBranch:
                                 description: |-
                                   TargetBranch is the branch from which hydrated manifests will be synced.
@@ -5649,6 +5824,11 @@ spec:
                     - message
                     - phase
                     type: object
+                  lastComparedDryRevision:
+                    description: |-
+                      LastComparedDryRevision holds the resolved revision from the most recent dry source comparison.
+                      This is updated on every evaluation, even when hydration is skipped due to no changes.
+                    type: string
                   lastSuccessfulOperation:
                     description: LastSuccessfulOperation holds info about the most
                       recent successful hydration
@@ -5673,6 +5853,14 @@ spec:
                                 description: Directory specifies path/directory specific
                                   options
                                 properties:
+                                  disableExtensionFilter:
+                                    description: |-
+                                      DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                                      manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                                      .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                                      so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                                      glob patterns instead.
+                                    type: boolean
                                   exclude:
                                     description: Exclude contains a glob pattern to
                                       match paths against that should be explicitly
@@ -5922,12 +6110,12 @@ spec:
                                       or not
                                     type: boolean
                                   namePrefix:
-                                    description: NamePrefix is a prefix appended to
-                                      resources for Kustomize apps
+                                    description: NamePrefix overrides the namePrefix
+                                      in the kustomization.yaml for Kustomize apps
                                     type: string
                                   nameSuffix:
-                                    description: NameSuffix is a suffix appended to
-                                      resources for Kustomize apps
+                                    description: NameSuffix overrides the nameSuffix
+                                      in the kustomization.yaml for Kustomize apps
                                     type: string
                                   namespace:
                                     description: Namespace sets the namespace that
@@ -6079,6 +6267,11 @@ spec:
                                   hydrated manifests will be synced.
                                 minLength: 1
                                 pattern: ^.{2,}|[^./]$
+                                type: string
+                              repoURL:
+                                description: |-
+                                  RepoURL is the URL to the git repository that contains the hydrated manifests. If not set, defaults to
+                                  the DrySource.RepoURL.
                                 type: string
                               targetBranch:
                                 description: |-
@@ -6121,6 +6314,10 @@ spec:
                     items:
                       type: string
                     type: array
+                  isAppOfApps:
+                    description: IsAppOfApps holds true if the application has any
+                      application for child resource.
+                    type: boolean
                 type: object
               sync:
                 description: Sync contains information about the application's current
@@ -6196,6 +6393,14 @@ spec:
                           directory:
                             description: Directory holds path/directory specific options
                             properties:
+                              disableExtensionFilter:
+                                description: |-
+                                  DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                                  manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                                  .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                                  so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                                  glob patterns instead.
+                                type: boolean
                               exclude:
                                 description: Exclude contains a glob pattern to match
                                   paths against that should be explicitly excluded
@@ -6435,12 +6640,12 @@ spec:
                                   not
                                 type: boolean
                               namePrefix:
-                                description: NamePrefix is a prefix appended to resources
-                                  for Kustomize apps
+                                description: NamePrefix overrides the namePrefix in
+                                  the kustomization.yaml for Kustomize apps
                                 type: string
                               nameSuffix:
-                                description: NameSuffix is a suffix appended to resources
-                                  for Kustomize apps
+                                description: NameSuffix overrides the nameSuffix in
+                                  the kustomization.yaml for Kustomize apps
                                 type: string
                               namespace:
                                 description: Namespace sets the namespace that Kustomize
@@ -6569,6 +6774,13 @@ spec:
                             description: RepoURL is the URL to the repository (Git
                               or Helm) that contains the application manifests
                             type: string
+                          tagPrefix:
+                            description: |-
+                              TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                              The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                              For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                              "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
+                            type: string
                           targetRevision:
                             description: |-
                               TargetRevision defines the revision of the source to sync the application to.
@@ -6593,6 +6805,14 @@ spec:
                               description: Directory holds path/directory specific
                                 options
                               properties:
+                                disableExtensionFilter:
+                                  description: |-
+                                    DisableExtensionFilter controls whether the built-in file-extension filter is skipped during
+                                    manifest generation. When false (the default), only files with a .yaml, .yml, .json, or
+                                    .jsonnet extension are considered as potential manifests. Set it to true to disable the filter
+                                    so that files with custom extensions (e.g. *.yaml.sealed) can be matched by the include/exclude
+                                    glob patterns instead.
+                                  type: boolean
                                 exclude:
                                   description: Exclude contains a glob pattern to
                                     match paths against that should be explicitly
@@ -6839,12 +7059,12 @@ spec:
                                     not
                                   type: boolean
                                 namePrefix:
-                                  description: NamePrefix is a prefix appended to
-                                    resources for Kustomize apps
+                                  description: NamePrefix overrides the namePrefix
+                                    in the kustomization.yaml for Kustomize apps
                                   type: string
                                 nameSuffix:
-                                  description: NameSuffix is a suffix appended to
-                                    resources for Kustomize apps
+                                  description: NameSuffix overrides the nameSuffix
+                                    in the kustomization.yaml for Kustomize apps
                                   type: string
                                 namespace:
                                   description: Namespace sets the namespace that Kustomize
@@ -6973,6 +7193,13 @@ spec:
                             repoURL:
                               description: RepoURL is the URL to the repository (Git
                                 or Helm) that contains the application manifests
+                              type: string
+                            tagPrefix:
+                              description: |-
+                                TagPrefix filters git tags to only those with this prefix before evaluating targetRevision as a semver constraint.
+                                The prefix is stripped from tag names before comparison and re-added to the resolved version.
+                                For example, with tagPrefix "component-b/" and targetRevision "1.0.*", tags like "component-b/1.0.0" and
+                                "component-b/1.0.1" are candidates, and the constraint resolves to "component-b/1.0.1".
                               type: string
                             targetRevision:
                               description: |-
