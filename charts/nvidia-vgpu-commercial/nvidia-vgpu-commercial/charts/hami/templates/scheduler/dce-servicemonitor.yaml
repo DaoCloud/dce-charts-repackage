@@ -13,15 +13,25 @@ spec:
       key: ""
     interval: 15s
     metricRelabelings:
+    # Keep the labels used by Insight without clearing existing labels when
+    # an older/newer HAMi release does not export the source label.
     - action: replace
+      sourceLabels:
+      - device_uuid
+      regex: "(.+)"
+      targetLabel: deviceuuid
+    - action: replace
+      regex: "(.+)"
       sourceLabels:
       - podname
       targetLabel: exported_pod
     - action: replace
+      regex: "(.+)"
       sourceLabels:
       - podnamespace
       targetLabel: exported_namespace
     - action: replace
+      regex: "(.+)"
       sourceLabels:
       - nodeid
       targetLabel: node
