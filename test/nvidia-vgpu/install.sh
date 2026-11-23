@@ -18,10 +18,10 @@ set -x
 # install nvidia-vgpu need node having Nvidia GPU card, so skip install
 exit 0
 
-# add gpu=on label
-kubectl label nodes --all gpu=on --kubeconfig ${KIND_KUBECONFIG}
+# Label GPU nodes for the wrapper chart's scheduler and device plugin selectors.
+kubectl label nodes --all nvidia.com/gpu.deploy.container-toolkit=true nvidia.com/vgpu.deploy.device-plugin=true --overwrite --kubeconfig ${KIND_KUBECONFIG}
 
-# deploy the docker-registry
+# Deploy nvidia-vgpu. HAMi 2.11 GPU settings use hami.devices.nvidia.*.
 helm install nvidia-vgpu chart-museum/nvidia-vgpu  ${HELM_MUST_OPTION}
 
 if (($?==0)) ; then

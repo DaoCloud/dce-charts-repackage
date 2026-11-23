@@ -20,7 +20,7 @@ echo $os
 echo "custom-sub.sh"
 
 # 1) 资源名改为 vgpu
-yq -i '.resourceName="nvidia.com/vgpu"' charts/hami/values.yaml
+yq -i '.devices.nvidia.resourceCountName="nvidia.com/vgpu"' charts/hami/values.yaml
 
 
 # 2) kube-scheduler 镜像信息（registry/repository，tag 由 custom.sh 统一处理）
@@ -38,19 +38,8 @@ yq -i '
   .devicePlugin.monitor.image.registry = "docker.m.daocloud.io"
 ' charts/hami/values.yaml
 
-# 5) webhook patch 镜像（registry/repository/tag）
-yq -i '
-  .scheduler.patch.image.registry = "docker.m.daocloud.io" |
-  .scheduler.patch.image.repository = "jettech/kube-webhook-certgen" |
-  .scheduler.patch.image.tag = "v1.5.2"
-' charts/hami/values.yaml
-
-# 6) webhook patch 备用镜像 imageNew（registry/repository/tag）
-yq -i '
-  .scheduler.patch.imageNew.registry = "docker.m.daocloud.io" |
-  .scheduler.patch.imageNew.repository = "liangjw/kube-webhook-certgen" |
-  .scheduler.patch.imageNew.tag = "v1.1.1"
-' charts/hami/values.yaml
+# Webhook certificate jobs use the upstream pinned image through the mirror.
+yq -i '.scheduler.patch.imageNew.registry = "k8s-gcr.m.daocloud.io"' charts/hami/values.yaml
 
 #    同时为各处 resources 填充默认值（与之前保持一致）
 yq -i '

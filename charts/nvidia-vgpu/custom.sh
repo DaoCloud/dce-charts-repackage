@@ -24,7 +24,7 @@ bash ${script_path}/custom-sub.sh $@
 
 # 适配新 chart 结构：直接更新 .hami 下的字段
 # 1) 资源名改为 vgpu
-yq -i '.hami.resourceName="nvidia.com/vgpu"' values.yaml
+yq -i '.hami.devices.nvidia.resourceCountName="nvidia.com/vgpu"' values.yaml
 
 
 # 2) kube-scheduler 镜像仓库/仓库名/标签
@@ -43,43 +43,8 @@ yq -i '
   .hami.devicePlugin.monitor.image.registry = "docker.m.daocloud.io"
 ' values.yaml
 
-# 5) webhook patch 镜像切换到镜像代理
-yq -i '
-  .hami.scheduler.patch.image.registry = "docker.m.daocloud.io" |
-  .hami.scheduler.patch.image.repository = "jettech/kube-webhook-certgen" |
-  .hami.scheduler.patch.image.tag = "v1.5.2"
-' values.yaml
-
-# 6) webhook patch 备用镜像（imageNew）
-yq -i '
-  .hami.scheduler.patch.imageNew.registry = "docker.m.daocloud.io" |
-  .hami.scheduler.patch.imageNew.repository = "liangjw/kube-webhook-certgen" |
-  .hami.scheduler.patch.imageNew.tag = "v1.1.1"
-' values.yaml
-
-# add device-cores-scaling config key
-# line=$(sed -n -e '/deviceMemoryScaling: 1/=' values.yaml  | head -n 1)
-# if [ $os == "Darwin" ];then
-#     sed -i "" "$((line)) i\\
-#     deviceCoresScaling: 1.0
-#     " values.yaml
-# elif [ $os == "Linux" ];then
-#     sed -i "$((line)) i\\
-#     deviceCoresScaling: 1.0
-#     " values.yaml
-# fi
-
-# add device-cores-scaling config key to daemonsetnvidia.yaml
-# line=$(sed -n -e '/--device-memory-scaling={{ .Values.devicePlugin.deviceMemoryScaling }}/=' charts/vgpu/templates/device-plugin/daemonsetnvidia.yaml  | head -n 1)
-# if [ $os == "Darwin" ];then
-#     sed -i "" "$((line)) i\\
-#             - --device-cores-scaling={{ .Values.devicePlugin.deviceCoresScaling }}
-#     " charts/vgpu/templates/device-plugin/daemonsetnvidia.yaml
-# elif [ $os == "Linux" ];then
-#     sed -i "$((line)) i\\
-#             - --device-cores-scaling={{ .Values.devicePlugin.deviceCoresScaling }}
-#     " charts/vgpu/templates/device-plugin/daemonsetnvidia.yaml
-# fi
+# Webhook certificate jobs use the upstream pinned image through the mirror.
+yq -i '.hami.scheduler.patch.imageNew.registry = "k8s-gcr.m.daocloud.io"' values.yaml
 
 # cp README.md
 script_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -120,18 +85,6 @@ yq -i '
     .devicePlugin.nvidiaNodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true", "nvidia.com/vgpu.deploy.device-plugin": "true"} |
     .scheduler.nodeSelector={"nvidia.com/gpu.deploy.container-toolkit":"true"}
 ' charts/hami/values.yaml
-
-# add hygonImageRepository and hygonImageTag
-yq e '
-    .hami.devicePlugin.hygonImageRepository="4pdosc/vdcu-device-plugin" |
-    .hami.devicePlugin.hygonImageTag="v1.0"
-' -i values.yaml
-
-yq e '
-    .devicePlugin.hygonImageRepository="4pdosc/vdcu-device-plugin" |
-    .devicePlugin.hygonImageTag="v1.0"
-' -i charts/hami/values.yaml
-
 
 # set icon
 yq e '
@@ -179,13 +132,13 @@ if [ -f charts/hami/charts/hami-dra/templates/webhook/device-config.yaml ]; then
     fi
 fi
 
-yq -i '.devicePlugin.deviceCoreScaling=1.0' charts/hami/values.yaml
+yq -i '.devices.nvidia.deviceCoreScaling=1.0' charts/hami/values.yaml
 
-yq -i '.hami.devicePlugin.deviceCoreScaling=1.0' values.yaml
+yq -i '.hami.devices.nvidia.deviceCoreScaling=1.0' values.yaml
 
-yq -i '.devicePlugin.deviceMemoryScaling=1.0' charts/hami/values.yaml
+yq -i '.devices.nvidia.deviceMemoryScaling=1.0' charts/hami/values.yaml
 
-yq -i '.hami.devicePlugin.deviceMemoryScaling=1.0' values.yaml
+yq -i '.hami.devices.nvidia.deviceMemoryScaling=1.0' values.yaml
 
 yq -i '
   .hami.scheduler.kubeScheduler.resources.limits.cpu = "500m" |
@@ -328,7 +281,7 @@ if [ -f "$target_file" ]; then
   cat > "$tmp_block" <<'EOF'
   {{- $crbName := include "hami-vgpu.scheduler" . }}
   {{- $existing := lookup "rbac.authorization.k8s.io/v1" "ClusterRoleBinding" "" $crbName }}
-  {{- $keepClusterAdmin := and .Release.IsUpgrade (and $existing (eq $existing.roleRef.name "cluster-admin")) }}
+  {{- $keepClusterAdmin := and .Release.IsUpgrade (not (empty $existing)) (eq $existing.roleRef.name "cluster-admin") }}
   name: {{ ternary "cluster-admin" (include "hami-vgpu.scheduler" .) $keepClusterAdmin }}
 EOF
   tmp_out="$(mktemp)"
@@ -340,7 +293,7 @@ EOF
       close(blockfile)
     }
     {
-      if ($0 == "  name: hami-scheduler") {
+      if ($0 == "  name: {{ include \"hami-vgpu.scheduler\" . }}") {
         for (i = 1; i <= n; i++) print block[i]
         next
       }

@@ -33,14 +33,20 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ include "hami-vgpu.scheduler" . }}
+  {{- $crbName := include "hami-vgpu.scheduler" . }}
+  {{- $existing := lookup "rbac.authorization.k8s.io/v1" "ClusterRoleBinding" "" $crbName }}
+  {{- $keepClusterAdmin := and .Release.IsUpgrade (not (empty $existing)) (eq $existing.roleRef.name "cluster-admin") }}
+  name: {{ ternary "cluster-admin" (include "hami-vgpu.scheduler" .) $keepClusterAdmin }}
   labels:
     app.kubernetes.io/component: "hami-scheduler"
     {{- include "hami-vgpu.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ include "hami-vgpu.scheduler" . }}
+  {{- $crbName := include "hami-vgpu.scheduler" . }}
+  {{- $existing := lookup "rbac.authorization.k8s.io/v1" "ClusterRoleBinding" "" $crbName }}
+  {{- $keepClusterAdmin := and .Release.IsUpgrade (not (empty $existing)) (eq $existing.roleRef.name "cluster-admin") }}
+  name: {{ ternary "cluster-admin" (include "hami-vgpu.scheduler" .) $keepClusterAdmin }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "hami-vgpu.scheduler" . }}

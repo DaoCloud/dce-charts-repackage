@@ -5,7 +5,6 @@
 - "{{ .hami.scheduler.kubeScheduler.image.registry }}/{{ .hami.scheduler.kubeScheduler.image.repository }}:{{ .hami.scheduler.kubeScheduler.compatibility.kube_gte_130 }}"
 - "{{ .hami.scheduler.kubeScheduler.image.registry }}/{{ .hami.scheduler.kubeScheduler.image.repository }}:{{ .hami.scheduler.kubeScheduler.compatibility.kube_gte_132 }}"
 - "{{ .hami.scheduler.extender.image.registry }}/{{ .hami.scheduler.extender.image.repository }}:{{ .hami.global.imageTag }}"
-- "{{ .hami.scheduler.patch.image.registry }}/{{ .hami.scheduler.patch.image.repository }}:{{ .hami.scheduler.patch.image.tag }}"
 - "{{ .hami.scheduler.patch.imageNew.registry }}/{{ .hami.scheduler.patch.imageNew.repository }}:{{ .hami.scheduler.patch.imageNew.tag }}"
 - "{{ .hami.devicePlugin.image.registry }}/{{ .hami.devicePlugin.image.repository }}:{{ .hami.global.imageTag }}"
 - "{{ .hami.devicePlugin.monitor.image.registry }}/{{ .hami.devicePlugin.monitor.image.repository }}:{{ .hami.global.imageTag }}"
