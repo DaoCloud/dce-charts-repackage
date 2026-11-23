@@ -9,26 +9,31 @@
                     "type": "string",
                     "default": "hami-scheduler"
                 },
-                "devicePlugin": {
-                    "type": "object",
-                    "properties": {
-                        "deviceCoreScaling": {
-                            "type": "number"
-                        },
-                        "deviceMemoryScaling": {
-                            "type": "number"
-                        },
-                        "deviceSplitCount": {
-                            "type": "integer"
-                        }
-                    }
-                },
                 "prometheus": {
                     "type": "object",
                     "properties": {
                         "enabled": {
                             "type": "boolean",
                             "description": "Create ServiceMonitors for HAMi metrics. Ensure insight-agent is installed and running before enabling this feature."
+                        }
+                    }
+                },
+                "devices": {
+                    "type": "object",
+                    "properties": {
+                        "nvidia": {
+                            "type": "object",
+                            "properties": {
+                                "deviceCoreScaling": {
+                                    "type": "number"
+                                },
+                                "deviceMemoryScaling": {
+                                    "type": "number"
+                                },
+                                "deviceSplitCount": {
+                                    "type": "integer"
+                                }
+                            }
                         }
                     }
                 }
