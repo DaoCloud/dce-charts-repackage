@@ -119,7 +119,7 @@
         },
         "gatewayClassName": {
           "default": "istio",
-          "description": "Gateway class that determines the backend used Currently supported values: \"kgateway\" or \"agentgateway-v2\" for kgateway, \"istio\", or \"gke-l7-regional-external-managed\"",
+          "description": "Gateway class that determines the backend used Currently supported values: \"kgateway\" or \"agentgateway-v2\" for kgateway, \"istio\", \"data-science-gateway-class\", or \"gke-l7-regional-external-managed\"",
           "required": [],
           "title": "gatewayClassName"
         },
@@ -152,9 +152,18 @@
               "required": [],
               "title": "logLevel"
             },
+            "replicas": {
+              "description": "Desired number of replicas for the Istio gateway Deployment.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 2147483647
+            },
             "resources": {
               "$ref": "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.ResourceRequirements",
-              "description": "Resource requests/limits \u003cbr /\u003e Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container",
+              "description": "Resource requests/limits <br /> Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container",
               "required": []
             }
           },
@@ -282,7 +291,7 @@
         },
         "service": {
           "additionalProperties": false,
-          "description": " type: object additionalProperties: false required: [type] properties:   type:     type: string     description: \u003e       Gateway's service type. Ingress is only available if the service type       is set to LoadBalancer. Accepted values: [\"LoadBalancer\",\"ClusterIP\",\"NodePort\"].     enum: [LoadBalancer, ClusterIP, NodePort]     default: ClusterIP   ports:     type: array     description: \u003e       Optional. List of service ports. If provided, each item must include \"port\".     items:       type: object       additionalProperties: true       required: [port]       properties:         port:           description: \u003e             Port is the network port. Multiple listeners may use the same port             (subject to compatibility rules).           type: integer           minimum: 1           maximum: 65535         nodePort:           type: integer           minimum: 30000           maximum: 32767   loadBalancerClass:     type: string     description: \u003e       Optional. LoadBalancerClass is the class of the load balancer to use.       Ref: https://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-class @schema",
+          "description": " type: object additionalProperties: false required: [type] properties:   type:     type: string     description: >       Gateway's service type. Ingress is only available if the service type       is set to LoadBalancer. Accepted values: [\"LoadBalancer\",\"ClusterIP\",\"NodePort\"].     enum: [LoadBalancer, ClusterIP, NodePort]     default: ClusterIP   ports:     type: array     description: >       Optional. List of service ports. If provided, each item must include \"port\".     items:       type: object       additionalProperties: true       required: [port]       properties:         port:           description: >             Port is the network port. Multiple listeners may use the same port             (subject to compatibility rules).           type: integer           minimum: 1           maximum: 65535         nodePort:           type: integer           minimum: 30000           maximum: 32767   loadBalancerClass:     type: string     description: >       Optional. LoadBalancerClass is the class of the load balancer to use.       Ref: https://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-class @schema",
           "properties": {
             "loadBalancerClass": {
               "description": "Optional. LoadBalancerClass is the class of the load balancer to use. Ref: https://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-class",
@@ -333,6 +342,54 @@
           ],
           "title": "service",
           "type": "object"
+        },
+        "tls": {
+          "additionalProperties": false,
+          "default": "See below",
+          "description": "TLS configuration for gateway",
+          "properties": {
+            "referenceGrant": {
+              "additionalProperties": false,
+              "default": "See below",
+              "description": "ReferenceGrant configuration for cross-namespace TLS certificate access",
+              "properties": {
+                "enabled": {
+                  "default": "false",
+                  "description": "Enable ReferenceGrant creation (disabled by default)",
+                  "required": [],
+                  "title": "enabled"
+                },
+                "name": {
+                  "default": "",
+                  "description": "Name of the ReferenceGrant resource (defaults to gateway name with -tls suffix)",
+                  "required": [],
+                  "title": "name"
+                },
+                "secretName": {
+                  "default": "",
+                  "description": "Name of the TLS secret to grant access to",
+                  "required": [],
+                  "title": "secretName"
+                },
+                "secretNamespace": {
+                  "default": "",
+                  "description": "Namespace where the TLS secret resides",
+                  "required": [],
+                  "title": "secretNamespace"
+                }
+              },
+              "required": [],
+              "title": "referenceGrant"
+            },
+            "servingCertSecretName": {
+              "default": "data-science-gateway-service-tls",
+              "description": "Name of the secret for serving certificates (used by data-science-gateway-class)",
+              "required": [],
+              "title": "servingCertSecretName"
+            }
+          },
+          "required": [],
+          "title": "tls"
         }
       },
       "required": [],
@@ -362,7 +419,7 @@
           "title": "enabled"
         },
         "extraHosts": {
-          "description": "List of additional hostnames to be covered with this ingress record (e.g. a CNAME) \u003c!-- E.g. extraHosts:   - name: llm-d.env.example.com     path: / (Optional)     pathType: Prefix (Optional)     port: 7007 (Optional) --\u003e",
+          "description": "List of additional hostnames to be covered with this ingress record (e.g. a CNAME) <!-- E.g. extraHosts:   - name: llm-d.env.example.com     path: / (Optional)     pathType: Prefix (Optional)     port: 7007 (Optional) -->",
           "items": {
             "required": []
           },
@@ -370,7 +427,7 @@
           "title": "extraHosts"
         },
         "extraTls": {
-          "description": "The TLS configuration for additional hostnames to be covered with this ingress record. \u003cbr /\u003e Ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls \u003c!-- E.g. extraTls:   - hosts:     - llm-d.env.example.com     secretName: llm-d-env --\u003e",
+          "description": "The TLS configuration for additional hostnames to be covered with this ingress record. <br /> Ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls <!-- E.g. extraTls:   - hosts:     - llm-d.env.example.com     secretName: llm-d-env -->",
           "items": {
             "$ref": "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.networking.v1.IngressTLS",
             "required": []
