@@ -23,6 +23,7 @@ set -x
 # deploy llm-d-infra
 # shellcheck disable=SC2086
 helm install llm-d-infra "${CHART_DIR}" ${HELM_MUST_OPTION}  --set llm-d-infra.gateway.gatewayParameters.accessLogging=false \
+  --set llm-d-infra.gateway.gatewayParameters.replicas=2 \
   --namespace kube-system
 
 if (($?==0)) ; then
