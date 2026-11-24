@@ -30,6 +30,7 @@ rules:
   - clustertopologybindings
   - clustertopologybindings/status
   - podcliquescalinggroups/status
+  - podgangmaps
   verbs:
   - create
   - get
@@ -167,6 +168,20 @@ rules:
   - get
   - list
   - watch
+{{- if include "grove.scheduler.hasProfile" (list . "kai-scheduler") }}
+- apiGroups:
+  - scheduling.run.ai
+  resources:
+  - podgroups
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - patch
+  - update
+  - delete
+{{- end }}
 {{- if include "grove.scheduler.hasProfile" (list . "volcano") }}
 - apiGroups:
   - scheduling.volcano.sh
@@ -236,11 +251,20 @@ rules:
   - podcliquesets.grove.io
   - podcliques.grove.io
   - podcliquescalinggroups.grove.io
+  - clustertopologies.grove.io
   - clustertopologybindings.grove.io
+  - podgangmaps.grove.io
   - podgangs.scheduler.grove.io
   verbs:
   - get
   - create
   - update
   - patch
+  - delete
+- apiGroups:
+  - grove.io
+  resources:
+  - clustertopologies
+  verbs:
+  - list
 {{- end }}
