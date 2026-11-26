@@ -549,12 +549,13 @@ nvsentinel:
     image:
       repository: ghcr.m.daocloud.io/nvidia/nvsentinel/labeler
       tag: v1.22.0
-    # Set to true when the NVIDIA driver is installed on the host instead of by the
-    # GPU Operator driver container. The labeler then marks every GPU node with
-    # nvsentinel.dgxc.nvidia.com/driver.installed=true. Without that label the
-    # gpu-health-monitor, syslog-health-monitor and metadata-collector DaemonSets
-    # schedule no Pods.
-    assumeDriverInstalled: false
+    # True when the NVIDIA driver is installed on the host. The labeler then marks
+    # every GPU node with nvsentinel.dgxc.nvidia.com/driver.installed=true. Without
+    # that label the gpu-health-monitor, syslog-health-monitor and
+    # metadata-collector DaemonSets schedule no Pods. Set to false when the GPU
+    # Operator driver container installs the driver, so the label follows the
+    # driver Pods instead.
+    assumeDriverInstalled: true
   lifecycle-manager:
     config:
       tests:
@@ -590,31 +591,14 @@ nvsentinel:
           tag: 3.8.1
       unsafeFlags:
         # Must be true to run the replica set with fewer than 3 or an even number of
-        # members, for example a single member on a test cluster.
-        replsetSize: false
+        # members, as the single-member default below does.
+        replsetSize: true
       replsets:
         rs0:
-          # Number of MongoDB replica set members. Lowering it on an existing
-          # installation does not delete the PVCs of the removed members.
-          size: 3
-          # Members prefer different nodes but may share one, so the replica set also
-          # starts on clusters with fewer nodes than members. The operator ignores
-          # antiAffinityTopologyKey while advanced is set. To require one member per
-          # node, set advanced to null. To disable anti-affinity, set advanced to null
-          # and antiAffinityTopologyKey to "none".
-          affinity:
-            antiAffinityTopologyKey: kubernetes.io/hostname
-            advanced:
-              podAntiAffinity:
-                preferredDuringSchedulingIgnoredDuringExecution:
-                  - weight: 100
-                    podAffinityTerm:
-                      topologyKey: kubernetes.io/hostname
-                      labelSelector:
-                        matchLabels:
-                          app.kubernetes.io/name: percona-server-mongodb
-                          app.kubernetes.io/component: mongod
-                          app.kubernetes.io/replset: rs0
+          # Number of MongoDB replica set members. Use 3 for high availability; each
+          # member then needs its own node. Lowering it on an existing installation
+          # does not delete the PVCs of the removed members.
+          size: 1
     psmdb-operator:
       image:
         repository: docker.m.daocloud.io/percona/percona-server-mongodb-operator
