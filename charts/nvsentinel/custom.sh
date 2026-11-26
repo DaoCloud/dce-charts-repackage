@@ -289,17 +289,52 @@ if [ -n "$PSMDB_VALUES" ]; then
   ' values.yaml
 fi
 
-# values.schema.json was generated before the wrapper values were extended.
-# Regenerate it so the schema keeps matching values.yaml. Helm deep-merges maps,
-# so the default affinity.advanced can only be removed by setting it to null;
-# allow that in the generated schema.
-if helm schema-gen -h >/dev/null 2>&1; then
-  helm schema-gen values.yaml > values.schema.json
+# values.schema.json is generated from the upstream values before this script
+# runs. Keep it that way and only describe the settings exposed above, so the
+# installation form does not list every promoted image value.
+if [ -f values.schema.json ]; then
+  if yq -e '.nvsentinel.labeler.assumeDriverInstalled != null' values.yaml >/dev/null 2>&1; then
+    jq --indent 4 '
+      .properties.nvsentinel.properties.labeler = {
+        "type": "object",
+        "properties": {"assumeDriverInstalled": {"type": "boolean"}}
+      }
+    ' values.schema.json > values.schema.json.tmp
+    mv values.schema.json.tmp values.schema.json
+  fi
+  if yq -e '
+    .nvsentinel."mongodb-store"."psmdb-db".replsets.rs0.size != null and
+    .nvsentinel."mongodb-store"."psmdb-db".unsafeFlags.replsetSize != null
+  ' values.yaml >/dev/null 2>&1; then
+    jq --indent 4 '
+      .properties.nvsentinel.properties."mongodb-store" = {
+        "type": "object",
+        "properties": {
+          "psmdb-db": {
+            "type": "object",
+            "properties": {
+              "replsets": {
+                "type": "object",
+                "properties": {
+                  "rs0": {
+                    "type": "object",
+                    "properties": {"size": {"type": "integer"}}
+                  }
+                }
+              },
+              "unsafeFlags": {
+                "type": "object",
+                "properties": {"replsetSize": {"type": "boolean"}}
+              }
+            }
+          }
+        }
+      }
+    ' values.schema.json > values.schema.json.tmp
+    mv values.schema.json.tmp values.schema.json
+  fi
   jq --indent 4 '
-    (
-      .properties.nvsentinel.properties."mongodb-store".properties."psmdb-db".properties.replsets
-      .properties.rs0.properties.affinity.properties.advanced | select(. != null) | .type
-    ) = ["object", "null"]
+    .properties.nvsentinel.properties |= (to_entries | sort_by(.key) | from_entries)
   ' values.schema.json > values.schema.json.tmp
   mv values.schema.json.tmp values.schema.json
 fi
