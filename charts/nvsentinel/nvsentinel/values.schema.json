@@ -822,65 +822,6 @@
                                         "rs0": {
                                             "type": "object",
                                             "properties": {
-                                                "affinity": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "advanced": {
-                                                            "type": [
-                                                                "object",
-                                                                "null"
-                                                            ],
-                                                            "properties": {
-                                                                "podAntiAffinity": {
-                                                                    "type": "object",
-                                                                    "properties": {
-                                                                        "preferredDuringSchedulingIgnoredDuringExecution": {
-                                                                            "type": "array",
-                                                                            "items": {
-                                                                                "type": "object",
-                                                                                "properties": {
-                                                                                    "podAffinityTerm": {
-                                                                                        "type": "object",
-                                                                                        "properties": {
-                                                                                            "labelSelector": {
-                                                                                                "type": "object",
-                                                                                                "properties": {
-                                                                                                    "matchLabels": {
-                                                                                                        "type": "object",
-                                                                                                        "properties": {
-                                                                                                            "app.kubernetes.io/component": {
-                                                                                                                "type": "string"
-                                                                                                            },
-                                                                                                            "app.kubernetes.io/name": {
-                                                                                                                "type": "string"
-                                                                                                            },
-                                                                                                            "app.kubernetes.io/replset": {
-                                                                                                                "type": "string"
-                                                                                                            }
-                                                                                                        }
-                                                                                                    }
-                                                                                                }
-                                                                                            },
-                                                                                            "topologyKey": {
-                                                                                                "type": "string"
-                                                                                            }
-                                                                                        }
-                                                                                    },
-                                                                                    "weight": {
-                                                                                        "type": "integer"
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        },
-                                                        "antiAffinityTopologyKey": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                },
                                                 "size": {
                                                     "type": "integer"
                                                 }
