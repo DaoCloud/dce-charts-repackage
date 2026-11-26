@@ -454,6 +454,20 @@ nvsentinel:
   # See values-postgresql.yaml for a complete PostgreSQL configuration example
   postgresql:
     enabled: false
+    image:
+      registry: docker.m.daocloud.io
+      repository: bitnamilegacy/postgresql
+      tag: 16.4.0-debian-12-r14
+    metrics:
+      image:
+        registry: docker.m.daocloud.io
+        repository: bitnamilegacy/postgres-exporter
+        tag: 0.15.0-debian-12-r43
+    volumePermissions:
+      image:
+        registry: docker.m.daocloud.io
+        repository: bitnamilegacy/os-shell
+        tag: 12-debian-12-r30
   # PodMonitor configuration for Prometheus Operator
   # Disable this if using standard Prometheus with annotations instead
   podMonitor:
@@ -462,3 +476,180 @@ nvsentinel:
     # scrapeTimeout: ""  # Scrape timeout (defaults to Prometheus default if not specified)
     # metricsPath: "/metrics"  # Metrics path (defaults to /metrics)
     # labels: {}  # Additional labels for the PodMonitor resource
+  csp-health-monitor:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/csp-health-monitor
+      tag: v1.22.0
+    quarantineTriggerEngine:
+      image:
+        repository: ghcr.m.daocloud.io/nvidia/nvsentinel/maintenance-notifier
+        tag: v1.22.0
+  event-exporter:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/event-exporter
+      tag: v1.22.0
+  fault-quarantine:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/fault-quarantine
+      tag: v1.22.0
+  fault-remediation:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/fault-remediation
+      tag: v1.22.0
+    logCollector:
+      image:
+        repository: ghcr.m.daocloud.io/nvidia/nvsentinel/log-collector
+        tag: v1.22.0
+  gpu-health-monitor:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/gpu-health-monitor
+      tag: v1.22.0
+  health-events-analyzer:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/health-events-analyzer
+      tag: v1.22.0
+  incluster-file-server:
+    cleanupMetrics:
+      image:
+        repository: ghcr.m.daocloud.io/nvidia/nvsentinel/file-server-cleanup
+        tag: v1.22.0
+    image:
+      repository: docker.m.daocloud.io/bitnamilegacy/nginx
+      tag: 1.27.2-debian-12-r2
+    initImage:
+      repository: m.daocloud.io/public.ecr.aws/docker/library/busybox
+      tag: 1.37.0
+    metrics:
+      image:
+        repository: quay.m.daocloud.io/martinhelmich/prometheus-nginxlog-exporter
+        tag: v1.10.0
+  janitor-provider:
+    csp:
+      generic:
+        rebootImage: m.daocloud.io/public.ecr.aws/docker/library/busybox:1.37.0
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/janitor-provider
+      tag: v1.22.0
+  janitor:
+    config:
+      controllers:
+        gpuReset:
+          resetJob:
+            image:
+              repository: ghcr.m.daocloud.io/nvidia/nvsentinel/gpu-reset
+              tag: v1.22.0
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/janitor
+      tag: v1.22.0
+  kubernetes-object-monitor:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/kubernetes-object-monitor
+      tag: v1.22.0
+  labeler:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/labeler
+      tag: v1.22.0
+    # Set to true when the NVIDIA driver is installed on the host instead of by the
+    # GPU Operator driver container. The labeler then marks every GPU node with
+    # nvsentinel.dgxc.nvidia.com/driver.installed=true. Without that label the
+    # gpu-health-monitor, syslog-health-monitor and metadata-collector DaemonSets
+    # schedule no Pods.
+    assumeDriverInstalled: false
+  lifecycle-manager:
+    config:
+      tests:
+        dcgm-diag-test:
+          image: nvcr.m.daocloud.io/nvidia/cloud-native/dcgm:4.5.2-1-ubuntu22.04
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/lifecycle-manager
+      tag: v1.22.0
+  metadata-collector:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/metadata-collector
+      tag: v1.22.0
+  mongodb-store:
+    psmdb-db:
+      backup:
+        image:
+          repository: docker.m.daocloud.io/percona/percona-backup-mongodb
+          tag: 2.15.0
+      clusterSync:
+        image: docker.m.daocloud.io/percona/percona-clustersync-mongodb:0.9.0
+      image:
+        repository: docker.m.daocloud.io/percona/percona-server-mongodb
+        sidecars:
+          mongodbExporter: docker.m.daocloud.io/percona/mongodb_exporter:0.40.0
+        tag: 8.0.26-11
+      logcollector:
+        image:
+          repository: docker.m.daocloud.io/percona/fluentbit
+          tag: 5.0.9-1
+      pmm:
+        image:
+          repository: docker.m.daocloud.io/percona/pmm-client
+          tag: 3.8.1
+      unsafeFlags:
+        # Must be true to run the replica set with fewer than 3 or an even number of
+        # members, for example a single member on a test cluster.
+        replsetSize: false
+      replsets:
+        rs0:
+          # Number of MongoDB replica set members. Lowering it on an existing
+          # installation does not delete the PVCs of the removed members.
+          size: 3
+          # Members prefer different nodes but may share one, so the replica set also
+          # starts on clusters with fewer nodes than members. The operator ignores
+          # antiAffinityTopologyKey while advanced is set. To require one member per
+          # node, set advanced to null. To disable anti-affinity, set advanced to null
+          # and antiAffinityTopologyKey to "none".
+          affinity:
+            antiAffinityTopologyKey: kubernetes.io/hostname
+            advanced:
+              podAntiAffinity:
+                preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 100
+                    podAffinityTerm:
+                      topologyKey: kubernetes.io/hostname
+                      labelSelector:
+                        matchLabels:
+                          app.kubernetes.io/name: percona-server-mongodb
+                          app.kubernetes.io/component: mongod
+                          app.kubernetes.io/replset: rs0
+    psmdb-operator:
+      image:
+        repository: docker.m.daocloud.io/percona/percona-server-mongodb-operator
+        tag: 1.23.0
+    psmdb:
+      helperImages:
+        kubectl:
+          repository: docker.m.daocloud.io/lachlanevenson/k8s-kubectl
+          tag: v1.25.4
+        mongosh:
+          repository: ghcr.m.daocloud.io/rtsp/docker-mongosh
+          tag: 2.5.2
+  nic-health-monitor:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/nic-health-monitor
+      tag: v1.22.0
+  node-drainer:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/node-drainer
+      tag: v1.22.0
+  preflight:
+    image:
+      initContainers:
+        dcgmDiag:
+          repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-dcgm-diag
+          tag: v1.22.0
+        ncclAllreduce:
+          repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-allreduce
+          tag: v1.22.0
+        ncclLoopback:
+          repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight-nccl-loopback
+          tag: v1.22.0
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/preflight
+      tag: v1.22.0
+  syslog-health-monitor:
+    image:
+      repository: ghcr.m.daocloud.io/nvidia/nvsentinel/syslog-health-monitor
+      tag: v1.22.0

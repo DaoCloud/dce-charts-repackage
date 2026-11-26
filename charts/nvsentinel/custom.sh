@@ -180,6 +180,130 @@ if [ -f .relok8s-images.yaml ]; then
   ' .relok8s-images.yaml
 fi
 
+# charts-syncer relocates images by rewriting the wrapper chart's values.yaml:
+# once the wrapper values define the subchart key (.nvsentinel), every hint is
+# applied to that file, and a hint whose path is missing there is skipped
+# without an error. Most NVSentinel images are only defined by nested
+# subcharts, so without this step an offline import pushes the images but
+# leaves the chart pointing at the source registries. Promote every value
+# referenced by the relocation hints into the wrapper values.yaml. Parent
+# values take precedence in Helm, so the shallowest chart defining a value wins.
+yq_path() {
+  local expr="" segment
+  for segment in "$@"; do
+    expr+=".\"${segment}\""
+  done
+  printf '%s' "$expr"
+}
+
+promote_hint_value() {
+  local hint_path=$1
+  local -a segments
+  IFS='.' read -r -a segments <<<"$hint_path"
+
+  local wrapper_expr
+  wrapper_expr=$(yq_path "${segments[@]}")
+  if yq -e "${wrapper_expr} != null" values.yaml >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local chart_dir="charts/${segments[0]}"
+  local index=1
+  local expr value
+  while [ -f "${chart_dir}/values.yaml" ] && [ "$index" -lt "${#segments[@]}" ]; do
+    expr=$(yq_path "${segments[@]:$index}")
+    if yq -e "${expr} != null" "${chart_dir}/values.yaml" >/dev/null 2>&1; then
+      value=$(yq -r "${expr}" "${chart_dir}/values.yaml")
+      PROMOTED_VALUE="$value" yq -i "${wrapper_expr} = strenv(PROMOTED_VALUE)" values.yaml
+      return 0
+    fi
+    chart_dir="${chart_dir}/charts/${segments[$index]}"
+    index=$((index + 1))
+  done
+
+  echo "custom shell: error, relocation hint .${hint_path} is not defined by any chart values" >&2
+  return 1
+}
+
+if [ -f .relok8s-images.yaml ]; then
+  while IFS= read -r hint_path; do
+    promote_hint_value "$hint_path"
+  done < <(
+    perl -ne 'print "$1\n" while /\{\{\s*\.([^\s}]+)\s*\}\}/g' .relok8s-images.yaml |
+      LC_ALL=C sort -u
+  )
+fi
+
+# Expose the settings DCE users most often need to change in the wrapper
+# values.yaml, so they are visible in the installation form instead of being
+# hidden in nested subchart defaults.
+LABELER_VALUES=charts/nvsentinel/charts/labeler/values.yaml
+if [ -f "$LABELER_VALUES" ] && yq -e '.assumeDriverInstalled != null' "$LABELER_VALUES" >/dev/null 2>&1; then
+  ASSUME_DRIVER_INSTALLED=$(yq '.assumeDriverInstalled' "$LABELER_VALUES") yq -i '
+    .nvsentinel.labeler.assumeDriverInstalled = (strenv(ASSUME_DRIVER_INSTALLED) | from_yaml) |
+    (.nvsentinel.labeler.assumeDriverInstalled | key) head_comment =
+      "Set to true when the NVIDIA driver is installed on the host instead of by the\nGPU Operator driver container. The labeler then marks every GPU node with\nnvsentinel.dgxc.nvidia.com/driver.installed=true. Without that label the\ngpu-health-monitor, syslog-health-monitor and metadata-collector DaemonSets\nschedule no Pods."
+  ' values.yaml
+fi
+
+if [ -n "$PSMDB_VALUES" ]; then
+  PSMDB_DB_VALUES=$(find . -path '*/charts/mongodb-store/charts/psmdb-db/values.yaml' -print -quit)
+  RS0_SIZE=$(yq '."psmdb-db".replsets.rs0.size' "$PSMDB_VALUES")
+  UNSAFE_REPLSET_SIZE=$(yq '.unsafeFlags.replsetSize' "$PSMDB_DB_VALUES")
+  RS0_TOPOLOGY_KEY=$(yq -r '.replsets.rs0.affinity.antiAffinityTopologyKey' "$PSMDB_DB_VALUES")
+
+  # The upstream default is a required anti-affinity on the hostname, which
+  # leaves a replica Pending on clusters with fewer nodes than replicas. Prefer
+  # spreading instead, so small clusters still start while larger clusters keep
+  # one replica per node. The operator uses "advanced" in place of
+  # antiAffinityTopologyKey whenever it is set.
+  RS0_SIZE="$RS0_SIZE" UNSAFE_REPLSET_SIZE="$UNSAFE_REPLSET_SIZE" RS0_TOPOLOGY_KEY="$RS0_TOPOLOGY_KEY" yq -i '
+    .nvsentinel."mongodb-store"."psmdb-db".unsafeFlags.replsetSize = (strenv(UNSAFE_REPLSET_SIZE) | from_yaml) |
+    (.nvsentinel."mongodb-store"."psmdb-db".unsafeFlags.replsetSize | key) head_comment =
+      "Must be true to run the replica set with fewer than 3 or an even number of\nmembers, for example a single member on a test cluster." |
+    .nvsentinel."mongodb-store"."psmdb-db".replsets.rs0.size = (strenv(RS0_SIZE) | from_yaml) |
+    (.nvsentinel."mongodb-store"."psmdb-db".replsets.rs0.size | key) head_comment =
+      "Number of MongoDB replica set members. Lowering it on an existing\ninstallation does not delete the PVCs of the removed members." |
+    .nvsentinel."mongodb-store"."psmdb-db".replsets.rs0.affinity.antiAffinityTopologyKey = strenv(RS0_TOPOLOGY_KEY) |
+    .nvsentinel."mongodb-store"."psmdb-db".replsets.rs0.affinity.advanced = {
+      "podAntiAffinity": {
+        "preferredDuringSchedulingIgnoredDuringExecution": [
+          {
+            "weight": 100,
+            "podAffinityTerm": {
+              "topologyKey": "kubernetes.io/hostname",
+              "labelSelector": {
+                "matchLabels": {
+                  "app.kubernetes.io/name": "percona-server-mongodb",
+                  "app.kubernetes.io/component": "mongod",
+                  "app.kubernetes.io/replset": "rs0"
+                }
+              }
+            }
+          }
+        ]
+      }
+    } |
+    (.nvsentinel."mongodb-store"."psmdb-db".replsets.rs0.affinity | key) head_comment =
+      "Members prefer different nodes but may share one, so the replica set also\nstarts on clusters with fewer nodes than members. The operator ignores\nantiAffinityTopologyKey while advanced is set. To require one member per\nnode, set advanced to null. To disable anti-affinity, set advanced to null\nand antiAffinityTopologyKey to \"none\"."
+  ' values.yaml
+fi
+
+# values.schema.json was generated before the wrapper values were extended.
+# Regenerate it so the schema keeps matching values.yaml. Helm deep-merges maps,
+# so the default affinity.advanced can only be removed by setting it to null;
+# allow that in the generated schema.
+if helm schema-gen -h >/dev/null 2>&1; then
+  helm schema-gen values.yaml > values.schema.json
+  jq --indent 4 '
+    (
+      .properties.nvsentinel.properties."mongodb-store".properties."psmdb-db".properties.replsets
+      .properties.rs0.properties.affinity.properties.advanced | select(. != null) | .type
+    ) = ["object", "null"]
+  ' values.schema.json > values.schema.json.tmp
+  mv values.schema.json.tmp values.schema.json
+fi
+
 # The upstream chart currently does not ship a README.md; add a minimal
 # description for the repackaged chart.
 if [ ! -s README.md ]; then
