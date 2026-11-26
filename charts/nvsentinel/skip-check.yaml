@@ -1,0 +1,25 @@
+# Values of nested subcharts are promoted into the wrapper values.yaml by
+# custom.sh so that charts-syncer can relocate their images. The override
+# check only reads the direct subchart's values.yaml, so skip those keys.
+nvsentinel:
+  - "csp-health-monitor"
+  - "event-exporter"
+  - "fault-quarantine"
+  - "fault-remediation"
+  - "gpu-health-monitor"
+  - "health-events-analyzer"
+  - "incluster-file-server"
+  - "janitor"
+  - "janitor-provider"
+  - "kubernetes-object-monitor"
+  - "labeler"
+  - "lifecycle-manager"
+  - "metadata-collector"
+  - "mongodb-store"
+  - "nic-health-monitor"
+  - "node-drainer"
+  - "postgresql/image"
+  - "postgresql/metrics"
+  - "postgresql/volumePermissions"
+  - "preflight"
+  - "syslog-health-monitor"
