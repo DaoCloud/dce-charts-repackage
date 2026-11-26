@@ -128,7 +128,38 @@ mongodb:
       command:
         - sh
         - -c
-        - "set -e\n\n# Check if MongoDB credentials secret exists\nsecret=$(kubectl get secret mongodb -n {{ .Release.Namespace }} --ignore-not-found)\nif [ -z \"$secret\" ]; then\n  echo \"Secret mongodb does not exist, creating it with random values...\"\n  \n  # Generate random passwords (32 chars, alphanumeric)\n  ROOT_PASSWORD=$(head -c 24 /dev/urandom | base64 | tr -d '+/=' | cut -c1-32)\n  REPLICA_SET_KEY=$(head -c 24 /dev/urandom | base64 | tr -d '+/=' | cut -c1-32)\n  \n  # Create the secret with annotation in a single command\n  kubectl create secret generic mongodb \\\n    -n {{ .Release.Namespace }} \\\n    --from-literal=mongodb-root-password=\"$ROOT_PASSWORD\" \\\n    --from-literal=mongodb-replica-set-key=\"$REPLICA_SET_KEY\" \\\n    --from-literal=mongodb-passwords=\"\" \\\n    --from-literal=mongodb-metrics-password=\"\" \\\n    --dry-run=client -o yaml | \\\n    sed '/^metadata:/a\\  annotations:\\n    helm.sh/resource-policy: keep' | \\\n    kubectl apply -f -\n  \n  echo \"Secret mongodb created with random credentials.\"\n  echo \"NOTE: These credentials will be preserved for data retention.\"\nelse\n  echo \"Secret mongodb already exists, will reuse existing credentials...\"\n  echo \"This ensures data retention across reinstalls.\"\nfi\n\necho \"MongoDB credentials initialization completed.\"\necho \"==============================\"\n"
+        - |
+          set -e
+
+          # Check if MongoDB credentials secret exists
+          secret=$(kubectl get secret mongodb -n {{ .Release.Namespace }} --ignore-not-found)
+          if [ -z "$secret" ]; then
+            echo "Secret mongodb does not exist, creating it with random values..."
+            
+            # Generate random passwords (32 chars, alphanumeric)
+            ROOT_PASSWORD=$(head -c 24 /dev/urandom | base64 | tr -d '+/=' | cut -c1-32)
+            REPLICA_SET_KEY=$(head -c 24 /dev/urandom | base64 | tr -d '+/=' | cut -c1-32)
+            
+            # Create the secret with annotation in a single command
+            kubectl create secret generic mongodb \
+              -n {{ .Release.Namespace }} \
+              --from-literal=mongodb-root-password="$ROOT_PASSWORD" \
+              --from-literal=mongodb-replica-set-key="$REPLICA_SET_KEY" \
+              --from-literal=mongodb-passwords="" \
+              --from-literal=mongodb-metrics-password="" \
+              --dry-run=client -o yaml | \
+              sed '/^metadata:/a\  annotations:\n    helm.sh/resource-policy: keep' | \
+              kubectl apply -f -
+            
+            echo "Secret mongodb created with random credentials."
+            echo "NOTE: These credentials will be preserved for data retention."
+          else
+            echo "Secret mongodb already exists, will reuse existing credentials..."
+            echo "This ensures data retention across reinstalls."
+          fi
+
+          echo "MongoDB credentials initialization completed."
+          echo "=============================="
     - name: create-certmanager-resources
       image: "{{ .Values.helperImages.kubectl.repository }}:{{ .Values.helperImages.kubectl.tag }}"
       imagePullPolicy: "{{ .Values.helperImages.kubectl.pullPolicy }}"
