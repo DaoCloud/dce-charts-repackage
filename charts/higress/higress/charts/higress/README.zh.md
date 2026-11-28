@@ -61,10 +61,6 @@ helm delete higress -n higress-system
 | controller.ports[1].port | int | `8889` | 端口编号 |
 | controller.ports[1].protocol | string | `"TCP"` | 协议类型 |
 | controller.ports[1].targetPort | int | `8889` | 目标端口 |
-| controller.ports[2].name | string | `"grpc"` | 端口名称 |
-| controller.ports[2].port | int | `15051` | 端口编号 |
-| controller.ports[2].protocol | string | `"TCP"` | 协议类型 |
-| controller.ports[2].targetPort | int | `15051` | 目标端口 |
 | controller.probe.httpGet.path | string | `"/ready"` | 运行状况检查路径 |
 | controller.probe.httpGet.port | int | `8888` | 端口运行状态检查 |
 | controller.probe.initialDelaySeconds | int | `1` | 初始延迟秒数 |
@@ -145,7 +141,9 @@ helm delete higress -n higress-system
 | gateway.service.ports[1].protocol | string | `"TCP"` | 协议 |
 | gateway.service.ports[1].targetPort | int | `443` | 靶向端口 |
 | gateway.service.type | string | `"LoadBalancer"` | 服务类型 |
+| global.createIngressClass | bool | `true` | 是否为 global.ingressClass 创建 IngressClass 资源。复用已有 IngressClass 时可设置为 false，例如从 Nginx Ingress 迁移场景。 |
 | global.disableAlpnH2 | bool | `false` | 设置是否禁用 ALPN 中的 http/2 |
+| global.enableAlphaGatewayAPI | bool | `false` | 是否监听 alpha 阶段的 Gateway API 资源 |
 | global.enableInferenceExtension | bool | `false` | 是否启用 Gateway API Inference Extension 支持 |
 | ... | ... | ... | ... |
 
