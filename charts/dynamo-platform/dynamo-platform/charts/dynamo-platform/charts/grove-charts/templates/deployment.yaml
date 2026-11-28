@@ -19,15 +19,20 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       restartPolicy: Always
       {{- if .Values.priorityClass.enabled }}
       priorityClassName: {{ required ".Values.priorityClass.name is required" .Values.priorityClass.name }}
       {{- end }}
       serviceAccountName: {{ required ".Values.serviceAccount.name is required" .Values.serviceAccount.name }}
       automountServiceAccountToken: false
+      {{- with .Values.podSecurityContext }}
       securityContext:
-        seccompProfile:
-          type: RuntimeDefault
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -36,16 +41,37 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.crdInstaller.enabled }}
       initContainers:
         - name: crd-installer
           image: {{ .Values.crdInstaller.image.registry }}/{{ include "image" .Values.crdInstaller.image }}
           imagePullPolicy: {{ .Values.crdInstaller.image.pullPolicy }}
+          args:
+            - --upgrade-crds={{ .Values.crdInstaller.upgradeCRDs | default false }}
+            - --conversion-webhook-port={{ required ".Values.config.server.webhooks.port is required" .Values.config.server.webhooks.port }}
+            {{- if eq (.Values.config.server.webhooks.certProvisionMode | default "auto") "manual" }}
+            - --conversion-webhook-ca-file={{ .Values.config.server.webhooks.serverCertDir | default "/etc/grove-operator/webhook-certs" }}/ca.crt
+            {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: GROVE_OPERATOR_SERVICE_NAME
+              value: {{ required ".Values.service.name is required" .Values.service.name | quote }}
           volumeMounts:
             - name: kube-api-access-grove
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount
               readOnly: true
-      {{- end }}
+            {{- /* In manual mode, the installer reads ca.crt to configure the conversion webhook CA bundle. */}}
+            {{- if eq (.Values.config.server.webhooks.certProvisionMode | default "auto") "manual" }}
+            - name: grove-webhook-server-cert
+              mountPath: {{ .Values.config.server.webhooks.serverCertDir | default "/etc/grove-operator/webhook-certs" }}
+              readOnly: true
+            {{- end }}
       containers:
         - name: grove-operator
           image: {{ .Values.image.registry }}/{{ include "image" .Values.image }}
@@ -74,9 +100,13 @@ spec:
             initialDelaySeconds: 10
             timeoutSeconds: 5
           {{- end }}
-          {{- if .Values.resources }}
+          {{- with .Values.resources }}
           resources:
-{{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
             - name: operator-config
@@ -92,6 +122,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.serviceAccountName
+            - name: GROVE_OPERATOR_SERVICE_NAME
+              value: {{ required ".Values.service.name is required" .Values.service.name | quote }}
             - name: GROVE_INIT_CONTAINER_IMAGE
               value: {{ .Values.initContainer.image.registry }}/{{ include "image" .Values.initContainer.image }}
 {{- with .Values.deployment.env }}

@@ -1,0 +1,34 @@
+{{- if .Values.rbac.create }}
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "snapshot.fullname" . }}-agent-podsnapshotcontents
+  labels:
+    {{- include "snapshot.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "snapshot.fullname" . }}-agent-podsnapshotcontents
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "snapshot.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "snapshot.fullname" . }}-agent
+  labels:
+    {{- include "snapshot.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "snapshot.fullname" . }}-agent
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "snapshot.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

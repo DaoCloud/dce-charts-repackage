@@ -1,6 +1,6 @@
 {{- define "operator.config.data" -}}
 config.yaml: |
-  apiVersion: operator.config.grove.io/v1alpha1
+  apiVersion: operator.config.grove.io/v1beta1
   kind: OperatorConfiguration
   runtimeClientConnection:
     qps: {{ .Values.config.runtimeClientConnection.qps }}
@@ -39,7 +39,8 @@ config.yaml: |
     {{- range .Values.config.scheduler.profiles }}
     - name: {{ .name }}
       {{- if hasKey . "config" }}
-      config: {{ toYaml .config | nindent 4 }}
+      config:
+        {{- toYaml .config | nindent 8 }}
       {{- end }}
     {{- end }}
   {{- end }}
@@ -84,7 +85,7 @@ grove-operator-cm-{{ include "operator.config.data" . | sha256sum | trunc 8 }}
 {{- end -}}
 
 {{- define "common.chart.labels" -}}
-chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+chart: "{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimAll "-_." }}"
 release: "{{ .Release.Name }}"
 {{- end -}}
 
@@ -122,9 +123,20 @@ release: "{{ .Release.Name }}"
 {{- end }}
 {{- end -}}
 
+{{- define "operator.service.matchLabels" -}}
+{{- range $key, $val := .Values.service.labels }}
+{{ $key }}: {{ $val }}
+{{- end }}
+{{- end -}}
+
 {{- define "operator.service.labels" -}}
 {{- include "common.chart.labels" . }}
-{{- range $key, $val := .Values.service.labels }}
+{{- include "operator.service.matchLabels" . }}
+{{- end -}}
+
+{{- define "operator.servicemonitor.labels" -}}
+{{- include "common.chart.labels" . }}
+{{- range $key, $val := .Values.metrics.serviceMonitor.labels }}
 {{ $key }}: {{ $val }}
 {{- end }}
 {{- end -}}
@@ -158,6 +170,20 @@ release: "{{ .Release.Name }}"
 {{- end }}
 {{- end -}}
 
+{{- define "operator.pclq.validating.webhook.labels" -}}
+{{- include "common.chart.labels" . }}
+{{- range $key, $val := .Values.webhooks.podCliqueValidationWebhook.labels }}
+{{ $key }}: {{ $val }}
+{{- end }}
+{{- end -}}
+
+{{- define "operator.pcsg.validating.webhook.labels" -}}
+{{- include "common.chart.labels" . }}
+{{- range $key, $val := .Values.webhooks.podCliqueScalingGroupValidationWebhook.labels }}
+{{ $key }}: {{ $val }}
+{{- end }}
+{{- end -}}
+
 {{- define "operator.pcs.defaulting.webhook.labels" -}}
 {{- include "common.chart.labels" . }}
 {{- range $key, $val := .Values.webhooks.podCliqueSetDefaultingWebhook.labels }}
@@ -168,6 +194,13 @@ release: "{{ .Release.Name }}"
 {{- define "operator.clustertopology.validating.webhook.labels" -}}
 {{- include "common.chart.labels" . }}
 {{- range $key, $val := .Values.webhooks.clusterTopologyValidationWebhook.labels }}
+{{ $key }}: {{ $val }}
+{{- end }}
+{{- end -}}
+
+{{- define "operator.podclique.validating.webhook.labels" -}}
+{{- include "common.chart.labels" . }}
+{{- range $key, $val := .Values.webhooks.podCliqueValidationWebhook.labels }}
 {{ $key }}: {{ $val }}
 {{- end }}
 {{- end -}}
