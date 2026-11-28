@@ -21,8 +21,11 @@ replicaCount: 1
 
 # -- Redpanda Console Docker image settings.
 image:
+  # -- Container registry that hosts the Redpanda Console image.
+  # The image reference is `<registry>/<repository>:<tag>`, or `<repository>:<tag>` if this is empty.
   registry: docker.redpanda.com
-  # -- Docker repository from which to pull the Redpanda Docker image.
+  # -- Repository of the Redpanda Console image within `image.registry`.
+  # Set the registry hostname in `image.registry`, not here.
   repository: redpandadata/console
   # -- The imagePullPolicy.
   pullPolicy: IfNotPresent
@@ -89,6 +92,7 @@ service:
   # nodePort: 30001
   # -- Override the value in `console.config.server.listenPort` if not `nil`
   # targetPort:
+  # -- Annotations to add to the Console Service.
   annotations: {}
 
 ingress:
@@ -106,6 +110,23 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+# -- Gateway API `HTTPRoute` settings.
+gateway:
+  enabled: false
+  annotations: {}
+  # -- Gateway parent references for this route.
+  # If no parentRefs are specified, the HTTPRoute is still rendered but will
+  # not attach to any Gateway until configured.
+  parentRefs: []
+  #  - name: public-gateway
+  #    namespace: default
+  #    sectionName: http
+  hostnames:
+    - chart-example.local
+  path: /
+  # -- One of Exact, PathPrefix, or RegularExpression.
+  pathType: PathPrefix
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -278,3 +299,8 @@ strategy: {}
 
 tests:
   enabled: true
+
+monitoring:
+  enabled: false
+  scrapeInterval: "1m"
+  labels: {}
