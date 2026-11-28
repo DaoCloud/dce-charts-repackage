@@ -1,3 +1,4 @@
+{{- if .Values.clusterPolicy.deployCR }}
 apiVersion: nvidia.com/v1
 kind: ClusterPolicy
 metadata:
@@ -15,6 +16,9 @@ spec:
   hostPaths:
     rootFS: {{ .Values.hostPaths.rootFS }}
     driverInstallDir: {{ .Values.hostPaths.driverInstallDir }}
+    {{- if .Values.hostPaths.kubeletRootDir }}
+    kubeletRootDir: {{ .Values.hostPaths.kubeletRootDir }}
+    {{- end }}
   operator:
     {{- if .Values.operator.runtimeClass }}
     runtimeClass: {{ .Values.operator.runtimeClass }}
@@ -22,26 +26,14 @@ spec:
     {{- if .Values.operator.defaultGPUMode }}
     defaultGPUMode: {{ .Values.operator.defaultGPUMode }}
     {{- end }}
-    {{- if .Values.operator.initContainer }}
-    initContainer:
-      {{- if .Values.operator.initContainer.repository }}
-      repository: {{ .Values.operator.initContainer.repository }}
-      {{- end }}
-      {{- if .Values.operator.initContainer.image }}
-      image: {{ .Values.operator.initContainer.image }}
-      {{- end }}
-      {{- if .Values.operator.initContainer.version }}
-      version: {{ .Values.operator.initContainer.version | quote }}
-      {{- end }}
-      {{- if .Values.operator.initContainer.imagePullPolicy }}
-      imagePullPolicy: {{ .Values.operator.initContainer.imagePullPolicy }}
-      {{- end }}
-      {{- if .Values.operator.initContainer.imagePullSecrets }}
-      imagePullSecrets: {{ toYaml .Values.operator.initContainer.imagePullSecrets | nindent 8 }}
-      {{- end }}
-    {{- end }}
     {{- if .Values.operator.use_ocp_driver_toolkit }}
     use_ocp_driver_toolkit: {{ .Values.operator.use_ocp_driver_toolkit }}
+    {{- end }}
+    {{- if .Values.operator.metrics }}
+    metrics:
+      {{- if .Values.operator.metrics.serviceMonitor }}
+      serviceMonitor: {{ toYaml .Values.operator.metrics.serviceMonitor | nindent 8 }}
+      {{- end }}
     {{- end }}
   daemonsets:
     labels:
@@ -152,15 +144,13 @@ spec:
     enabled: {{ .Values.psa.enabled }}
   cdi:
     enabled: {{ .Values.cdi.enabled }}
-    {{- if .Values.cdi.default }}
-    default: {{ .Values.cdi.default }}
-    {{- end }}
     {{- if and (.Values.cdi.enabled) (.Values.cdi.nriPluginEnabled) }}
     nriPluginEnabled: {{ .Values.cdi.nriPluginEnabled }}
     {{- end }}
   driver:
     enabled: {{ .Values.driver.enabled }}
     useNvidiaDriverCRD: {{ .Values.driver.nvidiaDriverCRD.enabled }}
+    {{- if not .Values.driver.nvidiaDriverCRD.enabled }}
     kernelModuleType: {{ .Values.driver.kernelModuleType }}
     usePrecompiled: {{ .Values.driver.usePrecompiled }}
     {{- if .Values.driver.repository }}
@@ -232,6 +222,7 @@ spec:
     {{- end }}
     {{- if .Values.driver.args }}
     args: {{ toYaml .Values.driver.args | nindent 6 }}
+    {{- end }}
     {{- end }}
     {{- if .Values.driver.upgradePolicy }}
     upgradePolicy:
@@ -806,3 +797,4 @@ spec:
     {{- if .Values.kataSandboxDevicePlugin.hostNetwork }}
     hostNetwork: {{ .Values.kataSandboxDevicePlugin.hostNetwork }}
     {{- end }}
+{{- end }}

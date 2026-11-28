@@ -41,6 +41,18 @@ rules:
   - patch
   - delete
 - apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - delete
+- apiGroups:
   - ""
   resources:
   - configmaps
@@ -93,3 +105,4 @@ rules:
   - watch
   - create
   - update
+  - delete
