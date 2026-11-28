@@ -1,4 +1,4 @@
-{{- if .Values.server.certificate.enabled -}}
+{{- if and (include "argo-cd.server.enabled" .) .Values.server.certificate.enabled -}}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -13,8 +13,10 @@ metadata:
   labels:
     {{- include "argo-cd.labels" (dict "context" . "component" .Values.server.name "name" .Values.server.name) | nindent 4 }}
 spec:
-  {{- with .Values.server.certificate.secretTemplateAnnotations }}
   secretTemplate:
+    labels:
+      app.kubernetes.io/part-of: argocd
+  {{- with .Values.server.certificate.secretTemplateAnnotations }}
     annotations:
       {{- range $key, $value := . }}
       {{ $key }}: {{ $value | quote }}

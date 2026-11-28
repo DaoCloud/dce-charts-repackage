@@ -1,4 +1,4 @@
-{{- if .Values.createClusterRoles }}
+{{- if and (include "argo-cd.server.enabled" .) .Values.createClusterRoles }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -17,6 +17,12 @@ rules:
       - delete  # supports deletion a live object in UI
       - get     # supports viewing live object manifest in UI
       - patch   # supports `argocd app patch`
+  - apiGroups:
+      - '*'
+    resources:
+      - '*/finalizers'
+    verbs:
+      - update  # allows to set metadata.ownerReferences[x].blockOwnerDeletion with OwnerReferencesPermissionEnforcement admission
   - apiGroups:
       - ""
     resources:
