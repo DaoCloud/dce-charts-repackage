@@ -66,7 +66,7 @@ llm-d-modelservice:
     # model URI. One of:
     #   hf://model/name - model as defined on Hugging Face
     #   pvc://pvc_name/path/to/model - model on existing persistant storage volume
-    #   oci:// not yet supported
+    #   oci://image/reference[::/path/to/model] - model inside an OCI image, mounted as an image volume
     uri: "hf://{{ .Values.modelArtifacts.name }}"
     # size of volume to create to hold the model
     size: 5Mi
@@ -80,10 +80,16 @@ llm-d-modelservice:
     # Whether PVC-backed model mounts (pvc:// and pvc+hf://) should be read-only.
     # Set to false for pvc+hf:// when Hugging Face cache writes are needed; other URI schemes ignore this setting.
     readOnly: true
+    # @schema
+    # type: string
+    # enum: [Always,IfNotPresent,Never]
+    # @schema
+    # Pull policy of the oci:// model image volume.
+    imagePullPolicy: Always
   # When true, a LeaderWorkerSet is used instead of a Deployment
   multinode: false
   # Global accelerator configuration
-  # Supported types: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu, rebellions-atom
+  # Supported types: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu, rebellions-atom, neuron
   accelerator:
     # Type of accelerator to use
     type: nvidia
@@ -102,6 +108,7 @@ llm-d-modelservice:
       amd: "amd.com/gpu"
       google: "google.com/tpu"
       rebellions-atom: "rebellions.ai/ATOM"
+      neuron: "aws.amazon.com/neuron"
     # Environment variables specific to accelerator types
     env:
       intel-i915:
@@ -303,7 +310,7 @@ llm-d-modelservice:
     #   # When not specified, falls back to global accelerator settings
     #
     #   # Override accelerator type for decode pods
-    #   # Supported: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu, rebellions-atom
+    #   # Supported: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu, rebellions-atom, neuron
     #   type: nvidia
     #
     #   # Override DRA (Dynamic Resource Allocation) mode for decode pods
@@ -354,21 +361,21 @@ llm-d-modelservice:
         args: []
         # @schema
         # items:
-        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.EnvVar
+        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.EnvVar
         # @schema
         env: []
         imagePullPolicy: ""
         # list of ports exposed by the container
         # @schema
         # items:
-        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.ContainerPort
+        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.ContainerPort
         # @schema
         ports: []
         #   - containerPort: 8200  # matches routing.proxy.targetPort, set for metrics scraping with  monitoring.podmonitor.enabled true
         #     name: metrics
         #     protocol: TCP
         # @schema
-        # $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.ResourceRequirements
+        # $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.ResourceRequirements
         # @schema
         resources:
           # @schema
@@ -404,7 +411,7 @@ llm-d-modelservice:
     # @schema
     # type: array
     # items:
-    #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.Container
+    #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.Container
     # @schema
     # Additional init containers to run before the main containers
     # These will be added alongside the routing proxy init container (if enabled)
@@ -530,7 +537,7 @@ llm-d-modelservice:
     #   # When not specified, falls back to global accelerator settings
     #
     #   # Override accelerator type for prefill pods
-    #   # Supported: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu, rebellions-atom
+    #   # Supported: nvidia, intel-i915, intel-xe, intel-gaudi, amd, google, cpu, rebellions-atom, neuron
     #   type: intel-gaudi
     #
     #   # Override DRA (Dynamic Resource Allocation) mode for prefill pods
@@ -576,7 +583,7 @@ llm-d-modelservice:
         args: []
         # @schema
         # items:
-        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.EnvVar
+        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.EnvVar
         # @schema
         env: []
         imagePullPolicy: ""
@@ -584,14 +591,14 @@ llm-d-modelservice:
         # list of ports exposed by the container
         # @schema
         # items:
-        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.ContainerPort
+        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.ContainerPort
         # @schema
         ports: []
         #   - containerPort: 8000  # matches routing.servicePort, set for metrics scraping with  monitoring.podmonitor.enabled true
         #     name: metrics
         #     protocol: TCP
         # @schema
-        # $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.ResourceRequirements
+        # $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.ResourceRequirements
         # @schema
         resources:
           # @schema
@@ -625,7 +632,7 @@ llm-d-modelservice:
     # @schema
     # type: array
     # items:
-    #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.Container
+    #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.Container
     # @schema
     # Additional init containers to run before the main containers
     initContainers: []
@@ -767,18 +774,18 @@ llm-d-modelservice:
         args: []
         # @schema
         # items:
-        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.EnvVar
+        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.EnvVar
         # @schema
         env: []
         imagePullPolicy: ""
         command: []
         # @schema
         # items:
-        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.ContainerPort
+        #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.ContainerPort
         # @schema
         ports: []
         # @schema
-        # $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.ResourceRequirements
+        # $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.ResourceRequirements
         # @schema
         resources:
           # @schema
@@ -810,7 +817,7 @@ llm-d-modelservice:
     # @schema
     # type: array
     # items:
-    #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/_definitions.json#/definitions/io.k8s.api.core.v1.Container
+    #   $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.37.2/_definitions.json#/definitions/io.k8s.api.core.v1.Container
     # @schema
     # User-provided init containers. The routing proxy is never added to this list.
     initContainers: []
