@@ -22,11 +22,11 @@ spec:
       {{- if .Values.tests.image }}
       imagePullPolicy: {{ .Values.tests.image.pullPolicy }}
       {{- end }}
-      command: ['bash']
+      command: ['sh']
       args:
         - -c
         - |
-          #!/bin/bash
+          #!/bin/sh
 
           set -ex
 
@@ -50,6 +50,16 @@ spec:
             {{ include "vpa.webhook.secret" . }} \
             -o=jsonpath="{.data.ca}")
 
+          # Get CA bundle if using cert-manager
+          if [ -z "$SECRET_CABUNDLE" ]
+          then
+            SECRET_CABUNDLE=$(kubectl \
+              get secret \
+              -n {{ .Release.Namespace }} \
+              {{ include "vpa.webhook.secret" . }} \
+              -o=jsonpath="{.data.ca\.crt}")
+          fi
+
           # Get configured CA bundle
           WEBHOOK_CABUNDLE=$(kubectl \
             get mutatingwebhookconfigurations.admissionregistration.k8s.io \
@@ -71,5 +81,9 @@ spec:
             echo "Service configured in mutating webhook {{ include "vpa.fullname" . }}-webhook-config is '$WEBHOOK_SERVICE' not '$SERVICE'"
           fi
           exit 1;
+  {{- with .Values.imagePullSecrets }}
+  imagePullSecrets:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   restartPolicy: Never
 {{- end }}
